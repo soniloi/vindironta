@@ -1,9 +1,19 @@
+from adventure import file_reader
+
 class Game:
  
 	def __init__(self, filename):
-		# TODO: Read from file, using it to initialize data, player, etc.
-		print(filename)
+		self.init_data(filename)
 		self.on = True
+
+
+	def init_data(self, filename):
+		with open(filename, "rb") as input_file:
+			# TODO: read into objects
+			reader = file_reader.FileReader(input_file)
+			line = reader.read_line()
+			print(line)
+
 
 	def process_input(self, inputs):
 		if not inputs:
