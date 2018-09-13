@@ -13,14 +13,21 @@ class FileReader:
 		output_bytes = []
 		output_byte = -1
 
-		while output_byte != FileReader.NEW_LINE:
+		while not self.eof() and output_byte != FileReader.NEW_LINE:
+
 			input_byte = self.input_bytes[self.index]
 			output_byte = self.reverse_bits(input_byte)
+
 			if output_byte != FileReader.NEW_LINE:
 				output_bytes.append(output_byte)
+
 			self.index += 1
 
 		return "".join(map(chr, output_bytes))
+
+
+	def eof(self):
+		return self.index >= len(self.input_bytes)
 
 
 	def reverse_bits(self, input_byte):
