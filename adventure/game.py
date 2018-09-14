@@ -30,26 +30,24 @@ class Game:
 		command_function_name = "handle_" + tokens[2]
 		command_function = getattr(self, command_function_name, None)
 
-		command_names = tokens[3].split(",")
-		primary_command_name = command_names[0]
+		if command_function:
+			command_names = tokens[3].split(",")
+			primary_command_name = command_names[0]
 
-		command = Command(command_id, command_attributes, command_function, primary_command_name)
+			command = Command(command_id, command_attributes, command_function, primary_command_name)
 
-		for command_name in command_names:
-			self.commands[command_name] = command
+			for command_name in command_names:
+				self.commands[command_name] = command
 
 
 	def process_input(self, inputs):
-		if not inputs:
-			return ""
-
-		command = inputs[0]
-		command_function_name = "handle_" + command
-		command_function = getattr(self, command_function_name, None)
-
 		response = ""
-		if command_function:
-			response = command_function()
+
+		if inputs:
+			command_name = inputs[0]
+			if command_name in self.commands:
+				command = self.commands.get(command_name)
+				response = command.execute()
 
 		return response
 

@@ -6,3 +6,6 @@ class Command:
 		self.attributes = attributes
 		self.function = function
 		self.primary = primary
+
+	def execute(self):
+		return self.function()
