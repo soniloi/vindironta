@@ -2,36 +2,31 @@ import unittest
 from unittest.mock import patch
 
 from adventure.game import Game
-from adventure import file_reader
+from adventure import command
+from adventure import command_collection
 
 class TestGame(unittest.TestCase):
 
 	def setUp(self):
 		self.game = Game()
-		with patch(file_reader.__name__ + ".FileReader") as reader_mock:
-			reader_mock_instance = reader_mock.return_value
-			reader_mock_instance.read_line.side_effect = [
-				"33\t80\tlook\tlook,l",
-				"50\t0\tscore\tscore",
-				"1000\t0\tnotacommand\tnotacommand",
-				"---",
-			]
+		with patch(command_collection.__name__ + ".CommandCollection") as command_collection_mock:
+			self.command_collection_mock_instance = command_collection_mock.return_value
+			self.command_collection_mock_instance.get.side_effect = self.input_side_effect
+		self.game.command_collection = self.command_collection_mock_instance
 
-			self.game.init_commands(reader_mock_instance)
+		self.look_command_response = "You cannot see at thing in this darkness"
+		with patch(command.__name__ + ".Command") as command_mock:
+			look_command_instance = command_mock.return_value
+			look_command_instance.execute.return_value = self.look_command_response
+			self.command_map = {
+				"look" : look_command_instance
+			}
 
-
-	def test_init_commands(self):
-		self.assertEqual(3, len(self.game.commands))
-		self.assertTrue("look" in self.game.commands)
-		self.assertTrue("l" in self.game.commands)
-		self.assertTrue("score" in self.game.commands)
-
-		score_command = self.game.commands["score"]
-		look_command = self.game.commands["look"]
-		l_command = self.game.commands["l"]
-
-		self.assertIsNot(score_command, look_command)
-		self.assertIs(look_command, l_command)
+	def input_side_effect(self, *args):
+		command_name = args[0]
+		if command_name in self.command_map:
+			return self.command_map[command_name]
+		return None
 
 
 	def test_process_input_empty(self):
@@ -49,7 +44,7 @@ class TestGame(unittest.TestCase):
 	def test_process_input_command_known(self):
 		response = self.game.process_input("look")
 
-		self.assertEqual("You cannot see at thing in this darkness", response)
+		self.assertIs(self.look_command_response, response)
 
 
 if __name__ == "__main__":
