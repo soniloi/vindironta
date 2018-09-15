@@ -40,11 +40,12 @@ class Game:
 				self.commands[command_name] = command
 
 
-	def process_input(self, inputs):
+	def process_input(self, line):
+		tokens = line.split()
 		response = ""
 
-		if inputs:
-			command_name = inputs[0]
+		if tokens:
+			command_name = tokens[0]
 			if command_name in self.commands:
 				command = self.commands.get(command_name)
 				response = command.execute()

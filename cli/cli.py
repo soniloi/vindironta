@@ -9,7 +9,7 @@ if __name__ == '__main__':
 	current_game = game.Game("datafile/rucesse.dat")
 
 	while(current_game.on):
-		request = [input(INPUT_COLOUR + PROMPT)]
+		request = input(INPUT_COLOUR + PROMPT)
 		response = current_game.process_input(request).rstrip()
 		if response:
 			response_str = OUTPUT_COLOUR + PROMPT + response

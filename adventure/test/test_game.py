@@ -35,25 +35,19 @@ class TestGame(unittest.TestCase):
 
 
 	def test_process_input_empty(self):
-		response = self.game.process_input([])
-
-		self.assertEqual("", response)
-
-
-	def test_process_input_command_empty(self):
-		response = self.game.process_input([""])
+		response = self.game.process_input("")
 
 		self.assertEqual("", response)
 
 
 	def test_process_input_command_unknown(self):
-		response = self.game.process_input(["notacommand"])
+		response = self.game.process_input("notacommand")
 
 		self.assertEqual("", response)
 
 
 	def test_process_input_command_known(self):
-		response = self.game.process_input(["look"])
+		response = self.game.process_input("look")
 
 		self.assertEqual("You cannot see at thing in this darkness", response)
 
