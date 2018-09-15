@@ -6,3 +6,4 @@ class Location:
 		self.shortname = shortname
 		self.longname = longname
 		self.description = description
+		self.directions = {}

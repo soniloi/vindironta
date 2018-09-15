@@ -1,20 +1,36 @@
+from enum import Enum
+
 from adventure.location import Location
 from adventure.file_reader import FileReader
+
+class Direction(Enum):
+	NORTH = 0
+	SOUTH = 1
+	EAST = 2
+	WEST = 3
+	NORTHEAST = 4
+	SOUTHWEST = 5
+	SOUTHEAST = 6
+	NORTHWEST = 7
+	UP = 8
+	DOWN = 9
+
 
 class LocationCollection:
 
 	def __init__(self, reader):
 		self.locations = {}
+		location_links = {}
 
 		line = reader.read_line()
 		while line != "---":
-			self.create_location(line)
+			self.create_location(line, location_links)
 			line = reader.read_line()
 
-		# TODO: cross-referencing
+		self.cross_reference(location_links)
 
 
-	def create_location(self, line):
+	def create_location(self, line, location_links):
 		tokens = line.split("\t")
 
 		location_id = int(tokens[0])
@@ -23,5 +39,34 @@ class LocationCollection:
 		location_longname = tokens[13]
 		location_description = tokens[14]
 
-		self.locations[location_id] = Location(location_id, location_attributes, location_shortname, location_longname,
+		location = Location(location_id, location_attributes, location_shortname, location_longname,
 			location_description)
+		self.locations[location_id] = location
+		location_links[location] = self.create_links(tokens)
+
+
+	def create_links(self, tokens):
+		links = {}
+		links[Direction.NORTH] = int(tokens[1])
+		links[Direction.SOUTH] = int(tokens[2])
+		links[Direction.EAST] = int(tokens[3])
+		links[Direction.WEST] = int(tokens[4])
+		links[Direction.NORTHEAST] = int(tokens[5])
+		links[Direction.SOUTHWEST] = int(tokens[6])
+		links[Direction.SOUTHEAST] = int(tokens[7])
+		links[Direction.NORTHWEST] = int(tokens[8])
+		links[Direction.UP] = int(tokens[9])
+		links[Direction.DOWN] = int(tokens[10])
+		return links
+
+
+	def get(self, location_id):
+		if location_id in self.locations:
+			return self.locations[location_id]
+		return None
+
+
+	def cross_reference(self, location_links):
+		for location, links in location_links.items():
+			for _, member in Direction.__members__.items():
+				location.directions[member] = self.get(links[member])
