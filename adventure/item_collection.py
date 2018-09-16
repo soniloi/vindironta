@@ -4,6 +4,8 @@ from adventure.file_reader import FileReader
 
 class ItemCollection:
 
+	NO_WRITING = "0"
+
 	def __init__(self, reader):
 		self.items = {}
 		line = reader.read_line()
@@ -22,6 +24,8 @@ class ItemCollection:
 		item_longname = tokens[5]
 		item_description = tokens[6]
 		item_writing = tokens[7]
+		if item_writing == ItemCollection.NO_WRITING:
+			item_writing = None
 
 		item = Item(
 			item_id = item_id,

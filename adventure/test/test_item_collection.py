@@ -25,11 +25,14 @@ class TestItemCollection(unittest.TestCase):
 
 		lamp = self.collection.items["lamp"]
 		self.assertEqual(0x0101A, lamp.attributes)
+		self.assertEqual(3, lamp.size)
 		self.assertEqual("lamp", lamp.shortname)
 		self.assertEqual("a lamp", lamp.longname)
 		self.assertEqual("a small hand-held lamp; I cannot determine its power source", lamp.description)
+		self.assertIsNone(lamp.writing)
 
 		book = self.collection.items["book"]
+		self.assertEqual("The Pied Piper of Hamelin", book.writing)
 		self.assertIsNot(lamp, book)
 
 
