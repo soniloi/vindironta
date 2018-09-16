@@ -23,7 +23,7 @@ class LocationCollection:
 		location_links = {}
 
 		line = reader.read_line()
-		while line != "---":
+		while not line.startswith("---"):
 			self.create_location(line, location_links)
 			line = reader.read_line()
 

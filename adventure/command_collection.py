@@ -8,7 +8,7 @@ class CommandCollection:
 		self.quit_received = False
 		self.commands = {}
 		line = reader.read_line()
-		while line != "---":
+		while not line.startswith("---"):
 			self.create_command(line)
 			line = reader.read_line()
 

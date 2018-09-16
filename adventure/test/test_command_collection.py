@@ -13,7 +13,7 @@ class TestCommandCollection(unittest.TestCase):
 				"33\t80\tlook\tlook,l",
 				"50\t0\tscore\tscore",
 				"1000\t0\tnotacommand\tnotacommand",
-				"---",
+				"---\t\t\t",
 			]
 
 			self.collection = CommandCollection(reader_mock_instance)

@@ -9,7 +9,7 @@ class ItemCollection:
 	def __init__(self, reader):
 		self.items = {}
 		line = reader.read_line()
-		while line != "---":
+		while not line.startswith("---"):
 			self.create_item(line)
 			line = reader.read_line()
 
