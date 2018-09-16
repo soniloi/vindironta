@@ -20,7 +20,10 @@ class ItemCollection:
 		item_id = int(tokens[0])
 		item_attributes = int(tokens[1], 16)
 		item_size = int(tokens[3])
-		item_shortname = tokens[4]
+
+		item_shortnames = tokens[4].split(",")
+		item_primary_shortname = item_shortnames[0]
+
 		item_longname = tokens[5]
 		item_description = tokens[6]
 		item_writing = tokens[7]
@@ -31,12 +34,14 @@ class ItemCollection:
 			item_id = item_id,
 			attributes = item_attributes,
 			size = item_size,
-			shortname = item_shortname,
+			shortname = item_primary_shortname,
 			longname = item_longname,
 			description = item_description,
 			writing = item_writing
 		)
-		self.items[item_shortname] = item
+
+		for item_shortname in item_shortnames:
+			self.items[item_shortname] = item
 
 
 	def get(self, item_name):
