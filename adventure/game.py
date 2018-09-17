@@ -2,6 +2,7 @@ from adventure.command_collection import CommandCollection
 from adventure.file_reader import FileReader
 from adventure.item_collection import ItemCollection
 from adventure.location_collection import LocationCollection
+from adventure.player import Player
 
 class Game:
  
@@ -11,10 +12,19 @@ class Game:
 		if filename:
 			with open(filename, "rb") as input_file:
 				reader = FileReader(input_file)
-				self.command_collection = CommandCollection(reader)
-				self.location_collection = LocationCollection(reader)
-				self.item_collection = ItemCollection(reader)
-				# TODO: read strings
+				self.init_data(reader)
+				self.init_player()
+
+
+	def init_data(self, reader):
+		self.command_collection = CommandCollection(reader)
+		self.location_collection = LocationCollection(reader)
+		self.item_collection = ItemCollection(reader)
+		# TODO: read strings
+
+
+	def init_player(self):
+		self.player = Player(self.location_collection.get(9))
 
 
 	def process_input(self, line):
