@@ -36,7 +36,7 @@ class CommandCollection:
 
 
 	def handle_look(self, player):
-		return "You cannot see at thing in this darkness"
+		return "You are %s." % player.location.get_full_description()
 
 
 	def handle_score(self, player):

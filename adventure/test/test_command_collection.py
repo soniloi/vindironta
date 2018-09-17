@@ -3,6 +3,8 @@ from unittest.mock import patch
 
 from adventure.command_collection import CommandCollection
 from adventure import file_reader
+from adventure.location import Location
+from adventure.player import Player
 
 class TestCommandCollection(unittest.TestCase):
 
@@ -31,6 +33,15 @@ class TestCommandCollection(unittest.TestCase):
 
 		self.assertIsNot(score_command, look_command)
 		self.assertIs(look_command, l_command)
+
+
+	def test_handle_look(self):
+		location = Location(11, 0, "Mines", "in the mines", ". There are dark passages everywhere")
+		player = Player(location)
+
+		response = self.collection.handle_look(player)
+
+		self.assertEqual("You are in the mines. There are dark passages everywhere.", response)
 
 
 if __name__ == "__main__":

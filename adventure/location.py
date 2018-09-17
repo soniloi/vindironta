@@ -7,3 +7,7 @@ class Location:
 		self.longname = longname
 		self.description = description
 		self.directions = {}
+
+
+	def get_full_description(self):
+		return self.longname + self.description
