@@ -35,10 +35,8 @@ class Game:
 			command_name = tokens[0]
 			command = self.command_collection.get(command_name)
 			if command:
-				response = command.execute()
+				response = command.execute(self.player)
 
-		# TODO: remove
-		if self.command_collection.quit_received:
-			self.on = False
+		self.on = self.player.playing
 
 		return response

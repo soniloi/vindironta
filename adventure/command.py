@@ -7,5 +7,5 @@ class Command:
 		self.function = function
 		self.primary = primary
 
-	def execute(self):
-		return self.function()
+	def execute(self, player):
+		return self.function(player)

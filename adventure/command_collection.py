@@ -4,8 +4,6 @@ from adventure.file_reader import FileReader
 class CommandCollection:
 
 	def __init__(self, reader):
-		# TODO: move this into more suitable class
-		self.quit_received = False
 		self.commands = {}
 		line = reader.read_line()
 		while not line.startswith("---"):
@@ -37,14 +35,14 @@ class CommandCollection:
 		return None
 
 
-	def handle_look(self):
+	def handle_look(self, player):
 		return "You cannot see at thing in this darkness"
 
 
-	def handle_score(self):
-		return "Your current score is 17 points"
+	def handle_score(self, player):
+		return "Your current score is %s points" % player.score
 
 
-	def handle_quit(self):
-		self.quit_received = True
+	def handle_quit(self, player):
+		player.playing = False
 		return "Game has ended"
