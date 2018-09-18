@@ -19,7 +19,7 @@ class Game:
 	def init_data(self, reader):
 		self.command_collection = CommandCollection(reader)
 		self.location_collection = LocationCollection(reader)
-		self.item_collection = ItemCollection(reader)
+		self.item_collection = ItemCollection(reader, self.location_collection)
 		# TODO: read strings
 
 

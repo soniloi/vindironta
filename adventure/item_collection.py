@@ -6,19 +6,22 @@ class ItemCollection:
 
 	NO_WRITING = "0"
 
-	def __init__(self, reader):
+	def __init__(self, reader, location_collection):
 		self.items = {}
 		line = reader.read_line()
 		while not line.startswith("---"):
-			self.create_item(line)
+			self.create_item(line, location_collection)
 			line = reader.read_line()
 
 
-	def create_item(self, line):
+	def create_item(self, line, location_collection):
 		tokens = line.split("\t")
 
 		item_id = int(tokens[0])
 		item_attributes = int(tokens[1], 16)
+
+		item_location = location_collection.get(int(tokens[2]))
+
 		item_size = int(tokens[3])
 
 		item_shortnames = tokens[4].split(",")
@@ -37,7 +40,8 @@ class ItemCollection:
 			shortname = item_primary_shortname,
 			longname = item_longname,
 			description = item_description,
-			writing = item_writing
+			writing = item_writing,
+			initial_location = item_location
 		)
 
 		for item_shortname in item_shortnames:
