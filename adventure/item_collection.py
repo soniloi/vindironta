@@ -17,21 +17,14 @@ class ItemCollection:
 	def create_item(self, line, location_collection):
 		tokens = line.split("\t")
 
-		item_id = int(tokens[0])
-		item_attributes = int(tokens[1], 16)
-
-		item_location = location_collection.get(int(tokens[2]))
-
-		item_size = int(tokens[3])
-
-		item_shortnames = tokens[4].split(",")
-		item_primary_shortname = item_shortnames[0]
-
+		item_id = self.parse_item_id(tokens[0])
+		item_attributes = self.parse_item_attributes(tokens[1])
+		item_location = self.parse_item_location(tokens[2], location_collection)
+		item_size = self.parse_item_size(tokens[3])
+		item_primary_shortname, item_shortnames = self.parse_item_shortnames(tokens[4])
 		item_longname = tokens[5]
 		item_description = tokens[6]
-		item_writing = tokens[7]
-		if item_writing == ItemCollection.NO_WRITING:
-			item_writing = None
+		item_writing = self.parse_item_writing(tokens[7])
 
 		item = Item(
 			item_id = item_id,
@@ -46,6 +39,33 @@ class ItemCollection:
 
 		for item_shortname in item_shortnames:
 			self.items[item_shortname] = item
+
+
+	def parse_item_id(self, token):
+		return int(token)
+
+
+	def parse_item_attributes(self, token):
+		return int(token, 16)
+
+
+	def parse_item_location(self, token, location_collection):
+		return location_collection.get(int(token))
+
+
+	def parse_item_size(self, token):
+		return int(token)
+
+
+	def parse_item_shortnames(self, token):
+		item_shortnames = token.split(",")
+		return (item_shortnames[0], item_shortnames)
+
+
+	def parse_item_writing(self, token):
+		if token == ItemCollection.NO_WRITING:
+			return None
+		return token
 
 
 	def get(self, item_name):
