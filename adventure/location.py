@@ -1,11 +1,10 @@
-class Location:
+from adventure.data_element import DataElement
+
+class Location(DataElement):
 
 	def __init__(self, location_id, attributes, shortname, longname, description):
-		self.location_id = location_id
-		self.attributes = attributes
-		self.shortname = shortname
-		self.longname = longname
-		self.description = description
+		super().__init__(data_id=location_id, attributes=attributes, shortname=shortname, longname=longname,
+			description=description)
 		self.directions = {}
 
 

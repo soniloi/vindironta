@@ -1,11 +1,10 @@
-class Item:
+from adventure.data_element import DataElement
 
-	def __init__(self, item_id, attributes, initial_location, size, shortname, longname, description, writing):
-		self.item_id = item_id
-		self.attributes = attributes
+class Item(DataElement):
+
+	def __init__(self, item_id, attributes, shortname, longname, description, initial_location, size, writing):
+		super().__init__(data_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
+			description=description)
 		self.location = initial_location
 		self.size = size
-		self.shortname = shortname
-		self.longname = longname
-		self.description = description
 		self.writing = writing

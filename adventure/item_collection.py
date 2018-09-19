@@ -29,12 +29,12 @@ class ItemCollection:
 		item = Item(
 			item_id = item_id,
 			attributes = item_attributes,
-			size = item_size,
 			shortname = item_primary_shortname,
 			longname = item_longname,
 			description = item_description,
+			initial_location = item_location,
+			size = item_size,
 			writing = item_writing,
-			initial_location = item_location
 		)
 
 		for item_shortname in item_shortnames:
