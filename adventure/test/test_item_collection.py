@@ -1,10 +1,10 @@
 import unittest
-from unittest.mock import Mock
 from unittest.mock import patch
 
 from adventure.item_collection import ItemCollection
 from adventure import file_reader
 from adventure import location_collection
+from adventure.location import Location
 
 class TestItemCollection(unittest.TestCase):
 
@@ -21,8 +21,9 @@ class TestItemCollection(unittest.TestCase):
 
 			location_collection_mock_instance = location_collection_mock.return_value
 			location_collection_mock_instance.get.side_effect = self.location_side_effect
-			self.kohlrabi_initial_location = Mock()
-			self.book_initial_location = Mock()
+
+			self.kohlrabi_initial_location = Location(0, 0, "House", "in a house", " with a red door")
+			self.book_initial_location = Location(1, 1, "Library", "in the Library", ", a tall, bright room")
 			self.location_map = {
 				27 : self.kohlrabi_initial_location,
 				80 : self.book_initial_location,
@@ -65,6 +66,9 @@ class TestItemCollection(unittest.TestCase):
 
 		water = self.collection.items["water"]
 		self.assertIsNone(water.location)
+
+		self.assertEqual(book, self.book_initial_location.get_item(book.data_id))
+		self.assertEqual(kohlrabi, self.kohlrabi_initial_location.get_item(kohlrabi.data_id))
 
 
 if __name__ == "__main__":

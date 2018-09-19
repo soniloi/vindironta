@@ -37,6 +37,10 @@ class ItemCollection:
 			writing = item_writing,
 		)
 
+		# TODO: location may not be a Location, but could also be inventory, another item, etc.
+		if item_location:
+			item_location.insert_item(item)
+
 		for item_shortname in item_shortnames:
 			self.items[item_shortname] = item
 
