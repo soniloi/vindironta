@@ -20,22 +20,22 @@ class TestItemCollection(unittest.TestCase):
 			]
 
 			location_collection_mock_instance = location_collection_mock.return_value
-			location_collection_mock_instance.get.side_effect = self.location_side_effect
+			location_collection_mock_instance.get.side_effect = self.container_side_effect
 
-			self.kohlrabi_initial_location = Location(0, 0, "House", "in a house", " with a red door")
-			self.book_initial_location = Location(1, 1, "Library", "in the Library", ", a tall, bright room")
-			self.location_map = {
-				27 : self.kohlrabi_initial_location,
-				80 : self.book_initial_location,
+			self.kohlrabi_initial_container = Location(0, 0, "House", "in a house", " with a red door")
+			self.book_initial_container = Location(1, 1, "Library", "in the Library", ", a tall, bright room")
+			self.container_map = {
+				27 : self.kohlrabi_initial_container,
+				80 : self.book_initial_container,
 			}
 
 			self.collection = ItemCollection(reader_mock_instance, location_collection_mock_instance)
 
 
-	def location_side_effect(self, *args):
-		location_id = int(args[0])
-		if location_id in self.location_map:
-			return self.location_map[location_id]
+	def container_side_effect(self, *args):
+		container_id = int(args[0])
+		if container_id in self.container_map:
+			return self.container_map[container_id]
 		return None
 
 
@@ -47,7 +47,7 @@ class TestItemCollection(unittest.TestCase):
 
 		book = self.collection.items["book"]
 		self.assertEqual(0x2, book.attributes)
-		self.assertEqual(self.book_initial_location, book.location)
+		self.assertEqual(self.book_initial_container, book.container)
 		self.assertEqual(2, book.size)
 		self.assertEqual("book", book.shortname)
 		self.assertEqual("a book", book.longname)
@@ -56,7 +56,7 @@ class TestItemCollection(unittest.TestCase):
 
 		kohlrabi = self.collection.items["kohlrabi"]
 		self.assertEqual(0x2002, kohlrabi.attributes)
-		self.assertEqual(self.kohlrabi_initial_location, kohlrabi.location)
+		self.assertEqual(self.kohlrabi_initial_container, kohlrabi.container)
 		self.assertEqual("kohlrabi", kohlrabi.shortname)
 		self.assertIsNone(kohlrabi.writing)
 
@@ -65,10 +65,10 @@ class TestItemCollection(unittest.TestCase):
 		self.assertIsNot(kohlrabi, book)
 
 		water = self.collection.items["water"]
-		self.assertIsNone(water.location)
+		self.assertIsNone(water.container)
 
-		self.assertEqual(book, self.book_initial_location.get_item(book.data_id))
-		self.assertEqual(kohlrabi, self.kohlrabi_initial_location.get_item(kohlrabi.data_id))
+		self.assertEqual(book, self.book_initial_container.get_item(book.data_id))
+		self.assertEqual(kohlrabi, self.kohlrabi_initial_container.get_item(kohlrabi.data_id))
 
 
 if __name__ == "__main__":

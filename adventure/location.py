@@ -1,12 +1,13 @@
 from adventure.data_element import DataElement
+from adventure.item_container import ItemContainer
 
-class Location(DataElement):
+class Location(DataElement, ItemContainer):
 
 	def __init__(self, location_id, attributes, shortname, longname, description):
-		super().__init__(data_id=location_id, attributes=attributes, shortname=shortname, longname=longname,
+		DataElement.__init__(self, data_id=location_id, attributes=attributes, shortname=shortname, longname=longname,
 			description=description)
+		ItemContainer.__init__(self)
 		self.directions = {}
-		self.items = {}
 
 
 	def get_full_description(self):
@@ -20,13 +21,3 @@ class Location(DataElement):
 			for item in self.items.values():
 				result += "\n\t" + item.longname
 		return result
-
-
-	def insert_item(self, item):
-		self.items[item.data_id] = item
-
-
-	def get_item(self, key):
-		if key in self.items:
-			return self.items[key]
-		return None

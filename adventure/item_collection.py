@@ -19,7 +19,9 @@ class ItemCollection:
 
 		item_id = self.parse_item_id(tokens[0])
 		item_attributes = self.parse_item_attributes(tokens[1])
-		item_location = self.parse_item_location(tokens[2], location_collection)
+
+		# TODO: this may not be a location
+		item_container = self.parse_item_location(tokens[2], location_collection)
 		item_size = self.parse_item_size(tokens[3])
 		item_primary_shortname, item_shortnames = self.parse_item_shortnames(tokens[4])
 		item_longname = tokens[5]
@@ -32,14 +34,14 @@ class ItemCollection:
 			shortname = item_primary_shortname,
 			longname = item_longname,
 			description = item_description,
-			initial_location = item_location,
+			initial_container = item_container,
 			size = item_size,
 			writing = item_writing,
 		)
 
 		# TODO: location may not be a Location, but could also be inventory, another item, etc.
-		if item_location:
-			item_location.insert_item(item)
+		if item_container:
+			item_container.insert_item(item)
 
 		for item_shortname in item_shortnames:
 			self.items[item_shortname] = item
