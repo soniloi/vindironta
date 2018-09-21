@@ -1,9 +1,11 @@
 from adventure.command import Command
+from adventure.command_handler import CommandHandler
 from adventure.file_reader import FileReader
 
 class CommandCollection:
 
 	def __init__(self, reader):
+		self.command_handler = CommandHandler()
 		self.commands = {}
 		line = reader.read_line()
 		while not line.startswith("---"):
@@ -35,7 +37,7 @@ class CommandCollection:
 
 	def parse_command_function(self, token):
 		command_function_name = "handle_" + token
-		return getattr(self, command_function_name, None)
+		return self.command_handler.get_command_function(command_function_name)
 
 
 	def parse_command_names(self, token):
@@ -47,20 +49,3 @@ class CommandCollection:
 		if name in self.commands:
 			return self.commands[name]
 		return None
-
-
-	def handle_inventory(self, player):
-		return player.inventory.get_contents_description()
-
-
-	def handle_look(self, player):
-		return "You are %s." % player.location.get_full_description()
-
-
-	def handle_score(self, player):
-		return "Your current score is %s points" % player.score
-
-
-	def handle_quit(self, player):
-		player.playing = False
-		return "Game has ended"
