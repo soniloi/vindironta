@@ -49,6 +49,10 @@ class CommandCollection:
 		return None
 
 
+	def handle_inventory(self, player):
+		return player.inventory.get_contents_description()
+
+
 	def handle_look(self, player):
 		return "You are %s." % player.location.get_full_description()
 

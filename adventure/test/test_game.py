@@ -51,6 +51,8 @@ class TestGame(unittest.TestCase):
 
 	def test_init_player(self):
 		self.assertEqual(self.initial_location_instance, self.game.player.location)
+		# TODO: fix this assertion
+		self.assertEqual(0, len(self.game.player.inventory.items))
 
 
 	def test_process_input_empty(self):
