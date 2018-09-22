@@ -1,5 +1,9 @@
 class CommandHandler:
 
+	def init_data(self, location_collection, item_collection):
+		self.location_collection = location_collection
+		self.item_collection = item_collection
+
 	def get_command_function(self, command_function_name):
 		return getattr(self, command_function_name, None)
 

@@ -1,11 +1,10 @@
 from adventure.command import Command
-from adventure.command_handler import CommandHandler
 from adventure.file_reader import FileReader
 
 class CommandCollection:
 
-	def __init__(self, reader):
-		self.command_handler = CommandHandler()
+	def __init__(self, reader, command_handler):
+		self.command_handler = command_handler
 		self.commands = {}
 		line = reader.read_line()
 		while not line.startswith("---"):

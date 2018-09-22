@@ -1,4 +1,5 @@
 from adventure.command_collection import CommandCollection
+from adventure.command_handler import CommandHandler
 from adventure.file_reader import FileReader
 from adventure.item_collection import ItemCollection
 from adventure.location_collection import LocationCollection
@@ -8,6 +9,7 @@ class Game:
  
 	def __init__(self, filename=None):
 		self.on = True
+		self.command_handler = CommandHandler()
 
 		if filename:
 			with open(filename, "rb") as input_file:
@@ -17,9 +19,11 @@ class Game:
 
 
 	def init_data(self, reader):
-		self.command_collection = CommandCollection(reader)
+		self.command_collection = CommandCollection(reader, self.command_handler)
 		self.location_collection = LocationCollection(reader)
 		self.item_collection = ItemCollection(reader, self.location_collection)
+		# TODO: Re-order file and pass through constructor
+		self.command_handler.init_data(self.location_collection, self.item_collection)
 		# TODO: read strings
 
 

@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from adventure.command_collection import CommandCollection
+from adventure.command_handler import CommandHandler
 from adventure import file_reader
 from adventure.location import Location
 from adventure.player import Player
@@ -18,7 +19,7 @@ class TestCommandCollection(unittest.TestCase):
 				"---\t\t\t",
 			]
 
-			self.collection = CommandCollection(reader_mock_instance)
+			self.collection = CommandCollection(reader_mock_instance, CommandHandler())
 
 
 	def test_init_commands(self):
