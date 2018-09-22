@@ -4,16 +4,22 @@ class ItemContainer:
 		self.items = {}
 
 
-	def insert_item(self, item):
+	def contains(self, item):
+		# TODO: enhance when implementing container items
+		return item.data_id in self.items
+
+
+	def insert(self, item):
 		self.items[item.data_id] = item
+		item.container = self
 
 
-	def remove_item(self, item):
+	def remove(self, item):
 		if item.data_id in self.items:
 			del self.items[item.data_id]
 
 
-	def get_item(self, key):
+	def get_by_id(self, key):
 		if key in self.items:
 			return self.items[key]
 		return None

@@ -79,7 +79,7 @@ class ItemCollection:
 			container = location_collection.get(container_id)
 			if container:
 				item.container = container
-				container.insert_item(item)
+				container.insert(item)
 
 
 	def get(self, item_name):

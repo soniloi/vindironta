@@ -4,6 +4,7 @@ class CommandHandler:
 		self.location_collection = location_collection
 		self.item_collection = item_collection
 
+
 	def get_command_function(self, command_function_name):
 		return getattr(self, command_function_name, None)
 
@@ -35,16 +36,13 @@ class CommandHandler:
 			result = "I do not know who or what that is."
 
 		else:
-			current_container = item.container
-			if current_container == player.inventory:
-				# TODO: enhance when implementing container items
+			if player.is_carrying(item):
 				result = "You already have the %s." % item.shortname
-			elif current_container != player.location:
+			elif not player.location.contains(item):
 				result = "I see no %s here." % item.shortname
 			else:
-				current_container.remove_item(item)
-				player.inventory.insert_item(item)
-				item.container = player.inventory
+				item.container.remove(item)
+				player.inventory.insert(item)
 				result = "Taken."
 
 		return result

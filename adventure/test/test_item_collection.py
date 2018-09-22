@@ -67,8 +67,8 @@ class TestItemCollection(unittest.TestCase):
 		water = self.collection.items["water"]
 		self.assertIsNone(water.container)
 
-		self.assertEqual(book, self.book_initial_container.get_item(book.data_id))
-		self.assertEqual(kohlrabi, self.kohlrabi_initial_container.get_item(kohlrabi.data_id))
+		self.assertEqual(book, self.book_initial_container.get_by_id(book.data_id))
+		self.assertEqual(kohlrabi, self.kohlrabi_initial_container.get_by_id(kohlrabi.data_id))
 
 
 if __name__ == "__main__":

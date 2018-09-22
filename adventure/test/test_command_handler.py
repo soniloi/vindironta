@@ -16,15 +16,10 @@ class TestCommandHandler(unittest.TestCase):
 			self.item_collection_mock_instance.get.side_effect = self.item_side_effect
 			self.handler.init_data(None, self.item_collection_mock_instance)
 
-		location = Location(11, 0, "Mines", "in the mines", ". There are dark passages everywhere")
-		self.player = Player(location)
-
+		self.location = Location(11, 0, "Mines", "in the mines", ". There are dark passages everywhere")
+		self.player = Player(self.location)
 		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
-		self.book.container = location
-
 		self.lamp = Item(1043, 0x101A, "lamp", "a lamp", "a small hand-held lamp", 2, None)
-		self.lamp.container = self.player.inventory
-
 		self.kohlrabi = Item(1042, 0x2002, "kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar", 3, None)
 
 		self.item_map = {
@@ -73,9 +68,12 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_take_known_in_inventory(self):
+		self.player.inventory.insert(self.lamp)
+
 		response = self.handler.handle_take(self.player, "lamp")
 
 		self.assertEqual("You already have the lamp.", response)
+		self.assertTrue(self.player.is_carrying(self.lamp))
 
 
 	def test_handle_take_known_absent(self):
@@ -85,9 +83,12 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_take_known_at_location(self):
+		self.location.insert(self.book)
+
 		response = self.handler.handle_take(self.player, "book")
 
 		self.assertEqual("Taken.", response)
+		self.assertTrue(self.player.is_carrying(self.book))
 
 
 if __name__ == "__main__":

@@ -7,3 +7,7 @@ class Player:
 		self.playing = True
 		self.score = 0
 		self.inventory = Inventory()
+
+
+	def is_carrying(self, item):
+		return self.inventory.contains(item)
