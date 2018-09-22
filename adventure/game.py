@@ -37,10 +37,18 @@ class Game:
 
 		if tokens:
 			command_name = tokens[0]
+			command_arg = self.get_arg(tokens)
+
 			command = self.command_collection.get(command_name)
 			if command:
-				response = command.execute(self.player)
+				response = command.execute(self.player, command_arg)
 
 		self.on = self.player.playing
 
 		return response
+
+
+	def get_arg(self, tokens):
+		if len(tokens) > 1:
+			return tokens[1]
+		return None

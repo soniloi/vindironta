@@ -14,26 +14,26 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_inventory(self):
-		response = self.handler.handle_inventory(self.player)
+		response = self.handler.handle_inventory(self.player, "")
 
 		self.assertEqual("You are not holding anything.", response)
 
 
 	def test_handle_look(self):
-		response = self.handler.handle_look(self.player)
+		response = self.handler.handle_look(self.player, "")
 
 		self.assertEqual("You are in the mines. There are dark passages everywhere.", response)
 
 
 	def test_handle_quit(self):
-		response = self.handler.handle_quit(self.player)
+		response = self.handler.handle_quit(self.player, "")
 
 		self.assertEqual("Game has ended", response)
 		self.assertFalse(self.player.playing)
 
 
 	def test_handle_score(self):
-		response = self.handler.handle_score(self.player)
+		response = self.handler.handle_score(self.player, "")
 
 		self.assertEqual("Your current score is 0 points", response)
 

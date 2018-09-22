@@ -73,5 +73,11 @@ class TestGame(unittest.TestCase):
 		self.assertIs(self.look_command_response, response)
 
 
+	def test_process_input_command_known_extra_arg(self):
+		response = self.game.process_input("look here")
+
+		self.assertIs(self.look_command_response, response)
+
+
 if __name__ == "__main__":
  	unittest.main()

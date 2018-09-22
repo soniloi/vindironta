@@ -8,18 +8,18 @@ class CommandHandler:
 		return getattr(self, command_function_name, None)
 
 
-	def handle_inventory(self, player):
+	def handle_inventory(self, player, arg):
 		return player.inventory.get_contents_description()
 
 
-	def handle_look(self, player):
+	def handle_look(self, player, arg):
 		return "You are %s." % player.location.get_full_description()
 
 
-	def handle_quit(self, player):
+	def handle_quit(self, player, arg):
 		player.playing = False
 		return "Game has ended"
 
 
-	def handle_score(self, player):
+	def handle_score(self, player, arg):
 		return "Your current score is %s points" % player.score
