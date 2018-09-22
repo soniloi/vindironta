@@ -23,3 +23,28 @@ class CommandHandler:
 
 	def handle_score(self, player, arg):
 		return "Your current score is %s points" % player.score
+
+
+	def handle_take(self, player, arg):
+		#TODO: handle None arg
+
+		result = ""
+
+		item = self.item_collection.get(arg)
+		if not item:
+			result = "I do not know who or what that is."
+
+		else:
+			current_container = item.container
+			if current_container == player.inventory:
+				# TODO: enhance when implementing container items
+				result = "You already have the %s." % item.shortname
+			elif current_container != player.location:
+				result = "I see no %s here." % item.shortname
+			else:
+				current_container.remove_item(item)
+				player.inventory.insert_item(item)
+				item.container = player.inventory
+				result = "Taken."
+
+		return result
