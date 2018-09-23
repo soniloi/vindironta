@@ -1,8 +1,10 @@
+import re
+
 from adventure.file_reader import FileReader
 
 class TextCollection:
 
-	SUBSTITUTION_TOKEN = "$$"
+	INPUT_SUBSTITUTION_PATTERN = "\$[0-9]+"
 
 	def __init__(self, reader):
 		self.texts = {}
@@ -15,9 +17,17 @@ class TextCollection:
 	def create_text(self, line):
 		tokens = line.split("\t")
 		text_key = tokens[0]
-		# TODO: support additional args
-		text_value = tokens[1].replace(TextCollection.SUBSTITUTION_TOKEN, "{0}")
+		text_value = self.translate_substitution_tokens(tokens[1])
 		self.texts[text_key] = text_value
+
+
+	def translate_substitution_tokens(self, text):
+		return re.sub(TextCollection.INPUT_SUBSTITUTION_PATTERN, self.replace_token, text)
+
+
+	def replace_token(self, match):
+		match_token = match.group(0)
+		return "{" + match_token[1:] + "}"
 
 
 	def get(self, text_key):
