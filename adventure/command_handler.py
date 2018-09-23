@@ -9,6 +9,26 @@ class CommandHandler:
 		return getattr(self, command_function_name, None)
 
 
+	def handle_drop(self, player, arg):
+		#TODO: handle None arg
+
+		result = ""
+
+		item = self.item_collection.get(arg)
+		if not item:
+			result = "I do not know who or what that is."
+
+		else:
+			if not player.is_carrying(item):
+				result = "You do not have the %s." % item.shortname
+			else:
+				player.inventory.remove(item)
+				player.location.insert(item)
+				result = "Dropped."
+
+		return result
+
+
 	def handle_inventory(self, player, arg):
 		return player.inventory.get_contents_description()
 

@@ -36,6 +36,28 @@ class TestCommandHandler(unittest.TestCase):
 		return None
 
 
+	def test_handle_drop_unknown(self):
+		response = self.handler.handle_drop(self.player, "biscuit")
+
+		self.assertEqual("I do not know who or what that is.", response)
+
+
+	def test_handle_drop_known_not_in_inventory(self):
+		response = self.handler.handle_drop(self.player, "book")
+
+		self.assertEqual("You do not have the book.", response)
+		self.assertFalse(self.player.is_carrying(self.book))
+
+
+	def test_handle_drop_known_in_inventory(self):
+		self.player.inventory.insert(self.lamp)
+
+		response = self.handler.handle_drop(self.player, "lamp")
+
+		self.assertEqual("Dropped.", response)
+		self.assertFalse(self.player.is_carrying(self.lamp))
+
+
 	def test_handle_inventory(self):
 		response = self.handler.handle_inventory(self.player, "")
 
