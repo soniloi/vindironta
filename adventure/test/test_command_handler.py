@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from adventure.command_handler import CommandHandler
+from adventure.data_collection import DataCollection
 from adventure import item_collection
 from adventure.item import Item
 from adventure.location import Location
@@ -14,7 +15,8 @@ class TestCommandHandler(unittest.TestCase):
 		with patch(item_collection.__name__ + ".ItemCollection") as item_collection_mock:
 			self.item_collection_mock_instance = item_collection_mock.return_value
 			self.item_collection_mock_instance.get.side_effect = self.item_side_effect
-			self.handler.init_data(None, self.item_collection_mock_instance)
+			self.data = DataCollection(None, self.item_collection_mock_instance, None, None, None, None)
+			self.handler.init_data(self.data)
 
 		self.location = Location(11, 0, "Mines", "in the mines", ". There are dark passages everywhere")
 		self.player = Player(self.location)

@@ -2,9 +2,10 @@ import unittest
 from unittest.mock import Mock
 from unittest.mock import patch
 
-from adventure.game import Game
 from adventure import command
 from adventure import command_collection
+from adventure.data_collection import DataCollection
+from adventure.game import Game
 from adventure import location_collection
 
 class TestGame(unittest.TestCase):
@@ -32,6 +33,8 @@ class TestGame(unittest.TestCase):
 		self.location_map = {
 			9 : self.initial_location_instance
 		}
+
+		self.game.data = DataCollection(self.location_collection_mock_instance, None, None, None, None, None)
 		self.game.init_player()
 
 

@@ -1,9 +1,11 @@
 from adventure.command_collection import CommandCollection
 from adventure.command_handler import CommandHandler
+from adventure.data_collection import DataCollection
 from adventure.file_reader import FileReader
 from adventure.item_collection import ItemCollection
 from adventure.location_collection import LocationCollection
 from adventure.player import Player
+from adventure.text_collection import TextCollection
 
 class Game:
  
@@ -20,15 +22,28 @@ class Game:
 
 	def init_data(self, reader):
 		self.command_collection = CommandCollection(reader, self.command_handler)
-		self.location_collection = LocationCollection(reader)
-		self.item_collection = ItemCollection(reader, self.location_collection)
-		# TODO: Re-order file and pass through constructor
-		self.command_handler.init_data(self.location_collection, self.item_collection)
-		# TODO: read strings
+		location_collection = LocationCollection(reader)
+		item_collection = ItemCollection(reader, location_collection)
+		hint_text_collection = TextCollection(reader)
+		explain_text_collection = TextCollection(reader)
+		response_text_collection = TextCollection(reader)
+		puzzle_text_collection = TextCollection(reader)
+
+		self.data = DataCollection(
+			locations=location_collection,
+			items=item_collection,
+			hints=hint_text_collection,
+			explanations=explain_text_collection,
+			responses=response_text_collection,
+			puzzles=puzzle_text_collection
+		)
+
+		# TODO: Re-order file and pass through constructor?
+		self.command_handler.init_data(self.data)
 
 
 	def init_player(self):
-		self.player = Player(self.location_collection.get(9))
+		self.player = Player(self.data.locations.get(9))
 
 
 	def process_input(self, line):

@@ -1,8 +1,7 @@
 class CommandHandler:
 
-	def init_data(self, location_collection, item_collection):
-		self.location_collection = location_collection
-		self.item_collection = item_collection
+	def init_data(self, data):
+		self.data = data
 
 
 	def get_command_function(self, command_function_name):
@@ -14,7 +13,7 @@ class CommandHandler:
 
 		result = ""
 
-		item = self.item_collection.get(arg)
+		item = self.data.items.get(arg)
 		if not item:
 			result = "I do not know who or what that is."
 
@@ -51,7 +50,7 @@ class CommandHandler:
 
 		result = ""
 
-		item = self.item_collection.get(arg)
+		item = self.data.items.get(arg)
 		if not item:
 			result = "I do not know who or what that is."
 
