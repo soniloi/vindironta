@@ -11,7 +11,7 @@ class TestTextCollection(unittest.TestCase):
 			reader_mock_instance = reader_mock.return_value
 			reader_mock_instance.read_line.side_effect = [
 				"inventory\tThis command lists the items you are carrying.",
-				"lamp\tThe lamp can be turned on with the \"light\" command and turned off with the \"quench\" command.",
+				"reject_not_here\tThere is no $$ here.",
 				"---",
 			]
 			self.collection = TextCollection(reader_mock_instance)
@@ -20,9 +20,9 @@ class TestTextCollection(unittest.TestCase):
 	def test_init(self):
 		self.assertEqual(2, len(self.collection.texts))
 		self.assertTrue("inventory" in self.collection.texts)
-		self.assertTrue("lamp" in self.collection.texts)
+		self.assertTrue("reject_not_here" in self.collection.texts)
 		self.assertEqual("This command lists the items you are carrying.", self.collection.texts["inventory"])
-		self.assertEqual("The lamp can be turned on with the \"light\" command and turned off with the \"quench\" command.", self.collection.texts["lamp"])
+		self.assertEqual("There is no {0} here.", self.collection.texts["reject_not_here"])
 
 
 if __name__ == "__main__":

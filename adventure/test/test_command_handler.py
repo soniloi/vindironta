@@ -7,15 +7,30 @@ from adventure import item_collection
 from adventure.item import Item
 from adventure.location import Location
 from adventure.player import Player
+from adventure import text_collection
 
 class TestCommandHandler(unittest.TestCase):
 
 	def setUp(self):
+
 		self.handler = CommandHandler()
-		with patch(item_collection.__name__ + ".ItemCollection") as item_collection_mock:
+
+		with patch(item_collection.__name__ + ".ItemCollection") as item_collection_mock,\
+			patch(text_collection.__name__ + ".TextCollection") as response_text_collection_mock:
+
 			self.item_collection_mock_instance = item_collection_mock.return_value
 			self.item_collection_mock_instance.get.side_effect = self.item_side_effect
-			self.data = DataCollection(None, self.item_collection_mock_instance, None, None, None, None)
+
+			self.response_text_collection_mock_instance = response_text_collection_mock.return_value
+			self.response_text_collection_mock_instance.get.side_effect = self.response_side_effect
+			self.data = DataCollection(
+				locations=None,
+				items=self.item_collection_mock_instance,
+				hints=None,
+				explanations=None,
+				responses=self.response_text_collection_mock_instance,
+				puzzles=None,
+			)
 			self.handler.init_data(self.data)
 
 		self.location = Location(11, 0, "Mines", "in the mines", ". There are dark passages everywhere")
@@ -30,11 +45,27 @@ class TestCommandHandler(unittest.TestCase):
 			"lamp" : self.lamp,
 		}
 
+		self.response_map = {
+			"confirm_dropped" : "Dropped.",
+			"confirm_taken" : "Taken.",
+			"reject_already" : "You already have the {0}.",
+			"reject_not_here" : "There is no {0} here.",
+			"reject_not_holding" : "You do not have the {0}.",
+			"reject_unknown" : "I do not know who or what that is.",
+		}
+
 
 	def item_side_effect(self, *args):
 		item_id = args[0]
 		if item_id in self.item_map:
 			return self.item_map[item_id]
+		return None
+
+
+	def response_side_effect(self, *args):
+		response_key = args[0]
+		if response_key in self.response_map:
+			return self.response_map[response_key]
 		return None
 
 
@@ -103,7 +134,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_take_known_absent(self):
 		response = self.handler.handle_take(self.player, "kohlrabi")
 
-		self.assertEqual("I see no kohlrabi here.", response)
+		self.assertEqual("There is no kohlrabi here.", response)
 
 
 	def test_handle_take_known_at_location(self):

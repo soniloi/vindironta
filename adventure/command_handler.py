@@ -8,24 +8,30 @@ class CommandHandler:
 		return getattr(self, command_function_name, None)
 
 
+	def get_response(self, response_key):
+		return self.data.responses.get(response_key)
+
+
 	def handle_drop(self, player, arg):
 		#TODO: handle None arg
 
-		result = ""
+		template = ""
+		content = ""
 
 		item = self.data.items.get(arg)
 		if not item:
-			result = "I do not know who or what that is."
+			template = self.get_response("reject_unknown")
 
 		else:
+			content = item.shortname
 			if not player.is_carrying(item):
-				result = "You do not have the %s." % item.shortname
+				template = self.get_response("reject_not_holding")
 			else:
 				player.inventory.remove(item)
 				player.location.insert(item)
-				result = "Dropped."
+				template = self.get_response("confirm_dropped")
 
-		return result
+		return template.format(content)
 
 
 	def handle_inventory(self, player, arg):
@@ -48,20 +54,23 @@ class CommandHandler:
 	def handle_take(self, player, arg):
 		#TODO: handle None arg
 
-		result = ""
+		template = ""
+		content = ""
 
 		item = self.data.items.get(arg)
 		if not item:
-			result = "I do not know who or what that is."
+			template = self.get_response("reject_unknown")
 
 		else:
+			content = item.shortname
 			if player.is_carrying(item):
-				result = "You already have the %s." % item.shortname
+				template = self.get_response("reject_already")
+
 			elif not player.location.contains(item):
-				result = "I see no %s here." % item.shortname
+				template = self.get_response("reject_not_here")
 			else:
 				item.container.remove(item)
 				player.inventory.insert(item)
-				result = "Taken."
+				template = self.get_response("confirm_taken")
 
-		return result
+		return template.format(content)
