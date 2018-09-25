@@ -46,7 +46,7 @@ class CommandHandler:
 				player.location.insert(item)
 				template = self.get_response("confirm_dropped")
 
-		return template.format(content)
+		return template, content
 
 
 	def handle_go(self, player, arg):
@@ -64,7 +64,7 @@ class CommandHandler:
 			template = self.get_response("confirm_look")
 			content = proposed_location.get_full_description()
 
-		return template.format(content)
+		return template, content
 
 
 	def handle_inventory(self, player, arg):
@@ -72,7 +72,7 @@ class CommandHandler:
 
 
 	def handle_look(self, player, arg):
-		return "You are %s." % player.location.get_full_description()
+		return "You are {0}.", player.location.get_full_description()
 
 
 	def handle_quit(self, player, arg):
@@ -81,7 +81,7 @@ class CommandHandler:
 
 
 	def handle_score(self, player, arg):
-		return "Your current score is %s points" % player.score
+		return "Your current score is {0} points", player.score
 
 
 	def handle_take(self, player, arg):
@@ -106,4 +106,4 @@ class CommandHandler:
 				player.inventory.insert(item)
 				template = self.get_response("confirm_taken")
 
-		return template.format(content)
+		return template, content

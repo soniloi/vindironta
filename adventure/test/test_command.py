@@ -9,7 +9,7 @@ class TestCommand(unittest.TestCase):
 
 
 	def command_function(self, player, arg):
-		return arg + " success!"
+		return "{0} success!", arg
 
 
 	def test_has_attribute_set(self):

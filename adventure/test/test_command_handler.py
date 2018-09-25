@@ -83,13 +83,13 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_drop_unknown(self):
 		response = self.handler.handle_drop(self.player, "biscuit")
 
-		self.assertEqual("I do not know who or what that is.", response)
+		self.assertEqual(("I do not know who or what that is.", ""), response)
 
 
 	def test_handle_drop_known_not_in_inventory(self):
 		response = self.handler.handle_drop(self.player, "book")
 
-		self.assertEqual("You do not have the book.", response)
+		self.assertEqual(("You do not have the {0}.", "book"), response)
 		self.assertFalse(self.player.is_carrying(self.book))
 
 
@@ -98,14 +98,14 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_drop(self.player, "lamp")
 
-		self.assertEqual("Dropped.", response)
+		self.assertEqual(("Dropped.", "lamp"), response)
 		self.assertFalse(self.player.is_carrying(self.lamp))
 
 
 	def test_handle_go_without_destination(self):
 		response = self.handler.handle_go(self.player, 34)
 
-		self.assertEqual("You cannot go that way.", response)
+		self.assertEqual(("You cannot go that way.", ""), response)
 
 
 	def test_handle_go_with_destination(self):
@@ -114,7 +114,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_go(self.player, 52)
 
-		self.assertEqual("You are at a lighthouse by the sea.", response)
+		self.assertEqual(("You are {0}.", "at a lighthouse by the sea"), response)
 
 
 	def test_handle_inventory(self):
@@ -126,7 +126,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_look(self):
 		response = self.handler.handle_look(self.player, "")
 
-		self.assertEqual("You are in the mines. There are dark passages everywhere.", response)
+		self.assertEqual(("You are {0}.", "in the mines. There are dark passages everywhere"), response)
 
 
 	def test_handle_quit(self):
@@ -139,13 +139,13 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_score(self):
 		response = self.handler.handle_score(self.player, "")
 
-		self.assertEqual("Your current score is 0 points", response)
+		self.assertEqual(("Your current score is {0} points", 0), response)
 
 
 	def test_handle_take_unknown(self):
 		response = self.handler.handle_take(self.player, "biscuit")
 
-		self.assertEqual("I do not know who or what that is.", response)
+		self.assertEqual(("I do not know who or what that is.", ""), response)
 
 
 	def test_handle_take_known_in_inventory(self):
@@ -153,14 +153,14 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_take(self.player, "lamp")
 
-		self.assertEqual("You already have the lamp.", response)
+		self.assertEqual(("You already have the {0}.", "lamp"), response)
 		self.assertTrue(self.player.is_carrying(self.lamp))
 
 
 	def test_handle_take_known_absent(self):
 		response = self.handler.handle_take(self.player, "kohlrabi")
 
-		self.assertEqual("There is no kohlrabi here.", response)
+		self.assertEqual(("There is no {0} here.", "kohlrabi"), response)
 
 
 	def test_handle_take_known_at_location(self):
@@ -168,7 +168,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_take(self.player, "book")
 
-		self.assertEqual("Taken.", response)
+		self.assertEqual(("Taken.", "book"), response)
 		self.assertTrue(self.player.is_carrying(self.book))
 
 

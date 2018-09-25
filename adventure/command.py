@@ -16,4 +16,7 @@ class Command:
 	def execute(self, player, arg):
 		if self.has_attribute(Command.ATTRIBUTE_MOVEMENT):
 			arg = self.command_id
-		return self.function(player, arg)
+
+		template, content = self.function(player, arg)
+
+		return template.format(content)
