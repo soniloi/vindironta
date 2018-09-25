@@ -1,4 +1,19 @@
+from adventure.direction import Direction
+
 class CommandHandler:
+
+	DIRECTIONS = {
+		13 : Direction.DOWN,
+		16 : Direction.EAST,
+		34 : Direction.NORTH,
+		35 : Direction.NORTHEAST,
+		36 : Direction.NORTHWEST,
+		52 : Direction.SOUTH,
+		53 : Direction.SOUTHEAST,
+		54 : Direction.SOUTHWEST,
+		60 : Direction.UP,
+		62 : Direction.WEST,
+	}
 
 	def init_data(self, data):
 		self.data = data
@@ -30,6 +45,24 @@ class CommandHandler:
 				player.inventory.remove(item)
 				player.location.insert(item)
 				template = self.get_response("confirm_dropped")
+
+		return template.format(content)
+
+
+	def handle_go(self, player, arg):
+		current_location = player.location
+		direction = CommandHandler.DIRECTIONS[arg]
+
+		template = ""
+		content = ""
+
+		proposed_location = current_location.get_adjacent_location(direction)
+		if not proposed_location:
+			template = self.get_response("reject_no_direction")
+		else:
+			player.location = proposed_location
+			template = self.get_response("confirm_look")
+			content = proposed_location.get_full_description()
 
 		return template.format(content)
 

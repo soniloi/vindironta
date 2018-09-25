@@ -1,19 +1,6 @@
-from enum import Enum
-
+from adventure.direction import Direction
 from adventure.location import Location
 from adventure.file_reader import FileReader
-
-class Direction(Enum):
-	NORTH = 0
-	SOUTH = 1
-	EAST = 2
-	WEST = 3
-	NORTHEAST = 4
-	SOUTHWEST = 5
-	SOUTHEAST = 6
-	NORTHWEST = 7
-	UP = 8
-	DOWN = 9
 
 
 class LocationCollection:

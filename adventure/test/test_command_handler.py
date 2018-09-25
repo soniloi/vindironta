@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from adventure.command_handler import CommandHandler
 from adventure.data_collection import DataCollection
+from adventure.direction import Direction
 from adventure import item_collection
 from adventure.item import Item
 from adventure.location import Location
@@ -33,8 +34,9 @@ class TestCommandHandler(unittest.TestCase):
 			)
 			self.handler.init_data(self.data)
 
-		self.location = Location(11, 0, "Mines", "in the mines", ". There are dark passages everywhere")
-		self.player = Player(self.location)
+		self.null_location = Location(0, 0, "", "", "")
+		self.current_location = self.create_location(11, 0, "Mines", "in the mines", ". There are dark passages everywhere")
+		self.player = Player(self.current_location)
 		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
 		self.lamp = Item(1043, 0x101A, "lamp", "a lamp", "a small hand-held lamp", 2, None)
 		self.kohlrabi = Item(1042, 0x2002, "kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar", 3, None)
@@ -47,12 +49,21 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.response_map = {
 			"confirm_dropped" : "Dropped.",
+			"confirm_look" : "You are {0}.",
 			"confirm_taken" : "Taken.",
 			"reject_already" : "You already have the {0}.",
+			"reject_no_direction" : "You cannot go that way.",
 			"reject_not_here" : "There is no {0} here.",
 			"reject_not_holding" : "You do not have the {0}.",
 			"reject_unknown" : "I do not know who or what that is.",
 		}
+
+
+	def create_location(self, location_id, attributes, shortname, longname="", description=""):
+		location = Location(location_id, attributes, shortname, longname, description)
+		for _, member in Direction.__members__.items():
+			location.directions[member] = self.null_location
+		return location
 
 
 	def item_side_effect(self, *args):
@@ -89,6 +100,21 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertEqual("Dropped.", response)
 		self.assertFalse(self.player.is_carrying(self.lamp))
+
+
+	def test_handle_go_without_destination(self):
+		response = self.handler.handle_go(self.player, 34)
+
+		self.assertEqual("You cannot go that way.", response)
+
+
+	def test_handle_go_with_destination(self):
+		new_location = self.create_location(12, 0, "Lighthouse", "at a lighthouse", " by the sea")
+		self.current_location.directions[Direction.SOUTH] = new_location
+
+		response = self.handler.handle_go(self.player, 52)
+
+		self.assertEqual("You are at a lighthouse by the sea.", response)
 
 
 	def test_handle_inventory(self):
@@ -138,7 +164,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_take_known_at_location(self):
-		self.location.insert(self.book)
+		self.current_location.insert(self.book)
 
 		response = self.handler.handle_take(self.player, "book")
 
