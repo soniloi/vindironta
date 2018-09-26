@@ -59,6 +59,7 @@ class TestCommandHandler(unittest.TestCase):
 			"list_location" : " The following items are nearby: {1}.",
 			"reject_already" : "You already have the {0}.",
 			"reject_no_direction" : "You cannot go that way.",
+			"reject_no_back" : "I do not remember how you got here.",
 			"reject_not_here" : "There is no {0} here.",
 			"reject_not_holding" : "You do not have the {0}.",
 			"reject_unknown" : "I do not know who or what that is.",
@@ -112,6 +113,7 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_go(self.player, 34)
 
 		self.assertEqual(("You cannot go that way.", ""), response)
+		self.assertIsNone(self.player.previous_location)
 
 
 	def test_handle_go_with_destination(self):
@@ -121,6 +123,24 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_go(self.player, 52)
 
 		self.assertEqual(("You are {0}.", ["at a lighthouse by the sea", ""]), response)
+		self.assertEqual(self.current_location, self.player.previous_location)
+
+
+	def test_handle_go_back_without_destination(self):
+		response = self.handler.handle_go(self.player, 5)
+
+		self.assertEqual(("I do not remember how you got here.", ""), response)
+		self.assertIsNone(self.player.previous_location)
+
+
+	def test_handle_go_back_with_destination(self):
+		new_location = self.create_location(12, 0, "Lighthouse", "at a lighthouse", " by the sea")
+		self.player.previous_location = new_location
+
+		response = self.handler.handle_go(self.player, 5)
+
+		self.assertEqual(("You are {0}.", ["at a lighthouse by the sea", ""]), response)
+		self.assertEqual(self.current_location, self.player.previous_location)
 
 
 	def test_handle_inventory_empty(self):

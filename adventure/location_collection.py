@@ -44,6 +44,8 @@ class LocationCollection:
 		links[Direction.NORTHWEST] = int(tokens[8])
 		links[Direction.UP] = int(tokens[9])
 		links[Direction.DOWN] = int(tokens[10])
+		# TODO: maybe rethink how this works
+		links[Direction.BACK] = Location.NO_LOCATION_ID
 		return links
 
 

@@ -3,6 +3,7 @@ from adventure.direction import Direction
 class CommandHandler:
 
 	DIRECTIONS = {
+		5 : Direction.BACK,
 		13 : Direction.DOWN,
 		16 : Direction.EAST,
 		34 : Direction.NORTH,
@@ -50,21 +51,31 @@ class CommandHandler:
 
 
 	def handle_go(self, player, arg):
-		current_location = player.location
 		direction = CommandHandler.DIRECTIONS[arg]
 
-		template = ""
+		proposed_location, template = self.get_proposed_location_and_reject_template(player, direction)
 		content = ""
 
-		proposed_location = current_location.get_adjacent_location(direction)
-		if not proposed_location:
-			template = self.get_response("reject_no_direction")
-		else:
+		if proposed_location:
+			player.previous_location = player.location
 			player.location = proposed_location
 			template = self.get_response("confirm_look")
 			content = proposed_location.get_full_description()
 
 		return template, content
+
+
+	def get_proposed_location_and_reject_template(self, player, direction):
+
+		if direction == Direction.BACK:
+			proposed_location = player.previous_location
+			reject_template = self.get_response("reject_no_back")
+
+		else:
+			proposed_location = player.location.get_adjacent_location(direction)
+			reject_template = self.get_response("reject_no_direction")
+
+		return proposed_location, reject_template
 
 
 	def handle_inventory(self, player, arg):

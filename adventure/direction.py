@@ -11,3 +11,4 @@ class Direction(Enum):
 	NORTHWEST = 7
 	UP = 8
 	DOWN = 9
+	BACK = 10
