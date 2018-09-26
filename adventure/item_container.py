@@ -4,6 +4,10 @@ class ItemContainer:
 		self.items = {}
 
 
+	def has_items(self):
+		return bool(self.items)
+
+
 	def contains(self, item):
 		# TODO: enhance when implementing container items
 		return item.data_id in self.items

@@ -50,7 +50,13 @@ class TestCommandHandler(unittest.TestCase):
 		self.response_map = {
 			"confirm_dropped" : "Dropped.",
 			"confirm_look" : "You are {0}.",
+			"confirm_quit" : "OK.",
 			"confirm_taken" : "Taken.",
+			"describe_location" : "You are {0}.",
+			"describe_score" : "Your current score is {0} point(s).",
+			"list_inventory_nonempty" : "You currently have the following: {0}.",
+			"list_inventory_empty" : "You are not carrying anything.",
+			"list_location" : " The following items are nearby: $1.",
 			"reject_already" : "You already have the {0}.",
 			"reject_no_direction" : "You cannot go that way.",
 			"reject_not_here" : "There is no {0} here.",
@@ -114,32 +120,32 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_go(self.player, 52)
 
-		self.assertEqual(("You are {0}.", "at a lighthouse by the sea"), response)
+		self.assertEqual(("You are {0}.", ["at a lighthouse by the sea", ""]), response)
 
 
 	def test_handle_inventory(self):
 		response = self.handler.handle_inventory(self.player, "")
 
-		self.assertEqual("You are not holding anything.", response)
+		self.assertEqual(("You are not carrying anything.", ""), response)
 
 
 	def test_handle_look(self):
 		response = self.handler.handle_look(self.player, "")
 
-		self.assertEqual(("You are {0}.", "in the mines. There are dark passages everywhere"), response)
+		self.assertEqual(("You are {0}.", ["in the mines. There are dark passages everywhere", ""]), response)
 
 
 	def test_handle_quit(self):
 		response = self.handler.handle_quit(self.player, "")
 
-		self.assertEqual("Game has ended", response)
+		self.assertEqual(("OK.", ""), response)
 		self.assertFalse(self.player.playing)
 
 
 	def test_handle_score(self):
 		response = self.handler.handle_score(self.player, "")
 
-		self.assertEqual(("Your current score is {0} points", 0), response)
+		self.assertEqual(("Your current score is {0} point(s).", 0), response)
 
 
 	def test_handle_take_unknown(self):

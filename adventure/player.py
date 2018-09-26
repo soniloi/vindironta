@@ -9,5 +9,13 @@ class Player:
 		self.inventory = Inventory()
 
 
+	def holding_items(self):
+		return self.inventory.has_items()
+
+
+	def has_items_nearby(self):
+		return self.location.has_items()
+
+
 	def is_carrying(self, item):
 		return self.inventory.contains(item)

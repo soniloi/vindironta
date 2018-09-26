@@ -68,20 +68,36 @@ class CommandHandler:
 
 
 	def handle_inventory(self, player, arg):
-		return player.inventory.get_contents_description()
+
+		template = ""
+		content = ""
+
+		if not player.holding_items():
+			template = template = self.get_response("list_inventory_empty")
+		else:
+			template = template = self.get_response("list_inventory_nonempty")
+			content = player.inventory.get_contents_description()
+
+		return template, content
 
 
 	def handle_look(self, player, arg):
-		return "You are {0}.", player.location.get_full_description()
+
+		template = self.get_response("describe_location")
+
+		if player.has_items_nearby():
+			template += self.get_response("list_location")
+
+		return template, player.location.get_full_description()
 
 
 	def handle_quit(self, player, arg):
 		player.playing = False
-		return "Game has ended"
+		return self.get_response("confirm_quit"), ""
 
 
 	def handle_score(self, player, arg):
-		return "Your current score is {0} points", player.score
+		return self.get_response("describe_score"), player.score
 
 
 	def handle_take(self, player, arg):

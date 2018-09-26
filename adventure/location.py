@@ -20,13 +20,15 @@ class Location(DataElement, ItemContainer):
 
 
 	def get_full_description(self):
-		return self.longname + self.description + self.get_contents_description()
+		return [self.get_description(), self.get_contents_description()]
+
+
+	def get_description(self):
+		return self.longname + self.description
 
 
 	def get_contents_description(self):
 		result = ""
-		if self.items:
-			result += ". You see the following nearby:"
-			for item in self.items.values():
-				result += "\n\t" + item.longname
+		for item in self.items.values():
+			result += "\n\t" + item.longname
 		return result

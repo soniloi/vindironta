@@ -19,4 +19,8 @@ class Command:
 
 		template, content = self.function(player, arg)
 
-		return template.format(content)
+		# TODO: revisit
+		if not isinstance(content, list):
+			content = [content]
+
+		return template.format(*content)
