@@ -56,7 +56,7 @@ class TestCommandHandler(unittest.TestCase):
 			"describe_score" : "Your current score is {0} point(s).",
 			"list_inventory_nonempty" : "You currently have the following: {0}.",
 			"list_inventory_empty" : "You are not carrying anything.",
-			"list_location" : " The following items are nearby: $1.",
+			"list_location" : " The following items are nearby: {1}.",
 			"reject_already" : "You already have the {0}.",
 			"reject_no_direction" : "You cannot go that way.",
 			"reject_not_here" : "There is no {0} here.",
@@ -123,16 +123,33 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("You are {0}.", ["at a lighthouse by the sea", ""]), response)
 
 
-	def test_handle_inventory(self):
+	def test_handle_inventory_empty(self):
 		response = self.handler.handle_inventory(self.player, "")
 
 		self.assertEqual(("You are not carrying anything.", ""), response)
 
 
-	def test_handle_look(self):
+	def test_handle_inventory_nonempty(self):
+		self.player.inventory.insert(self.book)
+
+		response = self.handler.handle_inventory(self.player, "")
+
+		self.assertEqual(("You currently have the following: {0}.", "\n\ta book"), response)
+
+
+	def test_handle_look_no_items(self):
 		response = self.handler.handle_look(self.player, "")
 
 		self.assertEqual(("You are {0}.", ["in the mines. There are dark passages everywhere", ""]), response)
+
+
+	def test_handle_look_with_items(self):
+		self.current_location.insert(self.lamp)
+
+		response = self.handler.handle_look(self.player, "")
+
+		self.assertEqual(("You are {0}. The following items are nearby: {1}.",
+			["in the mines. There are dark passages everywhere", "\n\ta lamp"]), response)
 
 
 	def test_handle_quit(self):
