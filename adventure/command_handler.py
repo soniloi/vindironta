@@ -50,6 +50,15 @@ class CommandHandler:
 		return template, content
 
 
+	def handle_explain(self, player, arg):
+
+		template = self.data.explanations.get(arg)
+		if not template:
+			template = self.data.explanations.get("default")
+
+		return template, arg
+
+
 	def handle_go(self, player, arg):
 		direction = CommandHandler.DIRECTIONS[arg]
 

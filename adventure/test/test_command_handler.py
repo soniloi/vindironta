@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import Mock
 from unittest.mock import patch
 
 from adventure.command_handler import CommandHandler
@@ -16,23 +17,24 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.handler = CommandHandler()
 
-		with patch(item_collection.__name__ + ".ItemCollection") as item_collection_mock,\
-			patch(text_collection.__name__ + ".TextCollection") as response_text_collection_mock:
+		item_collection_mock = Mock()
+		item_collection_mock.get.side_effect = self.item_side_effect
 
-			self.item_collection_mock_instance = item_collection_mock.return_value
-			self.item_collection_mock_instance.get.side_effect = self.item_side_effect
+		explanations_mock = Mock()
+		explanations_mock.get.side_effect = self.explanations_side_effect
 
-			self.response_text_collection_mock_instance = response_text_collection_mock.return_value
-			self.response_text_collection_mock_instance.get.side_effect = self.response_side_effect
-			self.data = DataCollection(
-				locations=None,
-				items=self.item_collection_mock_instance,
-				hints=None,
-				explanations=None,
-				responses=self.response_text_collection_mock_instance,
-				puzzles=None,
-			)
-			self.handler.init_data(self.data)
+		responses_mock = Mock()
+		responses_mock.get.side_effect = self.responses_side_effect
+
+		self.data = DataCollection(
+			locations=None,
+			items=item_collection_mock,
+			hints=None,
+			explanations=explanations_mock,
+			responses=responses_mock,
+			puzzles=None,
+		)
+		self.handler.init_data(self.data)
 
 		self.null_location = Location(0, 0, "", "", "")
 		self.current_location = self.create_location(11, 0, "Mines", "in the mines", ". There are dark passages everywhere")
@@ -47,6 +49,11 @@ class TestCommandHandler(unittest.TestCase):
 			"desk" : self.desk,
 			"kohlrabi" : self.kohlrabi,
 			"lamp" : self.lamp,
+		}
+
+		self.explanation_map = {
+			"default" : "I have no explanation for that.",
+			"spaize" : "Spaize is space-maize.",
 		}
 
 		self.response_map = {
@@ -76,18 +83,22 @@ class TestCommandHandler(unittest.TestCase):
 		return location
 
 
+	def get_value_or_none(self, data_map, key):
+		if key in data_map:
+			return data_map[key]
+		return None
+
+
 	def item_side_effect(self, *args):
-		item_id = args[0]
-		if item_id in self.item_map:
-			return self.item_map[item_id]
-		return None
+		return self.get_value_or_none(self.item_map, args[0])
 
 
-	def response_side_effect(self, *args):
-		response_key = args[0]
-		if response_key in self.response_map:
-			return self.response_map[response_key]
-		return None
+	def explanations_side_effect(self, *args):
+		return self.get_value_or_none(self.explanation_map, args[0])
+
+
+	def responses_side_effect(self, *args):
+		return self.get_value_or_none(self.response_map, args[0])
 
 
 	def test_handle_drop_unknown(self):
@@ -110,6 +121,18 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertEqual(("Dropped.", "lamp"), response)
 		self.assertFalse(self.player.is_carrying(self.lamp))
+
+
+	def test_handle_explain_default(self):
+		response = self.handler.handle_explain(self.player, "dreams")
+
+		self.assertEqual(("I have no explanation for that.", "dreams"), response)
+
+
+	def test_handle_explain_non_default(self):
+		response = self.handler.handle_explain(self.player, "spaize")
+
+		self.assertEqual(("Spaize is space-maize.", "spaize"), response)
 
 
 	def test_handle_go_without_destination(self):
