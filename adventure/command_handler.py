@@ -128,6 +128,10 @@ class CommandHandler:
 
 			elif not player.location.contains(item):
 				template = self.get_response("reject_not_here")
+
+			elif not item.is_portable():
+				template = self.get_response("reject_not_portable")
+
 			else:
 				item.container.remove(item)
 				player.inventory.insert(item)

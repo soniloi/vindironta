@@ -6,3 +6,7 @@ class DataElement:
 		self.shortname = shortname
 		self.longname = longname
 		self.description = description
+
+
+	def has_attribute(self, attribute):
+		return self.attributes & attribute

@@ -40,9 +40,11 @@ class TestCommandHandler(unittest.TestCase):
 		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
 		self.lamp = Item(1043, 0x101A, "lamp", "a lamp", "a small hand-held lamp", 2, None)
 		self.kohlrabi = Item(1042, 0x2002, "kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar", 3, None)
+		self.desk = Item(1000, 0x0, "desk", "a desk", "a large mahogany desk", 6, None)
 
 		self.item_map = {
 			"book" : self.book,
+			"desk" : self.desk,
 			"kohlrabi" : self.kohlrabi,
 			"lamp" : self.lamp,
 		}
@@ -62,6 +64,7 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_no_back" : "I do not remember how you got here.",
 			"reject_not_here" : "There is no {0} here.",
 			"reject_not_holding" : "You do not have the {0}.",
+			"reject_not_portable" : "You cannot take that.",
 			"reject_unknown" : "I do not know who or what that is.",
 		}
 
@@ -204,6 +207,16 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_take(self.player, "kohlrabi")
 
 		self.assertEqual(("There is no {0} here.", "kohlrabi"), response)
+		self.assertFalse(self.player.is_carrying(self.kohlrabi))
+
+
+	def test_handle_take_known_not_portable(self):
+		self.current_location.insert(self.desk)
+
+		response = self.handler.handle_take(self.player, "desk")
+
+		self.assertEqual(("You cannot take that.", "desk"), response)
+		self.assertFalse(self.player.is_carrying(self.desk))
 
 
 	def test_handle_take_known_at_location(self):
