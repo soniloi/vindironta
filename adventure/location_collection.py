@@ -46,6 +46,7 @@ class LocationCollection:
 		links[Direction.DOWN] = int(tokens[10])
 		# TODO: maybe rethink how this works
 		links[Direction.BACK] = Location.NO_LOCATION_ID
+		links[Direction.OUT] = self.calculate_out(links)
 		return links
 
 
@@ -59,3 +60,14 @@ class LocationCollection:
 		for location, links in location_links.items():
 			for _, member in Direction.__members__.items():
 				location.directions[member] = self.get(links[member])
+
+
+	def calculate_out(self, location_links):
+		adjacent_location_ids = set(location_links.values())
+		adjacent_location_ids.remove(Location.NO_LOCATION_ID)
+
+		out = Location.NO_LOCATION_ID
+		if len(adjacent_location_ids) == 1:
+			(out,) = adjacent_location_ids
+
+		return out

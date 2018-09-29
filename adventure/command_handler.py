@@ -9,6 +9,7 @@ class CommandHandler:
 		34 : Direction.NORTH,
 		35 : Direction.NORTHEAST,
 		36 : Direction.NORTHWEST,
+		37 : Direction.OUT,
 		52 : Direction.SOUTH,
 		53 : Direction.SOUTHEAST,
 		54 : Direction.SOUTHWEST,
@@ -102,7 +103,10 @@ class CommandHandler:
 
 		else:
 			proposed_location = player.location.get_adjacent_location(direction)
-			reject_template = self.get_response("reject_no_direction")
+			if direction == Direction.OUT:
+				reject_template = self.get_response("reject_no_out")
+			else:
+				reject_template = self.get_response("reject_no_direction")
 
 		return proposed_location, reject_template
 

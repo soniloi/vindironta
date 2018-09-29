@@ -32,10 +32,13 @@ class TestLocationCollection(unittest.TestCase):
 		infirmary_location = self.collection.locations[7]
 		self.assertIsNot(ward_location, infirmary_location)
 
-		self.assertEqual(ward_location, infirmary_location.directions[Direction.NORTHWEST])
 		self.assertEqual(infirmary_location, ward_location.directions[Direction.SOUTH])
+		self.assertEqual(infirmary_location, ward_location.directions[Direction.OUT])
+
+		self.assertEqual(ward_location, infirmary_location.directions[Direction.NORTHWEST])
 		self.assertIsNone(infirmary_location.directions[Direction.NORTH])
 		self.assertIsNone(infirmary_location.directions[Direction.WEST])
+		self.assertIsNone(infirmary_location.directions[Direction.OUT])
 
 
 if __name__ == "__main__":

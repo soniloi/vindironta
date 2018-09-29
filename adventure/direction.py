@@ -12,3 +12,4 @@ class Direction(Enum):
 	UP = 8
 	DOWN = 9
 	BACK = 10
+	OUT = 11

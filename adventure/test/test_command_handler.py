@@ -70,6 +70,7 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_already" : "You already have the {0}.",
 			"reject_no_direction" : "You cannot go that way.",
 			"reject_no_back" : "I do not remember how you got here.",
+			"reject_no_out" : "I cannot tell in from out here.",
 			"reject_not_here" : "There is no {0} here.",
 			"reject_not_holding" : "You do not have the {0}.",
 			"reject_not_portable" : "You cannot take that.",
@@ -196,6 +197,13 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertEqual(("You are {0}.", ["at a lighthouse by the sea", ""]), response)
 		self.assertEqual(self.current_location, self.player.previous_location)
+
+
+	def test_handle_go_out_without_destination(self):
+		response = self.handler.handle_go(self.player, 37)
+
+		self.assertEqual(("I cannot tell in from out here.", ""), response)
+		self.assertIsNone(self.player.previous_location)
 
 
 	def test_handle_inventory_empty(self):
