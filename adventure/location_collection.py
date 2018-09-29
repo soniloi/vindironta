@@ -5,6 +5,8 @@ from adventure.file_reader import FileReader
 
 class LocationCollection:
 
+	NO_LOCATION_ID = 0
+
 	def __init__(self, reader):
 		self.locations = {}
 		location_links = {}
@@ -29,45 +31,49 @@ class LocationCollection:
 		location = Location(location_id, location_attributes, location_shortname, location_longname,
 			location_description)
 		self.locations[location_id] = location
-		location_links[location] = self.create_links(tokens)
+		location_links[location] = self.parse_links(tokens)
 
 
-	def create_links(self, tokens):
+	def parse_links(self, tokens):
 		links = {}
-		links[Direction.NORTH] = int(tokens[1])
-		links[Direction.SOUTH] = int(tokens[2])
-		links[Direction.EAST] = int(tokens[3])
-		links[Direction.WEST] = int(tokens[4])
-		links[Direction.NORTHEAST] = int(tokens[5])
-		links[Direction.SOUTHWEST] = int(tokens[6])
-		links[Direction.SOUTHEAST] = int(tokens[7])
-		links[Direction.NORTHWEST] = int(tokens[8])
-		links[Direction.UP] = int(tokens[9])
-		links[Direction.DOWN] = int(tokens[10])
-		# TODO: maybe rethink how this works
-		links[Direction.BACK] = Location.NO_LOCATION_ID
-		links[Direction.OUT] = self.calculate_out(links)
+		self.parse_link(links, Direction.NORTH, tokens[1])
+		self.parse_link(links, Direction.SOUTH, tokens[2])
+		self.parse_link(links, Direction.EAST, tokens[3])
+		self.parse_link(links, Direction.WEST, tokens[4])
+		self.parse_link(links, Direction.NORTHEAST, tokens[5])
+		self.parse_link(links, Direction.SOUTHWEST, tokens[6])
+		self.parse_link(links, Direction.SOUTHEAST, tokens[7])
+		self.parse_link(links, Direction.NORTHWEST, tokens[8])
+		self.parse_link(links, Direction.UP, tokens[9])
+		self.parse_link(links, Direction.DOWN, tokens[10])
+		self.calculate_out(links)
 		return links
 
 
+	def parse_link(self, links, direction, token):
+		link_id = int(token)
+		if link_id != LocationCollection.NO_LOCATION_ID:
+			links[direction] = link_id
+
+
 	def get(self, location_id):
-		if location_id in self.locations:
-			return self.locations[location_id]
-		return None
+		return self.locations.get(location_id)
 
 
 	def cross_reference(self, location_links):
 		for location, links in location_links.items():
-			for _, member in Direction.__members__.items():
-				location.directions[member] = self.get(links[member])
+			for direction, linked_location_id in links.items():
+				linked_location = self.get(linked_location_id)
+				self.link(location, linked_location, direction)
+
+
+	def link(self, location, linked_location, direction):
+		if linked_location:
+			location.directions[direction] = linked_location
 
 
 	def calculate_out(self, location_links):
 		adjacent_location_ids = set(location_links.values())
-		adjacent_location_ids.remove(Location.NO_LOCATION_ID)
-
-		out = Location.NO_LOCATION_ID
 		if len(adjacent_location_ids) == 1:
 			(out,) = adjacent_location_ids
-
-		return out
+			location_links[Direction.OUT] = out

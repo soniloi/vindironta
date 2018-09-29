@@ -36,8 +36,7 @@ class TestCommandHandler(unittest.TestCase):
 		)
 		self.handler.init_data(self.data)
 
-		self.null_location = Location(0, 0, "", "", "")
-		self.current_location = self.create_location(11, 0, "Mines", "in the mines", ". There are dark passages everywhere")
+		self.current_location = Location(11, 0, "Mines", "in the mines", ". There are dark passages everywhere")
 		self.player = Player(self.current_location)
 		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
 		self.lamp = Item(1043, 0x101A, "lamp", "a lamp", "a small lamp", 2, None)
@@ -76,13 +75,6 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_not_portable" : "You cannot take that.",
 			"reject_unknown" : "I do not know who or what that is.",
 		}
-
-
-	def create_location(self, location_id, attributes, shortname, longname="", description=""):
-		location = Location(location_id, attributes, shortname, longname, description)
-		for _, member in Direction.__members__.items():
-			location.directions[member] = self.null_location
-		return location
 
 
 	def get_value_or_none(self, data_map, key):
@@ -173,7 +165,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_go_with_destination(self):
-		new_location = self.create_location(12, 0, "Lighthouse", "at a lighthouse", " by the sea")
+		new_location = Location(12, 0, "Lighthouse", "at a lighthouse", " by the sea")
 		self.current_location.directions[Direction.SOUTH] = new_location
 
 		response = self.handler.handle_go(self.player, 52)
@@ -190,7 +182,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_go_back_with_destination(self):
-		new_location = self.create_location(12, 0, "Lighthouse", "at a lighthouse", " by the sea")
+		new_location = Location(12, 0, "Lighthouse", "at a lighthouse", " by the sea")
 		self.player.previous_location = new_location
 
 		response = self.handler.handle_go(self.player, 5)
