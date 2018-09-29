@@ -98,7 +98,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_describe_unknown(self):
 		response = self.handler.handle_describe(self.player, "biscuit")
 
-		self.assertEqual(("I do not know who or what that is.", ""), response)
+		self.assertEqual(("I do not know who or what that is.", "biscuit"), response)
 
 
 	def test_handle_describe_known_absent(self):
@@ -126,7 +126,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_drop_unknown(self):
 		response = self.handler.handle_drop(self.player, "biscuit")
 
-		self.assertEqual(("I do not know who or what that is.", ""), response)
+		self.assertEqual(("I do not know who or what that is.", "biscuit"), response)
 
 
 	def test_handle_drop_known_not_in_inventory(self):
@@ -243,7 +243,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_take_unknown(self):
 		response = self.handler.handle_take(self.player, "biscuit")
 
-		self.assertEqual(("I do not know who or what that is.", ""), response)
+		self.assertEqual(("I do not know who or what that is.", "biscuit"), response)
 
 
 	def test_handle_take_known_in_inventory(self):
