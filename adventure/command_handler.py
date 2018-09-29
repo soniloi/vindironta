@@ -28,6 +28,26 @@ class CommandHandler:
 		return self.data.responses.get(response_key)
 
 
+	def handle_describe(self, player, arg):
+
+		template = ""
+		content = ""
+
+		item = self.data.items.get(arg)
+		if not item:
+			template = self.get_response("reject_unknown")
+
+		else:
+			if not player.is_carrying(item) and not player.location.contains(item):
+				template = self.get_response("reject_not_here")
+				content = item.shortname
+			else:
+				template = self.get_response("describe_item")
+				content = item.get_full_description()
+
+		return template, content
+
+
 	def handle_drop(self, player, arg):
 		#TODO: handle None arg
 

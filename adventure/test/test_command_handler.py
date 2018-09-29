@@ -40,7 +40,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.current_location = self.create_location(11, 0, "Mines", "in the mines", ". There are dark passages everywhere")
 		self.player = Player(self.current_location)
 		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
-		self.lamp = Item(1043, 0x101A, "lamp", "a lamp", "a small hand-held lamp", 2, None)
+		self.lamp = Item(1043, 0x101A, "lamp", "a lamp", "a small lamp", 2, None)
 		self.kohlrabi = Item(1042, 0x2002, "kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar", 3, None)
 		self.desk = Item(1000, 0x0, "desk", "a desk", "a large mahogany desk", 6, None)
 
@@ -61,6 +61,7 @@ class TestCommandHandler(unittest.TestCase):
 			"confirm_look" : "You are {0}.",
 			"confirm_quit" : "OK.",
 			"confirm_taken" : "Taken.",
+			"describe_item" : "It is {0}.",
 			"describe_location" : "You are {0}.",
 			"describe_score" : "Your current score is {0} point(s).",
 			"list_inventory_nonempty" : "You currently have the following: {0}.",
@@ -99,6 +100,34 @@ class TestCommandHandler(unittest.TestCase):
 
 	def responses_side_effect(self, *args):
 		return self.get_value_or_none(self.response_map, args[0])
+
+
+	def test_handle_describe_unknown(self):
+		response = self.handler.handle_describe(self.player, "biscuit")
+
+		self.assertEqual(("I do not know who or what that is.", ""), response)
+
+
+	def test_handle_describe_known_absent(self):
+		response = self.handler.handle_describe(self.player, "book")
+
+		self.assertEqual(("There is no {0} here.", "book"), response)
+
+
+	def test_handle_describe_known_in_inventory(self):
+		self.player.inventory.insert(self.lamp)
+
+		response = self.handler.handle_describe(self.player, "lamp")
+
+		self.assertEqual(("It is {0}.", "a small lamp"), response)
+
+
+	def test_handle_describe_known_at_location(self):
+		self.player.location.insert(self.lamp)
+
+		response = self.handler.handle_describe(self.player, "lamp")
+
+		self.assertEqual(("It is {0}.", "a small lamp"), response)
 
 
 	def test_handle_drop_unknown(self):

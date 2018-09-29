@@ -13,3 +13,6 @@ class Item(DataElement):
 
 	def is_portable(self):
 		return self.has_attribute(Item.ATTRIBUTE_MOBILE)
+
+	def get_full_description(self):
+		return self.description
