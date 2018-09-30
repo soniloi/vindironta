@@ -30,6 +30,7 @@ class Game:
 		puzzle_text_collection = TextCollection(reader)
 
 		self.data = DataCollection(
+			commands=self.command_collection,
 			locations=location_collection,
 			items=item_collection,
 			hints=hint_text_collection,

@@ -34,7 +34,7 @@ class TestGame(unittest.TestCase):
 			9 : self.initial_location_instance
 		}
 
-		self.game.data = DataCollection(self.location_collection_mock_instance, None, None, None, None, None)
+		self.game.data = DataCollection(None, self.location_collection_mock_instance, None, None, None, None, None)
 		self.game.init_player()
 
 

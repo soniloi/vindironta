@@ -29,6 +29,12 @@ class CommandHandler:
 		return self.data.responses.get(response_key)
 
 
+	def handle_commands(self, player, arg):
+		template = self.get_response("describe_commands")
+		content = self.data.commands.list_commands()
+		return template, content
+
+
 	def handle_describe(self, player, arg):
 		return self.interact_item(player, arg, self.execute_describe)
 

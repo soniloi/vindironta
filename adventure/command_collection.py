@@ -45,6 +45,12 @@ class CommandCollection:
 
 
 	def get(self, name):
-		if name in self.commands:
-			return self.commands[name]
-		return None
+		return self.commands.get(name)
+
+
+	def list_commands(self):
+		result = []
+		for key in sorted(self.commands.keys()):
+			result.append(key)
+
+		return ", ".join(result)

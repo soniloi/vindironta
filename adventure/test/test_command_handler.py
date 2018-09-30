@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import Mock
 from unittest.mock import patch
 
+from adventure.command import Command
 from adventure.command_handler import CommandHandler
 from adventure.data_collection import DataCollection
 from adventure.direction import Direction
@@ -17,11 +18,14 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.handler = CommandHandler()
 
+		command_collection_mock = Mock()
+		command_collection_mock.list_commands.side_effect = self.list_commands_side_effect
+
 		location_collection_mock = Mock()
 		location_collection_mock.get.side_effect = self.locations_side_effect
 
 		item_collection_mock = Mock()
-		item_collection_mock.get.side_effect = self.item_side_effect
+		item_collection_mock.get.side_effect = self.items_side_effect
 
 		explanations_mock = Mock()
 		explanations_mock.get.side_effect = self.explanations_side_effect
@@ -30,6 +34,7 @@ class TestCommandHandler(unittest.TestCase):
 		responses_mock.get.side_effect = self.responses_side_effect
 
 		self.data = DataCollection(
+			commands=command_collection_mock,
 			locations=location_collection_mock,
 			items=item_collection_mock,
 			hints=None,
@@ -41,7 +46,9 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.mine_location = Location(11, 0, "Mines", "in the mines", ". There are dark passages everywhere")
 		self.lighthouse_location = Location(12, 0, "Lighthouse", "at a lighthouse", " by the sea")
+
 		self.player = Player(self.mine_location)
+
 		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
 		self.lamp = Item(1043, 0x101A, "lamp", "a lamp", "a small lamp", 2, None)
 		self.kohlrabi = Item(1042, 0x2002, "kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar", 3, None)
@@ -69,6 +76,7 @@ class TestCommandHandler(unittest.TestCase):
 			"confirm_look" : "You are {0}.",
 			"confirm_quit" : "OK.",
 			"confirm_taken" : "Taken.",
+			"describe_commands" : "I know these commands: {0}.",
 			"describe_item" : "It is {0}.",
 			"describe_location" : "You are {0}.",
 			"describe_node" : "You are at node {0}.",
@@ -94,11 +102,15 @@ class TestCommandHandler(unittest.TestCase):
 		return None
 
 
+	def list_commands_side_effect(self, *args):
+		return "look, ne"
+
+
 	def locations_side_effect(self, *args):
 		return self.get_value_or_none(self.location_map, args[0])
 
 
-	def item_side_effect(self, *args):
+	def items_side_effect(self, *args):
 		return self.get_value_or_none(self.item_map, args[0])
 
 
@@ -108,6 +120,12 @@ class TestCommandHandler(unittest.TestCase):
 
 	def responses_side_effect(self, *args):
 		return self.get_value_or_none(self.response_map, args[0])
+
+
+	def test_handle_commands(self):
+		response = self.handler.handle_commands(self.player, "")
+
+		self.assertEqual(("I know these commands: {0}.", "look, ne"), response)
 
 
 	def test_handle_describe_unknown(self):

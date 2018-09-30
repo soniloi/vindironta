@@ -36,5 +36,11 @@ class TestCommandCollection(unittest.TestCase):
 		self.assertIs(look_command, l_command)
 
 
+	def test_list_commands(self):
+		result = self.collection.list_commands()
+
+		self.assertEqual("l, look, score", result)
+
+
 if __name__ == "__main__":
 	unittest.main()
