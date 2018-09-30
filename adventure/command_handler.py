@@ -83,9 +83,16 @@ class CommandHandler:
 
 		if proposed_location:
 			player.previous_location = player.location
-			player.location = proposed_location
-			template = self.get_response("confirm_look")
-			content = proposed_location.get_full_description()
+			template, content = self.complete_go(player, proposed_location)
+
+		return template, content
+
+
+	def complete_go(self, player, proposed_location):
+
+		player.location = proposed_location
+		template = self.get_response("confirm_look")
+		content = proposed_location.get_full_description()
 
 		return template, content
 
@@ -126,6 +133,30 @@ class CommandHandler:
 			template += self.get_response("list_location")
 
 		return template, player.location.get_full_description()
+
+
+	def handle_node(self, player, arg):
+
+		template = ""
+		content = ""
+
+		if not arg:
+			template = self.get_response("describe_node")
+			content = player.location.data_id
+		else:
+			location_id = player.location.data_id
+			try:
+				location_id = int(arg)
+			except:
+				pass
+
+			proposed_location = self.data.locations.get(location_id)
+			if proposed_location:
+				template, content =  self.complete_go(player, proposed_location)
+			else:
+				template = self.get_response("reject_no_node")
+
+		return template, content
 
 
 	def handle_quit(self, player, arg):

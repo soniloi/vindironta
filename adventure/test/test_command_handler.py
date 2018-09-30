@@ -17,6 +17,9 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.handler = CommandHandler()
 
+		location_collection_mock = Mock()
+		location_collection_mock.get.side_effect = self.locations_side_effect
+
 		item_collection_mock = Mock()
 		item_collection_mock.get.side_effect = self.item_side_effect
 
@@ -27,7 +30,7 @@ class TestCommandHandler(unittest.TestCase):
 		responses_mock.get.side_effect = self.responses_side_effect
 
 		self.data = DataCollection(
-			locations=None,
+			locations=location_collection_mock,
 			items=item_collection_mock,
 			hints=None,
 			explanations=explanations_mock,
@@ -36,12 +39,18 @@ class TestCommandHandler(unittest.TestCase):
 		)
 		self.handler.init_data(self.data)
 
-		self.current_location = Location(11, 0, "Mines", "in the mines", ". There are dark passages everywhere")
-		self.player = Player(self.current_location)
+		self.mine_location = Location(11, 0, "Mines", "in the mines", ". There are dark passages everywhere")
+		self.lighthouse_location = Location(12, 0, "Lighthouse", "at a lighthouse", " by the sea")
+		self.player = Player(self.mine_location)
 		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
 		self.lamp = Item(1043, 0x101A, "lamp", "a lamp", "a small lamp", 2, None)
 		self.kohlrabi = Item(1042, 0x2002, "kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar", 3, None)
 		self.desk = Item(1000, 0x0, "desk", "a desk", "a large mahogany desk", 6, None)
+
+		self.location_map = {
+			11 : self.mine_location,
+			12 : self.lighthouse_location,
+		}
 
 		self.item_map = {
 			"book" : self.book,
@@ -62,6 +71,7 @@ class TestCommandHandler(unittest.TestCase):
 			"confirm_taken" : "Taken.",
 			"describe_item" : "It is {0}.",
 			"describe_location" : "You are {0}.",
+			"describe_node" : "You are at node {0}.",
 			"describe_score" : "Your current score is {0} point(s).",
 			"list_inventory_nonempty" : "You currently have the following: {0}.",
 			"list_inventory_empty" : "You are not carrying anything.",
@@ -69,6 +79,7 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_already" : "You already have the {0}.",
 			"reject_no_direction" : "You cannot go that way.",
 			"reject_no_back" : "I do not remember how you got here.",
+			"reject_no_node" : "There is no such node id.",
 			"reject_no_out" : "I cannot tell in from out here.",
 			"reject_not_here" : "There is no {0} here.",
 			"reject_not_holding" : "You do not have the {0}.",
@@ -81,6 +92,10 @@ class TestCommandHandler(unittest.TestCase):
 		if key in data_map:
 			return data_map[key]
 		return None
+
+
+	def locations_side_effect(self, *args):
+		return self.get_value_or_none(self.location_map, args[0])
 
 
 	def item_side_effect(self, *args):
@@ -161,40 +176,44 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_go(self.player, 34)
 
 		self.assertEqual(("You cannot go that way.", ""), response)
+		self.assertIs(self.mine_location, self.player.location)
 		self.assertIsNone(self.player.previous_location)
 
 
 	def test_handle_go_with_destination(self):
 		new_location = Location(12, 0, "Lighthouse", "at a lighthouse", " by the sea")
-		self.current_location.directions[Direction.SOUTH] = new_location
+		self.mine_location.directions[Direction.SOUTH] = self.lighthouse_location
 
 		response = self.handler.handle_go(self.player, 52)
 
 		self.assertEqual(("You are {0}.", ["at a lighthouse by the sea", ""]), response)
-		self.assertEqual(self.current_location, self.player.previous_location)
+		self.assertIs(self.lighthouse_location, self.player.location)
+		self.assertIs(self.mine_location, self.player.previous_location)
 
 
 	def test_handle_go_back_without_destination(self):
 		response = self.handler.handle_go(self.player, 5)
 
 		self.assertEqual(("I do not remember how you got here.", ""), response)
+		self.assertIs(self.mine_location, self.player.location)
 		self.assertIsNone(self.player.previous_location)
 
 
 	def test_handle_go_back_with_destination(self):
-		new_location = Location(12, 0, "Lighthouse", "at a lighthouse", " by the sea")
-		self.player.previous_location = new_location
+		self.player.previous_location = self.lighthouse_location
 
 		response = self.handler.handle_go(self.player, 5)
 
 		self.assertEqual(("You are {0}.", ["at a lighthouse by the sea", ""]), response)
-		self.assertEqual(self.current_location, self.player.previous_location)
+		self.assertIs(self.lighthouse_location, self.player.location)
+		self.assertIs(self.mine_location, self.player.previous_location)
 
 
 	def test_handle_go_out_without_destination(self):
 		response = self.handler.handle_go(self.player, 37)
 
 		self.assertEqual(("I cannot tell in from out here.", ""), response)
+		self.assertIs(self.mine_location, self.player.location)
 		self.assertIsNone(self.player.previous_location)
 
 
@@ -219,12 +238,39 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_look_with_items(self):
-		self.current_location.insert(self.lamp)
+		self.mine_location.insert(self.lamp)
 
 		response = self.handler.handle_look(self.player, "")
 
 		self.assertEqual(("You are {0}. The following items are nearby: {1}.",
 			["in the mines. There are dark passages everywhere", "\n\ta lamp"]), response)
+
+
+	def test_handle_node_no_arg(self):
+		response = self.handler.handle_node(self.player, "")
+
+		self.assertEqual(("You are at node {0}.", 11), response)
+
+
+	def test_handle_node_arg_invalid(self):
+		response = self.handler.handle_node(self.player, "abc")
+
+		self.assertEqual(("You are {0}.", ["in the mines. There are dark passages everywhere", ""]), response)
+		self.assertIs(self.mine_location, self.player.location)
+
+
+	def test_handle_node_arg_out_of_range(self):
+		response = self.handler.handle_node(self.player, 61)
+
+		self.assertEqual(("There is no such node id.", ""), response)
+		self.assertIs(self.mine_location, self.player.location)
+
+
+	def test_handle_node_arg_valid(self):
+		response = self.handler.handle_node(self.player, 12)
+
+		self.assertEqual(("You are {0}.", ["at a lighthouse by the sea", ""]), response)
+		self.assertIs(self.lighthouse_location, self.player.location)
 
 
 	def test_handle_quit(self):
@@ -263,7 +309,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_take_known_not_portable(self):
-		self.current_location.insert(self.desk)
+		self.mine_location.insert(self.desk)
 
 		response = self.handler.handle_take(self.player, "desk")
 
@@ -272,7 +318,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_take_known_at_location(self):
-		self.current_location.insert(self.book)
+		self.mine_location.insert(self.book)
 
 		response = self.handler.handle_take(self.player, "book")
 
