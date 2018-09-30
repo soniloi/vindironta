@@ -1,5 +1,6 @@
 class Command:
 
+	ATTRIBUTE_SECRET = 0x10
 	ATTRIBUTE_MOVEMENT = 0x40
 
 	def __init__(self, command_id, attributes, function, primary):
@@ -11,6 +12,10 @@ class Command:
 
 	def has_attribute(self, attribute):
 		return self.attributes & attribute != 0
+
+
+	def is_secret(self):
+		return self.has_attribute(Command.ATTRIBUTE_SECRET)
 
 
 	def execute(self, player, arg):

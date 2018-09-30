@@ -119,6 +119,10 @@ class CommandHandler:
 		return proposed_location, reject_template
 
 
+	def handle_ignore(self, player, arg):
+		pass
+
+
 	def handle_inventory(self, player, arg):
 		template = ""
 		content = ""

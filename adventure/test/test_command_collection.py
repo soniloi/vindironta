@@ -15,6 +15,7 @@ class TestCommandCollection(unittest.TestCase):
 			reader_mock_instance.read_line.side_effect = [
 				"33\t80\tlook\tlook,l",
 				"50\t0\tscore\tscore",
+				"81\t10\tignore\tignore",
 				"1000\t0\tnotacommand\tnotacommand",
 				"---\t\t\t",
 			]
@@ -23,10 +24,11 @@ class TestCommandCollection(unittest.TestCase):
 
 
 	def test_init_commands(self):
-		self.assertEqual(3, len(self.collection.commands))
+		self.assertEqual(4, len(self.collection.commands))
 		self.assertTrue("look" in self.collection.commands)
 		self.assertTrue("l" in self.collection.commands)
 		self.assertTrue("score" in self.collection.commands)
+		self.assertTrue("ignore" in self.collection.commands)
 
 		score_command = self.collection.commands["score"]
 		look_command = self.collection.commands["look"]

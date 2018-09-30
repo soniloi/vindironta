@@ -50,7 +50,8 @@ class CommandCollection:
 
 	def list_commands(self):
 		result = []
-		for key in sorted(self.commands.keys()):
-			result.append(key)
+		for key, command in sorted(self.commands.items()):
+			if not command.is_secret():
+				result.append(key)
 
 		return ", ".join(result)
