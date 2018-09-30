@@ -5,8 +5,8 @@ from adventure.command import Command
 class TestCommand(unittest.TestCase):
 
 	def setUp(self):
-		self.command_singular = Command(1, 0x9, self.command_function_singular, "")
-		self.command_list = Command(1, 0x9, self.command_function_list, "")
+		self.command_singular = Command(1, 0x9, self.command_function_singular, "", [])
+		self.command_list = Command(1, 0x9, self.command_function_list, "", [])
 
 
 	def command_function_singular(self, player, arg):

@@ -3,11 +3,12 @@ class Command:
 	ATTRIBUTE_SECRET = 0x10
 	ATTRIBUTE_MOVEMENT = 0x40
 
-	def __init__(self, command_id, attributes, function, primary):
+	def __init__(self, command_id, attributes, function, primary, aliases):
 		self.command_id = command_id
 		self.attributes = attributes
 		self.function = function
 		self.primary = primary
+		self.aliases = aliases
 
 
 	def has_attribute(self, attribute):

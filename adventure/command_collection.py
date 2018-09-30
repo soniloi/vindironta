@@ -11,6 +11,8 @@ class CommandCollection:
 			self.create_command(line)
 			line = reader.read_line()
 
+		self.command_list = self.create_command_list()
+
 
 	def create_command(self, line):
 		tokens = line.split("\t")
@@ -21,7 +23,13 @@ class CommandCollection:
 
 		if command_function:
 			(primary_command_name, command_names) = self.parse_command_names(tokens[3])
-			command = Command(command_id, command_attributes, command_function, primary_command_name)
+			command = Command(
+				command_id=command_id,
+				attributes=command_attributes,
+				function=command_function,
+				primary=primary_command_name,
+				aliases=command_names
+			)
 			for command_name in command_names:
 				self.commands[command_name] = command
 
@@ -48,10 +56,15 @@ class CommandCollection:
 		return self.commands.get(name)
 
 
-	def list_commands(self):
+	def create_command_list(self):
 		result = []
-		for key, command in sorted(self.commands.items()):
+		for command in set(self.commands.values()):
 			if not command.is_secret():
-				result.append(key)
+				command_aliases = "/".join(sorted(command.aliases))
+				result.append(command_aliases)
 
-		return ", ".join(result)
+		return ", ".join(sorted(result))
+
+
+	def list_commands(self):
+		return self.command_list

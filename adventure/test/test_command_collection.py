@@ -41,7 +41,7 @@ class TestCommandCollection(unittest.TestCase):
 	def test_list_commands(self):
 		result = self.collection.list_commands()
 
-		self.assertEqual("l, look, score", result)
+		self.assertEqual("l/look, score", result)
 
 
 if __name__ == "__main__":
