@@ -27,6 +27,9 @@ class TestCommandHandler(unittest.TestCase):
 		item_collection_mock = Mock()
 		item_collection_mock.get.side_effect = self.items_side_effect
 
+		hints_mock = Mock()
+		hints_mock.get.side_effect = self.hints_side_effect
+
 		explanations_mock = Mock()
 		explanations_mock.get.side_effect = self.explanations_side_effect
 
@@ -37,7 +40,7 @@ class TestCommandHandler(unittest.TestCase):
 			commands=command_collection_mock,
 			locations=location_collection_mock,
 			items=item_collection_mock,
-			hints=None,
+			hints=hints_mock,
 			explanations=explanations_mock,
 			responses=responses_mock,
 			puzzles=None,
@@ -47,7 +50,6 @@ class TestCommandHandler(unittest.TestCase):
 		self.beach_location = Location(13, 0x1, "Beach", "on a beach", " of black sand")
 		self.lighthouse_location = Location(12, 0x1, "Lighthouse", "at a lighthouse", " by the sea.")
 		self.mine_location = Location(11, 0x0, "Mines", "in the mines", ". There are dark passages everywhere.")
-
 
 		self.player = Player(self.lighthouse_location)
 
@@ -69,6 +71,11 @@ class TestCommandHandler(unittest.TestCase):
 			"lamp" : self.lamp,
 		}
 
+		self.hint_map = {
+			"default" : "I have no hint to offer.",
+			"magic" : "abrakadabra",
+		}
+
 		self.explanation_map = {
 			"default" : "I have no explanation for that.",
 			"spaize" : "Spaize is space-maize.",
@@ -80,6 +87,7 @@ class TestCommandHandler(unittest.TestCase):
 			"confirm_quit" : "OK.",
 			"confirm_taken" : "Taken.",
 			"describe_commands" : "I know these commands: {0}.",
+			"describe_help" : "Welcome and good luck.",
 			"describe_item" : "It is {0}.",
 			"describe_location" : "You are {0}.",
 			"describe_node" : "You are at node {0}.",
@@ -99,7 +107,6 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_unknown" : "I do not know who or what that is.",
 		}
 
-
 	def get_value_or_none(self, data_map, key):
 		if key in data_map:
 			return data_map[key]
@@ -116,6 +123,10 @@ class TestCommandHandler(unittest.TestCase):
 
 	def items_side_effect(self, *args):
 		return self.get_value_or_none(self.item_map, args[0])
+
+
+	def hints_side_effect(self, *args):
+		return self.get_value_or_none(self.hint_map, args[0])
 
 
 	def explanations_side_effect(self, *args):
@@ -254,6 +265,24 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("I cannot tell in from out here.", ""), response)
 		self.assertIs(self.lighthouse_location, self.player.location)
 		self.assertIsNone(self.player.previous_location)
+
+
+	def test_handle_help(self):
+		response = self.handler.handle_help(self.player, "")
+
+		self.assertEqual(("Welcome and good luck.", ""), response)
+
+
+	def test_handle_hint_default(self):
+		response = self.handler.handle_hint(self.player, "cat")
+
+		self.assertEqual(("I have no hint to offer.", "cat"), response)
+
+
+	def test_handle_hint_non_default(self):
+		response = self.handler.handle_hint(self.player, "magic")
+
+		self.assertEqual(("abrakadabra", "magic"), response)
 
 
 	def test_handle_inventory_empty(self):

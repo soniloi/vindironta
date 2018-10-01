@@ -126,6 +126,19 @@ class CommandHandler:
 		return proposed_location, reject_template
 
 
+	def handle_help(self, player, arg):
+		return self.get_response("describe_help"), ""
+
+
+	def handle_hint(self, player, arg):
+		template = self.data.hints.get(arg)
+
+		if not template:
+			template = self.data.hints.get("default")
+
+		return template, arg
+
+
 	def handle_ignore(self, player, arg):
 		pass
 
