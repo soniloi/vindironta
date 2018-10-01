@@ -31,6 +31,4 @@ class TextCollection:
 
 
 	def get(self, text_key):
-		if text_key in self.texts:
-			return self.texts[text_key]
-		return ""
+		return self.texts.get(text_key, "")

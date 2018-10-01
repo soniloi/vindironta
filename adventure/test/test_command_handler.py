@@ -72,12 +72,12 @@ class TestCommandHandler(unittest.TestCase):
 		}
 
 		self.hint_map = {
-			"default" : "I have no hint to offer.",
+			"default" : "I have no hint.",
 			"magic" : "abrakadabra",
 		}
 
 		self.explanation_map = {
-			"default" : "I have no explanation for that.",
+			"default" : "I have no explanation.",
 			"spaize" : "Spaize is space-maize.",
 		}
 
@@ -91,10 +91,10 @@ class TestCommandHandler(unittest.TestCase):
 			"describe_item" : "It is {0}.",
 			"describe_location" : "You are {0}.",
 			"describe_node" : "You are at node {0}.",
-			"describe_score" : "Your current score is {0} point(s).",
-			"list_inventory_nonempty" : "You currently have the following: {0}.",
-			"list_inventory_empty" : "You are not carrying anything.",
-			"list_location" : " The following items are nearby: {1}.",
+			"describe_score" : "Current score: {0} point(s).",
+			"list_inventory_nonempty" : "You have: {0}.",
+			"list_inventory_empty" : "You have nothing.",
+			"list_location" : " Nearby: {1}.",
 			"reject_already" : "You already have the {0}.",
 			"reject_no_direction" : "You cannot go that way.",
 			"reject_no_light" : "It is too dark.",
@@ -104,37 +104,31 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_not_here" : "There is no {0} here.",
 			"reject_not_holding" : "You do not have the {0}.",
 			"reject_not_portable" : "You cannot take that.",
-			"reject_unknown" : "I do not know who or what that is.",
+			"reject_unknown" : "I do not know what that is.",
 		}
-
-	def get_value_or_none(self, data_map, key):
-		if key in data_map:
-			return data_map[key]
-		return None
-
 
 	def list_commands_side_effect(self, *args):
 		return "look, ne"
 
 
 	def locations_side_effect(self, *args):
-		return self.get_value_or_none(self.location_map, args[0])
+		return self.location_map.get(args[0])
 
 
 	def items_side_effect(self, *args):
-		return self.get_value_or_none(self.item_map, args[0])
+		return self.item_map.get(args[0])
 
 
 	def hints_side_effect(self, *args):
-		return self.get_value_or_none(self.hint_map, args[0])
+		return self.hint_map.get(args[0])
 
 
 	def explanations_side_effect(self, *args):
-		return self.get_value_or_none(self.explanation_map, args[0])
+		return self.explanation_map.get(args[0])
 
 
 	def responses_side_effect(self, *args):
-		return self.get_value_or_none(self.response_map, args[0])
+		return self.response_map.get(args[0])
 
 
 	def test_handle_commands(self):
@@ -154,7 +148,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_describe_unknown(self):
 		response = self.handler.handle_describe(self.player, "biscuit")
 
-		self.assertEqual(("I do not know who or what that is.", "biscuit"), response)
+		self.assertEqual(("I do not know what that is.", "biscuit"), response)
 
 
 	def test_handle_describe_known_absent(self):
@@ -182,7 +176,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_drop_unknown(self):
 		response = self.handler.handle_drop(self.player, "biscuit")
 
-		self.assertEqual(("I do not know who or what that is.", "biscuit"), response)
+		self.assertEqual(("I do not know what that is.", "biscuit"), response)
 
 
 	def test_handle_drop_known_not_in_inventory(self):
@@ -204,7 +198,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_explain_default(self):
 		response = self.handler.handle_explain(self.player, "dreams")
 
-		self.assertEqual(("I have no explanation for that.", "dreams"), response)
+		self.assertEqual(("I have no explanation.", "dreams"), response)
 
 
 	def test_handle_explain_non_default(self):
@@ -276,7 +270,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_hint_default(self):
 		response = self.handler.handle_hint(self.player, "cat")
 
-		self.assertEqual(("I have no hint to offer.", "cat"), response)
+		self.assertEqual(("I have no hint.", "cat"), response)
 
 
 	def test_handle_hint_non_default(self):
@@ -288,7 +282,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_inventory_empty(self):
 		response = self.handler.handle_inventory(self.player, "")
 
-		self.assertEqual(("You are not carrying anything.", ""), response)
+		self.assertEqual(("You have nothing.", ""), response)
 
 
 	def test_handle_inventory_nonempty(self):
@@ -296,7 +290,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_inventory(self.player, "")
 
-		self.assertEqual(("You currently have the following: {0}.", "\n\ta book"), response)
+		self.assertEqual(("You have: {0}.", "\n\ta book"), response)
 
 
 	def test_handle_look_no_light(self):
@@ -313,7 +307,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_look(self.player, "")
 
-		self.assertEqual(("You are {0}. The following items are nearby: {1}.",
+		self.assertEqual(("You are {0}. Nearby: {1}.",
 			["in the mines. There are dark passages everywhere.", "\n\ta lamp"]), response)
 
 
@@ -337,7 +331,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_look(self.player, "")
 
-		self.assertEqual(("You are {0}. The following items are nearby: {1}.",
+		self.assertEqual(("You are {0}. Nearby: {1}.",
 			["at a lighthouse by the sea.", "\n\ta lamp"]), response)
 
 
@@ -386,13 +380,13 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_score(self):
 		response = self.handler.handle_score(self.player, "")
 
-		self.assertEqual(("Your current score is {0} point(s).", 0), response)
+		self.assertEqual(("Current score: {0} point(s).", 0), response)
 
 
 	def test_handle_take_unknown(self):
 		response = self.handler.handle_take(self.player, "biscuit")
 
-		self.assertEqual(("I do not know who or what that is.", "biscuit"), response)
+		self.assertEqual(("I do not know what that is.", "biscuit"), response)
 
 
 	def test_handle_take_known_in_inventory(self):

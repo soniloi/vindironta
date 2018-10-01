@@ -22,9 +22,10 @@ class TestTextCollection(unittest.TestCase):
 		self.assertEqual(3, len(self.collection.texts))
 		self.assertTrue("inventory" in self.collection.texts)
 		self.assertTrue("reject_not_here" in self.collection.texts)
-		self.assertEqual("This command lists the items you are carrying.", self.collection.texts["inventory"])
-		self.assertEqual("There is no {0} here.", self.collection.texts["reject_not_here"])
-		self.assertEqual("You insert the {0} into the {1}.", self.collection.texts["confirm_insert"])
+		self.assertEqual("This command lists the items you are carrying.", self.collection.get("inventory"))
+		self.assertEqual("There is no {0} here.", self.collection.get("reject_not_here"))
+		self.assertEqual("You insert the {0} into the {1}.", self.collection.get("confirm_insert"))
+		self.assertEqual("", self.collection.get("unknown"))
 
 
 if __name__ == "__main__":
