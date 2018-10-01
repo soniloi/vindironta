@@ -20,3 +20,7 @@ class Player:
 
 	def is_carrying(self, item):
 		return self.inventory.contains(item)
+
+
+	def has_light(self):
+		return self.location.gives_light() or self.inventory.gives_light()

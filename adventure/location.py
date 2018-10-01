@@ -3,6 +3,8 @@ from adventure.item_container import ItemContainer
 
 class Location(DataElement, ItemContainer):
 
+	ATTRIBUTE_GIVES_LIGHT = 0x1
+
 	def __init__(self, location_id, attributes, shortname, longname, description):
 		DataElement.__init__(self, data_id=location_id, attributes=attributes, shortname=shortname, longname=longname,
 			description=description)
@@ -27,3 +29,9 @@ class Location(DataElement, ItemContainer):
 		for item in self.items.values():
 			result += "\n\t" + item.longname
 		return result
+
+	def gives_light(self):
+		if self.has_attribute(Location.ATTRIBUTE_GIVES_LIGHT):
+			return True
+
+		return ItemContainer.gives_light(self)

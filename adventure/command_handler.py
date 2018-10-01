@@ -36,10 +36,15 @@ class CommandHandler:
 
 
 	def handle_describe(self, player, arg):
+		return self.interact_vision(player, arg, self.complete_describe)
+
+
+	def complete_describe(self, player, arg):
 		return self.interact_item(player, arg, self.execute_describe)
 
 
 	def execute_describe(self, player, item):
+
 		template = ""
 
 		if not player.is_carrying(item) and not player.location.contains(item):
@@ -89,17 +94,19 @@ class CommandHandler:
 
 		if proposed_location:
 			player.previous_location = player.location
-			template, content = self.complete_go(player, proposed_location)
+			template, content = self.execute_go(player, arg, proposed_location)
 
 		return template, content
 
 
-	def complete_go(self, player, proposed_location):
-
+	def execute_go(self, player, arg, proposed_location):
 		player.location = proposed_location
-		template = self.get_response("confirm_look")
-		content = proposed_location.get_full_description()
+		return self.interact_vision(player, arg, self.complete_go)
 
+
+	def complete_go(self, player, arg):
+		template = self.get_response("confirm_look")
+		content = player.location.get_full_description()
 		return template, content
 
 
@@ -137,6 +144,10 @@ class CommandHandler:
 
 
 	def handle_look(self, player, arg):
+		return self.interact_vision(player, arg, self.complete_look)
+
+
+	def complete_look(self, player, arg):
 		template = self.get_response("describe_location")
 
 		if player.has_items_nearby():
@@ -162,7 +173,7 @@ class CommandHandler:
 
 			proposed_location = self.data.locations.get(location_id)
 			if proposed_location:
-				template, content =  self.complete_go(player, proposed_location)
+				template, content =  self.execute_go(player, arg, proposed_location)
 			else:
 				template = self.get_response("reject_no_node")
 
@@ -211,3 +222,10 @@ class CommandHandler:
 			return self.get_response("reject_unknown"), arg
 
 		return manipulation(player, item)
+
+
+	def interact_vision(self, player, arg, interaction):
+		if not player.has_light():
+			return self.get_response("reject_no_light"), ""
+
+		return interaction(player, arg)

@@ -11,8 +11,14 @@ class Item(DataElement):
 		self.writing = writing
 		self.container = None
 
+
 	def is_portable(self):
 		return self.has_attribute(Item.ATTRIBUTE_MOBILE)
 
+
 	def get_full_description(self):
 		return self.description
+
+
+	def gives_light(self):
+		return self.has_attribute(0x10)

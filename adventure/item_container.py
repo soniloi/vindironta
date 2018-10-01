@@ -24,6 +24,8 @@ class ItemContainer:
 
 
 	def get_by_id(self, key):
-		if key in self.items:
-			return self.items[key]
-		return None
+		return self.items.get(key)
+
+
+	def gives_light(self):
+		return any(item.gives_light() for item in self.items.values())
