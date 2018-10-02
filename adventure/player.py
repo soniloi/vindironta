@@ -2,12 +2,14 @@ from adventure.inventory import Inventory
 
 class Player:
 
+	INVENTORY_CAPACITY = 16
+
 	def __init__(self, location):
 		self.location = location
 		self.previous_location = None
 		self.playing = True
 		self.score = 0
-		self.inventory = Inventory()
+		self.inventory = Inventory(Player.INVENTORY_CAPACITY)
 
 
 	def holding_items(self):

@@ -220,6 +220,9 @@ class CommandHandler:
 		elif not item.is_portable():
 			template = self.get_response("reject_not_portable")
 
+		elif not player.inventory.can_accommodate(item):
+			template = self.get_response("reject_too_full")
+
 		else:
 			item.container.remove(item)
 			player.inventory.insert(item)

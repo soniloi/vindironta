@@ -57,6 +57,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.lamp = Item(1043, 0x101A, "lamp", "a lamp", "a small lamp", 2, None)
 		self.kohlrabi = Item(1042, 0x2002, "kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar", 3, None)
 		self.desk = Item(1000, 0x0, "desk", "a desk", "a large mahogany desk", 6, None)
+		self.heavy_item = Item(1001, 0x0, "heavy", "a heavy item", "a dummy heavy item", 15, None)
 
 		self.location_map = {
 			11 : self.mine_location,
@@ -67,6 +68,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.item_map = {
 			"book" : self.book,
 			"desk" : self.desk,
+			"heavy" : self.heavy_item,
 			"kohlrabi" : self.kohlrabi,
 			"lamp" : self.lamp,
 		}
@@ -104,6 +106,7 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_not_here" : "There is no {0} here.",
 			"reject_not_holding" : "You do not have the {0}.",
 			"reject_not_portable" : "You cannot take that.",
+			"reject_too_full" : "That is too large to carry.",
 			"reject_unknown" : "I do not know what that is.",
 		}
 
@@ -412,6 +415,16 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertEqual(("You cannot take that.", "desk"), response)
 		self.assertFalse(self.player.is_carrying(self.desk))
+
+
+	def test_handle_take_known_over_capacity(self):
+		self.player.location.insert(self.book)
+		self.player.inventory.insert(self.heavy_item)
+
+		response = self.handler.handle_take(self.player, "book")
+
+		self.assertEqual(("That is too large to carry.", "book"), response)
+		self.assertFalse(self.player.is_carrying(self.book))
 
 
 	def test_handle_take_known_at_location(self):
