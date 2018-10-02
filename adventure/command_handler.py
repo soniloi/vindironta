@@ -95,6 +95,7 @@ class CommandHandler:
 		if proposed_location:
 			player.previous_location = player.location
 			template, content = self.execute_go(player, arg, proposed_location)
+			player.location.visited = True
 
 		return template, content
 
@@ -106,7 +107,11 @@ class CommandHandler:
 
 	def complete_go(self, player, arg):
 		template = self.get_response("confirm_look")
-		content = player.location.get_full_description()
+		if player.has_items_nearby():
+			template += self.get_response("list_location")
+
+		content = player.location.get_arrival_description()
+
 		return template, content
 
 

@@ -10,6 +10,7 @@ class Location(DataElement, ItemContainer):
 			description=description)
 		ItemContainer.__init__(self)
 		self.directions = {}
+		self.visited = False
 
 
 	def get_adjacent_location(self, direction):
@@ -18,6 +19,17 @@ class Location(DataElement, ItemContainer):
 
 	def get_full_description(self):
 		return [self.get_description(), self.get_contents_description()]
+
+
+	def get_arrival_description(self):
+		description = ""
+
+		if self.visited:
+			description = self.longname
+		else:
+			description = self.get_description()
+
+		return [description, self.get_contents_description()]
 
 
 	def get_description(self):
@@ -29,6 +41,7 @@ class Location(DataElement, ItemContainer):
 		for item in self.items.values():
 			result += "\n\t" + item.longname
 		return result
+
 
 	def gives_light(self):
 		if self.has_attribute(Location.ATTRIBUTE_GIVES_LIGHT):

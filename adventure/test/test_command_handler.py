@@ -228,6 +228,19 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertIs(self.lighthouse_location, self.player.previous_location)
 
 
+	def test_handle_go_with_destination_again(self):
+		self.player.location.directions[Direction.SOUTH] = self.beach_location
+		self.beach_location.directions[Direction.NORTH] = self.lighthouse_location
+
+		self.handler.handle_go(self.player, 52)
+		self.handler.handle_go(self.player, 34)
+		response = self.handler.handle_go(self.player, 52)
+
+		self.assertEqual(("You are {0}.", ["on a beach", ""]), response)
+		self.assertIs(self.beach_location, self.player.location)
+		self.assertIs(self.lighthouse_location, self.player.previous_location)
+
+
 	def test_handle_go_with_destination_no_light(self):
 		self.player.location.directions[Direction.DOWN] = self.mine_location
 
