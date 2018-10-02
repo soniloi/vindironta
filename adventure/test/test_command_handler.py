@@ -428,6 +428,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertEqual(("You cannot take that.", "desk"), response)
 		self.assertFalse(self.player.is_carrying(self.desk))
+		self.assertTrue(self.player.location.contains(self.desk))
 
 
 	def test_handle_take_known_over_capacity(self):
@@ -438,6 +439,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertEqual(("That is too large to carry.", "book"), response)
 		self.assertFalse(self.player.is_carrying(self.book))
+		self.assertTrue(self.player.location.contains(self.book))
 
 
 	def test_handle_take_known_at_location(self):
@@ -447,6 +449,28 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertEqual(("Taken.", "book"), response)
 		self.assertTrue(self.player.is_carrying(self.book))
+		self.assertFalse(self.player.location.contains(self.book))
+
+
+	def test_handle_yank_known_at_location(self):
+		self.player.location.insert(self.book)
+
+		response = self.handler.handle_yank(self.player, "book")
+
+		self.assertEqual(("Taken.", "book"), response)
+		self.assertTrue(self.player.is_carrying(self.book))
+		self.assertFalse(self.lighthouse_location.contains(self.book))
+
+
+	def test_handle_yank_known_not_at_location(self):
+		self.mine_location.insert(self.book)
+
+		response = self.handler.handle_yank(self.player, "book")
+
+		self.assertEqual(("Taken.", "book"), response)
+		self.assertTrue(self.player.is_carrying(self.book))
+		self.assertFalse(self.mine_location.contains(self.book))
+
 
 
 if __name__ == "__main__":

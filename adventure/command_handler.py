@@ -236,6 +236,30 @@ class CommandHandler:
 		return template, item.shortname
 
 
+	def handle_yank(self, player, arg):
+		return self.interact_item(player, arg, self.execute_yank)
+
+
+	def execute_yank(self, player, item):
+		template = ""
+
+		if player.is_carrying(item):
+			template = self.get_response("reject_already")
+
+		elif not item.is_portable():
+			template = self.get_response("reject_not_portable")
+
+		elif not player.inventory.can_accommodate(item):
+			template = self.get_response("reject_too_full")
+
+		else:
+			item.container.remove(item)
+			player.inventory.insert(item)
+			template = self.get_response("confirm_taken")
+
+		return template, item.shortname
+
+
 	def interact_item(self, player, arg, manipulation):
 
 		item = self.data.items.get(arg)
