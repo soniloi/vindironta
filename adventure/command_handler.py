@@ -89,34 +89,48 @@ class CommandHandler:
 	def handle_go(self, player, arg):
 		direction = CommandHandler.DIRECTIONS[arg]
 
-		proposed_location, template = self.get_proposed_location_and_reject_template(player, direction)
+		proposed_location, reject_template_key = self.get_proposed_location_and_reject_key(player, direction)
+		template = self.get_response(reject_template_key)
 		content = ""
 
 		if proposed_location:
-			obstructions = player.location.get_obstructions()
+			template, content = self.execute_go_if_not_obstructed(player, arg, proposed_location)
 
-			if obstructions and proposed_location is not player.previous_location:
-				template, content = self.reject_go_obstructed(player, obstructions)
+		return template, content
 
-			else:
-				player.previous_location = player.location
-				template, content = self.execute_go(player, arg, proposed_location)
-				player.location.visited = True
+
+	def get_proposed_location_and_reject_key(self, player, direction):
+		if direction == Direction.BACK:
+			return player.previous_location, "reject_no_back"
+
+		return player.location.get_adjacent_location(direction), self.get_non_back_reject_key(direction)
+
+
+	def get_non_back_reject_key(self, direction):
+		if direction == Direction.OUT:
+			return "reject_no_out"
+		return "reject_no_direction"
+
+
+	def execute_go_if_not_obstructed(self, player, arg, proposed_location):
+		obstructions = player.location.get_obstructions()
+
+		if obstructions and proposed_location is not player.previous_location:
+			template_key, content = self.reject_go_obstructed(player, obstructions)
+			template = self.get_response(template_key)
+
+		else:
+			player.previous_location = player.location
+			template, content = self.execute_go(player, arg, proposed_location)
+			player.location.visited = True
 
 		return template, content
 
 
 	def reject_go_obstructed(self, player, obstructions):
-		template = ""
-		content = ""
-
 		if player.has_light():
-			template = self.get_response("reject_obstruction_known")
-			content = obstructions[0].longname
-		else:
-			template = self.get_response("reject_obstruction_unknown")
-
-		return template, content
+			return "reject_obstruction_known", obstructions[0].longname
+		return "reject_obstruction_unknown", ""
 
 
 	def execute_go(self, player, arg, proposed_location):
@@ -132,22 +146,6 @@ class CommandHandler:
 		content = player.location.get_arrival_description()
 
 		return template, content
-
-
-	def get_proposed_location_and_reject_template(self, player, direction):
-
-		if direction == Direction.BACK:
-			proposed_location = player.previous_location
-			reject_template = self.get_response("reject_no_back")
-
-		else:
-			proposed_location = player.location.get_adjacent_location(direction)
-			if direction == Direction.OUT:
-				reject_template = self.get_response("reject_no_out")
-			else:
-				reject_template = self.get_response("reject_no_direction")
-
-		return proposed_location, reject_template
 
 
 	def handle_help(self, player, arg):
