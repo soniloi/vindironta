@@ -59,6 +59,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.desk = Item(1000, 0x0, "desk", "a desk", "a large mahogany desk", 6, None)
 		self.heavy_item = Item(1001, 0x0, "heavy", "a heavy item", "a dummy heavy item", 15, None)
 		self.obstruction = Item(1002, 0x4, "obstruction", "an obstruction", "an obstruction blocking you", 8, None)
+		self.mobile_obstruction = Item(1003, 0x6, "mobile_obstruction", "a mobile obstruction", "a mobile obstruction", 5, None)
 
 		self.location_map = {
 			11 : self.mine_location,
@@ -72,6 +73,7 @@ class TestCommandHandler(unittest.TestCase):
 			"heavy" : self.heavy_item,
 			"kohlrabi" : self.kohlrabi,
 			"lamp" : self.lamp,
+			"mobile_obstruction" : self.mobile_obstruction,
 		}
 
 		self.hint_map = {
@@ -477,7 +479,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertFalse(self.player.is_carrying(self.kohlrabi))
 
 
-	def test_handle_take_known_not_portable(self):
+	def test_handle_take_known_not_mobile(self):
 		self.player.location.insert(self.desk)
 
 		response = self.handler.handle_take(self.player, "desk")
@@ -485,6 +487,16 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("You cannot take that.", "desk"), response)
 		self.assertFalse(self.player.is_carrying(self.desk))
 		self.assertTrue(self.player.location.contains(self.desk))
+
+
+	def test_handle_take_known_obstruction(self):
+		self.player.location.insert(self.mobile_obstruction)
+
+		response = self.handler.handle_take(self.player, "mobile_obstruction")
+
+		self.assertEqual(("You cannot take that.", "mobile_obstruction"), response)
+		self.assertFalse(self.player.is_carrying(self.mobile_obstruction))
+		self.assertTrue(self.player.location.contains(self.mobile_obstruction))
 
 
 	def test_handle_take_known_over_capacity(self):

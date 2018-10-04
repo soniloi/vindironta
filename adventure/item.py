@@ -12,6 +12,7 @@ class Item(DataElement):
 		self.size = size
 		self.writing = writing
 		self.container = None
+		self.obstruction = self.has_attribute(Item.ATTRIBUTE_OBSTRUCTION)
 
 
 	def get_full_description(self):
@@ -19,11 +20,15 @@ class Item(DataElement):
 
 
 	def is_portable(self):
+		return self.is_mobile() and not self.obstruction
+
+
+	def is_mobile(self):
 		return self.has_attribute(Item.ATTRIBUTE_MOBILE)
 
 
 	def is_obstruction(self):
-		return self.has_attribute(Item.ATTRIBUTE_OBSTRUCTION)
+		return self.obstruction
 
 
 	def gives_light(self):
