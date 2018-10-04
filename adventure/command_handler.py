@@ -93,9 +93,28 @@ class CommandHandler:
 		content = ""
 
 		if proposed_location:
-			player.previous_location = player.location
-			template, content = self.execute_go(player, arg, proposed_location)
-			player.location.visited = True
+			obstructions = player.location.get_obstructions()
+
+			if obstructions and proposed_location is not player.previous_location:
+				template, content = self.reject_go_obstructed(player, obstructions)
+
+			else:
+				player.previous_location = player.location
+				template, content = self.execute_go(player, arg, proposed_location)
+				player.location.visited = True
+
+		return template, content
+
+
+	def reject_go_obstructed(self, player, obstructions):
+		template = ""
+		content = ""
+
+		if player.has_light():
+			template = self.get_response("reject_obstruction_known")
+			content = obstructions[0].longname
+		else:
+			template = self.get_response("reject_obstruction_unknown")
 
 		return template, content
 

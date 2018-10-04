@@ -48,3 +48,7 @@ class Location(DataElement, ItemContainer):
 			return True
 
 		return ItemContainer.gives_light(self)
+
+
+	def get_obstructions(self):
+		return [item for item in self.items.values() if item.is_obstruction()]

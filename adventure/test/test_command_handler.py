@@ -58,6 +58,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.kohlrabi = Item(1042, 0x2002, "kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar", 3, None)
 		self.desk = Item(1000, 0x0, "desk", "a desk", "a large mahogany desk", 6, None)
 		self.heavy_item = Item(1001, 0x0, "heavy", "a heavy item", "a dummy heavy item", 15, None)
+		self.obstruction = Item(1002, 0x4, "obstruction", "an obstruction", "an obstruction blocking you", 8, None)
 
 		self.location_map = {
 			11 : self.mine_location,
@@ -106,6 +107,8 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_not_here" : "There is no {0} here.",
 			"reject_not_holding" : "You do not have the {0}.",
 			"reject_not_portable" : "You cannot take that.",
+			"reject_obstruction_known" : "You are blocked by {0}.",
+			"reject_obstruction_unknown" : "You are blocked by something here.",
 			"reject_too_full" : "That is too large to carry.",
 			"reject_unknown" : "I do not know what that is.",
 		}
@@ -275,6 +278,59 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("I cannot tell in from out here.", ""), response)
 		self.assertIs(self.lighthouse_location, self.player.location)
 		self.assertIsNone(self.player.previous_location)
+
+
+	def test_handle_go_without_destination_with_obstruction(self):
+		self.player.location.insert(self.obstruction)
+
+		response = self.handler.handle_go(self.player, 34)
+
+		self.assertEqual(("You cannot go that way.", ""), response)
+		self.assertIs(self.lighthouse_location, self.player.location)
+		self.assertIsNone(self.player.previous_location)
+
+
+	def test_handle_go_with_destination_with_obstruction(self):
+		self.player.location.insert(self.obstruction)
+		self.player.location.directions[Direction.SOUTH] = self.beach_location
+
+		response = self.handler.handle_go(self.player, 52)
+
+		self.assertEqual(("You are blocked by {0}.", "an obstruction"), response)
+
+
+	def test_handle_go_with_destination_with_obstruction_no_light(self):
+		self.player.location = self.mine_location
+		self.player.location.insert(self.obstruction)
+		self.player.location.directions[Direction.EAST] = self.beach_location
+
+		response = self.handler.handle_go(self.player, 16)
+
+		self.assertEqual(("You are blocked by something here.", ""), response)
+
+
+	def test_handle_go_back_with_destination_with_obstruction(self):
+		self.player.location.insert(self.obstruction)
+		self.player.previous_location = self.beach_location
+
+		response = self.handler.handle_go(self.player, 5)
+
+		self.assertEqual(("You are {0}.", ["on a beach of black sand", ""]), response)
+		self.assertIs(self.beach_location, self.player.location)
+		self.assertIs(self.lighthouse_location, self.player.previous_location)
+
+
+	def test_handle_go_with_obstruction_to_previous_location(self):
+		self.beach_location.insert(self.obstruction)
+		self.player.location.directions[Direction.SOUTH] = self.beach_location
+		self.beach_location.directions[Direction.NORTH] = self.lighthouse_location
+
+		self.handler.handle_go(self.player, 52)
+		response = self.handler.handle_go(self.player, 34)
+
+		self.assertEqual(("You are {0}.", ["at a lighthouse by the sea.", ""]), response)
+		self.assertIs(self.lighthouse_location, self.player.location)
+		self.assertIs(self.beach_location, self.player.previous_location)
 
 
 	def test_handle_help(self):
