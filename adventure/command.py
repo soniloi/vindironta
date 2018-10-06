@@ -1,7 +1,9 @@
 class Command:
 
+	ATTRIBUTE_TAKES_ARG = 0x08
 	ATTRIBUTE_SECRET = 0x10
 	ATTRIBUTE_MOVEMENT = 0x40
+	ATTRIBUTE_ARG_OPTIONAL = 0x80
 
 	def __init__(self, command_id, attributes, function, primary, aliases):
 		self.command_id = command_id
@@ -38,3 +40,16 @@ class MovementCommand(Command):
 	def execute(self, player, arg):
 		arg = self.command_id
 		return Command.execute(self, player, arg)
+
+
+class ArgumentCommand(Command):
+
+	def __init__(self, command_id, attributes, function, primary, aliases, permissive):
+		Command.__init__(self, command_id, attributes, function, primary, aliases)
+		self.permissive = permissive
+
+
+class ArglessCommand(Command):
+
+	def __init__(self, command_id, attributes, function, primary, aliases):
+		Command.__init__(self, command_id, attributes, function, primary, aliases)

@@ -1,4 +1,4 @@
-from adventure.command import Command, MovementCommand
+from adventure.command import Command, MovementCommand, ArgumentCommand, ArglessCommand
 from adventure.file_reader import FileReader
 
 class CommandCollection:
@@ -44,7 +44,18 @@ class CommandCollection:
 				aliases=aliases
 			)
 
-		return Command(
+		elif attributes & Command.ATTRIBUTE_TAKES_ARG != 0:
+			permissive = attributes & Command.ATTRIBUTE_ARG_OPTIONAL != 0
+			return ArgumentCommand(
+				command_id=command_id,
+				attributes=attributes,
+				function=function,
+				primary=primary,
+				aliases=aliases,
+				permissive=permissive
+			)
+
+		return ArglessCommand(
 			command_id=command_id,
 			attributes=attributes,
 			function=function,
