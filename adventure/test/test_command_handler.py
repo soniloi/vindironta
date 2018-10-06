@@ -101,6 +101,8 @@ class TestCommandHandler(unittest.TestCase):
 			"list_inventory_empty" : "You have nothing.",
 			"list_location" : " Nearby: {1}.",
 			"reject_already" : "You already have the {0}.",
+			"reject_climb" : "Use \"up\" or \"down\".",
+			"reject_go" : "Use a compass point.",
 			"reject_no_direction" : "You cannot go that way.",
 			"reject_no_light" : "It is too dark.",
 			"reject_no_back" : "I do not remember how you got here.",
@@ -137,6 +139,12 @@ class TestCommandHandler(unittest.TestCase):
 
 	def responses_side_effect(self, *args):
 		return self.response_map.get(args[0])
+
+
+	def test_handle_climb(self):
+		response = self.handler.handle_climb(self.player, "tree")
+
+		self.assertEqual(("Use \"up\" or \"down\".", ""), response)
 
 
 	def test_handle_commands(self):
@@ -333,6 +341,12 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("You are {0}.", ["at a lighthouse by the sea.", ""]), response)
 		self.assertIs(self.lighthouse_location, self.player.location)
 		self.assertIs(self.beach_location, self.player.previous_location)
+
+
+	def test_handle_go_disambiguate(self):
+		response = self.handler.handle_go_disambiguate(self.player, "east")
+
+		self.assertEqual(("Use a compass point.", ""), response)
 
 
 	def test_handle_help(self):

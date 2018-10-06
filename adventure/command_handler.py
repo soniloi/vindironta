@@ -29,6 +29,10 @@ class CommandHandler:
 		return self.data.responses.get(response_key)
 
 
+	def handle_climb(self, player, arg):
+		return self.get_response("reject_climb"), ""
+
+
 	def handle_commands(self, player, arg):
 		template = self.get_response("describe_commands")
 		content = self.data.commands.list_commands()
@@ -146,6 +150,10 @@ class CommandHandler:
 		content = player.location.get_arrival_description()
 
 		return template, content
+
+
+	def handle_go_disambiguate(self, player, arg):
+		return self.get_response("reject_go"), ""
 
 
 	def handle_help(self, player, arg):
