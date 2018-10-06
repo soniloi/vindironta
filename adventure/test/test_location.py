@@ -8,6 +8,7 @@ class TestLocation(unittest.TestCase):
 	def setUp(self):
 		self.location = Location(11, 0, "Mines", "in the mines", ". There are dark passages everywhere")
 		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
+		self.desk = Item(1000, 0x20000, "desk", "a desk", "a large mahogany desk", 6, None)
 		self.obstruction = Item(1000, 0x4, "obstruction", "an obstruction", "an obstruction blocking you", 8, None)
 
 
@@ -19,11 +20,34 @@ class TestLocation(unittest.TestCase):
 
 
 	def test_get_arrival_description_not_visited(self):
-		self.assertEqual(["in the mines. There are dark passages everywhere", ""], self.location.get_arrival_description())
+		description = self.location.get_arrival_description()
+
+		self.assertEqual(["in the mines. There are dark passages everywhere", ""], description)
 
 
 	def test_get_arrival_description_visited(self):
 		self.location.visited = True
+
+		description = self.location.get_arrival_description()
+
+		self.assertEqual(["in the mines", ""], description)
+
+
+	def test_get_full_description_non_silent(self):
+		self.location.visited = True
+		self.location.insert(self.book)
+
+		description = self.location.get_full_description()
+
+		self.assertEqual(["in the mines", "\n\ta book"], self.location.get_arrival_description())
+
+
+	def test_get_full_description_silent(self):
+		self.location.visited = True
+		self.location.insert(self.desk)
+
+		description = self.location.get_full_description()
+
 		self.assertEqual(["in the mines", ""], self.location.get_arrival_description())
 
 

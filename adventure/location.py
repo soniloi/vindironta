@@ -39,8 +39,14 @@ class Location(DataElement, ItemContainer):
 	def get_contents_description(self):
 		result = ""
 		for item in self.items.values():
-			result += "\n\t" + item.longname
+			result += self.get_item_description(item)
 		return result
+
+
+	def get_item_description(self, item):
+		if not item.is_silent():
+			return "\n\t" + item.longname
+		return ""
 
 
 	def gives_light(self):
