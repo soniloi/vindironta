@@ -20,9 +20,6 @@ class Command:
 
 
 	def execute(self, player, arg):
-		if self.has_attribute(Command.ATTRIBUTE_MOVEMENT):
-			arg = self.command_id
-
 		template, content = self.function(player, arg)
 
 		# TODO: revisit
@@ -30,3 +27,14 @@ class Command:
 			content = [content]
 
 		return template.format(*content)
+
+
+class MovementCommand(Command):
+
+	def __init__(self, command_id, attributes, function, primary, aliases):
+		Command.__init__(self, command_id, attributes, function, primary, aliases)
+
+
+	def execute(self, player, arg):
+		arg = self.command_id
+		return Command.execute(self, player, arg)

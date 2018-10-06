@@ -1,4 +1,4 @@
-from adventure.command import Command
+from adventure.command import Command, MovementCommand
 from adventure.file_reader import FileReader
 
 class CommandCollection:
@@ -8,13 +8,13 @@ class CommandCollection:
 		self.commands = {}
 		line = reader.read_line()
 		while not line.startswith("---"):
-			self.create_command(line)
+			self.parse_command(line)
 			line = reader.read_line()
 
 		self.command_list = self.create_command_list()
 
 
-	def create_command(self, line):
+	def parse_command(self, line):
 		tokens = line.split("\t")
 
 		command_id = self.parse_command_id(tokens[0])
@@ -23,7 +23,7 @@ class CommandCollection:
 
 		if command_function:
 			(primary_command_name, command_names) = self.parse_command_names(tokens[3])
-			command = Command(
+			command = self.create_command(
 				command_id=command_id,
 				attributes=command_attributes,
 				function=command_function,
@@ -33,6 +33,24 @@ class CommandCollection:
 			for command_name in command_names:
 				self.commands[command_name] = command
 
+
+	def create_command(self, command_id, attributes, function, primary, aliases):
+		if attributes & Command.ATTRIBUTE_MOVEMENT != 0:
+			return MovementCommand(
+				command_id=command_id,
+				attributes=attributes,
+				function=function,
+				primary=primary,
+				aliases=aliases
+			)
+
+		return Command(
+			command_id=command_id,
+			attributes=attributes,
+			function=function,
+			primary=primary,
+			aliases=aliases
+		)
 
 	def parse_command_id(self, token):
 		return int(token)

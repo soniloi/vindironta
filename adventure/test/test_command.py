@@ -1,11 +1,12 @@
 import unittest
 
-from adventure.command import Command
+from adventure.command import Command, MovementCommand
 
 class TestCommand(unittest.TestCase):
 
 	def setUp(self):
 		self.command_singular = Command(1, 0x9, self.command_function_singular, "", [])
+		self.command_movement = MovementCommand(1, 0x49, self.command_function_singular, "", [])
 		self.command_list = Command(1, 0x9, self.command_function_list, "", [])
 
 
@@ -32,9 +33,7 @@ class TestCommand(unittest.TestCase):
 
 
 	def test_execute_singular_movement(self):
-		self.command_singular.attributes |= 0x40
-
-		result = self.command_singular.execute(None, "test")
+		result = self.command_movement.execute(None, "test")
 
 		self.assertEqual("1 success!", result)
 
