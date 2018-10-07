@@ -25,10 +25,18 @@ class TestArgumentResolver(unittest.TestCase):
 		return "{0} success!", arg
 
 
-	def test_execute(self):
+	def test_resolve_movement(self):
 		command = Command(1, 0x9, None, self.handler_function, "", [])
 
-		response = self.resolver.execute(command, None, "test")
+		response = self.resolver.resolve_movement(command, None, "test")
+
+		self.assertEqual(("{0} success!", 1), response)
+
+
+	def test_resolve_non_movement(self):
+		command = Command(1, 0x9, None, self.handler_function, "", [])
+
+		response = self.resolver.resolve_non_movement(command, None, "test")
 
 		self.assertEqual(("{0} success!", "test"), response)
 

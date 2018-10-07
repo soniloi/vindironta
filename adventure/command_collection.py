@@ -78,7 +78,11 @@ class CommandCollection:
 
 
 	def get_resolver_function(self, attributes):
-		resolver_function_name = "execute"
+		resolver_function_name = "resolve_"
+		if attributes & Command.ATTRIBUTE_MOVEMENT != 0:
+			resolver_function_name += "movement"
+		else:
+			resolver_function_name += "non_movement"
 		return self.argument_resolver.get_resolver_function(resolver_function_name)
 
 

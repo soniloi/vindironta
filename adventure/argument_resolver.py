@@ -11,3 +11,12 @@ class ArgumentResolver:
 	def execute(self, command, player, arg):
 		function = command.handler_function
 		return function(player, arg)
+
+
+	def resolve_movement(self, command, player, arg):
+		arg = command.command_id
+		return self.execute(command, player, arg)
+
+
+	def resolve_non_movement(self, command, player, arg):
+		return self.execute(command, player, arg)
