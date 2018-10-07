@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import Mock
 
 from adventure.argument_resolver import ArgumentResolver
 from adventure.command import Command
@@ -9,16 +10,27 @@ class TestArgumentResolver(unittest.TestCase):
 	def setUp(self):
 
 		self.resolver = ArgumentResolver()
+
+		responses_mock = Mock()
+		responses_mock.get.side_effect = self.responses_side_effect
+
 		self.data = DataCollection(
 			commands=None,
 			locations=None,
 			items=None,
 			hints=None,
 			explanations=None,
-			responses=None,
+			responses=responses_mock,
 			puzzles=None,
 		)
 		self.resolver.init_data(self.data)
+
+		self.response_map = {
+			"request_argless" : "Do not give an argument for this command.",
+		}
+
+	def responses_side_effect(self, *args):
+		return self.response_map.get(args[0])
 
 
 	def handler_function(self, player, arg):
@@ -33,10 +45,18 @@ class TestArgumentResolver(unittest.TestCase):
 		self.assertEqual(("{0} success!", 1), response)
 
 
-	def test_resolve_non_movement(self):
+	def test_resolve_argless(self):
 		command = Command(1, 0x9, None, self.handler_function, "", [], False)
 
-		response = self.resolver.resolve_non_movement(command, None, "test")
+		response = self.resolver.resolve_argless(command, None, "test")
+
+		self.assertEqual(("Do not give an argument for this command.", "test"), response)
+
+
+	def test_resolve_single_arg(self):
+		command = Command(1, 0x9, None, self.handler_function, "", [], False)
+
+		response = self.resolver.resolve_single_arg(command, None, "test")
 
 		self.assertEqual(("{0} success!", "test"), response)
 

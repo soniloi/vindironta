@@ -18,5 +18,11 @@ class ArgumentResolver:
 		return self.execute(command, player, arg)
 
 
-	def resolve_non_movement(self, command, player, arg):
+	def resolve_argless(self, command, player, arg):
+		if arg:
+			return self.data.responses.get("request_argless"), arg
+		return self.execute(command, player, arg)
+
+
+	def resolve_single_arg(self, command, player, arg):
 		return self.execute(command, player, arg)

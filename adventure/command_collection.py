@@ -24,7 +24,7 @@ class CommandCollection:
 		handler_function = self.parse_handler_function(tokens[2])
 		permissive = self.get_permissive(command_attributes)
 
-		if handler_function:
+		if handler_function and resolver_function:
 			(primary_command_name, command_names) = self.parse_command_names(tokens[3])
 			command = Command(
 				command_id=command_id,
@@ -51,8 +51,10 @@ class CommandCollection:
 		resolver_function_name = "resolve_"
 		if attributes & Command.ATTRIBUTE_MOVEMENT != 0:
 			resolver_function_name += "movement"
+		elif attributes & Command.ATTRIBUTE_TAKES_ARG == 0:
+			resolver_function_name += "argless"
 		else:
-			resolver_function_name += "non_movement"
+			resolver_function_name += "single_arg"
 		return self.argument_resolver.get_resolver_function(resolver_function_name)
 
 
@@ -67,7 +69,7 @@ class CommandCollection:
 
 
 	def get_permissive(self, attributes):
-		return attributes & Command.ATTRIBUTE_TAKES_ARG != 0
+		return attributes & Command.ATTRIBUTE_ARG_OPTIONAL != 0
 
 
 	def get(self, name):
