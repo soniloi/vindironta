@@ -26,7 +26,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 
 	def test_resolve_movement(self):
-		command = Command(1, 0x9, None, self.handler_function, "", [])
+		command = Command(1, 0x9, None, self.handler_function, "", [], False)
 
 		response = self.resolver.resolve_movement(command, None, "test")
 
@@ -34,7 +34,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 
 	def test_resolve_non_movement(self):
-		command = Command(1, 0x9, None, self.handler_function, "", [])
+		command = Command(1, 0x9, None, self.handler_function, "", [], False)
 
 		response = self.resolver.resolve_non_movement(command, None, "test")
 

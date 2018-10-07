@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from adventure.argument_resolver import ArgumentResolver
-from adventure.command import MovementCommand, ArgumentCommand, ArglessCommand
+from adventure.command import Command
 from adventure.command_collection import CommandCollection
 from adventure.command_handler import CommandHandler
 from adventure import file_reader
@@ -45,11 +45,6 @@ class TestCommandCollection(unittest.TestCase):
 
 		self.assertIsNot(score_command, look_command)
 		self.assertIs(look_command, l_command)
-
-		self.assertTrue(isinstance(look_command, ArglessCommand))
-		self.assertTrue(isinstance(score_command, ArglessCommand))
-		self.assertTrue(isinstance(east_command, MovementCommand))
-		self.assertTrue(isinstance(take_command, ArgumentCommand))
 
 
 	def test_list_commands(self):

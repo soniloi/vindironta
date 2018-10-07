@@ -1,4 +1,4 @@
-from adventure.command import Command, MovementCommand, ArgumentCommand, ArglessCommand
+from adventure.command import Command
 from adventure.file_reader import FileReader
 
 class CommandCollection:
@@ -22,52 +22,22 @@ class CommandCollection:
 		command_attributes = self.parse_command_attributes(tokens[1])
 		resolver_function = self.get_resolver_function(command_attributes)
 		handler_function = self.parse_handler_function(tokens[2])
+		permissive = self.get_permissive(command_attributes)
 
 		if handler_function:
 			(primary_command_name, command_names) = self.parse_command_names(tokens[3])
-			command = self.create_command(
+			command = Command(
 				command_id=command_id,
 				attributes=command_attributes,
 				resolver_function=resolver_function,
 				handler_function=handler_function,
 				primary=primary_command_name,
-				aliases=command_names
+				aliases=command_names,
+				permissive=permissive
 			)
 			for command_name in command_names:
 				self.commands[command_name] = command
 
-
-	def create_command(self, command_id, attributes, resolver_function, handler_function, primary, aliases):
-		if attributes & Command.ATTRIBUTE_MOVEMENT != 0:
-			return MovementCommand(
-				command_id=command_id,
-				attributes=attributes,
-				resolver_function=resolver_function,
-				handler_function=handler_function,
-				primary=primary,
-				aliases=aliases
-			)
-
-		elif attributes & Command.ATTRIBUTE_TAKES_ARG != 0:
-			permissive = attributes & Command.ATTRIBUTE_ARG_OPTIONAL != 0
-			return ArgumentCommand(
-				command_id=command_id,
-				attributes=attributes,
-				resolver_function=resolver_function,
-				handler_function=handler_function,
-				primary=primary,
-				aliases=aliases,
-				permissive=permissive
-			)
-
-		return ArglessCommand(
-			command_id=command_id,
-			attributes=attributes,
-			resolver_function=resolver_function,
-			handler_function=handler_function,
-			primary=primary,
-			aliases=aliases
-		)
 
 	def parse_command_id(self, token):
 		return int(token)
@@ -94,6 +64,10 @@ class CommandCollection:
 	def parse_command_names(self, token):
 		command_names = token.split(",")
 		return (command_names[0], command_names)
+
+
+	def get_permissive(self, attributes):
+		return attributes & Command.ATTRIBUTE_TAKES_ARG != 0
 
 
 	def get(self, name):

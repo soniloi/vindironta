@@ -1,13 +1,13 @@
 import unittest
 
-from adventure.command import ArglessCommand, MovementCommand
+from adventure.command import Command
 
 class TestCommand(unittest.TestCase):
 
 	def setUp(self):
-		self.command_singular = ArglessCommand(1, 0x9, self.resolver_function_non_movement, self.handler_function_singular, "", [])
-		self.command_movement = MovementCommand(1, 0x49, self.resolver_function_movement, self.handler_function_singular, "", [])
-		self.command_list = ArglessCommand(1, 0x9, self.resolver_function_non_movement, self.handler_function_list, "", [])
+		self.command_singular = Command(1, 0x9, self.resolver_function_non_movement, self.handler_function_singular, "", [], False)
+		self.command_movement = Command(1, 0x49, self.resolver_function_movement, self.handler_function_singular, "", [], False)
+		self.command_list = Command(1, 0x9, self.resolver_function_non_movement, self.handler_function_list, "", [], False)
 
 
 	def resolver_function_movement(self, command, player, arg):
