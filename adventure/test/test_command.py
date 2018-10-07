@@ -5,16 +5,20 @@ from adventure.command import ArglessCommand, MovementCommand
 class TestCommand(unittest.TestCase):
 
 	def setUp(self):
-		self.command_singular = ArglessCommand(1, 0x9, self.command_function_singular, "", [])
-		self.command_movement = MovementCommand(1, 0x49, self.command_function_singular, "", [])
-		self.command_list = ArglessCommand(1, 0x9, self.command_function_list, "", [])
+		self.command_singular = ArglessCommand(1, 0x9, self.resolver_function, self.handler_function_singular, "", [])
+		self.command_movement = MovementCommand(1, 0x49, self.resolver_function, self.handler_function_singular, "", [])
+		self.command_list = ArglessCommand(1, 0x9, self.resolver_function, self.handler_function_list, "", [])
 
 
-	def command_function_singular(self, player, arg):
+	def resolver_function(self, command, player, arg):
+		return command.handler_function(player, arg)
+
+
+	def handler_function_singular(self, player, arg):
 		return "{0} success!", arg
 
 
-	def command_function_list(self, player, arg):
+	def handler_function_list(self, player, arg):
 		return "{0} success!", [arg]
 
 

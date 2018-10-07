@@ -1,3 +1,4 @@
+from adventure.argument_resolver import ArgumentResolver
 from adventure.command_collection import CommandCollection
 from adventure.command_handler import CommandHandler
 from adventure.data_collection import DataCollection
@@ -11,6 +12,7 @@ class Game:
  
 	def __init__(self, filename=None):
 		self.on = True
+		self.argument_resolver = ArgumentResolver()
 		self.command_handler = CommandHandler()
 
 		if filename:
@@ -21,7 +23,7 @@ class Game:
 
 
 	def init_data(self, reader):
-		self.command_collection = CommandCollection(reader, self.command_handler)
+		self.command_collection = CommandCollection(reader, self.argument_resolver, self.command_handler)
 		location_collection = LocationCollection(reader)
 		item_collection = ItemCollection(reader, location_collection)
 		hint_text_collection = TextCollection(reader)
@@ -39,7 +41,7 @@ class Game:
 			puzzles=puzzle_text_collection
 		)
 
-		# TODO: Re-order file and pass through constructor?
+		self.argument_resolver.init_data(self.data)
 		self.command_handler.init_data(self.data)
 
 

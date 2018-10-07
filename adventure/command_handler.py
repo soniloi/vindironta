@@ -21,8 +21,8 @@ class CommandHandler:
 		self.data = data
 
 
-	def get_command_function(self, command_function_name):
-		return getattr(self, command_function_name, None)
+	def get_handler_function(self, function_name):
+		return getattr(self, function_name, None)
 
 
 	def get_response(self, response_key):

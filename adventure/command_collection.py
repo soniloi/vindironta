@@ -3,7 +3,8 @@ from adventure.file_reader import FileReader
 
 class CommandCollection:
 
-	def __init__(self, reader, command_handler):
+	def __init__(self, reader, argument_resolver, command_handler):
+		self.argument_resolver = argument_resolver
 		self.command_handler = command_handler
 		self.commands = {}
 		line = reader.read_line()
@@ -19,14 +20,16 @@ class CommandCollection:
 
 		command_id = self.parse_command_id(tokens[0])
 		command_attributes = self.parse_command_attributes(tokens[1])
-		command_function = self.parse_command_function(tokens[2])
+		resolver_function = self.get_resolver_function(command_attributes)
+		handler_function = self.parse_handler_function(tokens[2])
 
-		if command_function:
+		if handler_function:
 			(primary_command_name, command_names) = self.parse_command_names(tokens[3])
 			command = self.create_command(
 				command_id=command_id,
 				attributes=command_attributes,
-				function=command_function,
+				resolver_function=resolver_function,
+				handler_function=handler_function,
 				primary=primary_command_name,
 				aliases=command_names
 			)
@@ -34,12 +37,13 @@ class CommandCollection:
 				self.commands[command_name] = command
 
 
-	def create_command(self, command_id, attributes, function, primary, aliases):
+	def create_command(self, command_id, attributes, resolver_function, handler_function, primary, aliases):
 		if attributes & Command.ATTRIBUTE_MOVEMENT != 0:
 			return MovementCommand(
 				command_id=command_id,
 				attributes=attributes,
-				function=function,
+				resolver_function=resolver_function,
+				handler_function=handler_function,
 				primary=primary,
 				aliases=aliases
 			)
@@ -49,7 +53,8 @@ class CommandCollection:
 			return ArgumentCommand(
 				command_id=command_id,
 				attributes=attributes,
-				function=function,
+				resolver_function=resolver_function,
+				handler_function=handler_function,
 				primary=primary,
 				aliases=aliases,
 				permissive=permissive
@@ -58,7 +63,8 @@ class CommandCollection:
 		return ArglessCommand(
 			command_id=command_id,
 			attributes=attributes,
-			function=function,
+			resolver_function=resolver_function,
+			handler_function=handler_function,
 			primary=primary,
 			aliases=aliases
 		)
@@ -71,9 +77,14 @@ class CommandCollection:
 		return int(token, 16)
 
 
-	def parse_command_function(self, token):
-		command_function_name = "handle_" + token
-		return self.command_handler.get_command_function(command_function_name)
+	def get_resolver_function(self, attributes):
+		resolver_function_name = "execute"
+		return self.argument_resolver.get_resolver_function(resolver_function_name)
+
+
+	def parse_handler_function(self, token):
+		handler_function_name = "handle_" + token
+		return self.command_handler.get_handler_function(handler_function_name)
 
 
 	def parse_command_names(self, token):

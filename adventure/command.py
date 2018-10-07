@@ -5,10 +5,11 @@ class Command:
 	ATTRIBUTE_MOVEMENT = 0x40
 	ATTRIBUTE_ARG_OPTIONAL = 0x80
 
-	def __init__(self, command_id, attributes, function, primary, aliases):
+	def __init__(self, command_id, attributes, resolver_function, handler_function, primary, aliases):
 		self.command_id = command_id
 		self.attributes = attributes
-		self.function = function
+		self.resolver_function = resolver_function
+		self.handler_function = handler_function
 		self.primary = primary
 		self.aliases = aliases
 
@@ -22,7 +23,7 @@ class Command:
 
 
 	def execute(self, player, arg):
-		template, content = self.function(player, arg)
+		template, content = self.resolver_function(self, player, arg)
 
 		# TODO: revisit
 		if not isinstance(content, list):
@@ -33,8 +34,8 @@ class Command:
 
 class MovementCommand(Command):
 
-	def __init__(self, command_id, attributes, function, primary, aliases):
-		Command.__init__(self, command_id, attributes, function, primary, aliases)
+	def __init__(self, command_id, attributes, resolver_function, handler_function, primary, aliases):
+		Command.__init__(self, command_id, attributes, resolver_function, handler_function, primary, aliases)
 
 
 	def execute(self, player, arg):
@@ -44,12 +45,12 @@ class MovementCommand(Command):
 
 class ArgumentCommand(Command):
 
-	def __init__(self, command_id, attributes, function, primary, aliases, permissive):
-		Command.__init__(self, command_id, attributes, function, primary, aliases)
+	def __init__(self, command_id, attributes, resolver_function, handler_function, primary, aliases, permissive):
+		Command.__init__(self, command_id, attributes, resolver_function, handler_function, primary, aliases)
 		self.permissive = permissive
 
 
 class ArglessCommand(Command):
 
-	def __init__(self, command_id, attributes, function, primary, aliases):
-		Command.__init__(self, command_id, attributes, function, primary, aliases)
+	def __init__(self, command_id, attributes, resolver_function, handler_function, primary, aliases):
+		Command.__init__(self, command_id, attributes, resolver_function, handler_function, primary, aliases)

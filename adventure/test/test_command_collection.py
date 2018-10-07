@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch
 
+from adventure.argument_resolver import ArgumentResolver
 from adventure.command import MovementCommand, ArgumentCommand, ArglessCommand
 from adventure.command_collection import CommandCollection
 from adventure.command_handler import CommandHandler
@@ -23,7 +24,7 @@ class TestCommandCollection(unittest.TestCase):
 				"---\t\t\t",
 			]
 
-			self.collection = CommandCollection(reader_mock_instance, CommandHandler())
+			self.collection = CommandCollection(reader_mock_instance, ArgumentResolver(), CommandHandler())
 
 
 	def test_init_commands(self):
