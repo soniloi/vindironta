@@ -10,6 +10,7 @@ class Player:
 		self.playing = True
 		self.score = 0
 		self.inventory = Inventory(Player.INVENTORY_CAPACITY)
+		self.current_command = None
 
 
 	def holding_items(self):

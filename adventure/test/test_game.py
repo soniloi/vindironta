@@ -17,13 +17,16 @@ class TestGame(unittest.TestCase):
 			self.command_collection_mock_instance = command_collection_mock.return_value
 			self.command_collection_mock_instance.get.side_effect = self.command_side_effect
 		self.game.command_collection = self.command_collection_mock_instance
-		self.look_command_response = "You cannot see at thing in this darkness"
-		with patch(command.__name__ + ".Command") as command_mock:
-			look_command_instance = command_mock.return_value
-			look_command_instance.execute.return_value = self.look_command_response
-			self.command_map = {
-				"look" : look_command_instance
-			}
+
+		look_command = Mock()
+		look_command.execute.return_value = "You cannot see a thing."
+
+		self.take_command = Mock()
+		self.take_command.execute.return_value = "Taken."
+
+		self.command_map = {
+			"look" : look_command
+		}
 
 		with patch(location_collection.__name__ + ".LocationCollection") as location_collection_mock:
 			self.location_collection_mock_instance = location_collection_mock.return_value
@@ -73,13 +76,21 @@ class TestGame(unittest.TestCase):
 	def test_process_input_command_known(self):
 		response = self.game.process_input("look")
 
-		self.assertIs(self.look_command_response, response)
+		self.assertEqual("You cannot see a thing.", response)
 
 
 	def test_process_input_command_known_extra_arg(self):
 		response = self.game.process_input("look here")
 
-		self.assertIs(self.look_command_response, response)
+		self.assertEqual("You cannot see a thing.", response)
+
+
+	def test_process_input_command_current(self):
+		self.game.player.current_command = self.take_command
+
+		response = self.game.process_input("lamp")
+
+		self.assertEqual("Taken.", response)
 
 
 if __name__ == "__main__":

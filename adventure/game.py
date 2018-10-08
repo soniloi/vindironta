@@ -54,10 +54,17 @@ class Game:
 		response = ""
 
 		if tokens:
-			command_name = tokens[0]
-			command_arg = self.get_arg(tokens)
 
-			command = self.command_collection.get(command_name)
+			command = self.player.current_command
+			self.player.current_command = None
+
+			if command:
+				command_arg = tokens[0]
+
+			else:
+				command = self.get_command_from_input(tokens)
+				command_arg = self.get_command_arg(tokens)
+
 			if command:
 				response = command.execute(self.player, command_arg)
 
@@ -66,7 +73,13 @@ class Game:
 		return response
 
 
-	def get_arg(self, tokens):
+	def get_command_from_input(self, tokens):
+		command_name = tokens[0]
+		command = self.command_collection.get(command_name)
+		return command
+
+
+	def get_command_arg(self, tokens):
 		if len(tokens) > 1:
 			return tokens[1]
 		return None

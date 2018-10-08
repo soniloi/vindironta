@@ -25,4 +25,7 @@ class ArgumentResolver:
 
 
 	def resolve_single_arg(self, command, player, arg):
+		if not arg:
+			player.current_command = command
+			return self.data.responses.get("request_direct"), command.primary
 		return self.execute(command, player, arg)
