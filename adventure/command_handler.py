@@ -228,6 +228,33 @@ class CommandHandler:
 		return self.get_response("confirm_quit"), ""
 
 
+	def handle_read(self, player, arg):
+		return self.interact_vision(player, arg, self.complete_read)
+
+
+	def complete_read(self, player, arg):
+		return self.interact_item(player, arg, self.execute_read)
+
+
+	def execute_read(self, player, item):
+
+		template = ""
+		content = ""
+
+		if not player.is_carrying(item) and not player.location.contains(item):
+			template = self.get_response("reject_not_here")
+			content = item.shortname
+		else:
+			if item.writing:
+				template = self.get_response("describe_writing")
+				content = item.writing
+			else:
+				template = self.get_response("reject_no_writing")
+				content = item.shortname
+
+		return template, content
+
+
 	def handle_score(self, player, arg):
 		return self.get_response("describe_score"), player.score
 

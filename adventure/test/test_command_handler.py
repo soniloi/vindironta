@@ -97,6 +97,7 @@ class TestCommandHandler(unittest.TestCase):
 			"describe_location" : "You are {0}.",
 			"describe_node" : "You are at node {0}.",
 			"describe_score" : "Current score: {0} point(s).",
+			"describe_writing" : "It reads {0}.",
 			"list_inventory_nonempty" : "You have: {0}.",
 			"list_inventory_empty" : "You have nothing.",
 			"list_location" : " Nearby: {1}.",
@@ -108,6 +109,7 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_no_back" : "I do not remember how you got here.",
 			"reject_no_node" : "There is no such node id.",
 			"reject_no_out" : "I cannot tell in from out here.",
+			"reject_no_writing" : "There is no writing.",
 			"reject_not_here" : "There is no {0} here.",
 			"reject_not_holding" : "You do not have the {0}.",
 			"reject_not_portable" : "You cannot take that.",
@@ -463,6 +465,22 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertEqual(("OK.", ""), response)
 		self.assertFalse(self.player.playing)
+
+
+	def test_handle_read_no_writing(self):
+		self.player.inventory.insert(self.lamp)
+
+		response = self.handler.handle_read(self.player, "lamp")
+
+		self.assertEqual(("There is no writing.", "lamp"), response)
+
+
+	def test_handle_read_with_writing(self):
+		self.player.inventory.insert(self.book)
+
+		response = self.handler.handle_read(self.player, "book")
+
+		self.assertEqual(("It reads {0}.", "The Pied Piper"), response)
 
 
 	def test_handle_score(self):
