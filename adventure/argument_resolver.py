@@ -14,8 +14,9 @@ class ArgumentResolver:
 
 
 	def resolve_movement(self, command, player, arg):
-		arg = command.command_id
-		return self.execute(command, player, arg)
+		if arg:
+			return self.data.responses.get("request_argless"), arg
+		return self.execute(command, player, command.command_id)
 
 
 	def resolve_argless(self, command, player, arg):
