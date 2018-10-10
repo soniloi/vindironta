@@ -147,7 +147,7 @@ class CommandHandler:
 		if player.has_items_nearby():
 			template += self.get_response("list_location")
 
-		content = player.location.get_arrival_description()
+		content = player.location.get_arrival_description(player.verbose)
 
 		return template, content
 
@@ -286,6 +286,18 @@ class CommandHandler:
 			template = self.get_response("confirm_taken")
 
 		return template, item.shortname
+
+
+	def handle_verbose(self, player, arg):
+		template = ""
+
+		player.verbose = arg
+		if arg:
+			template = self.get_response("confirm_verbose_on")
+		else:
+			template = self.get_response("confirm_verbose_off")
+
+		return template, ""
 
 
 	def handle_yank(self, player, arg):

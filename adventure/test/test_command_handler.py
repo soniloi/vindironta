@@ -91,6 +91,8 @@ class TestCommandHandler(unittest.TestCase):
 			"confirm_look" : "You are {0}.",
 			"confirm_quit" : "OK.",
 			"confirm_taken" : "Taken.",
+			"confirm_verbose_off" : "Verbose off.",
+			"confirm_verbose_on" : "Verbose on.",
 			"describe_commands" : "I know these commands: {0}.",
 			"describe_help" : "Welcome and good luck.",
 			"describe_item" : "It is {0}.",
@@ -550,6 +552,24 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("Taken.", "book"), response)
 		self.assertTrue(self.player.is_carrying(self.book))
 		self.assertFalse(self.player.location.contains(self.book))
+
+
+	def test_handle_verbose_off(self):
+		self.player.verbose = True
+
+		response = self.handler.handle_verbose(self.player, False)
+
+		self.assertFalse(self.player.verbose)
+		self.assertEqual(("Verbose off.", ""), response)
+
+
+	def test_handle_verbose_on(self):
+		self.player.verbose = False
+
+		response = self.handler.handle_verbose(self.player, True)
+
+		self.assertTrue(self.player.verbose)
+		self.assertEqual(("Verbose on.", ""), response)
 
 
 	def test_handle_yank_known_at_location(self):

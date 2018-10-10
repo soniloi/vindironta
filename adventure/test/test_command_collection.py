@@ -79,6 +79,24 @@ class TestCommandCollection(unittest.TestCase):
 		self.assertEqual(self.argument_resolver.resolve_movement, east_command.resolver_function)
 
 
+	def test_init_switchable_command(self):
+		reader_mock = Mock()
+		reader_mock.read_line.side_effect = [
+			"116\t100\tverbose\tverbose\tno\tyes",
+			"---\t\t\t",
+		]
+
+		collection = CommandCollection(reader_mock, self.argument_resolver, self.command_handler)
+
+		self.assertTrue("verbose" in collection.commands)
+		verbose_command = collection.commands["verbose"]
+		self.assertIn("no", verbose_command.transitions)
+		self.assertIn("yes", verbose_command.transitions)
+		self.assertFalse(verbose_command.transitions["no"])
+		self.assertTrue(verbose_command.transitions["yes"])
+		self.assertEqual(self.argument_resolver.resolve_switchable, verbose_command.resolver_function)
+
+
 	def test_init_argless_command(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [

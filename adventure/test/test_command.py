@@ -5,9 +5,10 @@ from adventure.command import Command
 class TestCommand(unittest.TestCase):
 
 	def setUp(self):
-		self.command_singular = Command(1, 0x9, self.resolver_function_non_movement, self.handler_function_singular, "", [], False)
-		self.command_movement = Command(1, 0x49, self.resolver_function_movement, self.handler_function_singular, "", [], False)
-		self.command_list = Command(1, 0x9, self.resolver_function_non_movement, self.handler_function_list, "", [], False)
+		self.command_singular = Command(1, 0x9, self.resolver_function_non_movement, self.handler_function_singular, "", [], False, None, None)
+		self.command_movement = Command(1, 0x49, self.resolver_function_movement, self.handler_function_singular, "", [], False, None, None)
+		self.command_switchable = Command(1, 0x100, self.resolver_function_non_movement, self.handler_function_singular, "", [], False, "off", "on")
+		self.command_list = Command(1, 0x9, self.resolver_function_non_movement, self.handler_function_list, "", [], False, None, None)
 
 
 	def resolver_function_movement(self, command, player, arg):
@@ -25,6 +26,16 @@ class TestCommand(unittest.TestCase):
 
 	def handler_function_list(self, player, arg):
 		return "{0} success!", [arg]
+
+
+	def test_init(self):
+		self.assertFalse(self.command_singular.transitions)
+		self.assertFalse(self.command_movement.transitions)
+		self.assertFalse(self.command_list.transitions)
+		self.assertIn("off", self.command_switchable.transitions)
+		self.assertIn("on", self.command_switchable.transitions)
+		self.assertFalse(self.command_switchable.transitions["off"])
+		self.assertTrue(self.command_switchable.transitions["on"])
 
 
 	def test_has_attribute_set(self):

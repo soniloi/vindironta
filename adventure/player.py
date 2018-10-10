@@ -11,6 +11,7 @@ class Player:
 		self.score = 0
 		self.inventory = Inventory(Player.INVENTORY_CAPACITY)
 		self.current_command = None
+		self.verbose = False
 
 
 	def holding_items(self):

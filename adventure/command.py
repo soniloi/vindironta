@@ -4,8 +4,9 @@ class Command:
 	ATTRIBUTE_SECRET = 0x10
 	ATTRIBUTE_MOVEMENT = 0x40
 	ATTRIBUTE_ARG_OPTIONAL = 0x80
+	ATTRIBUTE_SWITCHABLE = 0x100
 
-	def __init__(self, command_id, attributes, resolver_function, handler_function, primary, aliases, permissive):
+	def __init__(self, command_id, attributes, resolver_function, handler_function, primary, aliases, permissive, off_switch, on_switch):
 		self.command_id = command_id
 		self.attributes = attributes
 		self.resolver_function = resolver_function
@@ -13,6 +14,12 @@ class Command:
 		self.primary = primary
 		self.aliases = aliases
 		self.permissive = permissive
+
+		self.transitions = {}
+		if off_switch:
+			self.transitions[off_switch] = False
+		if on_switch:
+			self.transitions[on_switch] = True
 
 
 	def has_attribute(self, attribute):

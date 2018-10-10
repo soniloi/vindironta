@@ -19,6 +19,14 @@ class ArgumentResolver:
 		return self.execute(command, player, command.command_id)
 
 
+	def resolve_switchable(self, command, player, arg):
+		if arg not in command.transitions:
+			content = [command.primary] + sorted(list(command.transitions.keys()))
+			return self.data.responses.get("request_switch"), content
+		next_state = command.transitions[arg]
+		return self.execute(command, player, next_state)
+
+
 	def resolve_argless(self, command, player, arg):
 		if arg:
 			return self.data.responses.get("request_argless"), arg

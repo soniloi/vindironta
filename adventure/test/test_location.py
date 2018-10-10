@@ -19,18 +19,32 @@ class TestLocation(unittest.TestCase):
 		self.assertTrue(self.location.contains(self.book))
 
 
-	def test_get_arrival_description_not_visited(self):
-		description = self.location.get_arrival_description()
+	def test_get_arrival_description_not_visited_not_verbose(self):
+		description = self.location.get_arrival_description(False)
 
 		self.assertEqual(["in the mines. There are dark passages everywhere", ""], description)
 
 
-	def test_get_arrival_description_visited(self):
+	def test_get_arrival_description_not_visited_verbose(self):
+		description = self.location.get_arrival_description(True)
+
+		self.assertEqual(["in the mines. There are dark passages everywhere", ""], description)
+
+
+	def test_get_arrival_description_visited_not_verbose(self):
 		self.location.visited = True
 
-		description = self.location.get_arrival_description()
+		description = self.location.get_arrival_description(False)
 
 		self.assertEqual(["in the mines", ""], description)
+
+
+	def test_get_arrival_description_visited_verbose(self):
+		self.location.visited = True
+
+		description = self.location.get_arrival_description(True)
+
+		self.assertEqual(["in the mines. There are dark passages everywhere", ""], description)
 
 
 	def test_get_full_description_non_silent(self):
@@ -39,7 +53,7 @@ class TestLocation(unittest.TestCase):
 
 		description = self.location.get_full_description()
 
-		self.assertEqual(["in the mines", "\n\ta book"], self.location.get_arrival_description())
+		self.assertEqual(["in the mines. There are dark passages everywhere", "\n\ta book"], description)
 
 
 	def test_get_full_description_silent(self):
@@ -48,7 +62,7 @@ class TestLocation(unittest.TestCase):
 
 		description = self.location.get_full_description()
 
-		self.assertEqual(["in the mines", ""], self.location.get_arrival_description())
+		self.assertEqual(["in the mines. There are dark passages everywhere", ""], description)
 
 
 	def test_get_obstructions(self):

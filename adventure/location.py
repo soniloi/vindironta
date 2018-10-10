@@ -21,10 +21,10 @@ class Location(DataElement, ItemContainer):
 		return [self.get_description(), self.get_contents_description()]
 
 
-	def get_arrival_description(self):
+	def get_arrival_description(self, verbose):
 		description = ""
 
-		if self.visited:
+		if self.visited and not verbose:
 			description = self.longname
 		else:
 			description = self.get_description()

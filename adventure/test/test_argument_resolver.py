@@ -29,6 +29,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.response_map = {
 			"request_argless" : "Do not give an argument for this command.",
 			"request_direct" : "What do you want to {0}?",
+			"request_switch" : "Use the command \"{0}\" with either \"{1}\" or \"{2}\".",
 		}
 
 
@@ -41,7 +42,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 
 	def test_resolve_movement_without_arg(self):
-		command = Command(1, 0x9, None, self.handler_function, "", [], False)
+		command = Command(1, 0x9, None, self.handler_function, "", [], False, None, None)
 
 		response = self.resolver.resolve_movement(command, None, "")
 
@@ -49,15 +50,39 @@ class TestArgumentResolver(unittest.TestCase):
 
 
 	def test_resolve_movement_with_arg(self):
-		command = Command(1, 0x9, None, self.handler_function, "", [], False)
+		command = Command(1, 0x9, None, self.handler_function, "", [], False, None, None)
 
 		response = self.resolver.resolve_movement(command, None, "test")
 
 		self.assertEqual(("Do not give an argument for this command.", "test"), response)
 
 
+	def test_resolve_switchable_without_arg(self):
+		command = Command(1, 0x100, None, self.handler_function, "verbose", [], False, "no", "yes")
+
+		response = self.resolver.resolve_switchable(command, None, "")
+
+		self.assertEqual(("Use the command \"{0}\" with either \"{1}\" or \"{2}\".", ["verbose", "no", "yes"]), response)
+
+
+	def test_resolve_switchable_with_invalid_arg(self):
+		command = Command(1, 0x100, None, self.handler_function, "verbose", [], False, "no", "yes")
+
+		response = self.resolver.resolve_switchable(command, None, "off")
+
+		self.assertEqual(("Use the command \"{0}\" with either \"{1}\" or \"{2}\".", ["verbose", "no", "yes"]), response)
+
+
+	def test_resolve_switchable_with_switch_arg(self):
+		command = Command(1, 0x100, None, self.handler_function, "verbose", [], False, "no", "yes")
+
+		response = self.resolver.resolve_switchable(command, None, "yes")
+
+		self.assertEqual(("{0} success!", True), response)
+
+
 	def test_resolve_argless_without_arg(self):
-		command = Command(1, 0x9, None, self.handler_function, "", [], False)
+		command = Command(1, 0x9, None, self.handler_function, "", [], False, None, None)
 
 		response = self.resolver.resolve_argless(command, None, "")
 
@@ -65,7 +90,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 
 	def test_resolve_argless_with_arg(self):
-		command = Command(1, 0x9, None, self.handler_function, "", [], False)
+		command = Command(1, 0x9, None, self.handler_function, "", [], False, None, None)
 
 		response = self.resolver.resolve_argless(command, None, "test")
 
@@ -73,7 +98,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 
 	def test_resolve_single_arg_without_arg(self):
-		command = Command(1, 0x9, None, self.handler_function, "take", [], False)
+		command = Command(1, 0x9, None, self.handler_function, "take", [], False, None, None)
 		player = Player(0)
 
 		response = self.resolver.resolve_single_arg(command, player, "")
@@ -82,7 +107,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 
 	def test_resolve_single_arg_with_arg(self):
-		command = Command(1, 0x9, None, self.handler_function, "take", [], False)
+		command = Command(1, 0x9, None, self.handler_function, "take", [], False, None, None)
 
 		response = self.resolver.resolve_single_arg(command, None, "test")
 

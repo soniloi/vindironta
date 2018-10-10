@@ -23,6 +23,7 @@ class CommandCollection:
 		resolver_function = self.get_resolver_function(command_attributes)
 		handler_function = self.parse_handler_function(tokens[2])
 		permissive = self.get_permissive(command_attributes)
+		off_switch, on_switch = self.get_switches(tokens, command_attributes)
 
 		if handler_function and resolver_function:
 			(primary_command_name, command_names) = self.parse_command_names(tokens[3])
@@ -33,7 +34,9 @@ class CommandCollection:
 				handler_function=handler_function,
 				primary=primary_command_name,
 				aliases=command_names,
-				permissive=permissive
+				permissive=permissive,
+				off_switch=off_switch,
+				on_switch=on_switch
 			)
 			for command_name in command_names:
 				self.commands[command_name] = command
@@ -51,6 +54,8 @@ class CommandCollection:
 		resolver_function_name = "resolve_"
 		if attributes & Command.ATTRIBUTE_MOVEMENT != 0:
 			resolver_function_name += "movement"
+		elif attributes & Command.ATTRIBUTE_SWITCHABLE != 0:
+			resolver_function_name += "switchable"
 		elif attributes & Command.ATTRIBUTE_TAKES_ARG == 0:
 			resolver_function_name += "argless"
 		else:
@@ -70,6 +75,12 @@ class CommandCollection:
 
 	def get_permissive(self, attributes):
 		return attributes & Command.ATTRIBUTE_ARG_OPTIONAL != 0
+
+
+	def get_switches(self, tokens, attributes):
+		if attributes & Command.ATTRIBUTE_SWITCHABLE == 0:
+			return None, None
+		return tokens[4], tokens[5]
 
 
 	def get(self, name):
