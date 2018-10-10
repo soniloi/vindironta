@@ -50,6 +50,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.beach_location = Location(13, 0x1, "Beach", "on a beach", " of black sand")
 		self.lighthouse_location = Location(12, 0x1, "Lighthouse", "at a lighthouse", " by the sea.")
 		self.mine_location = Location(11, 0x0, "Mines", "in the mines", ". There are dark passages everywhere.")
+		self.sun_location = Location(10, 0x11, "Sun", "in the sun", ". It is hot.")
 
 		self.player = Player(self.lighthouse_location)
 
@@ -105,6 +106,7 @@ class TestCommandHandler(unittest.TestCase):
 			"list_location" : " Nearby: {1}.",
 			"reject_already" : "You already have the {0}.",
 			"reject_climb" : "Use \"up\" or \"down\".",
+			"reject_excess_light" : "It is too bright.",
 			"reject_go" : "Use a compass point.",
 			"reject_no_direction" : "You cannot go that way.",
 			"reject_no_light" : "It is too dark.",
@@ -265,6 +267,27 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertEqual(("It is too dark.", ""), response)
 		self.assertIs(self.mine_location, self.player.location)
+		self.assertIs(self.lighthouse_location, self.player.previous_location)
+
+
+	def test_handle_go_with_destination_excess_light_carrying_light(self):
+		self.player.location.directions[Direction.UP] = self.sun_location
+		self.player.inventory.insert(self.lamp)
+
+		response = self.handler.handle_go(self.player, 60)
+
+		self.assertEqual(("It is too bright.", ""), response)
+		self.assertIs(self.sun_location, self.player.location)
+		self.assertIs(self.lighthouse_location, self.player.previous_location)
+
+
+	def test_handle_go_with_destination_excess_light_not_carrying_light(self):
+		self.player.location.directions[Direction.UP] = self.sun_location
+
+		response = self.handler.handle_go(self.player, 60)
+
+		self.assertEqual(("You are {0}.", ["in the sun. It is hot.", ""]), response)
+		self.assertIs(self.sun_location, self.player.location)
 		self.assertIs(self.lighthouse_location, self.player.previous_location)
 
 

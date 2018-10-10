@@ -4,6 +4,7 @@ from adventure.item_container import ItemContainer
 class Location(DataElement, ItemContainer):
 
 	ATTRIBUTE_GIVES_LIGHT = 0x1
+	ATTRIBUTE_NEEDS_NO_LIGHT = 0x10
 
 	def __init__(self, location_id, attributes, shortname, longname, description):
 		DataElement.__init__(self, data_id=location_id, attributes=attributes, shortname=shortname, longname=longname,
@@ -47,6 +48,10 @@ class Location(DataElement, ItemContainer):
 		if not item.is_silent():
 			return "\n\t" + item.longname
 		return ""
+
+
+	def needs_no_light(self):
+		return self.has_attribute(Location.ATTRIBUTE_NEEDS_NO_LIGHT)
 
 
 	def gives_light(self):

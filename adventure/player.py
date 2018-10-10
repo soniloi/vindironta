@@ -26,5 +26,9 @@ class Player:
 		return self.inventory.contains(item)
 
 
+	def has_light_and_needs_no_light(self):
+		return self.location.needs_no_light() and self.inventory.gives_light()
+
+
 	def has_light(self):
 		return self.location.gives_light() or self.inventory.gives_light()

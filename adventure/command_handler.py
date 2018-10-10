@@ -334,7 +334,11 @@ class CommandHandler:
 
 
 	def interact_vision(self, player, arg, interaction):
-		if not player.has_light():
+
+		if player.has_light_and_needs_no_light():
+			return self.get_response("reject_excess_light"), ""
+
+		elif not player.has_light():
 			return self.get_response("reject_no_light"), ""
 
 		return interaction(player, arg)
