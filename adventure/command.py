@@ -3,17 +3,16 @@ class Command:
 	ATTRIBUTE_TAKES_ARG = 0x08
 	ATTRIBUTE_SECRET = 0x10
 	ATTRIBUTE_MOVEMENT = 0x40
-	ATTRIBUTE_ARG_OPTIONAL = 0x80
+	ATTRIBUTE_PERMISSIVE = 0x80
 	ATTRIBUTE_SWITCHABLE = 0x100
 
-	def __init__(self, command_id, attributes, resolver_function, handler_function, primary, aliases, permissive, off_switch, on_switch):
+	def __init__(self, command_id, attributes, resolver_function, handler_function, primary, aliases, off_switch, on_switch):
 		self.command_id = command_id
 		self.attributes = attributes
 		self.resolver_function = resolver_function
 		self.handler_function = handler_function
 		self.primary = primary
 		self.aliases = aliases
-		self.permissive = permissive
 
 		self.transitions = {}
 		if off_switch:
@@ -28,6 +27,10 @@ class Command:
 
 	def is_secret(self):
 		return self.has_attribute(Command.ATTRIBUTE_SECRET)
+
+
+	def is_permissive(self):
+		return self.has_attribute(Command.ATTRIBUTE_PERMISSIVE)
 
 
 	def execute(self, player, arg):

@@ -22,7 +22,6 @@ class CommandCollection:
 		command_attributes = self.parse_command_attributes(tokens[1])
 		resolver_function = self.get_resolver_function(command_attributes)
 		handler_function = self.parse_handler_function(tokens[2])
-		permissive = self.get_permissive(command_attributes)
 		off_switch, on_switch = self.get_switches(tokens, command_attributes)
 
 		if handler_function and resolver_function:
@@ -34,7 +33,6 @@ class CommandCollection:
 				handler_function=handler_function,
 				primary=primary_command_name,
 				aliases=command_names,
-				permissive=permissive,
 				off_switch=off_switch,
 				on_switch=on_switch
 			)
@@ -71,10 +69,6 @@ class CommandCollection:
 	def parse_command_names(self, token):
 		command_names = token.split(",")
 		return (command_names[0], command_names)
-
-
-	def get_permissive(self, attributes):
-		return attributes & Command.ATTRIBUTE_ARG_OPTIONAL != 0
 
 
 	def get_switches(self, tokens, attributes):
