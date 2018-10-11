@@ -164,6 +164,7 @@ class CommandHandler:
 
 
 	def handle_help(self, player, arg):
+		player.decrement_instructions()
 		return self.get_response("describe_help"), ""
 
 
@@ -231,6 +232,7 @@ class CommandHandler:
 
 
 	def handle_quit(self, player, arg):
+		player.decrement_instructions()
 		player.playing = False
 		return self.get_response("confirm_quit"), ""
 
@@ -263,6 +265,7 @@ class CommandHandler:
 
 
 	def handle_score(self, player, arg):
+		player.decrement_instructions()
 		return self.get_response("describe_score"), [player.score, player.instructions]
 
 

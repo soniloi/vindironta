@@ -53,6 +53,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.sun_location = Location(10, 0x11, "Sun", "in the sun", ". It is hot.")
 
 		self.player = Player(self.lighthouse_location)
+		self.player.instructions = 7
 
 		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
 		self.lamp = Item(1043, 0x101A, "lamp", "a lamp", "a small lamp", 2, None)
@@ -396,6 +397,7 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_help(self.player, "")
 
 		self.assertEqual(("Welcome and good luck.", ""), response)
+		self.assertEqual(6, self.player.instructions)
 
 
 	def test_handle_hint_default(self):
@@ -505,6 +507,7 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_quit(self.player, "")
 
 		self.assertEqual(("OK.", ""), response)
+		self.assertEqual(6, self.player.instructions)
 		self.assertFalse(self.player.playing)
 
 
@@ -527,7 +530,8 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_score(self):
 		response = self.handler.handle_score(self.player, "")
 
-		self.assertEqual(("Current score: {0} point(s). Instructions entered: {1}.", [0, 0]), response)
+		self.assertEqual(("Current score: {0} point(s). Instructions entered: {1}.", [0, 6]), response)
+		self.assertEqual(6, self.player.instructions)
 
 
 	def test_handle_take_unknown(self):

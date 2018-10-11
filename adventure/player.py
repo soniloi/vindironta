@@ -31,6 +31,10 @@ class Player:
 		self.instructions += 1
 
 
+	def decrement_instructions(self):
+		self.instructions -= 1
+
+
 	def has_light_and_needs_no_light(self):
 		return self.location.needs_no_light() and self.inventory.gives_light()
 
