@@ -1,5 +1,6 @@
 import unittest
 
+from adventure.direction import Direction
 from adventure.item import Item
 from adventure.location import Location
 
@@ -7,6 +8,8 @@ class TestLocation(unittest.TestCase):
 
 	def setUp(self):
 		self.location = Location(11, 0, "Mines", "in the mines", ". There are dark passages everywhere")
+		self.other_location = Location(12, 0x1, "Lighthouse", "at a lighthouse", " by the sea.")
+
 		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
 		self.desk = Item(1000, 0x20000, "desk", "a desk", "a large mahogany desk", 6, None)
 		self.obstruction = Item(1000, 0x4, "obstruction", "an obstruction", "an obstruction blocking you", 8, None)
@@ -73,6 +76,24 @@ class TestLocation(unittest.TestCase):
 
 		self.assertEqual(1, len(obstructions))
 		self.assertIs(self.obstruction, obstructions[0])
+
+
+	def test_can_reach_no_ways(self):
+		self.assertFalse(self.location.can_reach(self.other_location))
+
+
+	def test_can_reach_one_way(self):
+		self.location.directions[Direction.SOUTH] = self.other_location
+
+		self.assertTrue(self.location.can_reach(self.other_location))
+
+
+	def test_can_reach_multiple_ways(self):
+		self.location.directions[Direction.SOUTH] = self.other_location
+		self.location.directions[Direction.NORTHEAST] = self.other_location
+		self.location.directions[Direction.DOWN] = self.other_location
+
+		self.assertTrue(self.location.can_reach(self.other_location))
 
 
 if __name__ == "__main__":

@@ -239,6 +239,7 @@ class TestCommandHandler(unittest.TestCase):
 
 	def test_handle_go_with_destination(self):
 		self.player.location.directions[Direction.SOUTH] = self.beach_location
+		self.beach_location.directions[Direction.NORTH] = self.player.location
 
 		response = self.handler.handle_go(self.player, 52)
 
@@ -262,6 +263,7 @@ class TestCommandHandler(unittest.TestCase):
 
 	def test_handle_go_with_destination_no_light(self):
 		self.player.location.directions[Direction.DOWN] = self.mine_location
+		self.mine_location.directions[Direction.UP] = self.player.location
 
 		response = self.handler.handle_go(self.player, 13)
 
@@ -272,6 +274,7 @@ class TestCommandHandler(unittest.TestCase):
 
 	def test_handle_go_with_destination_excess_light_carrying_light(self):
 		self.player.location.directions[Direction.UP] = self.sun_location
+		self.sun_location.directions[Direction.DOWN] = self.player.location
 		self.player.inventory.insert(self.lamp)
 
 		response = self.handler.handle_go(self.player, 60)
@@ -283,6 +286,7 @@ class TestCommandHandler(unittest.TestCase):
 
 	def test_handle_go_with_destination_excess_light_not_carrying_light(self):
 		self.player.location.directions[Direction.UP] = self.sun_location
+		self.sun_location.directions[Direction.DOWN] = self.player.location
 
 		response = self.handler.handle_go(self.player, 60)
 
@@ -301,12 +305,23 @@ class TestCommandHandler(unittest.TestCase):
 
 	def test_handle_go_back_with_destination(self):
 		self.player.previous_location = self.beach_location
+		self.beach_location.directions[Direction.SOUTH] = self.player.location
 
 		response = self.handler.handle_go(self.player, 5)
 
 		self.assertEqual(("You are {0}.", ["on a beach of black sand", ""]), response)
 		self.assertIs(self.beach_location, self.player.location)
 		self.assertIs(self.lighthouse_location, self.player.previous_location)
+
+
+	def test_handle_go_back_with_destination_one_way(self):
+		self.player.previous_location = self.beach_location
+
+		response = self.handler.handle_go(self.player, 5)
+
+		self.assertEqual(("You are {0}.", ["on a beach of black sand", ""]), response)
+		self.assertIs(self.beach_location, self.player.location)
+		self.assertIsNone(self.player.previous_location)
 
 
 	def test_handle_go_out_without_destination(self):
@@ -349,6 +364,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_go_back_with_destination_with_obstruction(self):
 		self.player.location.insert(self.obstruction)
 		self.player.previous_location = self.beach_location
+		self.beach_location.directions[Direction.NORTH] = self.player.location
 
 		response = self.handler.handle_go(self.player, 5)
 

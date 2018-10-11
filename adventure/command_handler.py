@@ -124,7 +124,7 @@ class CommandHandler:
 			template = self.get_response(template_key)
 
 		else:
-			player.previous_location = player.location
+			self.update_previous_location(player, proposed_location)
 			template, content = self.execute_go(player, arg, proposed_location)
 			player.location.visited = True
 
@@ -135,6 +135,13 @@ class CommandHandler:
 		if player.has_light():
 			return "reject_obstruction_known", obstructions[0].longname
 		return "reject_obstruction_unknown", ""
+
+
+	def update_previous_location(self, player, proposed_location):
+		if proposed_location.can_reach(player.location):
+			player.previous_location = player.location
+		else:
+			player.previous_location = None
 
 
 	def execute_go(self, player, arg, proposed_location):

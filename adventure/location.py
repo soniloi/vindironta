@@ -63,3 +63,7 @@ class Location(DataElement, ItemContainer):
 
 	def get_obstructions(self):
 		return [item for item in self.items.values() if item.is_obstruction()]
+
+
+	def can_reach(self, other_location):
+		return any(direction == other_location for direction in self.directions.values())
