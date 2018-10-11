@@ -99,7 +99,7 @@ class TestCommandHandler(unittest.TestCase):
 			"describe_item" : "It is {0}.",
 			"describe_location" : "You are {0}.",
 			"describe_node" : "You are at node {0}.",
-			"describe_score" : "Current score: {0} point(s).",
+			"describe_score" : "Current score: {0} point(s). Instructions entered: {1}.",
 			"describe_writing" : "It reads {0}.",
 			"list_inventory_nonempty" : "You have: {0}.",
 			"list_inventory_empty" : "You have nothing.",
@@ -527,7 +527,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_score(self):
 		response = self.handler.handle_score(self.player, "")
 
-		self.assertEqual(("Current score: {0} point(s).", 0), response)
+		self.assertEqual(("Current score: {0} point(s). Instructions entered: {1}.", [0, 0]), response)
 
 
 	def test_handle_take_unknown(self):

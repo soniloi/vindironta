@@ -64,6 +64,7 @@ class Game:
 			else:
 				command = self.get_command_from_input(tokens)
 				command_arg = self.get_command_arg(tokens)
+				self.player.increment_instructions()
 
 			if command:
 				response = command.execute(self.player, command_arg)

@@ -65,24 +65,28 @@ class TestGame(unittest.TestCase):
 		response = self.game.process_input("")
 
 		self.assertEqual("", response)
+		self.assertEqual(0, self.game.player.instructions)
 
 
 	def test_process_input_command_unknown(self):
 		response = self.game.process_input("notacommand")
 
 		self.assertEqual("", response)
+		self.assertEqual(1, self.game.player.instructions)
 
 
 	def test_process_input_command_known(self):
 		response = self.game.process_input("look")
 
 		self.assertEqual("You cannot see a thing.", response)
+		self.assertEqual(1, self.game.player.instructions)
 
 
 	def test_process_input_command_known_extra_arg(self):
 		response = self.game.process_input("look here")
 
 		self.assertEqual("You cannot see a thing.", response)
+		self.assertEqual(1, self.game.player.instructions)
 
 
 	def test_process_input_command_current(self):
@@ -91,6 +95,7 @@ class TestGame(unittest.TestCase):
 		response = self.game.process_input("lamp")
 
 		self.assertEqual("Taken.", response)
+		self.assertEqual(0, self.game.player.instructions)
 
 
 if __name__ == "__main__":

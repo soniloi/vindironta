@@ -263,7 +263,7 @@ class CommandHandler:
 
 
 	def handle_score(self, player, arg):
-		return self.get_response("describe_score"), player.score
+		return self.get_response("describe_score"), [player.score, player.instructions]
 
 
 	def handle_take(self, player, arg):
