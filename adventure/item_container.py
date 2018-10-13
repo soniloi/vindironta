@@ -9,8 +9,10 @@ class ItemContainer:
 
 
 	def contains(self, item):
-		# TODO: enhance when implementing container items
-		return item.data_id in self.items
+		for contained_item in self.items.values():
+			if item == contained_item or contained_item.contains(item):
+				return True
+		return False
 
 
 	def insert(self, item):

@@ -35,6 +35,10 @@ class Item(DataElement):
 		return ""
 
 
+	def contains(self, item):
+		return False
+
+
 	def is_portable(self):
 		return self.is_mobile() and not self.obstruction
 
@@ -79,3 +83,16 @@ class ContainerItem(Item, ItemContainer):
 		result += template.format(contents)
 
 		return result
+
+
+	def contains(self, item):
+
+		if self.has_items():
+
+			inner_item = next(iter(self.items.values()))
+			if item == inner_item:
+				return True
+
+			return inner_item.contains(item)
+
+		return False

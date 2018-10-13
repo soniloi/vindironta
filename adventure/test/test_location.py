@@ -1,7 +1,7 @@
 import unittest
 
 from adventure.direction import Direction
-from adventure.item import Item
+from adventure.item import Item, ContainerItem
 from adventure.location import Location
 
 class TestLocation(unittest.TestCase):
@@ -13,12 +13,29 @@ class TestLocation(unittest.TestCase):
 		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
 		self.desk = Item(1000, 0x20000, "desk", "a desk", "a large mahogany desk", 6, None)
 		self.obstruction = Item(1000, 0x4, "obstruction", "an obstruction", "an obstruction blocking you", 8, None)
+		self.basket = ContainerItem(1107, 0x3, "basket", "a basket", "a large basket", 6, None)
+		self.box = ContainerItem(1108, 0x3, "box", "a box", "a small box", 3, None)
 
 
-	def test_insert(self):
+	def test_contains_simple(self):
 		self.location.insert(self.book)
 
 		self.assertEqual(self.location, self.book.container)
+		self.assertTrue(self.location.contains(self.book))
+
+
+	def test_contains_container_single(self):
+		self.box.insert(self.book)
+		self.location.insert(self.box)
+
+		self.assertTrue(self.location.contains(self.box))
+
+
+	def test_contains_container_multi(self):
+		self.basket.insert(self.box)
+		self.box.insert(self.book)
+		self.location.insert(self.basket)
+
 		self.assertTrue(self.location.contains(self.book))
 
 
