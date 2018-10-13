@@ -10,7 +10,7 @@ class Inventory(ItemContainer):
 	def get_contents_description(self):
 		result = ""
 		for item in self.items.values():
-			result += "\n\t" + item.longname
+			result += item.get_list_name()
 		return result
 
 

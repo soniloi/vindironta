@@ -40,14 +40,8 @@ class Location(DataElement, ItemContainer):
 	def get_contents_description(self):
 		result = ""
 		for item in self.items.values():
-			result += self.get_item_description(item)
+			result += item.get_non_silent_list_name()
 		return result
-
-
-	def get_item_description(self, item):
-		if not item.is_silent():
-			return "\n\t" + item.longname
-		return ""
 
 
 	def needs_no_light(self):

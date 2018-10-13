@@ -20,6 +20,19 @@ class Item(DataElement):
 		return self.description
 
 
+	def get_list_name(self, indentation=1):
+		result = "\n"
+		for i in range(0, indentation):
+			result += "\t"
+		return result + self.longname
+
+
+	def get_non_silent_list_name(self, indentation=1):
+		if not self.is_silent():
+			return self.get_list_name(indentation)
+		return ""
+
+
 	def is_portable(self):
 		return self.is_mobile() and not self.obstruction
 
