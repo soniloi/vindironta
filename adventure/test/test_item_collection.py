@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch
 
+from adventure.item import ContainerItem
 from adventure.item_collection import ItemCollection
 from adventure import file_reader
 from adventure import location_collection
@@ -16,6 +17,7 @@ class TestItemCollection(unittest.TestCase):
 				"1042\t2002\t27\t3\tkohlrabi,cabbage\tsome kohlrabi\tsome kohlrabi, or Brassica oleracea var. gongylodes, a cabbage cultivar\t0",
 				"1076\t22802\t1007\t1\twater\twater\tRiver Amethyst water. It is cold and clear\t0",
 				"1105\t2\t80\t2\tbook\ta book\ta book of fairytales in English. It is open on a particular page\tThe Pied Piper of Hamelin",
+				"1002\t3\t119\t5\tbasket\ta\tbasket\ta\tlarge basket\t0",
 				"---",
 			]
 
@@ -40,10 +42,11 @@ class TestItemCollection(unittest.TestCase):
 
 
 	def test_init(self):
-		self.assertEqual(4, len(self.collection.items))
+		self.assertEqual(5, len(self.collection.items))
 		self.assertTrue("book" in self.collection.items)
 		self.assertTrue("cabbage" in self.collection.items)
 		self.assertTrue("kohlrabi" in self.collection.items)
+		self.assertTrue("basket" in self.collection.items)
 
 		book = self.collection.items["book"]
 		self.assertEqual(0x2, book.attributes)
@@ -53,12 +56,14 @@ class TestItemCollection(unittest.TestCase):
 		self.assertEqual("a book", book.longname)
 		self.assertEqual("a book of fairytales in English. It is open on a particular page", book.description)
 		self.assertEqual("The Pied Piper of Hamelin", book.writing)
+		self.assertFalse(isinstance(book, ContainerItem))
 
 		kohlrabi = self.collection.items["kohlrabi"]
 		self.assertEqual(0x2002, kohlrabi.attributes)
 		self.assertEqual(self.kohlrabi_initial_container, kohlrabi.container)
 		self.assertEqual("kohlrabi", kohlrabi.shortname)
 		self.assertIsNone(kohlrabi.writing)
+		self.assertFalse(isinstance(kohlrabi, ContainerItem))
 
 		cabbage = self.collection.items["cabbage"]
 		self.assertIs(kohlrabi, cabbage)
@@ -66,6 +71,10 @@ class TestItemCollection(unittest.TestCase):
 
 		water = self.collection.items["water"]
 		self.assertIsNone(water.container)
+		self.assertFalse(isinstance(water, ContainerItem))
+
+		basket = self.collection.items["basket"]
+		self.assertTrue(isinstance(basket, ContainerItem))
 
 		self.assertEqual(book, self.book_initial_container.get_by_id(book.data_id))
 		self.assertEqual(kohlrabi, self.kohlrabi_initial_container.get_by_id(kohlrabi.data_id))

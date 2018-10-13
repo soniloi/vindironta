@@ -1,7 +1,9 @@
 from adventure.data_element import DataElement
+from adventure.item_container import ItemContainer
 
 class Item(DataElement):
 
+	ATTRIBUTE_CONTAINER = 0x1
 	ATTRIBUTE_MOBILE = 0x2
 	ATTRIBUTE_OBSTRUCTION = 0x4
 	ATTRIBUTE_GIVES_LIGHT = 0x10
@@ -51,3 +53,29 @@ class Item(DataElement):
 
 	def is_silent(self):
 		return self.has_attribute(Item.ATTRIBUTE_SILENT)
+
+
+class ContainerItem(Item, ItemContainer):
+
+	def __init__(self, item_id, attributes, shortname, longname, description, size, writing):
+		Item.__init__(self, item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
+			description=description, size=size, writing=writing)
+		ItemContainer.__init__(self)
+
+
+	def get_list_name(self, indentation=1):
+
+		result = Item.get_list_name(self, indentation)
+		inner_indentation = indentation + 1
+		result += " "
+
+		template = "(---)"
+		contents = ""
+		if self.items:
+			template = "+{0}"
+			inner_item = next(iter(self.items.values()))
+			contents = inner_item.get_list_name(inner_indentation)
+
+		result += template.format(contents)
+
+		return result
