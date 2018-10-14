@@ -8,12 +8,12 @@ from adventure.location import Location
 class TestGame(unittest.TestCase):
 
 	def setUp(self):
-		data = self.setUpData()
-		commands = self.setUpCommands()
-		self.game = self.setUpGame(data, commands)
+		data = self.setup_data()
+		commands = self.setup_commands()
+		self.game = self.setup_game(data, commands)
 
 
-	def setUpData(self):
+	def setup_data(self):
 		data = Mock()
 		data.get_location.side_effect = self.location_side_effect
 
@@ -25,7 +25,7 @@ class TestGame(unittest.TestCase):
 		return data
 
 
-	def setUpCommands(self):
+	def setup_commands(self):
 		commands = Mock()
 		commands.get.side_effect = self.command_side_effect
 
@@ -41,7 +41,7 @@ class TestGame(unittest.TestCase):
 		return commands
 
 
-	def setUpGame(self, data, commands):
+	def setup_game(self, data, commands):
 		game = Game()
 		game.data = data
 		game.commands = commands

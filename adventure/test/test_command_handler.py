@@ -1,23 +1,27 @@
 import unittest
 from unittest.mock import Mock
-from unittest.mock import patch
 
 from adventure.command import Command
 from adventure.command_handler import CommandHandler
-from adventure.data_collection import DataCollection
 from adventure.direction import Direction
-from adventure import item_collection
 from adventure.item import Item
 from adventure.location import Location
 from adventure.player import Player
-from adventure import text_collection
 
 class TestCommandHandler(unittest.TestCase):
 
 	def setUp(self):
+		self.setup_data()
+		self.setup_locations()
+		self.setup_items()
+		self.setup_texts()
+		self.setup_player()
 
 		self.handler = CommandHandler()
+		self.handler.init_data(self.data)
 
+
+	def setup_data(self):
 		self.data = Mock()
 		self.data.list_commands.side_effect = self.list_commands_side_effect
 		self.data.get_location.side_effect = self.locations_side_effect
@@ -25,16 +29,22 @@ class TestCommandHandler(unittest.TestCase):
 		self.data.get_hint.side_effect = self.hints_side_effect
 		self.data.get_explanation.side_effect = self.explanations_side_effect
 		self.data.get_response.side_effect = self.responses_side_effect
-		self.handler.init_data(self.data)
 
+
+	def setup_locations(self):
 		self.beach_location = Location(13, 0x1, "Beach", "on a beach", " of black sand")
 		self.lighthouse_location = Location(12, 0x1, "Lighthouse", "at a lighthouse", " by the sea.")
 		self.mine_location = Location(11, 0x0, "Mines", "in the mines", ". There are dark passages everywhere.")
 		self.sun_location = Location(10, 0x11, "Sun", "in the sun", ". It is hot.")
 
-		self.player = Player(self.lighthouse_location)
-		self.player.instructions = 7
+		self.location_map = {
+			11 : self.mine_location,
+			12 : self.lighthouse_location,
+			13 : self.beach_location,
+		}
 
+
+	def setup_items(self):
 		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
 		self.lamp = Item(1043, 0x101A, "lamp", "a lamp", "a small lamp", 2, None)
 		self.kohlrabi = Item(1042, 0x2002, "kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar", 3, None)
@@ -42,12 +52,6 @@ class TestCommandHandler(unittest.TestCase):
 		self.heavy_item = Item(1001, 0x0, "heavy", "a heavy item", "a dummy heavy item", 15, None)
 		self.obstruction = Item(1002, 0x4, "obstruction", "an obstruction", "an obstruction blocking you", 8, None)
 		self.mobile_obstruction = Item(1003, 0x6, "mobile_obstruction", "a mobile obstruction", "a mobile obstruction", 5, None)
-
-		self.location_map = {
-			11 : self.mine_location,
-			12 : self.lighthouse_location,
-			13 : self.beach_location,
-		}
 
 		self.item_map = {
 			"book" : self.book,
@@ -58,6 +62,8 @@ class TestCommandHandler(unittest.TestCase):
 			"mobile_obstruction" : self.mobile_obstruction,
 		}
 
+
+	def setup_texts(self):
 		self.hint_map = {
 			"default" : "I have no hint.",
 			"magic" : "abrakadabra",
@@ -103,6 +109,12 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_too_full" : "That is too large to carry.",
 			"reject_unknown" : "I do not know what that is.",
 		}
+
+
+	def setup_player(self):
+		self.player = Player(self.lighthouse_location)
+		self.player.instructions = 7
+
 
 	def list_commands_side_effect(self, *args):
 		return "look, ne"
@@ -613,7 +625,6 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("Taken.", "book"), response)
 		self.assertTrue(self.player.is_carrying(self.book))
 		self.assertFalse(self.mine_location.contains(self.book))
-
 
 
 if __name__ == "__main__":

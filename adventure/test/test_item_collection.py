@@ -1,10 +1,8 @@
 import unittest
-from unittest.mock import patch, Mock
+from unittest.mock import Mock
 
 from adventure.item import ContainerItem
 from adventure.item_collection import ItemCollection
-from adventure import file_reader
-from adventure import location_collection
 from adventure.location import Location
 
 class TestItemCollection(unittest.TestCase):
@@ -21,9 +19,7 @@ class TestItemCollection(unittest.TestCase):
 
 	def container_side_effect(self, *args):
 		container_id = int(args[0])
-		if container_id in self.container_map:
-			return self.container_map[container_id]
-		return None
+		return self.container_map.get(container_id)
 
 
 	def test_init_single_item(self):
