@@ -6,19 +6,19 @@ class ItemCollection:
 
 	NO_WRITING = "0"
 
-	def __init__(self, reader, location_collection):
+	def __init__(self, reader, containers):
 		self.items = {}
-		containers = {}
+		container_ids = {}
 
 		line = reader.read_line()
 		while not line.startswith("---"):
-			self.create_item(line, containers)
+			self.create_item(line, container_ids, containers)
 			line = reader.read_line()
 
-		self.place_items(containers, location_collection)
+		self.place_items(container_ids, containers)
 
 
-	def create_item(self, line, containers):
+	def create_item(self, line, container_ids, containers):
 		tokens = line.split("\t")
 
 		item_id = self.parse_item_id(tokens[0])
@@ -30,12 +30,12 @@ class ItemCollection:
 		description = tokens[6]
 		writing = self.parse_item_writing(tokens[7])
 		item = self.init_item(item_id=item_id, attributes=attributes, shortname=primary_shortname, longname=longname,
-			description=description, size=size, writing=writing)
+			description=description, size=size, writing=writing, containers=containers)
 
 		for shortname in shortnames:
 			self.items[shortname] = item
 
-		containers[item] = container_id
+		container_ids[item] = container_id
 
 
 	def parse_item_id(self, token):
@@ -65,19 +65,22 @@ class ItemCollection:
 		return token
 
 
-	def init_item(self, item_id, attributes, shortname, longname, description, size, writing):
+	def init_item(self, item_id, attributes, shortname, longname, description, size, writing, containers):
 		if attributes & Item.ATTRIBUTE_CONTAINER != 0:
-			return ContainerItem(item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
+			item = ContainerItem(item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
 			description=description, size=size, writing=writing)
+			containers[item_id] = item
 		else:
-			return Item(item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
+			item = Item(item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
 			description=description, size=size, writing=writing)
+
+		return item
 
 
 	# TODO: handle initial placement types other than Location
-	def place_items(self, containers, location_collection):
-		for item, container_id in containers.items():
-			container = location_collection.get(container_id)
+	def place_items(self, container_ids, containers):
+		for item, container_id in container_ids.items():
+			container = containers.get(container_id)
 			if container:
 				item.container = container
 				container.insert(item)

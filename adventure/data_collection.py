@@ -8,7 +8,7 @@ class DataCollection:
 	def __init__(self, reader, argument_resolver, command_handler):
 		self.commands = CommandCollection(reader, argument_resolver, command_handler)
 		self.locations = LocationCollection(reader)
-		self.items = ItemCollection(reader, self.locations)
+		self.items = ItemCollection(reader, self.locations.locations.copy())
 		self.hints = TextCollection(reader)
 		self.explanations = TextCollection(reader)
 		self.responses = TextCollection(reader)
