@@ -10,27 +10,17 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def setUp(self):
 
-		self.resolver = ArgumentResolver()
-
-		responses_mock = Mock()
-		responses_mock.get.side_effect = self.responses_side_effect
-
-		self.data = DataCollection(
-			commands=None,
-			locations=None,
-			items=None,
-			hints=None,
-			explanations=None,
-			responses=responses_mock,
-			puzzles=None,
-		)
-		self.resolver.init_data(self.data)
+		data = Mock()
+		data.get_response.side_effect = self.responses_side_effect
 
 		self.response_map = {
 			"request_argless" : "Do not give an argument for this command.",
 			"request_direct" : "What do you want to {0}?",
 			"request_switch" : "Use the command \"{0}\" with either \"{1}\" or \"{2}\".",
 		}
+
+		self.resolver = ArgumentResolver()
+		self.resolver.init_data(data)
 
 
 	def responses_side_effect(self, *args):

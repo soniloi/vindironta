@@ -18,33 +18,13 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.handler = CommandHandler()
 
-		command_collection_mock = Mock()
-		command_collection_mock.list_commands.side_effect = self.list_commands_side_effect
-
-		location_collection_mock = Mock()
-		location_collection_mock.get.side_effect = self.locations_side_effect
-
-		item_collection_mock = Mock()
-		item_collection_mock.get.side_effect = self.items_side_effect
-
-		hints_mock = Mock()
-		hints_mock.get.side_effect = self.hints_side_effect
-
-		explanations_mock = Mock()
-		explanations_mock.get.side_effect = self.explanations_side_effect
-
-		responses_mock = Mock()
-		responses_mock.get.side_effect = self.responses_side_effect
-
-		self.data = DataCollection(
-			commands=command_collection_mock,
-			locations=location_collection_mock,
-			items=item_collection_mock,
-			hints=hints_mock,
-			explanations=explanations_mock,
-			responses=responses_mock,
-			puzzles=None,
-		)
+		self.data = Mock()
+		self.data.list_commands.side_effect = self.list_commands_side_effect
+		self.data.get_location.side_effect = self.locations_side_effect
+		self.data.get_item.side_effect = self.items_side_effect
+		self.data.get_hint.side_effect = self.hints_side_effect
+		self.data.get_explanation.side_effect = self.explanations_side_effect
+		self.data.get_response.side_effect = self.responses_side_effect
 		self.handler.init_data(self.data)
 
 		self.beach_location = Location(13, 0x1, "Beach", "on a beach", " of black sand")

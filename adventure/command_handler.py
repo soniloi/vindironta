@@ -26,7 +26,7 @@ class CommandHandler:
 
 
 	def get_response(self, response_key):
-		return self.data.responses.get(response_key)
+		return self.data.get_response(response_key)
 
 
 	def handle_climb(self, player, arg):
@@ -35,7 +35,7 @@ class CommandHandler:
 
 	def handle_commands(self, player, arg):
 		template = self.get_response("describe_commands")
-		content = self.data.commands.list_commands()
+		content = self.data.list_commands()
 		return template, content
 
 
@@ -82,10 +82,10 @@ class CommandHandler:
 
 
 	def handle_explain(self, player, arg):
-		template = self.data.explanations.get(arg)
+		template = self.data.get_explanation(arg)
 
 		if not template:
-			template = self.data.explanations.get("default")
+			template = self.data.get_explanation("default")
 
 		return template, arg
 
@@ -169,10 +169,10 @@ class CommandHandler:
 
 
 	def handle_hint(self, player, arg):
-		template = self.data.hints.get(arg)
+		template = self.data.get_hint(arg)
 
 		if not template:
-			template = self.data.hints.get("default")
+			template = self.data.get_hint("default")
 
 		return template, arg
 
@@ -222,7 +222,7 @@ class CommandHandler:
 			except:
 				pass
 
-			proposed_location = self.data.locations.get(location_id)
+			proposed_location = self.data.get_location(location_id)
 			if proposed_location:
 				template, content =  self.execute_go(player, arg, proposed_location)
 			else:
@@ -336,7 +336,7 @@ class CommandHandler:
 
 	def interact_item(self, player, arg, manipulation):
 
-		item = self.data.items.get(arg)
+		item = self.data.get_item(arg)
 		if not item:
 			return self.get_response("reject_unknown"), arg
 

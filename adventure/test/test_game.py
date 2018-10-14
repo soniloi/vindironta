@@ -1,26 +1,36 @@
 import unittest
 from unittest.mock import Mock
-from unittest.mock import patch
 
-from adventure import command
-from adventure import command_collection
 from adventure.data_collection import DataCollection
 from adventure.game import Game
-from adventure import location_collection
+from adventure.location import Location
 
 class TestGame(unittest.TestCase):
 
 	def setUp(self):
-		self.game = Game()
+		data = self.setUpData()
+		commands = self.setUpCommands()
+		self.game = self.setUpGame(data, commands)
 
-		with patch(command_collection.__name__ + ".CommandCollection") as command_collection_mock:
-			self.command_collection_mock_instance = command_collection_mock.return_value
-			self.command_collection_mock_instance.get.side_effect = self.command_side_effect
-		self.game.command_collection = self.command_collection_mock_instance
+
+	def setUpData(self):
+		data = Mock()
+		data.get_location.side_effect = self.location_side_effect
+
+		self.initial_location = Location(12, 0x1, "Lighthouse", "at a lighthouse", " by the sea.")
+		self.location_map = {
+			9 : self.initial_location
+		}
+
+		return data
+
+
+	def setUpCommands(self):
+		commands = Mock()
+		commands.get.side_effect = self.command_side_effect
 
 		look_command = Mock()
 		look_command.execute.return_value = "You cannot see a thing."
-
 		self.take_command = Mock()
 		self.take_command.execute.return_value = "Taken."
 
@@ -28,17 +38,16 @@ class TestGame(unittest.TestCase):
 			"look" : look_command
 		}
 
-		with patch(location_collection.__name__ + ".LocationCollection") as location_collection_mock:
-			self.location_collection_mock_instance = location_collection_mock.return_value
-			self.location_collection_mock_instance.get.side_effect = self.location_side_effect
-		self.game.location_collection = self.location_collection_mock_instance
-		self.initial_location_instance = Mock()
-		self.location_map = {
-			9 : self.initial_location_instance
-		}
+		return commands
 
-		self.game.data = DataCollection(None, self.location_collection_mock_instance, None, None, None, None, None)
-		self.game.init_player()
+
+	def setUpGame(self, data, commands):
+		game = Game()
+		game.data = data
+		game.commands = commands
+		game.init_player()
+
+		return game
 
 
 	def command_side_effect(self, *args):
@@ -56,7 +65,7 @@ class TestGame(unittest.TestCase):
 
 
 	def test_init_player(self):
-		self.assertEqual(self.initial_location_instance, self.game.player.location)
+		self.assertEqual(self.initial_location, self.game.player.location)
 		# TODO: fix this assertion
 		self.assertEqual(0, len(self.game.player.inventory.items))
 

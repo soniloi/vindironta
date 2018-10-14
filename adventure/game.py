@@ -1,12 +1,8 @@
 from adventure.argument_resolver import ArgumentResolver
-from adventure.command_collection import CommandCollection
 from adventure.command_handler import CommandHandler
 from adventure.data_collection import DataCollection
 from adventure.file_reader import FileReader
-from adventure.item_collection import ItemCollection
-from adventure.location_collection import LocationCollection
 from adventure.player import Player
-from adventure.text_collection import TextCollection
 
 class Game:
  
@@ -23,30 +19,14 @@ class Game:
 
 
 	def init_data(self, reader):
-		self.command_collection = CommandCollection(reader, self.argument_resolver, self.command_handler)
-		location_collection = LocationCollection(reader)
-		item_collection = ItemCollection(reader, location_collection)
-		hint_text_collection = TextCollection(reader)
-		explain_text_collection = TextCollection(reader)
-		response_text_collection = TextCollection(reader)
-		puzzle_text_collection = TextCollection(reader)
-
-		self.data = DataCollection(
-			commands=self.command_collection,
-			locations=location_collection,
-			items=item_collection,
-			hints=hint_text_collection,
-			explanations=explain_text_collection,
-			responses=response_text_collection,
-			puzzles=puzzle_text_collection
-		)
-
+		self.data = DataCollection(reader, self.argument_resolver, self.command_handler)
+		self.commands = self.data.commands
 		self.argument_resolver.init_data(self.data)
 		self.command_handler.init_data(self.data)
 
 
 	def init_player(self):
-		self.player = Player(self.data.locations.get(9))
+		self.player = Player(self.data.get_location(9))
 
 
 	def process_input(self, line):
@@ -76,7 +56,7 @@ class Game:
 
 	def get_command_from_input(self, tokens):
 		command_name = tokens[0]
-		command = self.command_collection.get(command_name)
+		command = self.commands.get(command_name)
 		return command
 
 
