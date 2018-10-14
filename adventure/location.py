@@ -11,7 +11,7 @@ class Location(DataElement, ItemContainer):
 			description=description)
 		ItemContainer.__init__(self)
 		self.directions = {}
-		self.visited = False
+		self.seen = False
 
 
 	def get_adjacent_location(self, direction):
@@ -25,7 +25,7 @@ class Location(DataElement, ItemContainer):
 	def get_arrival_description(self, verbose):
 		description = ""
 
-		if self.visited and not verbose:
+		if self.seen and not verbose:
 			description = self.longname
 		else:
 			description = self.get_description()

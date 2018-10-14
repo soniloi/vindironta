@@ -123,7 +123,7 @@ class CommandHandler:
 		else:
 			self.update_previous_location(player, proposed_location)
 			template, content = self.execute_go(player, arg, proposed_location)
-			player.visit_location()
+			self.interact_vision(player, arg, self.execute_see_location)
 
 		return template, content
 
@@ -154,6 +154,10 @@ class CommandHandler:
 		content = player.get_arrival_location_description()
 
 		return template, content
+
+
+	def execute_see_location(self, player, arg):
+		player.see_location()
 
 
 	def handle_go_disambiguate(self, player, arg):

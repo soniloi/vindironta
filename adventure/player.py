@@ -23,8 +23,8 @@ class Player:
 		return self.location.get_obstructions()
 
 
-	def visit_location(self):
-		self.location.visited = True
+	def see_location(self):
+		self.location.seen = True
 
 
 	def holding_items(self):

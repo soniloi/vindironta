@@ -39,28 +39,28 @@ class TestLocation(unittest.TestCase):
 		self.assertTrue(self.location.contains(self.book))
 
 
-	def test_get_arrival_description_not_visited_not_verbose(self):
+	def test_get_arrival_description_not_seen_not_verbose(self):
 		description = self.location.get_arrival_description(False)
 
 		self.assertEqual(["in the mines. There are dark passages everywhere", ""], description)
 
 
-	def test_get_arrival_description_not_visited_verbose(self):
+	def test_get_arrival_description_not_seen_verbose(self):
 		description = self.location.get_arrival_description(True)
 
 		self.assertEqual(["in the mines. There are dark passages everywhere", ""], description)
 
 
-	def test_get_arrival_description_visited_not_verbose(self):
-		self.location.visited = True
+	def test_get_arrival_description_seen_not_verbose(self):
+		self.location.seen = True
 
 		description = self.location.get_arrival_description(False)
 
 		self.assertEqual(["in the mines", ""], description)
 
 
-	def test_get_arrival_description_visited_verbose(self):
-		self.location.visited = True
+	def test_get_arrival_description_seen_verbose(self):
+		self.location.seen = True
 
 		description = self.location.get_arrival_description(True)
 
@@ -68,7 +68,7 @@ class TestLocation(unittest.TestCase):
 
 
 	def test_get_full_description_non_silent(self):
-		self.location.visited = True
+		self.location.seen = True
 		self.location.insert(self.book)
 
 		description = self.location.get_full_description()
@@ -77,7 +77,7 @@ class TestLocation(unittest.TestCase):
 
 
 	def test_get_full_description_silent(self):
-		self.location.visited = True
+		self.location.seen = True
 		self.location.insert(self.desk)
 
 		description = self.location.get_full_description()

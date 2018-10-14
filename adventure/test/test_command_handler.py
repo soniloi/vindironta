@@ -239,6 +239,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("You are {0}.", ["on a beach of black sand", ""]), response)
 		self.assertIs(self.beach_location, self.player.location)
 		self.assertIs(self.lighthouse_location, self.player.previous_location)
+		self.assertTrue(self.beach_location.seen)
 
 
 	def test_handle_go_with_destination_again(self):
@@ -252,6 +253,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("You are {0}.", ["on a beach", ""]), response)
 		self.assertIs(self.beach_location, self.player.location)
 		self.assertIs(self.lighthouse_location, self.player.previous_location)
+		self.assertTrue(self.beach_location.seen)
+		self.assertTrue(self.lighthouse_location.seen)
 
 
 	def test_handle_go_with_destination_no_light(self):
@@ -263,6 +266,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("It is too dark.", ""), response)
 		self.assertIs(self.mine_location, self.player.location)
 		self.assertIs(self.lighthouse_location, self.player.previous_location)
+		self.assertFalse(self.mine_location.seen)
 
 
 	def test_handle_go_with_destination_excess_light_carrying_light(self):
