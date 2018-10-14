@@ -51,7 +51,7 @@ class CommandHandler:
 
 		template = ""
 
-		if not player.is_carrying(item) and not player.location.contains(item):
+		if not player.has_or_is_near_item(item):
 			template = self.get_response("reject_not_here")
 			content = item.shortname
 		else:
@@ -62,8 +62,6 @@ class CommandHandler:
 
 
 	def handle_drop(self, player, arg):
-		#TODO: handle None arg
-
 		return self.interact_item(player, arg, self.execute_drop)
 
 
@@ -74,8 +72,7 @@ class CommandHandler:
 			template = self.get_response("reject_not_holding")
 
 		else:
-			player.inventory.remove(item)
-			player.location.insert(item)
+			player.drop_item(item)
 			template = self.get_response("confirm_dropped")
 
 		return template, item.shortname
@@ -107,7 +104,7 @@ class CommandHandler:
 		if direction == Direction.BACK:
 			return player.previous_location, "reject_no_back"
 
-		return player.location.get_adjacent_location(direction), self.get_non_back_reject_key(direction)
+		return player.get_adjacent_location(direction), self.get_non_back_reject_key(direction)
 
 
 	def get_non_back_reject_key(self, direction):
@@ -117,7 +114,7 @@ class CommandHandler:
 
 
 	def execute_go_if_not_obstructed(self, player, arg, proposed_location):
-		obstructions = player.location.get_obstructions()
+		obstructions = player.get_obstructions()
 
 		if obstructions and proposed_location is not player.previous_location:
 			template_key, content = self.reject_go_obstructed(player, obstructions)
@@ -126,7 +123,7 @@ class CommandHandler:
 		else:
 			self.update_previous_location(player, proposed_location)
 			template, content = self.execute_go(player, arg, proposed_location)
-			player.location.visited = True
+			player.visit_location()
 
 		return template, content
 
@@ -154,7 +151,7 @@ class CommandHandler:
 		if player.has_items_nearby():
 			template += self.get_response("list_location")
 
-		content = player.location.get_arrival_description(player.verbose)
+		content = player.get_arrival_location_description()
 
 		return template, content
 
@@ -189,7 +186,7 @@ class CommandHandler:
 			template = template = self.get_response("list_inventory_empty")
 		else:
 			template = template = self.get_response("list_inventory_nonempty")
-			content = player.inventory.get_contents_description()
+			content = player.describe_inventory()
 
 		return template, content
 
@@ -204,7 +201,7 @@ class CommandHandler:
 		if player.has_items_nearby():
 			template += self.get_response("list_location")
 
-		return template, player.location.get_full_description()
+		return template, player.get_full_location_description()
 
 
 	def handle_node(self, player, arg):
@@ -250,7 +247,7 @@ class CommandHandler:
 		template = ""
 		content = ""
 
-		if not player.is_carrying(item) and not player.location.contains(item):
+		if not player.has_or_is_near_item(item):
 			template = self.get_response("reject_not_here")
 			content = item.shortname
 		else:
@@ -270,8 +267,6 @@ class CommandHandler:
 
 
 	def handle_take(self, player, arg):
-		#TODO: handle None arg
-
 		return self.interact_item(player, arg, self.execute_take)
 
 
@@ -281,18 +276,17 @@ class CommandHandler:
 		if player.is_carrying(item):
 			template = self.get_response("reject_already")
 
-		elif not player.location.contains(item):
+		elif not player.is_near_item(item):
 			template = self.get_response("reject_not_here")
 
 		elif not item.is_portable():
 			template = self.get_response("reject_not_portable")
 
-		elif not player.inventory.can_accommodate(item):
+		elif not player.can_carry(item):
 			template = self.get_response("reject_too_full")
 
 		else:
-			item.container.remove(item)
-			player.inventory.insert(item)
+			player.take_item(item)
 			template = self.get_response("confirm_taken")
 
 		return template, item.shortname
@@ -323,12 +317,11 @@ class CommandHandler:
 		elif not item.is_portable():
 			template = self.get_response("reject_not_portable")
 
-		elif not player.inventory.can_accommodate(item):
+		elif not player.can_carry(item):
 			template = self.get_response("reject_too_full")
 
 		else:
-			item.container.remove(item)
-			player.inventory.insert(item)
+			player.take_item(item)
 			template = self.get_response("confirm_taken")
 
 		return template, item.shortname

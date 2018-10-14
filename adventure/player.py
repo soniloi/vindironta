@@ -15,6 +15,18 @@ class Player:
 		self.instructions = 0
 
 
+	def get_adjacent_location(self, direction):
+		return self.location.get_adjacent_location(direction)
+
+
+	def get_obstructions(self):
+		return self.location.get_obstructions()
+
+
+	def visit_location(self):
+		self.location.visited = True
+
+
 	def holding_items(self):
 		return self.inventory.has_items()
 
@@ -27,12 +39,46 @@ class Player:
 		return self.inventory.contains(item)
 
 
+	def is_near_item(self, item):
+		return self.location.contains(item)
+
+
+	def has_or_is_near_item(self, item):
+		return self.is_carrying(item) or self.is_near_item(item)
+
+
+	def can_carry(self, item):
+		return self.inventory.can_accommodate(item)
+
+
+	def take_item(self, item):
+		item.container.remove(item)
+		self.inventory.insert(item)
+
+
+	def drop_item(self, item):
+		self.inventory.remove(item)
+		self.location.insert(item)
+
+
+	def describe_inventory(self):
+		return self.inventory.get_contents_description()
+
+
 	def increment_instructions(self):
 		self.instructions += 1
 
 
 	def decrement_instructions(self):
 		self.instructions -= 1
+
+
+	def get_arrival_location_description(self):
+		return self.location.get_arrival_description(self.verbose)
+
+
+	def get_full_location_description(self):
+		return self.location.get_full_description()
 
 
 	def has_light_and_needs_no_light(self):
