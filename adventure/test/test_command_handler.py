@@ -152,14 +152,6 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("I know these commands: {0}.", "look, ne"), response)
 
 
-	def test_handle_describe_no_light(self):
-		self.player.location = self.mine_location
-
-		response = self.handler.handle_describe(self.player, "book")
-
-		self.assertEqual(("It is too dark.", ""), response)
-
-
 	def test_handle_describe_unknown(self):
 		response = self.handler.handle_describe(self.player, "biscuit")
 
@@ -420,33 +412,6 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_inventory(self.player, "")
 
 		self.assertEqual(("You have: {0}.", "\n\ta book"), response)
-
-
-	def test_handle_look_no_light(self):
-		self.player.location = self.mine_location
-
-		response = self.handler.handle_look(self.player, "")
-
-		self.assertEqual(("It is too dark.", ""), response)
-
-
-	def test_handle_look_light_from_location(self):
-		self.player.location = self.mine_location
-		self.player.location.insert(self.lamp)
-
-		response = self.handler.handle_look(self.player, "")
-
-		self.assertEqual(("You are {0}. Nearby: {1}.",
-			["in the mines. There are dark passages everywhere.", "\n\ta lamp"]), response)
-
-
-	def test_handle_look_light_from_inventory(self):
-		self.player.location = self.mine_location
-		self.player.inventory.insert(self.lamp)
-
-		response = self.handler.handle_look(self.player, "")
-
-		self.assertEqual(("You are {0}.", ["in the mines. There are dark passages everywhere.", ""]), response)
 
 
 	def test_handle_look_no_items(self):

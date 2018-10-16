@@ -3,9 +3,10 @@ from adventure.file_reader import FileReader
 
 class CommandCollection:
 
-	def __init__(self, reader, argument_resolver, command_handler):
+	def __init__(self, reader, argument_resolver, command_handler, vision_resolver):
 		self.argument_resolver = argument_resolver
 		self.command_handler = command_handler
+		self.vision_resolver = vision_resolver
 		self.commands = {}
 		line = reader.read_line()
 		while not line.startswith("---"):
@@ -22,6 +23,7 @@ class CommandCollection:
 		command_attributes = self.parse_command_attributes(tokens[1])
 		resolver_function = self.get_resolver_function(command_attributes)
 		handler_function = self.parse_handler_function(tokens[2])
+		vision_function = self.get_vision_function(command_attributes)
 		off_switch, on_switch = self.get_switches(tokens, command_attributes)
 
 		if handler_function and resolver_function:
@@ -31,6 +33,7 @@ class CommandCollection:
 				attributes=command_attributes,
 				resolver_function=resolver_function,
 				handler_function=handler_function,
+				vision_function=vision_function,
 				primary=primary_command_name,
 				aliases=command_names,
 				off_switch=off_switch,
@@ -64,6 +67,18 @@ class CommandCollection:
 	def parse_handler_function(self, token):
 		handler_function_name = "handle_" + token
 		return self.command_handler.get_handler_function(handler_function_name)
+
+
+	def get_vision_function(self, attributes):
+		resolver_function_name = "resolve_"
+		if attributes & Command.ATTRIBUTE_REQUIRES_VISION != 0:
+			if attributes & Command.ATTRIBUTE_TAKES_ARG != 0:
+				resolver_function_name += "dark"
+			else:
+				resolver_function_name += "light_and_dark"
+		else:
+			resolver_function_name += "none"
+		return self.vision_resolver.get_resolver_function(resolver_function_name)
 
 
 	def parse_command_names(self, token):

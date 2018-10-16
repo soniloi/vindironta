@@ -38,3 +38,4 @@ class ArgumentResolver:
 			player.current_command = command
 			return self.data.get_response("request_direct"), command.primary
 		return self.execute(command, player, arg)
+

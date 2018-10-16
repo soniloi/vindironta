@@ -3,6 +3,7 @@ from adventure.command_handler import CommandHandler
 from adventure.data_collection import DataCollection
 from adventure.file_reader import FileReader
 from adventure.player import Player
+from adventure.vision_resolver import VisionResolver
 
 class Game:
  
@@ -10,6 +11,7 @@ class Game:
 		self.on = True
 		self.argument_resolver = ArgumentResolver()
 		self.command_handler = CommandHandler()
+		self.vision_resolver = VisionResolver()
 
 		if filename:
 			with open(filename, "rb") as input_file:
@@ -19,10 +21,11 @@ class Game:
 
 
 	def init_data(self, reader):
-		self.data = DataCollection(reader, self.argument_resolver, self.command_handler)
+		self.data = DataCollection(reader, self.argument_resolver, self.command_handler, self.vision_resolver)
 		self.commands = self.data.commands
 		self.argument_resolver.init_data(self.data)
 		self.command_handler.init_data(self.data)
+		self.vision_resolver.init_data(self.data)
 
 
 	def init_player(self):

@@ -40,10 +40,6 @@ class CommandHandler:
 
 
 	def handle_describe(self, player, arg):
-		return self.interact_vision(player, arg, self.complete_describe)
-
-
-	def complete_describe(self, player, arg):
 		return self.interact_item(player, arg, self.execute_describe)
 
 
@@ -196,10 +192,6 @@ class CommandHandler:
 
 
 	def handle_look(self, player, arg):
-		return self.interact_vision(player, arg, self.complete_look)
-
-
-	def complete_look(self, player, arg):
 		template = self.get_response("describe_location")
 
 		if player.has_items_nearby():
@@ -239,10 +231,6 @@ class CommandHandler:
 
 
 	def handle_read(self, player, arg):
-		return self.interact_vision(player, arg, self.complete_read)
-
-
-	def complete_read(self, player, arg):
 		return self.interact_item(player, arg, self.execute_read)
 
 

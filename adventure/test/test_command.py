@@ -5,10 +5,14 @@ from adventure.command import Command
 class TestCommand(unittest.TestCase):
 
 	def setUp(self):
-		self.command_singular = Command(1, 0x9, self.resolver_function_non_movement, self.handler_function_singular, "", [],  None, None)
-		self.command_movement = Command(1, 0x49, self.resolver_function_movement, self.handler_function_singular, "", [],  None, None)
-		self.command_switchable = Command(1, 0x100, self.resolver_function_non_movement, self.handler_function_singular, "", [],  "off", "on")
-		self.command_list = Command(1, 0x9, self.resolver_function_non_movement, self.handler_function_list, "", [],  None, None)
+		self.command_singular = Command(1, 0x9, self.resolver_function_non_movement, self.handler_function_singular,
+			self.vision_resolver_function, "", [],  None, None)
+		self.command_movement = Command(1, 0x49, self.resolver_function_movement, self.handler_function_singular,
+			self.vision_resolver_function, "", [],  None, None)
+		self.command_switchable = Command(1, 0x100, self.resolver_function_non_movement, self.handler_function_singular,
+			self.vision_resolver_function, "", [],  "off", "on")
+		self.command_list = Command(1, 0x9, self.resolver_function_non_movement, self.handler_function_list,
+			self.vision_resolver_function, "", [],  None, None)
 
 
 	def resolver_function_movement(self, command, player, arg):
@@ -26,6 +30,10 @@ class TestCommand(unittest.TestCase):
 
 	def handler_function_list(self, player, arg):
 		return "{0} success!", [arg]
+
+
+	def vision_resolver_function(self, command, player, arg):
+		return command.resolver_function(command, player, arg)
 
 
 	def test_init(self):
