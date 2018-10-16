@@ -21,17 +21,17 @@ class CommandCollection:
 
 		command_id = self.parse_command_id(tokens[0])
 		command_attributes = self.parse_command_attributes(tokens[1])
-		resolver_function = self.get_resolver_function(command_attributes)
+		arg_function = self.get_arg_function(command_attributes)
 		handler_function = self.parse_handler_function(tokens[2])
 		vision_function = self.get_vision_function(command_attributes)
 		off_switch, on_switch = self.get_switches(tokens, command_attributes)
 
-		if handler_function and resolver_function:
+		if handler_function and arg_function:
 			(primary_command_name, command_names) = self.parse_command_names(tokens[3])
 			command = Command(
 				command_id=command_id,
 				attributes=command_attributes,
-				resolver_function=resolver_function,
+				arg_function=arg_function,
 				handler_function=handler_function,
 				vision_function=vision_function,
 				primary=primary_command_name,
@@ -51,17 +51,17 @@ class CommandCollection:
 		return int(token, 16)
 
 
-	def get_resolver_function(self, attributes):
-		resolver_function_name = "resolve_"
+	def get_arg_function(self, attributes):
+		arg_function_name = "resolve_"
 		if attributes & Command.ATTRIBUTE_MOVEMENT != 0:
-			resolver_function_name += "movement"
+			arg_function_name += "movement"
 		elif attributes & Command.ATTRIBUTE_SWITCHABLE != 0:
-			resolver_function_name += "switchable"
+			arg_function_name += "switchable"
 		elif attributes & Command.ATTRIBUTE_TAKES_ARG == 0:
-			resolver_function_name += "argless"
+			arg_function_name += "argless"
 		else:
-			resolver_function_name += "single_arg"
-		return self.argument_resolver.get_resolver_function(resolver_function_name)
+			arg_function_name += "single_arg"
+		return self.argument_resolver.get_resolver_function(arg_function_name)
 
 
 	def parse_handler_function(self, token):
@@ -70,15 +70,15 @@ class CommandCollection:
 
 
 	def get_vision_function(self, attributes):
-		resolver_function_name = "resolve_"
+		vision_function_name = "resolve_"
 		if attributes & Command.ATTRIBUTE_REQUIRES_VISION != 0:
 			if attributes & Command.ATTRIBUTE_TAKES_ARG != 0:
-				resolver_function_name += "dark"
+				vision_function_name += "dark"
 			else:
-				resolver_function_name += "light_and_dark"
+				vision_function_name += "light_and_dark"
 		else:
-			resolver_function_name += "none"
-		return self.vision_resolver.get_resolver_function(resolver_function_name)
+			vision_function_name += "none"
+		return self.vision_resolver.get_resolver_function(vision_function_name)
 
 
 	def parse_command_names(self, token):

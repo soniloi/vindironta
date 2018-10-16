@@ -78,7 +78,7 @@ class TestCommandCollection(unittest.TestCase):
 
 		self.assertTrue("east" in collection.commands)
 		east_command = collection.commands["east"]
-		self.assertEqual(self.argument_resolver.resolve_movement, east_command.resolver_function)
+		self.assertEqual(self.argument_resolver.resolve_movement, east_command.arg_function)
 
 
 	def test_init_switchable_command(self):
@@ -96,7 +96,7 @@ class TestCommandCollection(unittest.TestCase):
 		self.assertIn("yes", verbose_command.transitions)
 		self.assertFalse(verbose_command.transitions["no"])
 		self.assertTrue(verbose_command.transitions["yes"])
-		self.assertEqual(self.argument_resolver.resolve_switchable, verbose_command.resolver_function)
+		self.assertEqual(self.argument_resolver.resolve_switchable, verbose_command.arg_function)
 
 
 	def test_init_argless_command(self):
@@ -110,7 +110,7 @@ class TestCommandCollection(unittest.TestCase):
 
 		self.assertTrue("score" in collection.commands)
 		score_command = collection.commands["score"]
-		self.assertEqual(self.argument_resolver.resolve_argless, score_command.resolver_function)
+		self.assertEqual(self.argument_resolver.resolve_argless, score_command.arg_function)
 
 
 	def test_init_single_arg_command(self):
@@ -124,7 +124,7 @@ class TestCommandCollection(unittest.TestCase):
 
 		self.assertTrue("take" in collection.commands)
 		take_command = collection.commands["take"]
-		self.assertEqual(self.argument_resolver.resolve_single_arg, take_command.resolver_function)
+		self.assertEqual(self.argument_resolver.resolve_single_arg, take_command.arg_function)
 
 
 	def test_init_resolve_vision_light_and_dark(self):

@@ -7,11 +7,11 @@ class Command:
 	ATTRIBUTE_SWITCHABLE = 0x100
 	ATTRIBUTE_REQUIRES_VISION = 0x400
 
-	def __init__(self, command_id, attributes, resolver_function, handler_function, vision_function, primary, aliases,
+	def __init__(self, command_id, attributes, arg_function, handler_function, vision_function, primary, aliases,
 			off_switch, on_switch):
 		self.command_id = command_id
 		self.attributes = attributes
-		self.resolver_function = resolver_function
+		self.arg_function = arg_function
 		self.handler_function = handler_function
 		self.vision_function = vision_function
 		self.primary = primary

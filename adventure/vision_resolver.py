@@ -9,7 +9,7 @@ class VisionResolver:
 
 
 	def resolve(self, command, player, arg):
-		return command.resolver_function(command, player, arg)
+		return command.arg_function(command, player, arg)
 
 
 	def resolve_light_and_dark(self, command, player, arg):
