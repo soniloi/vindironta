@@ -101,10 +101,15 @@ class CommandHandler:
 
 	def execute_go_if_not_obstructed(self, player, arg, proposed_location):
 		obstructions = player.get_obstructions()
+		content = ""
 
 		if obstructions and proposed_location is not player.previous_location:
 			template_key, content = self.reject_go_obstructed(player, obstructions)
 			template = self.get_response(template_key)
+
+		elif not player.has_light() and not proposed_location.gives_light():
+			player.playing = False
+			template = self.get_response("death_darkness")
 
 		else:
 			self.update_previous_location(player, proposed_location)

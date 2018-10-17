@@ -35,6 +35,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.lighthouse_location = Location(12, 0x1, "Lighthouse", "at a lighthouse", " by the sea.")
 		self.mine_location = Location(11, 0x0, "Mines", "in the mines", ". There are dark passages everywhere.")
 		self.sun_location = Location(10, 0x11, "Sun", "in the sun", ". It is hot.")
+		self.cave_location = Location(9, 0x0, "Cave", "in a cave", ". It is dark")
 
 		self.location_map = {
 			11 : self.mine_location,
@@ -71,6 +72,7 @@ class TestCommandHandler(unittest.TestCase):
 			"confirm_taken" : "Taken.",
 			"confirm_verbose_off" : "Verbose off.",
 			"confirm_verbose_on" : "Verbose on.",
+			"death_darkness" : "You fall to your death in the darkness.",
 			"describe_commands" : "I know these commands: {0}.",
 			"describe_help" : "Welcome and good luck.",
 			"describe_item" : "It is {0}.",
@@ -346,6 +348,57 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("You are {0}.", ["at a lighthouse by the sea.", ""]), response)
 		self.assertIs(self.lighthouse_location, self.player.location)
 		self.assertIs(self.beach_location, self.player.previous_location)
+
+
+	def test_handle_go_from_light_to_light(self):
+		self.player.location = self.beach_location
+		self.player.location.directions[Direction.EAST] = self.lighthouse_location
+
+		response = self.handler.handle_go(self.player, 16)
+
+		self.assertEqual(("You are {0}.", ["at a lighthouse by the sea.", ""]), response)
+		self.assertTrue(self.player.playing)
+
+
+	def test_handle_go_from_dark_to_light(self):
+		self.player.location = self.beach_location
+		self.player.location.directions[Direction.EAST] = self.mine_location
+
+		response = self.handler.handle_go(self.player, 16)
+
+		self.assertEqual(("It is too dark.", ""), response)
+		self.assertTrue(self.player.playing)
+
+
+	def test_handle_go_from_dark_to_light(self):
+		self.player.location = self.mine_location
+		self.player.location.directions[Direction.EAST] = self.beach_location
+
+		response = self.handler.handle_go(self.player, 16)
+
+		self.assertEqual(("You are {0}.", ["on a beach of black sand", ""]), response)
+		self.assertTrue(self.player.playing)
+
+
+	def test_handle_go_from_dark_to_dark_not_carrying_light(self):
+		self.player.location = self.mine_location
+		self.player.location.directions[Direction.EAST] = self.cave_location
+
+		response = self.handler.handle_go(self.player, 16)
+
+		self.assertEqual(("You fall to your death in the darkness.", ""), response)
+		self.assertFalse(self.player.playing)
+
+
+	def test_handle_go_from_dark_to_dark_carrying_light(self):
+		self.player.location = self.mine_location
+		self.player.location.directions[Direction.EAST] = self.cave_location
+		self.player.inventory.insert(self.lamp)
+
+		response = self.handler.handle_go(self.player, 16)
+
+		self.assertEqual(("You are {0}.", ["in a cave. It is dark", ""]), response)
+		self.assertTrue(self.player.playing)
 
 
 	def test_handle_go_disambiguate(self):
