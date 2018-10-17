@@ -39,13 +39,7 @@ class CommandHandler:
 		return template, content
 
 
-	def handle_describe(self, player, arg):
-		return self.interact_item(player, arg, self.execute_describe)
-
-
-	def execute_describe(self, player, item):
-
-		template = ""
+	def handle_describe(self, player, item):
 
 		if not player.has_or_is_near_item(item):
 			template = self.get_response("reject_not_here")
@@ -57,11 +51,7 @@ class CommandHandler:
 		return template, content
 
 
-	def handle_drop(self, player, arg):
-		return self.interact_item(player, arg, self.execute_drop)
-
-
-	def execute_drop(self, player, item):
+	def handle_drop(self, player, item):
 		template = ""
 
 		if not player.is_carrying(item):
@@ -230,12 +220,7 @@ class CommandHandler:
 		return self.get_response("confirm_quit"), ""
 
 
-	def handle_read(self, player, arg):
-		return self.interact_item(player, arg, self.execute_read)
-
-
-	def execute_read(self, player, item):
-
+	def handle_read(self, player, item):
 		template = ""
 		content = ""
 
@@ -258,11 +243,7 @@ class CommandHandler:
 		return self.get_response("describe_score"), [player.score, player.instructions]
 
 
-	def handle_take(self, player, arg):
-		return self.interact_item(player, arg, self.execute_take)
-
-
-	def execute_take(self, player, item):
+	def handle_take(self, player, item):
 		template = ""
 
 		if player.is_carrying(item):
@@ -296,11 +277,7 @@ class CommandHandler:
 		return template, ""
 
 
-	def handle_yank(self, player, arg):
-		return self.interact_item(player, arg, self.execute_yank)
-
-
-	def execute_yank(self, player, item):
+	def handle_yank(self, player, item):
 		template = ""
 
 		if player.is_carrying(item):
@@ -317,15 +294,6 @@ class CommandHandler:
 			template = self.get_response("confirm_taken")
 
 		return template, item.shortname
-
-
-	def interact_item(self, player, arg, manipulation):
-
-		item = self.data.get_item(arg)
-		if not item:
-			return self.get_response("reject_unknown"), arg
-
-		return manipulation(player, item)
 
 
 	def interact_vision(self, player, arg, interaction):

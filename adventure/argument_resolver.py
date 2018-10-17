@@ -37,5 +37,13 @@ class ArgumentResolver:
 		if not arg and not command.is_permissive():
 			player.current_command = command
 			return self.data.get_response("request_direct"), command.primary
-		return self.execute(command, player, arg)
+		return self.resolve_single_arg_for_item(command, player, arg)
 
+
+	def resolve_single_arg_for_item(self, command, player, arg):
+		if command.takes_item_arg():
+			item = self.data.get_item(arg)
+			if not item:
+				return self.data.get_response("reject_unknown"), arg
+			arg = item
+		return self.execute(command, player, arg)

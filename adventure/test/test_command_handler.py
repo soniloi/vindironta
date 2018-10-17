@@ -25,7 +25,6 @@ class TestCommandHandler(unittest.TestCase):
 		self.data = Mock()
 		self.data.list_commands.side_effect = self.list_commands_side_effect
 		self.data.get_location.side_effect = self.locations_side_effect
-		self.data.get_item.side_effect = self.items_side_effect
 		self.data.get_hint.side_effect = self.hints_side_effect
 		self.data.get_explanation.side_effect = self.explanations_side_effect
 		self.data.get_response.side_effect = self.responses_side_effect
@@ -52,15 +51,6 @@ class TestCommandHandler(unittest.TestCase):
 		self.heavy_item = Item(1001, 0x0, "heavy", "a heavy item", "a dummy heavy item", 15, None)
 		self.obstruction = Item(1002, 0x4, "obstruction", "an obstruction", "an obstruction blocking you", 8, None)
 		self.mobile_obstruction = Item(1003, 0x6, "mobile_obstruction", "a mobile obstruction", "a mobile obstruction", 5, None)
-
-		self.item_map = {
-			"book" : self.book,
-			"desk" : self.desk,
-			"heavy" : self.heavy_item,
-			"kohlrabi" : self.kohlrabi,
-			"lamp" : self.lamp,
-			"mobile_obstruction" : self.mobile_obstruction,
-		}
 
 
 	def setup_texts(self):
@@ -107,7 +97,6 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_obstruction_known" : "You are blocked by {0}.",
 			"reject_obstruction_unknown" : "You are blocked by something here.",
 			"reject_too_full" : "That is too large to carry.",
-			"reject_unknown" : "I do not know what that is.",
 		}
 
 
@@ -122,10 +111,6 @@ class TestCommandHandler(unittest.TestCase):
 
 	def locations_side_effect(self, *args):
 		return self.location_map.get(args[0])
-
-
-	def items_side_effect(self, *args):
-		return self.item_map.get(args[0])
 
 
 	def hints_side_effect(self, *args):
@@ -152,14 +137,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("I know these commands: {0}.", "look, ne"), response)
 
 
-	def test_handle_describe_unknown(self):
-		response = self.handler.handle_describe(self.player, "biscuit")
-
-		self.assertEqual(("I do not know what that is.", "biscuit"), response)
-
-
 	def test_handle_describe_known_absent(self):
-		response = self.handler.handle_describe(self.player, "book")
+		response = self.handler.handle_describe(self.player, self.book)
 
 		self.assertEqual(("There is no {0} here.", "book"), response)
 
@@ -167,7 +146,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_describe_known_in_inventory(self):
 		self.player.inventory.insert(self.lamp)
 
-		response = self.handler.handle_describe(self.player, "lamp")
+		response = self.handler.handle_describe(self.player, self.lamp)
 
 		self.assertEqual(("It is {0}.", "a small lamp"), response)
 
@@ -175,19 +154,13 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_describe_known_at_location(self):
 		self.player.location.insert(self.lamp)
 
-		response = self.handler.handle_describe(self.player, "lamp")
+		response = self.handler.handle_describe(self.player, self.lamp)
 
 		self.assertEqual(("It is {0}.", "a small lamp"), response)
 
 
-	def test_handle_drop_unknown(self):
-		response = self.handler.handle_drop(self.player, "biscuit")
-
-		self.assertEqual(("I do not know what that is.", "biscuit"), response)
-
-
 	def test_handle_drop_known_not_in_inventory(self):
-		response = self.handler.handle_drop(self.player, "book")
+		response = self.handler.handle_drop(self.player, self.book)
 
 		self.assertEqual(("You do not have the {0}.", "book"), response)
 		self.assertFalse(self.player.is_carrying(self.book))
@@ -196,7 +169,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_drop_known_in_inventory(self):
 		self.player.inventory.insert(self.lamp)
 
-		response = self.handler.handle_drop(self.player, "lamp")
+		response = self.handler.handle_drop(self.player, self.lamp)
 
 		self.assertEqual(("Dropped.", "lamp"), response)
 		self.assertFalse(self.player.is_carrying(self.lamp))
@@ -475,7 +448,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_read_no_writing(self):
 		self.player.inventory.insert(self.lamp)
 
-		response = self.handler.handle_read(self.player, "lamp")
+		response = self.handler.handle_read(self.player, self.lamp)
 
 		self.assertEqual(("There is no writing.", "lamp"), response)
 
@@ -483,7 +456,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_read_with_writing(self):
 		self.player.inventory.insert(self.book)
 
-		response = self.handler.handle_read(self.player, "book")
+		response = self.handler.handle_read(self.player, self.book)
 
 		self.assertEqual(("It reads {0}.", "The Pied Piper"), response)
 
@@ -495,23 +468,17 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(6, self.player.instructions)
 
 
-	def test_handle_take_unknown(self):
-		response = self.handler.handle_take(self.player, "biscuit")
-
-		self.assertEqual(("I do not know what that is.", "biscuit"), response)
-
-
 	def test_handle_take_known_in_inventory(self):
 		self.player.inventory.insert(self.lamp)
 
-		response = self.handler.handle_take(self.player, "lamp")
+		response = self.handler.handle_take(self.player, self.lamp)
 
 		self.assertEqual(("You already have the {0}.", "lamp"), response)
 		self.assertTrue(self.player.is_carrying(self.lamp))
 
 
 	def test_handle_take_known_absent(self):
-		response = self.handler.handle_take(self.player, "kohlrabi")
+		response = self.handler.handle_take(self.player, self.kohlrabi)
 
 		self.assertEqual(("There is no {0} here.", "kohlrabi"), response)
 		self.assertFalse(self.player.is_carrying(self.kohlrabi))
@@ -520,7 +487,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_take_known_not_mobile(self):
 		self.player.location.insert(self.desk)
 
-		response = self.handler.handle_take(self.player, "desk")
+		response = self.handler.handle_take(self.player, self.desk)
 
 		self.assertEqual(("You cannot take that.", "desk"), response)
 		self.assertFalse(self.player.is_carrying(self.desk))
@@ -530,7 +497,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_take_known_obstruction(self):
 		self.player.location.insert(self.mobile_obstruction)
 
-		response = self.handler.handle_take(self.player, "mobile_obstruction")
+		response = self.handler.handle_take(self.player, self.mobile_obstruction)
 
 		self.assertEqual(("You cannot take that.", "mobile_obstruction"), response)
 		self.assertFalse(self.player.is_carrying(self.mobile_obstruction))
@@ -541,7 +508,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.insert(self.book)
 		self.player.inventory.insert(self.heavy_item)
 
-		response = self.handler.handle_take(self.player, "book")
+		response = self.handler.handle_take(self.player, self.book)
 
 		self.assertEqual(("That is too large to carry.", "book"), response)
 		self.assertFalse(self.player.is_carrying(self.book))
@@ -551,7 +518,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_take_known_at_location(self):
 		self.player.location.insert(self.book)
 
-		response = self.handler.handle_take(self.player, "book")
+		response = self.handler.handle_take(self.player, self.book)
 
 		self.assertEqual(("Taken.", "book"), response)
 		self.assertTrue(self.player.is_carrying(self.book))
@@ -579,7 +546,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_yank_known_at_location(self):
 		self.player.location.insert(self.book)
 
-		response = self.handler.handle_yank(self.player, "book")
+		response = self.handler.handle_yank(self.player, self.book)
 
 		self.assertEqual(("Taken.", "book"), response)
 		self.assertTrue(self.player.is_carrying(self.book))
@@ -589,7 +556,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_yank_known_not_at_location(self):
 		self.mine_location.insert(self.book)
 
-		response = self.handler.handle_yank(self.player, "book")
+		response = self.handler.handle_yank(self.player, self.book)
 
 		self.assertEqual(("Taken.", "book"), response)
 		self.assertTrue(self.player.is_carrying(self.book))

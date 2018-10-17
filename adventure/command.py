@@ -5,6 +5,7 @@ class Command:
 	ATTRIBUTE_MOVEMENT = 0x40
 	ATTRIBUTE_PERMISSIVE = 0x80
 	ATTRIBUTE_SWITCHABLE = 0x100
+	ATTRIBUTE_ARG_IS_ITEM = 0x200
 	ATTRIBUTE_REQUIRES_VISION = 0x400
 
 	def __init__(self, command_id, attributes, arg_function, handler_function, vision_function, primary, aliases,
@@ -38,6 +39,10 @@ class Command:
 
 	def requires_vision(self):
 		return self.has_attribute(Command.ATTRIBUTE_REQUIRES_VISION)
+
+
+	def takes_item_arg(self):
+		return self.has_attribute(Command.ATTRIBUTE_ARG_IS_ITEM)
 
 
 	def execute(self, player, arg):

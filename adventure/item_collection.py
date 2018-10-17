@@ -87,7 +87,4 @@ class ItemCollection:
 
 
 	def get(self, item_name):
-		if item_name in self.items:
-			return self.items[item_name]
-		return None
-
+		return self.items.get(item_name)
