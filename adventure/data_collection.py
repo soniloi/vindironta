@@ -5,8 +5,8 @@ from adventure.text_collection import TextCollection
 
 class DataCollection:
 
-	def __init__(self, reader, argument_resolver, command_handler, vision_resolver):
-		self.commands = CommandCollection(reader, argument_resolver, command_handler, vision_resolver)
+	def __init__(self, reader, resolvers):
+		self.commands = CommandCollection(reader, resolvers)
 		self.locations = LocationCollection(reader)
 		self.items = ItemCollection(reader, self.locations.locations.copy())
 		self.hints = TextCollection(reader)

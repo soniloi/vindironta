@@ -3,10 +3,10 @@ from adventure.file_reader import FileReader
 
 class CommandCollection:
 
-	def __init__(self, reader, argument_resolver, command_handler, vision_resolver):
-		self.argument_resolver = argument_resolver
-		self.command_handler = command_handler
-		self.vision_resolver = vision_resolver
+	def __init__(self, reader, resolvers):
+		self.vision_resolver = resolvers.vision_resolver
+		self.argument_resolver = resolvers.argument_resolver
+		self.command_handler = resolvers.command_handler
 		self.commands = {}
 		line = reader.read_line()
 		while not line.startswith("---"):

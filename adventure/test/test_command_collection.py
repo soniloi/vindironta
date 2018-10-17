@@ -8,6 +8,7 @@ from adventure.command_handler import CommandHandler
 from adventure import file_reader
 from adventure.location import Location
 from adventure.player import Player
+from adventure.resolvers import Resolvers
 from adventure.vision_resolver import VisionResolver
 
 class TestCommandCollection(unittest.TestCase):
@@ -16,6 +17,11 @@ class TestCommandCollection(unittest.TestCase):
 		self.argument_resolver = ArgumentResolver()
 		self.command_handler = CommandHandler()
 		self.vision_resolver = VisionResolver()
+		self.resolvers = Resolvers(
+			vision_resolver=self.vision_resolver,
+			argument_resolver=self.argument_resolver,
+			command_handler=self.command_handler
+		)
 
 
 	def test_init_command_different_commands(self):
@@ -26,7 +32,7 @@ class TestCommandCollection(unittest.TestCase):
 			"---\t\t\t",
 		]
 
-		collection = CommandCollection(reader_mock, self.argument_resolver, self.command_handler, self.vision_resolver)
+		collection = CommandCollection(reader_mock, self.resolvers)
 
 		self.assertEqual(2, len(collection.commands))
 		self.assertTrue("score" in collection.commands)
@@ -44,7 +50,7 @@ class TestCommandCollection(unittest.TestCase):
 			"---\t\t\t",
 		]
 
-		collection = CommandCollection(reader_mock, self.argument_resolver, self.command_handler, self.vision_resolver)
+		collection = CommandCollection(reader_mock, self.resolvers)
 
 		self.assertEqual(2, len(collection.commands))
 		self.assertTrue("look" in collection.commands)
@@ -62,7 +68,7 @@ class TestCommandCollection(unittest.TestCase):
 			"---\t\t\t",
 		]
 
-		collection = CommandCollection(reader_mock, self.argument_resolver, self.command_handler, self.vision_resolver)
+		collection = CommandCollection(reader_mock, self.resolvers)
 
 		self.assertEqual(0, len(collection.commands))
 
@@ -74,7 +80,7 @@ class TestCommandCollection(unittest.TestCase):
 			"---\t\t\t",
 		]
 
-		collection = CommandCollection(reader_mock, self.argument_resolver, self.command_handler, self.vision_resolver)
+		collection = CommandCollection(reader_mock, self.resolvers)
 
 		self.assertTrue("east" in collection.commands)
 		east_command = collection.commands["east"]
@@ -88,7 +94,7 @@ class TestCommandCollection(unittest.TestCase):
 			"---\t\t\t",
 		]
 
-		collection = CommandCollection(reader_mock, self.argument_resolver, self.command_handler, self.vision_resolver)
+		collection = CommandCollection(reader_mock, self.resolvers)
 
 		self.assertTrue("verbose" in collection.commands)
 		verbose_command = collection.commands["verbose"]
@@ -106,7 +112,7 @@ class TestCommandCollection(unittest.TestCase):
 			"---\t\t\t",
 		]
 
-		collection = CommandCollection(reader_mock, self.argument_resolver, self.command_handler, self.vision_resolver)
+		collection = CommandCollection(reader_mock, self.resolvers)
 
 		self.assertTrue("score" in collection.commands)
 		score_command = collection.commands["score"]
@@ -120,7 +126,7 @@ class TestCommandCollection(unittest.TestCase):
 			"---\t\t\t",
 		]
 
-		collection = CommandCollection(reader_mock, self.argument_resolver, self.command_handler, self.vision_resolver)
+		collection = CommandCollection(reader_mock, self.resolvers)
 
 		self.assertTrue("take" in collection.commands)
 		take_command = collection.commands["take"]
@@ -134,7 +140,7 @@ class TestCommandCollection(unittest.TestCase):
 			"---\t\t\t",
 		]
 
-		collection = CommandCollection(reader_mock, self.argument_resolver, self.command_handler, self.vision_resolver)
+		collection = CommandCollection(reader_mock, self.resolvers)
 
 		look_command = collection.commands["look"]
 		self.assertEqual(self.vision_resolver.resolve_light_and_dark, look_command.vision_function)
@@ -147,7 +153,7 @@ class TestCommandCollection(unittest.TestCase):
 			"---\t\t\t",
 		]
 
-		collection = CommandCollection(reader_mock, self.argument_resolver, self.command_handler, self.vision_resolver)
+		collection = CommandCollection(reader_mock, self.resolvers)
 
 		read_command = collection.commands["read"]
 		self.assertEqual(self.vision_resolver.resolve_dark, read_command.vision_function)
@@ -160,7 +166,7 @@ class TestCommandCollection(unittest.TestCase):
 			"---\t\t\t",
 		]
 
-		collection = CommandCollection(reader_mock, self.argument_resolver, self.command_handler, self.vision_resolver)
+		collection = CommandCollection(reader_mock, self.resolvers)
 
 		score_command = collection.commands["score"]
 		self.assertEqual(self.vision_resolver.resolve_none, score_command.vision_function)
@@ -178,7 +184,7 @@ class TestCommandCollection(unittest.TestCase):
 			"---\t\t\t",
 		]
 
-		collection = CommandCollection(reader_mock, self.argument_resolver, self.command_handler, self.vision_resolver)
+		collection = CommandCollection(reader_mock, self.resolvers)
 
 		self.assertEqual("e/east, l/look, score, take", collection.list_commands())
 
