@@ -267,22 +267,6 @@ class CommandHandler:
 		return template, ""
 
 
-	def handle_yank(self, player, item):
-		template = ""
-
-		if not item.is_portable():
-			template = self.get_response("reject_not_portable")
-
-		elif not player.can_carry(item):
-			template = self.get_response("reject_too_full")
-
-		else:
-			player.take_item(item)
-			template = self.get_response("confirm_taken")
-
-		return template, item.shortname
-
-
 	def interact_vision(self, player, arg, interaction):
 
 		if player.has_light_and_needs_no_light():

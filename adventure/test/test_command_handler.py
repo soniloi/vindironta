@@ -593,25 +593,5 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("Verbose on.", ""), response)
 
 
-	def test_handle_yank_known_at_location(self):
-		self.player.location.insert(self.book)
-
-		response = self.handler.handle_yank(self.player, self.book)
-
-		self.assertEqual(("Taken.", "book"), response)
-		self.assertTrue(self.player.is_carrying(self.book))
-		self.assertFalse(self.lighthouse_location.contains(self.book))
-
-
-	def test_handle_yank_known_not_at_location(self):
-		self.mine_location.insert(self.book)
-
-		response = self.handler.handle_yank(self.player, self.book)
-
-		self.assertEqual(("Taken.", "book"), response)
-		self.assertTrue(self.player.is_carrying(self.book))
-		self.assertFalse(self.mine_location.contains(self.book))
-
-
 if __name__ == "__main__":
 	unittest.main()
