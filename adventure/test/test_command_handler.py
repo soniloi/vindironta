@@ -70,6 +70,8 @@ class TestCommandHandler(unittest.TestCase):
 			"confirm_look" : "You are {0}.",
 			"confirm_quit" : "OK.",
 			"confirm_taken" : "Taken.",
+			"confirm_immune_off" : "Immune off.",
+			"confirm_immune_on" : "Immune on.",
 			"confirm_verbose_off" : "Verbose off.",
 			"confirm_verbose_on" : "Verbose on.",
 			"death_darkness" : "You fall to your death in the darkness.",
@@ -380,7 +382,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(self.player.playing)
 
 
-	def test_handle_go_from_dark_to_dark_not_carrying_light(self):
+	def test_handle_go_from_dark_to_dark_not_carrying_light_immune_off(self):
 		self.player.location = self.mine_location
 		self.player.location.directions[Direction.EAST] = self.cave_location
 
@@ -388,6 +390,17 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertEqual(("You fall to your death in the darkness.", ""), response)
 		self.assertFalse(self.player.playing)
+
+
+	def test_handle_go_from_dark_to_dark_not_carrying_light_immune_on(self):
+		self.player.location = self.mine_location
+		self.player.location.directions[Direction.EAST] = self.cave_location
+		self.player.immune = True
+
+		response = self.handler.handle_go(self.player, 16)
+
+		self.assertEqual(("It is too dark.", ""), response)
+		self.assertTrue(self.player.playing)
 
 
 	def test_handle_go_from_dark_to_dark_carrying_light(self):
@@ -424,6 +437,22 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_hint(self.player, "magic")
 
 		self.assertEqual(("abrakadabra", "magic"), response)
+
+
+	def test_handle_immune_off(self):
+		self.player.immune = True
+
+		response = self.handler.handle_immune(self.player, False)
+
+		self.assertFalse(self.player.immune)
+		self.assertEqual(("Immune off.", ""), response)
+
+
+	def test_handle_immune_on(self):
+		response = self.handler.handle_immune(self.player, True)
+
+		self.assertTrue(self.player.immune)
+		self.assertEqual(("Immune on.", ""), response)
 
 
 	def test_handle_inventory_empty(self):

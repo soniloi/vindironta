@@ -107,7 +107,7 @@ class CommandHandler:
 			template_key, content = self.reject_go_obstructed(player, obstructions)
 			template = self.get_response(template_key)
 
-		elif not player.has_light() and not proposed_location.gives_light():
+		elif not player.has_light() and not proposed_location.gives_light() and not player.immune:
 			player.playing = False
 			template = self.get_response("death_darkness")
 
@@ -171,6 +171,18 @@ class CommandHandler:
 
 	def handle_ignore(self, player, arg):
 		pass
+
+
+	def handle_immune(self, player, arg):
+		template = ""
+
+		player.immune = arg
+		if arg:
+			template = self.get_response("confirm_immune_on")
+		else:
+			template = self.get_response("confirm_immune_off")
+
+		return template, ""
 
 
 	def handle_inventory(self, player, arg):
