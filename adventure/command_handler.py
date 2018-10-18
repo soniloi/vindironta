@@ -170,16 +170,9 @@ class CommandHandler:
 
 
 	def handle_inventory(self, player, arg):
-		template = ""
-		content = ""
-
 		if not player.holding_items():
-			template = template = self.get_response("list_inventory_empty")
-		else:
-			template = template = self.get_response("list_inventory_nonempty")
-			content = player.describe_inventory()
-
-		return template, content
+			return self.get_response("list_inventory_empty"), ""
+		return self.get_response("list_inventory_nonempty"), player.describe_inventory()
 
 
 	def handle_look(self, player, arg):
@@ -222,16 +215,9 @@ class CommandHandler:
 
 
 	def handle_read(self, player, item):
-		template = ""
-		content = item.shortname
-
-		if item.writing:
-			template = self.get_response("describe_writing")
-			content = item.writing
-		else:
-			template = self.get_response("reject_no_writing")
-
-		return template, content
+		if not item.writing:
+			return self.get_response("reject_no_writing"), item.shortname
+		return self.get_response("describe_writing"), item.writing
 
 
 	def handle_score(self, player, arg):

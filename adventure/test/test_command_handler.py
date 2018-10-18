@@ -138,7 +138,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("I know these commands: {0}.", "look, ne"), response)
 
 
-	def test_handle_describe_known_in_inventory(self):
+	def test_handle_describe_in_inventory(self):
 		self.player.inventory.insert(self.lamp)
 
 		response = self.handler.handle_describe(self.player, self.lamp)
@@ -146,7 +146,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("It is {0}.", "a small lamp"), response)
 
 
-	def test_handle_describe_known_at_location(self):
+	def test_handle_describe_at_location(self):
 		self.player.location.insert(self.lamp)
 
 		response = self.handler.handle_describe(self.player, self.lamp)
@@ -154,13 +154,14 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("It is {0}.", "a small lamp"), response)
 
 
-	def test_handle_drop_known_in_inventory(self):
+	def test_handle_drop(self):
 		self.player.inventory.insert(self.lamp)
 
 		response = self.handler.handle_drop(self.player, self.lamp)
 
 		self.assertEqual(("Dropped.", "lamp"), response)
 		self.assertFalse(self.player.is_carrying(self.lamp))
+		self.assertTrue(self.player.is_near_item(self.lamp))
 
 
 	def test_handle_explain_default(self):
@@ -534,27 +535,27 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(6, self.player.instructions)
 
 
-	def test_handle_take_known_not_mobile(self):
+	def test_handle_take_not_mobile(self):
 		self.player.location.insert(self.desk)
 
 		response = self.handler.handle_take(self.player, self.desk)
 
 		self.assertEqual(("You cannot take that.", "desk"), response)
 		self.assertFalse(self.player.is_carrying(self.desk))
-		self.assertTrue(self.player.location.contains(self.desk))
+		self.assertTrue(self.player.is_near_item(self.desk))
 
 
-	def test_handle_take_known_obstruction(self):
+	def test_handle_take_obstruction(self):
 		self.player.location.insert(self.mobile_obstruction)
 
 		response = self.handler.handle_take(self.player, self.mobile_obstruction)
 
 		self.assertEqual(("You cannot take that.", "mobile_obstruction"), response)
 		self.assertFalse(self.player.is_carrying(self.mobile_obstruction))
-		self.assertTrue(self.player.location.contains(self.mobile_obstruction))
+		self.assertTrue(self.player.is_near_item(self.mobile_obstruction))
 
 
-	def test_handle_take_known_over_capacity(self):
+	def test_handle_take_over_capacity(self):
 		self.player.location.insert(self.book)
 		self.player.inventory.insert(self.heavy_item)
 
@@ -562,17 +563,17 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertEqual(("That is too large to carry.", "book"), response)
 		self.assertFalse(self.player.is_carrying(self.book))
-		self.assertTrue(self.player.location.contains(self.book))
+		self.assertTrue(self.player.is_near_item(self.book))
 
 
-	def test_handle_take_known_at_location(self):
+	def test_handle_take_at_location(self):
 		self.player.location.insert(self.book)
 
 		response = self.handler.handle_take(self.player, self.book)
 
 		self.assertEqual(("Taken.", "book"), response)
 		self.assertTrue(self.player.is_carrying(self.book))
-		self.assertFalse(self.player.location.contains(self.book))
+		self.assertFalse(self.player.is_near_item(self.book))
 
 
 	def test_handle_verbose_off(self):

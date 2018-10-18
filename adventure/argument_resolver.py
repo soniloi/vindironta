@@ -41,12 +41,15 @@ class ArgumentResolver:
 
 
 	def resolve_single_arg_for_item(self, command, player, arg):
-		if command.takes_item_arg():
-			item = self.data.get_item(arg)
-			if not item:
-				return self.data.get_response("reject_unknown"), arg
-			return self.resolve_item_source(command, player, item)
-		return self.execute(command, player, arg)
+
+		if not command.takes_item_arg():
+			return self.execute(command, player, arg)
+
+		item = self.data.get_item(arg)
+		if not item:
+			return self.data.get_response("reject_unknown"), arg
+
+		return self.resolve_item_source(command, player, item)
 
 
 	def resolve_item_source(self, command, player, item):
@@ -57,7 +60,7 @@ class ArgumentResolver:
 		if command.takes_item_arg_from_location_only():
 			if player.is_carrying(item):
 				return self.data.get_response("reject_carrying"), item.shortname
-			elif not player.is_near_item(item):
+			if not player.is_near_item(item):
 				return self.data.get_response("reject_not_here"), item.shortname
 
 		if command.takes_item_arg_from_inventory_or_location() and not player.has_or_is_near_item(item):
