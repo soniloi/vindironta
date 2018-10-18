@@ -40,28 +40,12 @@ class CommandHandler:
 
 
 	def handle_describe(self, player, item):
-
-		if not player.has_or_is_near_item(item):
-			template = self.get_response("reject_not_here")
-			content = item.shortname
-		else:
-			template = self.get_response("describe_item")
-			content = item.get_full_description()
-
-		return template, content
+		return self.get_response("describe_item"), item.get_full_description()
 
 
 	def handle_drop(self, player, item):
-		template = ""
-
-		if not player.is_carrying(item):
-			template = self.get_response("reject_not_holding")
-
-		else:
-			player.drop_item(item)
-			template = self.get_response("confirm_dropped")
-
-		return template, item.shortname
+		player.drop_item(item)
+		return self.get_response("confirm_dropped"), item.shortname
 
 
 	def handle_explain(self, player, arg):
@@ -239,18 +223,13 @@ class CommandHandler:
 
 	def handle_read(self, player, item):
 		template = ""
-		content = ""
+		content = item.shortname
 
-		if not player.has_or_is_near_item(item):
-			template = self.get_response("reject_not_here")
-			content = item.shortname
+		if item.writing:
+			template = self.get_response("describe_writing")
+			content = item.writing
 		else:
-			if item.writing:
-				template = self.get_response("describe_writing")
-				content = item.writing
-			else:
-				template = self.get_response("reject_no_writing")
-				content = item.shortname
+			template = self.get_response("reject_no_writing")
 
 		return template, content
 
@@ -263,13 +242,7 @@ class CommandHandler:
 	def handle_take(self, player, item):
 		template = ""
 
-		if player.is_carrying(item):
-			template = self.get_response("reject_already")
-
-		elif not player.is_near_item(item):
-			template = self.get_response("reject_not_here")
-
-		elif not item.is_portable():
+		if not item.is_portable():
 			template = self.get_response("reject_not_portable")
 
 		elif not player.can_carry(item):
@@ -297,10 +270,7 @@ class CommandHandler:
 	def handle_yank(self, player, item):
 		template = ""
 
-		if player.is_carrying(item):
-			template = self.get_response("reject_already")
-
-		elif not item.is_portable():
+		if not item.is_portable():
 			template = self.get_response("reject_not_portable")
 
 		elif not player.can_carry(item):

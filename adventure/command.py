@@ -1,5 +1,7 @@
 class Command:
 
+	ATTRIBUTE_ARG_ITEM_INVENTORY = 0x02
+	ATTRIBUTE_ARG_ITEM_LOCATION = 0x04
 	ATTRIBUTE_TAKES_ARG = 0x08
 	ATTRIBUTE_SECRET = 0x10
 	ATTRIBUTE_MOVEMENT = 0x40
@@ -43,6 +45,26 @@ class Command:
 
 	def takes_item_arg(self):
 		return self.has_attribute(Command.ATTRIBUTE_ARG_IS_ITEM)
+
+
+	def takes_item_arg_from_inventory(self):
+		return self.has_attribute(Command.ATTRIBUTE_ARG_ITEM_INVENTORY)
+
+
+	def takes_item_arg_from_location(self):
+		return self.has_attribute(Command.ATTRIBUTE_ARG_ITEM_LOCATION)
+
+
+	def takes_item_arg_from_inventory_only(self):
+		return self.takes_item_arg_from_inventory() and not self.takes_item_arg_from_location()
+
+
+	def takes_item_arg_from_location_only(self):
+		return self.takes_item_arg_from_location() and not self.takes_item_arg_from_inventory()
+
+
+	def takes_item_arg_from_inventory_or_location(self):
+		return self.takes_item_arg_from_inventory() or self.takes_item_arg_from_location()
 
 
 	def execute(self, player, arg):

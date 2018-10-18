@@ -21,6 +21,9 @@ class TestArgumentResolver(unittest.TestCase):
 		}
 
 		self.response_map = {
+			"reject_carrying" : "You are carrying it.",
+			"reject_not_here" : "It is not here.",
+			"reject_not_holding" : "You are not holding it.",
 			"reject_unknown" : "I do not know what that is.",
 			"request_argless" : "Do not give an argument for this command.",
 			"request_direct" : "What do you want to {0}?",
@@ -132,10 +135,43 @@ class TestArgumentResolver(unittest.TestCase):
 		self.assertEqual(("I do not know what that is.", "test"), response)
 
 
-	def test_resolve_single_arg_with_item_arg_known(self):
-		command = Command(1, 0x209, None, self.handler_function, None, "take", [], None, None)
+	def test_resolve_single_arg_with_item_arg_known_needs_inventory_only_and_not_in_inventory(self):
+		command = Command(1, 0x20A, None, self.handler_function, None, "drop", [], None, None)
+		player = Mock()
+		player.is_carrying.return_value = False
 
-		response = self.resolver.resolve_single_arg(command, None, "book")
+		response = self.resolver.resolve_single_arg(command, player, "book")
+
+		self.assertEqual(("You are not holding it.", "book"), response)
+
+
+	def test_resolve_single_arg_with_item_arg_known_needs_location_only_and_player_carrying(self):
+		command = Command(1, 0x20C, None, self.handler_function, None, "take", [], None, None)
+		player = Mock()
+		player.is_near_item.return_value = False
+		player.is_carrying.return_value = True
+
+		response = self.resolver.resolve_single_arg(command, player, "book")
+
+		self.assertEqual(("You are carrying it.", "book"), response)
+
+
+	def test_resolve_single_arg_with_item_arg_known_needs_inventory_or_location_only_and_player_not_near(self):
+		command = Command(1, 0x20E, None, self.handler_function, None, "describe", [], None, None)
+		player = Mock()
+		player.has_or_is_near_item.return_value = False
+
+		response = self.resolver.resolve_single_arg(command, player, "book")
+
+		self.assertEqual(("It is not here.", "book"), response)
+
+
+	def test_resolve_single_arg_with_item_arg_known_needs_inventory_or_location_only_and_player_is_near(self):
+		command = Command(1, 0x20E, None, self.handler_function, None, "describe", [], None, None)
+		player = Mock()
+		player.has_or_is_near_item.return_value = True
+
+		response = self.resolver.resolve_single_arg(command, player, "book")
 
 		self.assertEqual(("{0} success!", self.book), response)
 

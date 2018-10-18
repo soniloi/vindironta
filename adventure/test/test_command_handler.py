@@ -85,7 +85,6 @@ class TestCommandHandler(unittest.TestCase):
 			"list_inventory_nonempty" : "You have: {0}.",
 			"list_inventory_empty" : "You have nothing.",
 			"list_location" : " Nearby: {1}.",
-			"reject_already" : "You already have the {0}.",
 			"reject_climb" : "Use \"up\" or \"down\".",
 			"reject_excess_light" : "It is too bright.",
 			"reject_go" : "Use a compass point.",
@@ -95,8 +94,6 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_no_node" : "There is no such node id.",
 			"reject_no_out" : "I cannot tell in from out here.",
 			"reject_no_writing" : "There is no writing.",
-			"reject_not_here" : "There is no {0} here.",
-			"reject_not_holding" : "You do not have the {0}.",
 			"reject_not_portable" : "You cannot take that.",
 			"reject_obstruction_known" : "You are blocked by {0}.",
 			"reject_obstruction_unknown" : "You are blocked by something here.",
@@ -141,12 +138,6 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("I know these commands: {0}.", "look, ne"), response)
 
 
-	def test_handle_describe_known_absent(self):
-		response = self.handler.handle_describe(self.player, self.book)
-
-		self.assertEqual(("There is no {0} here.", "book"), response)
-
-
 	def test_handle_describe_known_in_inventory(self):
 		self.player.inventory.insert(self.lamp)
 
@@ -161,13 +152,6 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_describe(self.player, self.lamp)
 
 		self.assertEqual(("It is {0}.", "a small lamp"), response)
-
-
-	def test_handle_drop_known_not_in_inventory(self):
-		response = self.handler.handle_drop(self.player, self.book)
-
-		self.assertEqual(("You do not have the {0}.", "book"), response)
-		self.assertFalse(self.player.is_carrying(self.book))
 
 
 	def test_handle_drop_known_in_inventory(self):
@@ -548,22 +532,6 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertEqual(("Current score: {0} point(s). Instructions entered: {1}.", [0, 6]), response)
 		self.assertEqual(6, self.player.instructions)
-
-
-	def test_handle_take_known_in_inventory(self):
-		self.player.inventory.insert(self.lamp)
-
-		response = self.handler.handle_take(self.player, self.lamp)
-
-		self.assertEqual(("You already have the {0}.", "lamp"), response)
-		self.assertTrue(self.player.is_carrying(self.lamp))
-
-
-	def test_handle_take_known_absent(self):
-		response = self.handler.handle_take(self.player, self.kohlrabi)
-
-		self.assertEqual(("There is no {0} here.", "kohlrabi"), response)
-		self.assertFalse(self.player.is_carrying(self.kohlrabi))
 
 
 	def test_handle_take_known_not_mobile(self):
