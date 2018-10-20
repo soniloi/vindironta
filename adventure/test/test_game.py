@@ -18,6 +18,7 @@ class TestGame(unittest.TestCase):
 		data = Mock()
 		data.get_location.side_effect = self.location_side_effect
 		data.get_response.side_effect = self.response_side_effect
+		data.matches_input.side_effect = self.matches_input_side_effect
 
 		self.initial_location = Location(12, 0x1, "Lighthouse", "at a lighthouse", " by the sea.")
 		self.location_map = {
@@ -48,7 +49,12 @@ class TestGame(unittest.TestCase):
 
 	def setup_responses(self):
 		self.response_map = {
-			"describe_dead" : "You are dead.",
+			"confirm_reincarnation" : "You have been reincarnated.",
+			"confirm_quit" : "OK.",
+ 			"describe_dead" : "You are dead.",
+			"describe_reincarnation" : "I may be able to reincarnate you.",
+			"reject_no_understand_selection" : "I do not understand.",
+			"request_reincarnation" : "Do you want to be reincarnated?",
 		}
 
 
@@ -82,6 +88,16 @@ class TestGame(unittest.TestCase):
 
 	def response_side_effect(self, *args):
 		return self.response_map.get(args[0])
+
+
+	def matches_input_side_effect(self, *args):
+		internal_key = args[0]
+		input_key = args[1]
+		if internal_key == "false":
+			return input_key in ["no", "n", "false"]
+		elif internal_key == "true":
+			return input_key in ["yes", "y", "true"]
+		return False
 
 
 	def test_init_player(self):
@@ -127,11 +143,46 @@ class TestGame(unittest.TestCase):
 		self.assertEqual(0, self.game.player.instructions)
 
 
-	def test_process_input_causes_death(self):
+	def test_process_input_command_causes_death(self):
 		response = self.game.process_input("die")
 
-		self.assertEqual("You have died. You are dead.", response)
-		self.assertEqual(1, self.game.player.instructions)
+		self.assertEqual("You have died. You are dead. I may be able to reincarnate you. Do you want to be reincarnated?", response)
+		self.assertFalse(self.game.player.alive)
+		self.assertTrue(self.game.player.playing)
+		self.assertTrue(self.game.on)
+
+
+	def test_process_input_reincarnation_true(self):
+		self.game.player.alive = False
+
+		response = self.game.process_input("yes")
+
+		self.assertEqual("You have been reincarnated.", response)
+		self.assertTrue(self.game.player.alive)
+		self.assertTrue(self.game.player.playing)
+		self.assertTrue(self.game.on)
+
+
+	def test_process_input_reincarnation_false(self):
+		self.game.player.alive = False
+
+		response = self.game.process_input("n")
+
+		self.assertEqual("OK.", response)
+		self.assertFalse(self.game.player.alive)
+		self.assertFalse(self.game.player.playing)
+		self.assertFalse(self.game.on)
+
+
+	def test_process_input_reincarnation_invalid(self):
+		self.game.player.alive = False
+
+		response = self.game.process_input("xyz")
+
+		self.assertEqual("I do not understand. Do you want to be reincarnated?", response)
+		self.assertFalse(self.game.player.alive)
+		self.assertTrue(self.game.player.playing)
+		self.assertTrue(self.game.on)
 
 
 if __name__ == "__main__":

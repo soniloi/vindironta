@@ -39,38 +39,48 @@ class Game:
 
 
 	def process_input(self, line):
-		response = self.process_line(line)
+		tokens = line.split()
+		if tokens:
+			return self.process_tokens(tokens)
+		return ""
 
-		if not self.player.alive:
-			self.player.playing = False
-			response += " " + self.data.get_response("describe_dead")
+
+	def process_tokens(self, tokens):
+
+		response = ""
+		if self.player.alive:
+			response = self.process_tokens_as_command(tokens)
+
+			if not self.player.alive:
+				response += " " + self.data.get_response("describe_dead") + \
+					" " + self.data.get_response("describe_reincarnation")
+
+		else:
+			response = self.process_tokens_as_reincarnation_answer(tokens)
+
+		if self.player.playing and not self.player.alive:
+			response += " " + self.data.get_response("request_reincarnation")
 
 		self.on = self.player.playing
 
 		return response
 
 
-	def process_line(self, line):
-		tokens = line.split()
-		response = ""
+	def process_tokens_as_command(self, tokens):
+		command = self.player.current_command
+		self.player.current_command = None
 
-		if tokens:
+		if command:
+			command_arg = tokens[0]
 
-			command = self.player.current_command
-			self.player.current_command = None
+		else:
+			command = self.get_command_from_input(tokens)
+			command_arg = self.get_command_arg(tokens)
+			self.player.increment_instructions()
 
-			if command:
-				command_arg = tokens[0]
-
-			else:
-				command = self.get_command_from_input(tokens)
-				command_arg = self.get_command_arg(tokens)
-				self.player.increment_instructions()
-
-			if command:
-				response = command.execute(self.player, command_arg)
-
-		return response
+		if command:
+			return command.execute(self.player, command_arg)
+		return ""
 
 
 	def get_command_from_input(self, tokens):
@@ -83,3 +93,17 @@ class Game:
 		if len(tokens) > 1:
 			return tokens[1]
 		return None
+
+
+	def process_tokens_as_reincarnation_answer(self, tokens):
+		answer = tokens[0]
+
+		if self.data.matches_input("true", answer):
+			self.player.alive = True
+			return self.data.get_response("confirm_reincarnation")
+
+		elif self.data.matches_input("false", answer):
+			self.player.playing = False
+			return self.data.get_response("confirm_quit")
+
+		return self.data.get_response("reject_no_understand_selection")

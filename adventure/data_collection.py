@@ -40,3 +40,7 @@ class DataCollection:
 
 	def get_response(self, response_key):
 		return self.responses.get(response_key)
+
+
+	def matches_input(self, internal_key, input_key):
+		return self.inputs.matches(internal_key, input_key)
