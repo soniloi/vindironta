@@ -33,8 +33,8 @@ class Player:
 		return self.inventory.has_items()
 
 
-	def has_items_nearby(self):
-		return self.location.has_items()
+	def has_non_silent_items_nearby(self):
+		return self.location.has_non_silent_items()
 
 
 	def is_carrying(self, item):

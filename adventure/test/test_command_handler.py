@@ -48,7 +48,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
 		self.lamp = Item(1043, 0x101A, "lamp", "a lamp", "a small lamp", 2, None)
 		self.kohlrabi = Item(1042, 0x2002, "kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar", 3, None)
-		self.desk = Item(1000, 0x0, "desk", "a desk", "a large mahogany desk", 6, None)
+		self.desk = Item(1000, 0x20000, "desk", "a desk", "a large mahogany desk", 6, None)
 		self.heavy_item = Item(1001, 0x0, "heavy", "a heavy item", "a dummy heavy item", 15, None)
 		self.obstruction = Item(1002, 0x4, "obstruction", "an obstruction", "an obstruction blocking you", 8, None)
 		self.mobile_obstruction = Item(1003, 0x6, "mobile_obstruction", "a mobile obstruction", "a mobile obstruction", 5, None)
@@ -462,13 +462,21 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("You are {0}.", ["at a lighthouse by the sea.", ""]), response)
 
 
-	def test_handle_look_with_items(self):
+	def test_handle_look_with_item(self):
 		self.player.location.insert(self.lamp)
 
 		response = self.handler.handle_look(self.player, "")
 
 		self.assertEqual(("You are {0}. Nearby: {1}.",
 			["at a lighthouse by the sea.", "\n\ta lamp"]), response)
+
+
+	def test_handle_look_with_silent_item(self):
+		self.player.location.insert(self.desk)
+
+		response = self.handler.handle_look(self.player, "")
+
+		self.assertEqual(("You are {0}.", ["at a lighthouse by the sea.", ""]), response)
 
 
 	def test_handle_node_no_arg(self):

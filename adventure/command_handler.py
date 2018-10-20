@@ -128,7 +128,7 @@ class CommandHandler:
 
 	def complete_go(self, player, arg):
 		template = self.get_response("confirm_look")
-		if player.has_items_nearby():
+		if player.has_non_silent_items_nearby():
 			template += self.get_response("list_location")
 
 		content = player.get_arrival_location_description()
@@ -183,7 +183,7 @@ class CommandHandler:
 	def handle_look(self, player, arg):
 		template = self.get_response("describe_location")
 
-		if player.has_items_nearby():
+		if player.has_non_silent_items_nearby():
 			template += self.get_response("list_location")
 
 		return template, player.get_full_location_description()

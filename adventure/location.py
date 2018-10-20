@@ -61,3 +61,7 @@ class Location(DataElement, ItemContainer):
 
 	def can_reach(self, other_location):
 		return any(direction == other_location for direction in self.directions.values())
+
+
+	def has_non_silent_items(self):
+		return any(not item.is_silent() for item in self.items.values())
