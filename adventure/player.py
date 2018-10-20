@@ -13,6 +13,7 @@ class Player:
 		self.current_command = None
 		self.verbose = False
 		self.instructions = 0
+		self.alive = True
 		self.immune = False
 
 

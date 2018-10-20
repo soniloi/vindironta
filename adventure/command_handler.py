@@ -92,7 +92,7 @@ class CommandHandler:
 			template = self.get_response(template_key)
 
 		elif not player.has_light() and not proposed_location.gives_light() and not player.immune:
-			player.playing = False
+			player.alive = False
 			template = self.get_response("death_darkness")
 
 		else:

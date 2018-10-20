@@ -374,7 +374,7 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_go(self.player, 16)
 
 		self.assertEqual(("You fall to your death in the darkness.", ""), response)
-		self.assertFalse(self.player.playing)
+		self.assertFalse(self.player.alive)
 
 
 	def test_handle_go_from_dark_to_dark_not_carrying_light_immune_on(self):
@@ -385,7 +385,7 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_go(self.player, 16)
 
 		self.assertEqual(("It is too dark.", ""), response)
-		self.assertTrue(self.player.playing)
+		self.assertTrue(self.player.alive)
 
 
 	def test_handle_go_from_dark_to_dark_carrying_light(self):

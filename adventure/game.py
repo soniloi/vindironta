@@ -39,6 +39,18 @@ class Game:
 
 
 	def process_input(self, line):
+		response = self.process_line(line)
+
+		if not self.player.alive:
+			self.player.playing = False
+			response += " " + self.data.get_response("describe_dead")
+
+		self.on = self.player.playing
+
+		return response
+
+
+	def process_line(self, line):
 		tokens = line.split()
 		response = ""
 
@@ -57,8 +69,6 @@ class Game:
 
 			if command:
 				response = command.execute(self.player, command_arg)
-
-		self.on = self.player.playing
 
 		return response
 
