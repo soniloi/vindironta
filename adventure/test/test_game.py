@@ -20,9 +20,11 @@ class TestGame(unittest.TestCase):
 		data.get_response.side_effect = self.response_side_effect
 		data.matches_input.side_effect = self.matches_input_side_effect
 
-		self.initial_location = Location(12, 0x1, "Lighthouse", "at a lighthouse", " by the sea.")
+		self.initial_location = Location(9, 0x1, "Lighthouse", "at a lighthouse", " by the sea.")
+		self.beach_location = Location(13, 0x1, "Beach", "on a beach", " of black sand")
 		self.location_map = {
-			9 : self.initial_location
+			9 : self.initial_location,
+			13 : self.beach_location,
 		}
 
 		return data
@@ -154,6 +156,8 @@ class TestGame(unittest.TestCase):
 
 	def test_process_input_reincarnation_true(self):
 		self.game.player.alive = False
+		self.game.player.previous_location = self.initial_location
+		self.game.player.location = self.beach_location
 
 		response = self.game.process_input("yes")
 
@@ -161,6 +165,8 @@ class TestGame(unittest.TestCase):
 		self.assertTrue(self.game.player.alive)
 		self.assertTrue(self.game.player.playing)
 		self.assertTrue(self.game.on)
+		self.assertEqual(self.initial_location, self.game.player.location)
+		self.assertIsNone(self.game.player.previous_location)
 
 
 	def test_process_input_reincarnation_false(self):

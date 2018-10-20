@@ -63,6 +63,10 @@ class Player:
 		self.location.insert(item)
 
 
+	def drop_all_items(self):
+		self.inventory.drop_all_items(self.location)
+
+
 	def describe_inventory(self):
 		return self.inventory.get_contents_description()
 

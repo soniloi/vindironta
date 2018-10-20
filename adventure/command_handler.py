@@ -92,7 +92,7 @@ class CommandHandler:
 			template = self.get_response(template_key)
 
 		elif not player.has_light() and not proposed_location.gives_light() and not player.immune:
-			player.alive = False
+			self.kill_player(player)
 			template = self.get_response("death_darkness")
 
 		else:
@@ -101,6 +101,11 @@ class CommandHandler:
 			self.interact_vision(player, arg, self.execute_see_location)
 
 		return template, content
+
+
+	def kill_player(self, player):
+		player.alive = False
+		player.drop_all_items()
 
 
 	def reject_go_obstructed(self, player, obstructions):

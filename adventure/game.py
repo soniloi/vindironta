@@ -7,7 +7,10 @@ from adventure.resolvers import Resolvers
 from adventure.vision_resolver import VisionResolver
 
 class Game:
- 
+
+	# TODO: decide where this should go
+	PLAYER_START_LOCATION_ID = 9
+
 	def __init__(self, filename=None):
 		self.on = True
 		self.argument_resolver = ArgumentResolver()
@@ -35,7 +38,7 @@ class Game:
 
 
 	def init_player(self):
-		self.player = Player(self.data.get_location(9))
+		self.player = Player(self.data.get_location(Game.PLAYER_START_LOCATION_ID))
 
 
 	def process_input(self, line):
@@ -99,7 +102,7 @@ class Game:
 		answer = tokens[0]
 
 		if self.data.matches_input("true", answer):
-			self.player.alive = True
+			self.process_reincarnation()
 			return self.data.get_response("confirm_reincarnation")
 
 		elif self.data.matches_input("false", answer):
@@ -107,3 +110,9 @@ class Game:
 			return self.data.get_response("confirm_quit")
 
 		return self.data.get_response("reject_no_understand_selection")
+
+
+	def process_reincarnation(self):
+		self.player.alive = True
+		self.player.location = self.data.get_location(Game.PLAYER_START_LOCATION_ID)
+		self.player.previous_location = None

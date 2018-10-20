@@ -23,3 +23,8 @@ class Inventory(ItemContainer):
 		for item in self.items.values():
 			result = result + item.size
 		return result
+
+
+	def drop_all_items(self, location):
+		location.items.update(self.items)
+		self.items.clear()
