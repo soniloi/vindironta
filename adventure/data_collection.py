@@ -1,4 +1,5 @@
 from adventure.command_collection import CommandCollection
+from adventure.input_collection import InputCollection
 from adventure.item_collection import ItemCollection
 from adventure.location_collection import LocationCollection
 from adventure.text_collection import TextCollection
@@ -13,6 +14,8 @@ class DataCollection:
 		self.explanations = TextCollection(reader)
 		self.responses = TextCollection(reader)
 		self.puzzles = TextCollection(reader)
+		self.events = TextCollection(reader)
+		self.inputs = InputCollection(reader)
 
 
 	def list_commands(self):
