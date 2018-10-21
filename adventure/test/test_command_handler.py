@@ -4,7 +4,7 @@ from unittest.mock import Mock
 from adventure.command import Command
 from adventure.command_handler import CommandHandler
 from adventure.direction import Direction
-from adventure.item import Item
+from adventure.item import Item, ContainerItem
 from adventure.location import Location
 from adventure.player import Player
 
@@ -52,6 +52,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.heavy_item = Item(1001, 0x0, "heavy", "a heavy item", "a dummy heavy item", 15, None)
 		self.obstruction = Item(1002, 0x4, "obstruction", "an obstruction", "an obstruction blocking you", 8, None)
 		self.mobile_obstruction = Item(1003, 0x6, "mobile_obstruction", "a mobile obstruction", "a mobile obstruction", 5, None)
+		self.basket = ContainerItem(1107, 0x3, "basket", "a basket", "a large basket", 6, None)
 
 
 	def setup_texts(self):
@@ -78,6 +79,7 @@ class TestCommandHandler(unittest.TestCase):
 			"describe_commands" : "I know these commands: {0}.",
 			"describe_help" : "Welcome and good luck.",
 			"describe_item" : "It is {0}.",
+			"describe_locate" : "The {0} is at {1} ({2}).",
 			"describe_location" : "You are {0}.",
 			"describe_node" : "You are at node {0}.",
 			"describe_score" : "Current score: {0} point(s). Instructions entered: {1}.",
@@ -454,6 +456,30 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_inventory(self.player, "")
 
 		self.assertEqual(("You have: {0}.", "\n\ta book"), response)
+
+
+	def test_handle_locate_at_location(self):
+		self.player.location.insert(self.book)
+
+		response = self.handler.handle_locate(self.player, self.book)
+
+		self.assertEqual(("The {0} is at {1} ({2}).", ["book", 12, "at a lighthouse"]), response)
+
+
+	def test_handle_locate_in_item(self):
+		self.basket.insert(self.book)
+
+		response = self.handler.handle_locate(self.player, self.book)
+
+		self.assertEqual(("The {0} is at {1} ({2}).", ["book", 1107, "a basket"]), response)
+
+
+	def test_handle_locate_in_inventory(self):
+		self.player.inventory.insert(self.book)
+
+		response = self.handler.handle_locate(self.player, self.book)
+
+		self.assertEqual(("The {0} is at {1} ({2}).", ["book", -1, "inventory"]), response)
 
 
 	def test_handle_look_no_items(self):

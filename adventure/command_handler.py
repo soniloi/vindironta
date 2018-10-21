@@ -180,6 +180,17 @@ class CommandHandler:
 		return self.get_response("list_inventory_nonempty"), player.describe_inventory()
 
 
+	def handle_locate(self, player, item):
+		template = self.get_response("describe_locate")
+		container = item.container
+		if container == player.inventory:
+			# TODO: fix this
+			contents = [item.shortname, -1, "inventory"]
+		else:
+			contents = [item.shortname, container.data_id, container.longname]
+		return template, contents
+
+
 	def handle_look(self, player, arg):
 		template = self.get_response("describe_location")
 
