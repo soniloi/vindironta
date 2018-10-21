@@ -1,4 +1,4 @@
-from adventure.item import Item, ContainerItem
+from adventure.item import Item, ContainerItem, SwitchableItem
 from adventure.file_reader import FileReader
 
 
@@ -6,19 +6,21 @@ class ItemCollection:
 
 	NO_WRITING = "0"
 
-	def __init__(self, reader, containers):
+	def __init__(self, reader, elements):
 		self.items = {}
 		container_ids = {}
+		switched_element_ids = {}
 
 		line = reader.read_line()
 		while not line.startswith("---"):
-			self.create_item(line, container_ids, containers)
+			self.create_item(line, container_ids, elements, switched_element_ids)
 			line = reader.read_line()
 
-		self.place_items(container_ids, containers)
+		self.place_items(container_ids, elements)
+		self.resolve_switches(switched_element_ids, elements)
 
 
-	def create_item(self, line, container_ids, containers):
+	def create_item(self, line, container_ids, elements, switched_element_ids):
 		tokens = line.split("\t")
 
 		item_id = self.parse_item_id(tokens[0])
@@ -29,9 +31,22 @@ class ItemCollection:
 		longname = tokens[5]
 		description = tokens[6]
 		writing = self.parse_item_writing(tokens[7])
-		item = self.init_item(item_id=item_id, attributes=attributes, shortname=primary_shortname, longname=longname,
-			description=description, size=size, writing=writing, containers=containers)
+		switched_element_id, switched_attribute = self.parse_switching_info(tokens[8])
 
+		item = self.init_item(
+			item_id=item_id,
+			attributes=attributes,
+			shortname=primary_shortname,
+			longname=longname,
+			description=description,
+			size=size,
+			writing=writing,
+			switched_element_ids=switched_element_ids,
+			switched_element_id=switched_element_id,
+			switched_attribute=switched_attribute,
+		)
+
+		elements[item_id] = item
 		for shortname in shortnames:
 			self.items[shortname] = item
 
@@ -65,11 +80,29 @@ class ItemCollection:
 		return token
 
 
-	def init_item(self, item_id, attributes, shortname, longname, description, size, writing, containers):
+	def parse_switching_info(self, token):
+		if not token:
+			return None, None
+
+		switching_info = token.split(",")
+		element_id = int(switching_info[0])
+		attribute = int(switching_info[1], 16)
+
+		return element_id, attribute
+
+
+	def init_item(self, item_id, attributes, shortname, longname, description, size, writing,
+		switched_element_ids, switched_element_id, switched_attribute):
+
 		if attributes & Item.ATTRIBUTE_CONTAINER != 0:
 			item = ContainerItem(item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
 			description=description, size=size, writing=writing)
-			containers[item_id] = item
+
+		elif attributes & Item.ATTRIBUTE_SWITCHABLE != 0:
+			item = SwitchableItem(item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
+			description=description, size=size, writing=writing, switched_attribute=switched_attribute)
+			switched_element_ids[item] = switched_element_id
+
 		else:
 			item = Item(item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
 			description=description, size=size, writing=writing)
@@ -84,6 +117,12 @@ class ItemCollection:
 			if container:
 				item.container = container
 				container.insert(item)
+
+
+	def resolve_switches(self, switched_element_ids, elements):
+		for switching_item, switched_element_id in switched_element_ids.items():
+			element = elements.get(switched_element_id)
+			switching_item.switched_element = element
 
 
 	def get(self, item_name):
