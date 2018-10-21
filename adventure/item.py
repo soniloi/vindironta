@@ -96,3 +96,21 @@ class ContainerItem(Item, ItemContainer):
 			return inner_item.contains(item)
 
 		return False
+
+
+class SwitchableItem(Item):
+
+	def __init__(self, item_id, attributes, shortname, longname, description, size, writing, switched_attribute):
+		Item.__init__(self, item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
+			description=description, size=size, writing=writing)
+		ItemContainer.__init__(self)
+		self.switched_element = None
+		self.switched_attribute = switched_attribute
+
+
+	def switch_on(self):
+		self.switched_element.set_attribute(self.switched_attribute)
+
+
+	def switch_off(self):
+		self.switched_element.unset_attribute(self.switched_attribute)
