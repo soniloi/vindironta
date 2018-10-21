@@ -109,6 +109,21 @@ class SwitchableItem(Item):
 		self.switched_attribute = switched_attribute
 
 
+	def get_list_name(self, indentation=1):
+		result = Item.get_list_name(self, indentation)
+
+		if not self.is_on():
+			result += " (-)"
+		else:
+			result += " (+)"
+
+		return result
+
+
+	def is_on(self):
+		return self.switched_element.has_attribute(self.switched_attribute)
+
+
 	def switch_on(self):
 		self.switched_element.set_attribute(self.switched_attribute)
 

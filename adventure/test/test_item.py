@@ -120,5 +120,19 @@ class TestItem(unittest.TestCase):
 		self.assertFalse(self.mine_location.gives_light())
 
 
+	def test_get_list_name_switchable_off(self):
+		self.lamp.switched_element = self.lamp
+		self.lamp.switch_off()
+
+		self.assertEqual("\n\ta lamp (-)", self.lamp.get_list_name())
+
+
+	def test_get_list_name_switchable_on(self):
+		self.lever.switched_element = self.mine_location
+		self.lever.switch_on()
+
+		self.assertEqual("\n\ta lever (+)", self.lever.get_list_name())
+
+
 if __name__ == "__main__":
 	unittest.main()
