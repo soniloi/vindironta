@@ -4,7 +4,7 @@ from unittest.mock import Mock
 from adventure.command import Command
 from adventure.command_handler import CommandHandler
 from adventure.direction import Direction
-from adventure.item import Item, ContainerItem
+from adventure.item import Item, ContainerItem, SwitchableItem
 from adventure.location import Location
 from adventure.player import Player
 
@@ -46,7 +46,8 @@ class TestCommandHandler(unittest.TestCase):
 
 	def setup_items(self):
 		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
-		self.lamp = Item(1043, 0x101A, "lamp", "a lamp", "a small lamp", 2, None)
+		self.lamp = SwitchableItem(1043, 0x101A, "lamp", "a lamp", "a small lamp", 2, None, 0x10)
+		self.lamp.switched_element = self.lamp
 		self.kohlrabi = Item(1042, 0x2002, "kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar", 3, None)
 		self.desk = Item(1000, 0x20000, "desk", "a desk", "a large mahogany desk", 6, None)
 		self.heavy_item = Item(1001, 0x0, "heavy", "a heavy item", "a dummy heavy item", 15, None)
@@ -69,6 +70,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.response_map = {
 			"confirm_dropped" : "Dropped.",
 			"confirm_look" : "You are {0}.",
+			"confirm_ok" : "OK.",
 			"confirm_quit" : "OK.",
 			"confirm_taken" : "Taken.",
 			"confirm_immune_off" : "Immune off.",
@@ -93,6 +95,7 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_no_direction" : "You cannot go that way.",
 			"reject_no_light" : "It is too dark.",
 			"reject_no_back" : "I do not remember how you got here.",
+			"reject_no_know_how" : "I do not know how.",
 			"reject_no_node" : "There is no such node id.",
 			"reject_no_out" : "I cannot tell in from out here.",
 			"reject_no_writing" : "There is no writing.",
@@ -489,12 +492,12 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_look_with_item(self):
-		self.player.location.insert(self.lamp)
+		self.player.location.insert(self.book)
 
 		response = self.handler.handle_look(self.player, "")
 
 		self.assertEqual(("You are {0}. Nearby: {1}.",
-			["at a lighthouse by the sea.", "\n\ta lamp"]), response)
+			["at a lighthouse by the sea.", "\n\ta book"]), response)
 
 
 	def test_handle_look_with_silent_item(self):
@@ -569,6 +572,30 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertEqual(("Current score: {0} point(s). Instructions entered: {1}.", [0, 6]), response)
 		self.assertEqual(6, self.player.instructions)
+
+
+	def test_handle_switch_non_switchable_item(self):
+		response = self.handler.handle_switch(self.player, self.book)
+
+		self.assertEqual(("I do not know how.", "book"), response)
+
+
+	def test_handle_switch_off_to_on(self):
+		self.lamp.attributes &= ~0x10
+
+		response = self.handler.handle_switch(self.player, self.lamp)
+
+		self.assertEqual(("OK.", ""), response)
+		self.assertTrue(self.lamp.is_on())
+
+
+	def test_handle_switch_on_to_off(self):
+		self.lamp.attributes |= 0x10
+
+		response = self.handler.handle_switch(self.player, self.lamp)
+
+		self.assertEqual(("OK.", ""), response)
+		self.assertFalse(self.lamp.is_on())
 
 
 	def test_handle_take_not_mobile(self):

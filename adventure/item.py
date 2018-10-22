@@ -19,6 +19,10 @@ class Item(DataElement):
 		self.obstruction = self.has_attribute(Item.ATTRIBUTE_OBSTRUCTION)
 
 
+	def is_switchable(self):
+		return False
+
+
 	def get_full_description(self):
 		return self.description
 
@@ -107,6 +111,10 @@ class SwitchableItem(Item):
 		ItemContainer.__init__(self)
 		self.switched_element = None
 		self.switched_attribute = switched_attribute
+
+
+	def is_switchable(self):
+		return True
 
 
 	def get_list_name(self, indentation=1):

@@ -241,6 +241,18 @@ class CommandHandler:
 		return self.get_response("describe_score"), [player.score, player.instructions]
 
 
+	def handle_switch(self, player, item):
+		if not item.is_switchable():
+			return self.get_response("reject_no_know_how"), item.shortname
+
+		if item.is_on():
+			item.switch_off()
+		else:
+			item.switch_on()
+
+		return self.get_response("confirm_ok"), ""
+
+
 	def handle_take(self, player, item):
 		template = ""
 
