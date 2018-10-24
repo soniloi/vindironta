@@ -43,7 +43,7 @@ class TestItemCollection(unittest.TestCase):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
 			"1105\t0x2\t80\t2\tbook\ta book\ta book of fairytales in English. It is open on a particular page\tThe Pied Piper of Hamelin\t",
-			"1106\t0x101A\t81\t3\tlamp\ta lamp\ta small lamp\t0\t",
+			"1106\t0x101A\t81\t3\tlamp\ta lamp\ta small lamp\t0\t1106,10,off,on",
 			"---",
 		]
 
@@ -117,7 +117,7 @@ class TestItemCollection(unittest.TestCase):
 	def test_init_switchable_switching_self(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"1201\t0x8\t81\t3\tlamp\ta lamp\ta small lamp\t0\t1201,10",
+			"1201\t0x8\t81\t3\tlamp\ta lamp\ta small lamp\t0\t1201,10,off,on",
 			"---",
 		]
 
@@ -128,12 +128,15 @@ class TestItemCollection(unittest.TestCase):
 		self.assertTrue(isinstance(lamp, SwitchableItem))
 		self.assertEqual(lamp, lamp.switched_element)
 		self.assertEqual(0x10, lamp.switched_attribute)
+		self.assertEqual(2, len(lamp.state_to_text))
+		self.assertEqual("off", lamp.state_to_text[False])
+		self.assertEqual("on", lamp.state_to_text[True])
 
 
 	def test_init_switchable_switching_other_item(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"1202\t0x8\t81\t3\tbutton\ta button\ta red button\t0\t1108,20",
+			"1202\t0x8\t81\t3\tbutton\ta button\ta red button\t0\t1108,20,up,down",
 			"---",
 		]
 
@@ -149,7 +152,7 @@ class TestItemCollection(unittest.TestCase):
 	def test_init_switchable_switching_other_location(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"1203\t0x8\t81\t3\tlever\ta lever\ta mysterious lever\t0\t80,40",
+			"1203\t0x8\t81\t3\tlever\ta lever\ta mysterious lever\t0\t80,40,down,up",
 			"---",
 		]
 

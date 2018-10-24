@@ -105,12 +105,16 @@ class ContainerItem(Item, ItemContainer):
 
 class SwitchableItem(Item):
 
-	def __init__(self, item_id, attributes, shortname, longname, description, size, writing, switched_attribute):
+	def __init__(self, item_id, attributes, shortname, longname, description, size, writing, switching_info):
 		Item.__init__(self, item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
 			description=description, size=size, writing=writing)
 		ItemContainer.__init__(self)
 		self.switched_element = None
-		self.switched_attribute = switched_attribute
+		self.switched_attribute = switching_info[1]
+		self.state_to_text = {
+			False : switching_info[2],
+			True : switching_info[3],
+		}
 
 
 	def is_switchable(self):
@@ -119,12 +123,7 @@ class SwitchableItem(Item):
 
 	def get_list_name(self, indentation=1):
 		result = Item.get_list_name(self, indentation)
-
-		if not self.is_on():
-			result += " (-)"
-		else:
-			result += " (+)"
-
+		result += " (" + self.state_to_text[self.is_on()] + ")"
 		return result
 
 

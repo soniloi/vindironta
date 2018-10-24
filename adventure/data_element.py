@@ -10,7 +10,7 @@ class DataElement:
 
 
 	def has_attribute(self, attribute):
-		return self.attributes & attribute
+		return bool(self.attributes & attribute)
 
 
 	def set_attribute(self, attribute):

@@ -46,7 +46,8 @@ class TestCommandHandler(unittest.TestCase):
 
 	def setup_items(self):
 		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
-		self.lamp = SwitchableItem(1043, 0x101A, "lamp", "a lamp", "a small lamp", 2, None, 0x10)
+		lamp_switching_info = (0, Item.ATTRIBUTE_GIVES_LIGHT, "off", "on")
+		self.lamp = SwitchableItem(1043, 0x101A, "lamp", "a lamp", "a small lamp", 2, None, lamp_switching_info)
 		self.lamp.switched_element = self.lamp
 		self.kohlrabi = Item(1042, 0x2002, "kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar", 3, None)
 		self.desk = Item(1000, 0x20000, "desk", "a desk", "a large mahogany desk", 6, None)
