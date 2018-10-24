@@ -12,9 +12,8 @@ class Item(DataElement):
 	ATTRIBUTE_GIVES_LIGHT = 0x10
 	ATTRIBUTE_SILENT = 0x20000
 
-	def __init__(self, item_id, attributes, shortname, longname, description, size, writing):
-		super().__init__(data_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
-			description=description)
+	def __init__(self, item_id, attributes, labels, size, writing):
+		super().__init__(data_id=item_id, attributes=attributes, labels=labels)
 		self.size = size
 		self.writing = writing
 		self.container = None
@@ -68,9 +67,8 @@ class Item(DataElement):
 
 class ContainerItem(Item, ItemContainer):
 
-	def __init__(self, item_id, attributes, shortname, longname, description, size, writing):
-		Item.__init__(self, item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
-			description=description, size=size, writing=writing)
+	def __init__(self, item_id, attributes, labels, size, writing):
+		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
 		ItemContainer.__init__(self)
 
 
@@ -109,9 +107,8 @@ SwitchInfo = namedtuple("SwitchInfo", "attribute off on")
 
 class SwitchableItem(Item):
 
-	def __init__(self, item_id, attributes, shortname, longname, description, size, writing, switch_info):
-		Item.__init__(self, item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
-			description=description, size=size, writing=writing)
+	def __init__(self, item_id, attributes, labels, size, writing, switch_info):
+		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
 		ItemContainer.__init__(self)
 		self.switched_element = None
 		self.switched_attribute = switch_info.attribute

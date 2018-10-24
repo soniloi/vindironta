@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import Mock
 
+from adventure.data_element import Labels
 from adventure.item import ContainerItem, SwitchableItem
 from adventure.item_collection import ItemCollection
 from adventure.location import Location
@@ -8,8 +9,8 @@ from adventure.location import Location
 class TestItemCollection(unittest.TestCase):
 
 	def setUp(self):
-		self.location = Location(80, 1, "Library", "in the Library", ", a tall, bright room")
-		self.box = ContainerItem(1108, 0x3, "box", "a box", "a small box", 3, None)
+		self.location = Location(80, 1, Labels("Library", "in the Library", ", a tall, bright room"))
+		self.box = ContainerItem(1108, 0x3, Labels("box", "a box", "a small box"), 3, None)
 		self.elements = {
 			80 : self.location,
 			1108 : self.box,

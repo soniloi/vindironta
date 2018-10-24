@@ -1,5 +1,6 @@
 import unittest
 
+from adventure.data_element import Labels
 from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo
 from adventure.location import Location
 
@@ -10,14 +11,14 @@ class TestItem(unittest.TestCase):
 		button_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "up", "down")
 		lever_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "down", "up")
 
-		self.book = Item(1105, 0x2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
-		self.desk = Item(1106, 0x20000, "desk", "a desk", "a large mahogany desk", 6, None)
-		self.basket = ContainerItem(1107, 0x3, "basket", "a basket", "a large basket", 6, None)
-		self.box = ContainerItem(1108, 0x3, "box", "a box", "a small box", 3, None)
-		self.lamp = SwitchableItem(1043, 0x100A, "lamp", "a lamp", "a small lamp", 2, None, lamp_switching_info)
-		self.button = SwitchableItem(1044, 0x8, "button", "a button", "a red button", 2, None, button_switching_info)
-		self.lever = SwitchableItem(1045, 0x8, "lever", "a lever", "a mysterious lever", 2, None, lamp_switching_info)
-		self.mine_location = Location(11, 0x0, "Mines", "in the mines", ". There are dark passages everywhere.")
+		self.book = Item(1105, 0x2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
+		self.desk = Item(1106, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None)
+		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None)
+		self.box = ContainerItem(1108, 0x3, Labels("box", "a box", "a small box"), 3, None)
+		self.lamp = SwitchableItem(1043, 0x100A, Labels("lamp", "a lamp", "a small lamp"), 2, None, lamp_switching_info)
+		self.button = SwitchableItem(1044, 0x8, Labels("button", "a button", "a red button"), 2, None, button_switching_info)
+		self.lever = SwitchableItem(1045, 0x8, Labels("lever", "a lever", "a mysterious lever"), 2, None, lamp_switching_info)
+		self.mine_location = Location(11, 0x0, Labels("Mines", "in the mines", ". There are dark passages everywhere."))
 
 
 	def test_get_list_name_simple(self):

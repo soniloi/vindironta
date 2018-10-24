@@ -1,3 +1,4 @@
+from adventure.data_element import Labels
 from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo
 from adventure.file_reader import FileReader
 
@@ -32,13 +33,12 @@ class ItemCollection:
 		description = tokens[6]
 		writing = self.parse_item_writing(tokens[7])
 		switched_element_id, switch_info = self.parse_switch_info(tokens[8])
+		labels = Labels(shortname=primary_shortname, longname=longname, description=description)
 
 		item = self.init_item(
 			item_id=item_id,
 			attributes=attributes,
-			shortname=primary_shortname,
-			longname=longname,
-			description=description,
+			labels=labels,
 			size=size,
 			writing=writing,
 			switched_element_ids=switched_element_ids,
@@ -95,21 +95,19 @@ class ItemCollection:
 		return element_id, switch_info
 
 
-	def init_item(self, item_id, attributes, shortname, longname, description, size, writing,
+	def init_item(self, item_id, attributes, labels, size, writing,
 		switched_element_id, switched_element_ids, switch_info):
 
 		if attributes & Item.ATTRIBUTE_CONTAINER != 0:
-			item = ContainerItem(item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
-			description=description, size=size, writing=writing)
+			item = ContainerItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
 
 		elif attributes & Item.ATTRIBUTE_SWITCHABLE != 0:
-			item = SwitchableItem(item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
-			description=description, size=size, writing=writing, switch_info=switch_info)
+			item = SwitchableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
+				switch_info=switch_info)
 			switched_element_ids[item] = switched_element_id
 
 		else:
-			item = Item(item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
-			description=description, size=size, writing=writing)
+			item = Item(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
 
 		return item
 

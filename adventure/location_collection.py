@@ -1,3 +1,4 @@
+from adventure.data_element import Labels
 from adventure.direction import Direction
 from adventure.location import Location
 from adventure.file_reader import FileReader
@@ -9,29 +10,29 @@ class LocationCollection:
 
 	def __init__(self, reader):
 		self.locations = {}
-		location_links = {}
+		links = {}
 
 		line = reader.read_line()
 		while not line.startswith("---"):
-			self.create_location(line, location_links)
+			self.create_location(line, links)
 			line = reader.read_line()
 
-		self.cross_reference(location_links)
+		self.cross_reference(links)
 
 
-	def create_location(self, line, location_links):
+	def create_location(self, line, links):
 		tokens = line.split("\t")
 
 		location_id = int(tokens[0])
-		location_attributes = int(tokens[11], 16)
-		location_shortname = tokens[12]
-		location_longname = tokens[13]
-		location_description = tokens[14]
+		attributes = int(tokens[11], 16)
+		shortname = tokens[12]
+		longname = tokens[13]
+		description = tokens[14]
+		labels = Labels(shortname=shortname, longname=longname, description=description)
 
-		location = Location(location_id, location_attributes, location_shortname, location_longname,
-			location_description)
+		location = Location(location_id, attributes, labels)
 		self.locations[location_id] = location
-		location_links[location] = self.parse_links(tokens)
+		links[location] = self.parse_links(tokens)
 
 
 	def parse_links(self, tokens):
@@ -60,8 +61,8 @@ class LocationCollection:
 		return self.locations.get(location_id)
 
 
-	def cross_reference(self, location_links):
-		for location, links in location_links.items():
+	def cross_reference(self, links):
+		for location, links in links.items():
 			for direction, linked_location_id in links.items():
 				linked_location = self.get(linked_location_id)
 				self.link(location, linked_location, direction)
@@ -72,8 +73,8 @@ class LocationCollection:
 			location.directions[direction] = linked_location
 
 
-	def calculate_out(self, location_links):
-		adjacent_location_ids = set(location_links.values())
+	def calculate_out(self, links):
+		adjacent_location_ids = set(links.values())
 		if len(adjacent_location_ids) == 1:
 			(out,) = adjacent_location_ids
-			location_links[Direction.OUT] = out
+			links[Direction.OUT] = out

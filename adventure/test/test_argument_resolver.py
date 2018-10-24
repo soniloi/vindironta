@@ -4,6 +4,7 @@ from unittest.mock import Mock
 from adventure.argument_resolver import ArgumentResolver
 from adventure.command import Command
 from adventure.data_collection import DataCollection
+from adventure.data_element import Labels
 from adventure.item import Item
 from adventure.player import Player
 
@@ -15,7 +16,7 @@ class TestArgumentResolver(unittest.TestCase):
 		data.get_response.side_effect = self.responses_side_effect
 		data.get_item.side_effect = self.items_side_effect
 
-		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
+		self.book = Item(1105, 2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
 		self.item_map = {
 			"book" : self.book,
 		}

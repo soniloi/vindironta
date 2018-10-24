@@ -1,5 +1,6 @@
 import unittest
 
+from adventure.data_element import Labels
 from adventure.direction import Direction
 from adventure.item import Item, ContainerItem
 from adventure.location import Location
@@ -7,14 +8,14 @@ from adventure.location import Location
 class TestLocation(unittest.TestCase):
 
 	def setUp(self):
-		self.location = Location(11, 0, "Mines", "in the mines", ". There are dark passages everywhere")
-		self.other_location = Location(12, 0x1, "Lighthouse", "at a lighthouse", " by the sea.")
+		self.location = Location(11, 0, Labels("Mines", "in the mines", ". There are dark passages everywhere"))
+		self.other_location = Location(12, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
 
-		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
-		self.desk = Item(1000, 0x20000, "desk", "a desk", "a large mahogany desk", 6, None)
-		self.obstruction = Item(1000, 0x4, "obstruction", "an obstruction", "an obstruction blocking you", 8, None)
-		self.basket = ContainerItem(1107, 0x3, "basket", "a basket", "a large basket", 6, None)
-		self.box = ContainerItem(1108, 0x3, "box", "a box", "a small box", 3, None)
+		self.book = Item(1105, 2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
+		self.desk = Item(1000, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None)
+		self.obstruction = Item(1000, 0x4, Labels("obstruction", "an obstruction", "an obstruction blocking you"), 8, None)
+		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None)
+		self.box = ContainerItem(1108, 0x3, Labels("box", "a box", "a small box"), 3, None)
 
 
 	def test_contains_simple(self):

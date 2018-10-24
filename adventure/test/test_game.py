@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import Mock
 
 from adventure.data_collection import DataCollection
+from adventure.data_element import Labels
 from adventure.game import Game
 from adventure.location import Location
 
@@ -20,8 +21,8 @@ class TestGame(unittest.TestCase):
 		data.get_response.side_effect = self.response_side_effect
 		data.matches_input.side_effect = self.matches_input_side_effect
 
-		self.initial_location = Location(9, 0x1, "Lighthouse", "at a lighthouse", " by the sea.")
-		self.beach_location = Location(13, 0x1, "Beach", "on a beach", " of black sand")
+		self.initial_location = Location(9, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
+		self.beach_location = Location(13, 0x1, Labels("Beach", "on a beach", " of black sand"))
 		self.location_map = {
 			9 : self.initial_location,
 			13 : self.beach_location,

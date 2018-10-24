@@ -6,9 +6,8 @@ class Location(DataElement, ItemContainer):
 	ATTRIBUTE_GIVES_LIGHT = 0x1
 	ATTRIBUTE_NEEDS_NO_LIGHT = 0x10
 
-	def __init__(self, location_id, attributes, shortname, longname, description):
-		DataElement.__init__(self, data_id=location_id, attributes=attributes, shortname=shortname, longname=longname,
-			description=description)
+	def __init__(self, location_id, attributes, labels):
+		DataElement.__init__(self, data_id=location_id, attributes=attributes, labels=labels)
 		ItemContainer.__init__(self)
 		self.directions = {}
 		self.seen = False

@@ -1,12 +1,17 @@
+from collections import namedtuple
+
+Labels = namedtuple("Labels", "shortname longname description")
+
+
 class DataElement:
 
-	def __init__(self, data_id, attributes, shortname, longname, description):
+	def __init__(self, data_id, attributes, labels):
 		self.data_id = data_id
 		self.raw_attributes = attributes
 		self.attributes = self.raw_attributes
-		self.shortname = shortname
-		self.longname = longname
-		self.description = description
+		self.shortname = labels.shortname
+		self.longname = labels.longname
+		self.description = labels.description
 
 
 	def has_attribute(self, attribute):
