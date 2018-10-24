@@ -1,6 +1,8 @@
 from adventure.data_element import DataElement
 from adventure.item_container import ItemContainer
 
+from collections import namedtuple
+
 class Item(DataElement):
 
 	ATTRIBUTE_CONTAINER = 0x1
@@ -103,17 +105,19 @@ class ContainerItem(Item, ItemContainer):
 		return False
 
 
+SwitchInfo = namedtuple("SwitchInfo", "attribute off on")
+
 class SwitchableItem(Item):
 
-	def __init__(self, item_id, attributes, shortname, longname, description, size, writing, switching_info):
+	def __init__(self, item_id, attributes, shortname, longname, description, size, writing, switch_info):
 		Item.__init__(self, item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
 			description=description, size=size, writing=writing)
 		ItemContainer.__init__(self)
 		self.switched_element = None
-		self.switched_attribute = switching_info[1]
+		self.switched_attribute = switch_info.attribute
 		self.state_to_text = {
-			False : switching_info[2],
-			True : switching_info[3],
+			False : switch_info.off,
+			True : switch_info.on,
 		}
 
 

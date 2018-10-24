@@ -4,7 +4,7 @@ from unittest.mock import Mock
 from adventure.command import Command
 from adventure.command_handler import CommandHandler
 from adventure.direction import Direction
-from adventure.item import Item, ContainerItem, SwitchableItem
+from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo
 from adventure.location import Location
 from adventure.player import Player
 
@@ -46,7 +46,7 @@ class TestCommandHandler(unittest.TestCase):
 
 	def setup_items(self):
 		self.book = Item(1105, 2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
-		lamp_switching_info = (0, Item.ATTRIBUTE_GIVES_LIGHT, "off", "on")
+		lamp_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "off", "on")
 		self.lamp = SwitchableItem(1043, 0x101A, "lamp", "a lamp", "a small lamp", 2, None, lamp_switching_info)
 		self.lamp.switched_element = self.lamp
 		self.kohlrabi = Item(1042, 0x2002, "kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar", 3, None)

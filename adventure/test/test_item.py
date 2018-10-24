@@ -1,14 +1,14 @@
 import unittest
 
-from adventure.item import Item, ContainerItem, SwitchableItem
+from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo
 from adventure.location import Location
 
 class TestItem(unittest.TestCase):
 
 	def setUp(self):
-		lamp_switching_info = (0, Item.ATTRIBUTE_GIVES_LIGHT, "off", "on")
-		button_switching_info = (0, Item.ATTRIBUTE_GIVES_LIGHT, "up", "down")
-		lever_switching_info = (0, Item.ATTRIBUTE_GIVES_LIGHT, "down", "up")
+		lamp_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "off", "on")
+		button_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "up", "down")
+		lever_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "down", "up")
 
 		self.book = Item(1105, 0x2, "book", "a book", "a book of fairytales", 2, "The Pied Piper")
 		self.desk = Item(1106, 0x20000, "desk", "a desk", "a large mahogany desk", 6, None)

@@ -1,4 +1,4 @@
-from adventure.item import Item, ContainerItem, SwitchableItem
+from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo
 from adventure.file_reader import FileReader
 
 
@@ -31,7 +31,7 @@ class ItemCollection:
 		longname = tokens[5]
 		description = tokens[6]
 		writing = self.parse_item_writing(tokens[7])
-		switching_info = self.parse_switching_info(tokens[8])
+		switched_element_id, switch_info = self.parse_switch_info(tokens[8])
 
 		item = self.init_item(
 			item_id=item_id,
@@ -42,7 +42,8 @@ class ItemCollection:
 			size=size,
 			writing=writing,
 			switched_element_ids=switched_element_ids,
-			switching_info=switching_info,
+			switched_element_id=switched_element_id,
+			switch_info=switch_info,
 		)
 
 		elements[item_id] = item
@@ -79,21 +80,23 @@ class ItemCollection:
 		return token
 
 
-	def parse_switching_info(self, token):
+	def parse_switch_info(self, token):
 		if not token:
 			return None, None
 
-		switching_info = token.split(",")
-		element_id = int(switching_info[0])
-		attribute = int(switching_info[1], 16)
-		off_string = switching_info[2]
-		on_string = switching_info[3]
+		switch_info = token.split(",")
+		element_id = int(switch_info[0])
+		attribute = int(switch_info[1], 16)
+		off = switch_info[2]
+		on = switch_info[3]
 
-		return element_id, attribute, off_string, on_string
+		switch_info = SwitchInfo(attribute=attribute, off=off, on=on)
+
+		return element_id, switch_info
 
 
 	def init_item(self, item_id, attributes, shortname, longname, description, size, writing,
-		switched_element_ids, switching_info):
+		switched_element_id, switched_element_ids, switch_info):
 
 		if attributes & Item.ATTRIBUTE_CONTAINER != 0:
 			item = ContainerItem(item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
@@ -101,8 +104,8 @@ class ItemCollection:
 
 		elif attributes & Item.ATTRIBUTE_SWITCHABLE != 0:
 			item = SwitchableItem(item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
-			description=description, size=size, writing=writing, switching_info=switching_info)
-			switched_element_ids[item] = switching_info[0]
+			description=description, size=size, writing=writing, switch_info=switch_info)
+			switched_element_ids[item] = switched_element_id
 
 		else:
 			item = Item(item_id=item_id, attributes=attributes, shortname=shortname, longname=longname,
