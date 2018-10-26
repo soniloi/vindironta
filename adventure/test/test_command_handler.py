@@ -83,10 +83,12 @@ class TestCommandHandler(unittest.TestCase):
 			"describe_commands" : "I know these commands: {0}.",
 			"describe_help" : "Welcome and good luck.",
 			"describe_item" : "It is {0}.",
+			"describe_item_switch" : " It is {1}.",
 			"describe_locate" : "The {0} is at {1} ({2}).",
 			"describe_location" : "You are {0}.",
 			"describe_node" : "You are at node {0}.",
 			"describe_score" : "Current score: {0} point(s). Instructions entered: {1}.",
+			"describe_switch_item" : "The {0} is now {1}.",
 			"describe_writing" : "It reads {0}.",
 			"list_inventory_nonempty" : "You have: {0}.",
 			"list_inventory_empty" : "You have nothing.",
@@ -146,19 +148,19 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_describe_in_inventory(self):
-		self.player.inventory.insert(self.lamp)
+		self.player.inventory.insert(self.book)
 
-		response = self.handler.handle_describe(self.player, self.lamp)
+		response = self.handler.handle_describe(self.player, self.book)
 
-		self.assertEqual(("It is {0}.", "a small lamp"), response)
+		self.assertEqual(("It is {0}.", "a book of fairytales"), response)
 
 
 	def test_handle_describe_at_location(self):
-		self.player.location.insert(self.lamp)
+		self.player.location.insert(self.book)
 
 		response = self.handler.handle_describe(self.player, self.lamp)
 
-		self.assertEqual(("It is {0}.", "a small lamp"), response)
+		self.assertEqual(("It is {0}. It is {1}.", ["a small lamp", "on"]), response)
 
 
 	def test_handle_drop(self):
@@ -587,7 +589,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_switch(self.player, self.lamp)
 
-		self.assertEqual(("OK.", ""), response)
+		self.assertEqual(("The {0} is now {1}.", ["lamp", "on"]), response)
 		self.assertTrue(self.lamp.is_on())
 
 
@@ -596,7 +598,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_switch(self.player, self.lamp)
 
-		self.assertEqual(("OK.", ""), response)
+		self.assertEqual(("The {0} is now {1}.", ["lamp", "off"]), response)
 		self.assertFalse(self.lamp.is_on())
 
 

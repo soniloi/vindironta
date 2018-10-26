@@ -40,7 +40,10 @@ class CommandHandler:
 
 
 	def handle_describe(self, player, item):
-		return self.get_response("describe_item"), item.get_full_description()
+		template = self.get_response("describe_item")
+		if item.is_switchable():
+			template += self.get_response("describe_item_switch")
+		return template, item.get_full_description()
 
 
 	def handle_drop(self, player, item):
@@ -250,7 +253,7 @@ class CommandHandler:
 		else:
 			item.switch_on()
 
-		return self.get_response("confirm_ok"), ""
+		return self.get_response("describe_switch_item"), [item.shortname, item.get_state_text()]
 
 
 	def handle_take(self, player, item):

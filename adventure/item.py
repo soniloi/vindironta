@@ -124,8 +124,16 @@ class SwitchableItem(Item):
 
 	def get_list_name(self, indentation=1):
 		result = Item.get_list_name(self, indentation)
-		result += " (" + self.state_to_text[self.is_on()] + ")"
+		result += " (" + self.get_state_text() + ")"
 		return result
+
+
+	def get_full_description(self):
+		return [Item.get_full_description(self), self.get_state_text()]
+
+
+	def get_state_text(self):
+		return self.state_to_text[self.is_on()]
 
 
 	def is_on(self):
