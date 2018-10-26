@@ -60,7 +60,7 @@ class CommandCollection:
 		elif attributes & Command.ATTRIBUTE_TAKES_ARG == 0:
 			arg_function_name += "argless"
 		else:
-			arg_function_name += "single_arg"
+			arg_function_name += "args"
 		return self.argument_resolver.get_resolver_function(arg_function_name)
 
 

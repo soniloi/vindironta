@@ -130,7 +130,7 @@ class TestCommandCollection(unittest.TestCase):
 
 		self.assertTrue("take" in collection.commands)
 		take_command = collection.commands["take"]
-		self.assertEqual(self.argument_resolver.resolve_single_arg, take_command.arg_function)
+		self.assertEqual(self.argument_resolver.resolve_args, take_command.arg_function)
 
 
 	def test_init_resolve_vision_light_and_dark(self):

@@ -74,28 +74,20 @@ class Game:
 		self.player.current_command = None
 
 		if command:
-			command_arg = tokens[0]
+			command_args = tokens
 
 		else:
 			command = self.get_command_from_input(tokens)
-			command_arg = self.get_command_arg(tokens)
+			command_args = tokens[1:]
 			self.player.increment_instructions()
 
 		if command:
-			return command.execute(self.player, command_arg)
+			return command.execute(self.player, command_args)
 		return ""
 
 
 	def get_command_from_input(self, tokens):
-		command_name = tokens[0]
-		command = self.commands.get(command_name)
-		return command
-
-
-	def get_command_arg(self, tokens):
-		if len(tokens) > 1:
-			return tokens[1]
-		return None
+		return self.commands.get(tokens[0])
 
 
 	def process_tokens_as_reincarnation_answer(self, tokens):

@@ -67,8 +67,8 @@ class Command:
 		return self.takes_item_arg_from_inventory() or self.takes_item_arg_from_location()
 
 
-	def execute(self, player, arg):
-		template, content = self.vision_function(self, player, arg)
+	def execute(self, player, args):
+		template, content = self.vision_function(self, player, args)
 
 		# TODO: revisit
 		if not isinstance(content, list):
