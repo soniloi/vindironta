@@ -133,6 +133,13 @@ class TestGame(unittest.TestCase):
 		self.assertEqual(1, self.game.player.instructions)
 
 
+	def test_process_input_command_known_uppercase(self):
+		response = self.game.process_input("LOOK")
+
+		self.assertEqual("You cannot see a thing.", response)
+		self.assertEqual(1, self.game.player.instructions)
+
+
 	def test_process_input_command_known_extra_arg(self):
 		response = self.game.process_input("look here")
 

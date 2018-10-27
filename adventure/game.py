@@ -42,7 +42,7 @@ class Game:
 
 
 	def process_input(self, line):
-		tokens = line.split()
+		tokens = line.lower().split()
 		if tokens:
 			return self.process_tokens(tokens)
 		return ""
