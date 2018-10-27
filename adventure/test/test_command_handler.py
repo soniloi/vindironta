@@ -93,6 +93,7 @@ class TestCommandHandler(unittest.TestCase):
 			"list_inventory_nonempty" : "You have: {0}.",
 			"list_inventory_empty" : "You have nothing.",
 			"list_location" : " Nearby: {1}.",
+			"reject_already_switched" : "The {0} is already {1}.",
 			"reject_climb" : "Use \"up\" or \"down\".",
 			"reject_excess_light" : "It is too bright.",
 			"reject_go" : "Use a compass point.",
@@ -578,17 +579,39 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(6, self.player.instructions)
 
 
-	def test_handle_switch_off(self):
+	def test_handle_switch_off_to_off(self):
+		self.lamp.switch_off()
+
+		response = self.handler.handle_switch(self.player, self.lamp, SwitchTransition.OFF)
+
+		self.assertEqual(("The {0} is already {1}.", ["lamp", "off"]), response)
+		self.assertFalse(self.lamp.is_on())
+
+
+	def test_handle_switch_off_to_on(self):
+		self.lamp.switch_off()
+
+		response = self.handler.handle_switch(self.player, self.lamp, SwitchTransition.ON)
+
+		self.assertEqual(("The {0} is now {1}.", ["lamp", "on"]), response)
+		self.assertTrue(self.lamp.is_on())
+
+
+	def test_handle_switch_on_to_off(self):
+		self.lamp.switch_on()
+
 		response = self.handler.handle_switch(self.player, self.lamp, SwitchTransition.OFF)
 
 		self.assertEqual(("The {0} is now {1}.", ["lamp", "off"]), response)
 		self.assertFalse(self.lamp.is_on())
 
 
-	def test_handle_switch_on(self):
+	def test_handle_switch_on_to_on(self):
+		self.lamp.switch_on()
+
 		response = self.handler.handle_switch(self.player, self.lamp, SwitchTransition.ON)
 
-		self.assertEqual(("The {0} is now {1}.", ["lamp", "on"]), response)
+		self.assertEqual(("The {0} is already {1}.", ["lamp", "on"]), response)
 		self.assertTrue(self.lamp.is_on())
 
 

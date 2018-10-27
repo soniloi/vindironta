@@ -26,10 +26,10 @@ class TestArgumentResolver(unittest.TestCase):
 
 		self.response_map = {
 			"reject_carrying" : "You are carrying it.",
-			"reject_no_know_how" : "I do not know how.",
+			"reject_no_understand_instruction" : "I do not understand.",
 			"reject_not_here" : "It is not here.",
 			"reject_not_holding" : "You are not holding it.",
-			"reject_switch_item" : "I cannot turn the {0} {1}.",
+			"request_switch_item" : "Use \"{0} <{1}|{2}>\".",
 			"reject_unknown" : "I do not know what that is.",
 			"request_argless" : "Do not give an argument for this command.",
 			"request_direct" : "What do you want to {0}?",
@@ -210,7 +210,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, player, ["book"])
 
-		self.assertEqual(("I do not know how.", "book"), response)
+		self.assertEqual(("I do not understand.", "book"), response)
 
 
 	def test_resolve_args_switching_command_switchable_item_no_next_state(self):
@@ -220,7 +220,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, player, ["lamp"])
 
-		self.assertEqual(("I cannot turn the {0} {1}.", ["lamp", None]), response)
+		self.assertEqual(("Use \"{0} <{1}|{2}>\".", ["lamp", "off", "on"]), response)
 
 
 	def test_resolve_args_switching_command_switchable_item_invalid_next_state(self):
@@ -230,7 +230,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, player, ["lamp", "cinnamon"])
 
-		self.assertEqual(("I cannot turn the {0} {1}.", ["lamp", "cinnamon"]), response)
+		self.assertEqual(("Use \"{0} <{1}|{2}>\".", ["lamp", "off", "on"]), response)
 
 
 	def test_resolve_args_switching_command_switchable_item_valid_next_state(self):

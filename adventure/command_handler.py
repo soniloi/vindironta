@@ -246,14 +246,22 @@ class CommandHandler:
 
 
 	def handle_switch(self, player, item, transition):
+		template = self.get_response("describe_switch_item")
+
 		if transition == SwitchTransition.OFF:
+			if not item.is_on():
+				template = self.get_response("reject_already_switched")
 			item.switch_off()
+
 		elif transition == SwitchTransition.ON:
+			if item.is_on():
+				template = self.get_response("reject_already_switched")
 			item.switch_on()
+
 		elif transition == SwitchTransition.TOGGLE:
 			item.switch_toggle()
 
-		return self.get_response("describe_switch_item"), [item.shortname, item.get_state_text()]
+		return template, [item.shortname, item.get_state_text()]
 
 
 	def handle_take(self, player, item):

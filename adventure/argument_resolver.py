@@ -75,12 +75,13 @@ class ArgumentResolver:
 
 		if command.is_switching():
 			if not item.is_switchable():
-				return self.data.get_response("reject_no_know_how"), item.shortname
+				return self.data.get_response("reject_no_understand_instruction"), item.shortname
 
 			transition_text = self.get_first_arg(switch_args)
 
 			if not transition_text in item.text_to_transition:
-				return self.data.get_response("reject_switch_item"), [item.shortname, transition_text]
+				content = [item.shortname] + sorted(list(item.text_to_transition.keys()))
+				return self.data.get_response("request_switch_item"), content
 
 			transition = item.text_to_transition.get(transition_text)
 			return command.handler_function(player, item, transition)
