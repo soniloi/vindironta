@@ -643,6 +643,20 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertFalse(self.player.is_near_item(self.book))
 
 
+	def test_handle_turn_off(self):
+		response = self.handler.handle_turn(self.player, self.lamp, False)
+
+		self.assertEqual(("The {0} is now {1}.", ["lamp", "off"]), response)
+		self.assertFalse(self.lamp.is_on())
+
+
+	def test_handle_turn_on(self):
+		response = self.handler.handle_turn(self.player, self.lamp, True)
+
+		self.assertEqual(("The {0} is now {1}.", ["lamp", "on"]), response)
+		self.assertTrue(self.lamp.is_on())
+
+
 	def test_handle_verbose_off(self):
 		self.player.verbose = True
 

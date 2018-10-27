@@ -5,7 +5,7 @@ from adventure.argument_resolver import ArgumentResolver
 from adventure.command import Command
 from adventure.data_collection import DataCollection
 from adventure.data_element import Labels
-from adventure.item import Item
+from adventure.item import Item, SwitchableItem, SwitchInfo
 from adventure.player import Player
 
 class TestArgumentResolver(unittest.TestCase):
@@ -17,14 +17,19 @@ class TestArgumentResolver(unittest.TestCase):
 		data.get_item.side_effect = self.items_side_effect
 
 		self.book = Item(1105, 2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
+		lamp_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "off", "on")
+		self.lamp = SwitchableItem(1043, 0x101A, Labels("lamp", "a lamp", "a small lamp"), 2, None, lamp_switching_info)
 		self.item_map = {
 			"book" : self.book,
+			"lamp" : self.lamp,
 		}
 
 		self.response_map = {
 			"reject_carrying" : "You are carrying it.",
+			"reject_no_know_how" : "I do not know how.",
 			"reject_not_here" : "It is not here.",
 			"reject_not_holding" : "You are not holding it.",
+			"reject_turn" : "I cannot turn the {0} {1}.",
 			"reject_unknown" : "I do not know what that is.",
 			"request_argless" : "Do not give an argument for this command.",
 			"request_direct" : "What do you want to {0}?",
@@ -43,7 +48,7 @@ class TestArgumentResolver(unittest.TestCase):
 		return self.response_map.get(args[0])
 
 
-	def handler_function(self, player, arg):
+	def handler_function(self, player, arg, next_state=None):
 		return "{0} success!", arg
 
 
@@ -196,6 +201,46 @@ class TestArgumentResolver(unittest.TestCase):
 		response = self.resolver.resolve_args(command, player, ["book"])
 
 		self.assertEqual(("{0} success!", self.book), response)
+
+
+	def test_resolve_args_switching_command_not_switchable_item(self):
+		command = Command(1, 0xA0E, None, self.handler_function, None, "turn", [], None, None)
+		player = Mock()
+		player.has_or_is_near_item.return_value = True
+
+		response = self.resolver.resolve_args(command, player, ["book"])
+
+		self.assertEqual(("I do not know how.", "book"), response)
+
+
+	def test_resolve_args_switching_command_switchable_item_no_next_state(self):
+		command = Command(1, 0xA0E, None, self.handler_function, None, "turn", [], None, None)
+		player = Mock()
+		player.has_or_is_near_item.return_value = True
+
+		response = self.resolver.resolve_args(command, player, ["lamp"])
+
+		self.assertEqual(("I cannot turn the {0} {1}.", ["lamp", None]), response)
+
+
+	def test_resolve_args_switching_command_switchable_item_invalid_next_state(self):
+		command = Command(1, 0xA0E, None, self.handler_function, None, "turn", [], None, None)
+		player = Mock()
+		player.has_or_is_near_item.return_value = True
+
+		response = self.resolver.resolve_args(command, player, ["lamp", "cinnamon"])
+
+		self.assertEqual(("I cannot turn the {0} {1}.", ["lamp", "cinnamon"]), response)
+
+
+	def test_resolve_args_switching_command_switchable_item_valid_next_state(self):
+		command = Command(1, 0xA0E, None, self.handler_function, None, "turn", [], None, None)
+		player = Mock()
+		player.has_or_is_near_item.return_value = True
+
+		response = self.resolver.resolve_args(command, player, ["lamp", "off"])
+
+		self.assertEqual(("{0} success!", self.lamp), response)
 
 
 if __name__ == "__main__":

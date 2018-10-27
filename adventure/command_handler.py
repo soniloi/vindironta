@@ -272,6 +272,16 @@ class CommandHandler:
 		return template, item.shortname
 
 
+	# TODO: merge with switch command
+	def handle_turn(self, player, item, next_state):
+		if next_state:
+			item.switch_on()
+		else:
+			item.switch_off()
+
+		return self.get_response("describe_switch_item"), [item.shortname, item.get_state_text()]
+
+
 	def handle_verbose(self, player, arg):
 		template = ""
 

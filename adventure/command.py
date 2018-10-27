@@ -9,6 +9,7 @@ class Command:
 	ATTRIBUTE_SWITCHABLE = 0x100
 	ATTRIBUTE_ARG_IS_ITEM = 0x200
 	ATTRIBUTE_REQUIRES_VISION = 0x400
+	ATTRIBUTE_SWITCHING = 0x800
 
 	def __init__(self, command_id, attributes, arg_function, handler_function, vision_function, primary, aliases,
 			off_switch, on_switch):
@@ -53,6 +54,10 @@ class Command:
 
 	def takes_item_arg_from_location(self):
 		return self.has_attribute(Command.ATTRIBUTE_ARG_ITEM_LOCATION)
+
+
+	def is_switching(self):
+		return self.has_attribute(Command.ATTRIBUTE_SWITCHING)
 
 
 	def takes_item_arg_from_inventory_only(self):

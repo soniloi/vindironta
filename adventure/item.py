@@ -116,6 +116,10 @@ class SwitchableItem(Item):
 			False : switch_info.off,
 			True : switch_info.on,
 		}
+		self.text_to_state = {
+			switch_info.off : False,
+			switch_info.on : True,
+		}
 
 
 	def is_switchable(self):

@@ -81,6 +81,10 @@ class Game:
 			command_args = tokens[1:]
 			self.player.increment_instructions()
 
+		if not command:
+			command = self.commands.get("turn")
+			command_args = tokens
+
 		if command:
 			return command.execute(self.player, command_args)
 		return ""

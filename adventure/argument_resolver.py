@@ -50,10 +50,10 @@ class ArgumentResolver:
 		if not item:
 			return self.data.get_response("reject_unknown"), self.get_first_arg(args)
 
-		return self.resolve_item_source(command, player, item)
+		return self.resolve_item_source(command, player, item, args[1:])
 
 
-	def resolve_item_source(self, command, player, item):
+	def resolve_item_source(self, command, player, item, other_args):
 
 		if command.takes_item_arg_from_inventory_only() and not player.is_carrying(item):
 			return self.data.get_response("reject_not_holding"), item.shortname
@@ -66,6 +66,24 @@ class ArgumentResolver:
 
 		if command.takes_item_arg_from_inventory_or_location() and not player.has_or_is_near_item(item):
 			return self.data.get_response("reject_not_here"), item.shortname
+
+		return self.resolve_item_turn(command, player, item, other_args)
+
+
+
+	def resolve_item_turn(self, command, player, item, turn_args):
+
+		if command.is_switching():
+			if not item.is_switchable():
+				return self.data.get_response("reject_no_know_how"), item.shortname
+
+			next_state_text = self.get_first_arg(turn_args)
+
+			if not next_state_text in item.text_to_state:
+				return self.data.get_response("reject_turn"), [item.shortname, next_state_text]
+
+			next_state = item.text_to_state.get(next_state_text)
+			return command.handler_function(player, item, next_state)
 
 		return self.execute(command, player, [item])
 
