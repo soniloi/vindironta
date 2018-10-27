@@ -23,7 +23,7 @@ class ArgumentResolver:
 		arg = self.get_first_arg(args)
 		if arg not in command.transitions:
 			content = [command.primary] + sorted(list(command.transitions.keys()))
-			return self.data.get_response("request_switch"), content
+			return self.data.get_response("request_switch_command"), content
 		next_state = command.transitions[arg]
 		return self.execute(command, player, [next_state])
 
@@ -67,20 +67,20 @@ class ArgumentResolver:
 		if command.takes_item_arg_from_inventory_or_location() and not player.has_or_is_near_item(item):
 			return self.data.get_response("reject_not_here"), item.shortname
 
-		return self.resolve_item_turn(command, player, item, other_args)
+		return self.resolve_item_switch(command, player, item, other_args)
 
 
 
-	def resolve_item_turn(self, command, player, item, turn_args):
+	def resolve_item_switch(self, command, player, item, switch_args):
 
 		if command.is_switching():
 			if not item.is_switchable():
 				return self.data.get_response("reject_no_know_how"), item.shortname
 
-			next_state_text = self.get_first_arg(turn_args)
+			next_state_text = self.get_first_arg(switch_args)
 
 			if not next_state_text in item.text_to_state:
-				return self.data.get_response("reject_turn"), [item.shortname, next_state_text]
+				return self.data.get_response("reject_switch_item"), [item.shortname, next_state_text]
 
 			next_state = item.text_to_state.get(next_state_text)
 			return command.handler_function(player, item, next_state)

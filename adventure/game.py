@@ -82,7 +82,7 @@ class Game:
 			self.player.increment_instructions()
 
 		if not command:
-			command = self.commands.get("turn")
+			command = self.commands.get("switch")
 			command_args = tokens
 
 		if command:

@@ -29,11 +29,11 @@ class TestArgumentResolver(unittest.TestCase):
 			"reject_no_know_how" : "I do not know how.",
 			"reject_not_here" : "It is not here.",
 			"reject_not_holding" : "You are not holding it.",
-			"reject_turn" : "I cannot turn the {0} {1}.",
+			"reject_switch_item" : "I cannot turn the {0} {1}.",
 			"reject_unknown" : "I do not know what that is.",
 			"request_argless" : "Do not give an argument for this command.",
 			"request_direct" : "What do you want to {0}?",
-			"request_switch" : "Use the command \"{0}\" with either \"{1}\" or \"{2}\".",
+			"request_switch_command" : "Use the command \"{0}\" with either \"{1}\" or \"{2}\".",
 		}
 
 		self.resolver = ArgumentResolver()

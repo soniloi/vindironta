@@ -578,28 +578,18 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(6, self.player.instructions)
 
 
-	def test_handle_switch_non_switchable_item(self):
-		response = self.handler.handle_switch(self.player, self.book)
-
-		self.assertEqual(("I do not know how.", "book"), response)
-
-
-	def test_handle_switch_off_to_on(self):
-		self.lamp.attributes &= ~0x10
-
-		response = self.handler.handle_switch(self.player, self.lamp)
-
-		self.assertEqual(("The {0} is now {1}.", ["lamp", "on"]), response)
-		self.assertTrue(self.lamp.is_on())
-
-
-	def test_handle_switch_on_to_off(self):
-		self.lamp.attributes |= 0x10
-
-		response = self.handler.handle_switch(self.player, self.lamp)
+	def test_handle_switch_off(self):
+		response = self.handler.handle_switch(self.player, self.lamp, False)
 
 		self.assertEqual(("The {0} is now {1}.", ["lamp", "off"]), response)
 		self.assertFalse(self.lamp.is_on())
+
+
+	def test_handle_switch_on(self):
+		response = self.handler.handle_switch(self.player, self.lamp, True)
+
+		self.assertEqual(("The {0} is now {1}.", ["lamp", "on"]), response)
+		self.assertTrue(self.lamp.is_on())
 
 
 	def test_handle_take_not_mobile(self):
@@ -643,18 +633,28 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertFalse(self.player.is_near_item(self.book))
 
 
-	def test_handle_turn_off(self):
-		response = self.handler.handle_turn(self.player, self.lamp, False)
+	def test_handle_toggle_non_switchable_item(self):
+		response = self.handler.handle_toggle(self.player, self.book)
 
-		self.assertEqual(("The {0} is now {1}.", ["lamp", "off"]), response)
-		self.assertFalse(self.lamp.is_on())
+		self.assertEqual(("I do not know how.", "book"), response)
 
 
-	def test_handle_turn_on(self):
-		response = self.handler.handle_turn(self.player, self.lamp, True)
+	def test_handle_toggle_off_to_on(self):
+		self.lamp.attributes &= ~0x10
+
+		response = self.handler.handle_toggle(self.player, self.lamp)
 
 		self.assertEqual(("The {0} is now {1}.", ["lamp", "on"]), response)
 		self.assertTrue(self.lamp.is_on())
+
+
+	def test_handle_toggle_on_to_off(self):
+		self.lamp.attributes |= 0x10
+
+		response = self.handler.handle_toggle(self.player, self.lamp)
+
+		self.assertEqual(("The {0} is now {1}.", ["lamp", "off"]), response)
+		self.assertFalse(self.lamp.is_on())
 
 
 	def test_handle_verbose_off(self):

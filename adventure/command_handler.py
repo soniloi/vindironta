@@ -244,14 +244,12 @@ class CommandHandler:
 		return self.get_response("describe_score"), [player.score, player.instructions]
 
 
-	def handle_switch(self, player, item):
-		if not item.is_switchable():
-			return self.get_response("reject_no_know_how"), item.shortname
-
-		if item.is_on():
-			item.switch_off()
-		else:
+	# TODO: merge with toggle command
+	def handle_switch(self, player, item, next_state):
+		if next_state:
 			item.switch_on()
+		else:
+			item.switch_off()
 
 		return self.get_response("describe_switch_item"), [item.shortname, item.get_state_text()]
 
@@ -272,12 +270,14 @@ class CommandHandler:
 		return template, item.shortname
 
 
-	# TODO: merge with switch command
-	def handle_turn(self, player, item, next_state):
-		if next_state:
-			item.switch_on()
-		else:
+	def handle_toggle(self, player, item):
+		if not item.is_switchable():
+			return self.get_response("reject_no_know_how"), item.shortname
+
+		if item.is_on():
 			item.switch_off()
+		else:
+			item.switch_on()
 
 		return self.get_response("describe_switch_item"), [item.shortname, item.get_state_text()]
 

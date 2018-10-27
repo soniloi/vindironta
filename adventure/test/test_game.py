@@ -41,13 +41,13 @@ class TestGame(unittest.TestCase):
 		look_command.execute.return_value = "You cannot see a thing."
 		self.take_command = Mock()
 		self.take_command.execute.return_value = "Taken."
-		turn_command = Mock()
-		turn_command.execute.return_value = "Turned."
+		switch_command = Mock()
+		switch_command.execute.return_value = "Switched."
 
 		self.command_map = {
 			"die" : die_command,
 			"look" : look_command,
-			"turn" : turn_command,
+			"switch" : switch_command,
 		}
 
 		return commands
@@ -122,7 +122,7 @@ class TestGame(unittest.TestCase):
 	def test_process_input_command_unknown(self):
 		response = self.game.process_input("notacommand")
 
-		self.assertEqual("Turned.", response)
+		self.assertEqual("Switched.", response)
 		self.assertEqual(1, self.game.player.instructions)
 
 
