@@ -1,3 +1,5 @@
+from enum import Enum
+
 from adventure.data_element import DataElement
 from adventure.item_container import ItemContainer
 
@@ -105,6 +107,12 @@ class ContainerItem(Item, ItemContainer):
 
 SwitchInfo = namedtuple("SwitchInfo", "attribute off on")
 
+class SwitchTransition(Enum):
+	OFF = 0
+	ON = 1
+	TOGGLE = 2
+
+
 class SwitchableItem(Item):
 
 	def __init__(self, item_id, attributes, labels, size, writing, switch_info):
@@ -116,9 +124,9 @@ class SwitchableItem(Item):
 			False : switch_info.off,
 			True : switch_info.on,
 		}
-		self.text_to_state = {
-			switch_info.off : False,
-			switch_info.on : True,
+		self.text_to_transition = {
+			switch_info.off : SwitchTransition.OFF,
+			switch_info.on : SwitchTransition.ON,
 		}
 
 
@@ -150,3 +158,7 @@ class SwitchableItem(Item):
 
 	def switch_off(self):
 		self.switched_element.unset_attribute(self.switched_attribute)
+
+
+	def switch_toggle(self):
+		self.switched_element.toggle_attribute(self.switched_attribute)

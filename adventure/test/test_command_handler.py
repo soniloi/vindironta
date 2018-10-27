@@ -5,7 +5,7 @@ from adventure.command import Command
 from adventure.command_handler import CommandHandler
 from adventure.data_element import Labels
 from adventure.direction import Direction
-from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo
+from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo, SwitchTransition
 from adventure.location import Location
 from adventure.player import Player
 
@@ -579,14 +579,14 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_switch_off(self):
-		response = self.handler.handle_switch(self.player, self.lamp, False)
+		response = self.handler.handle_switch(self.player, self.lamp, SwitchTransition.OFF)
 
 		self.assertEqual(("The {0} is now {1}.", ["lamp", "off"]), response)
 		self.assertFalse(self.lamp.is_on())
 
 
 	def test_handle_switch_on(self):
-		response = self.handler.handle_switch(self.player, self.lamp, True)
+		response = self.handler.handle_switch(self.player, self.lamp, SwitchTransition.ON)
 
 		self.assertEqual(("The {0} is now {1}.", ["lamp", "on"]), response)
 		self.assertTrue(self.lamp.is_on())

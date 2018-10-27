@@ -24,8 +24,8 @@ class ArgumentResolver:
 		if arg not in command.transitions:
 			content = [command.primary] + sorted(list(command.transitions.keys()))
 			return self.data.get_response("request_switch_command"), content
-		next_state = command.transitions[arg]
-		return self.execute(command, player, [next_state])
+		transition = command.transitions[arg]
+		return self.execute(command, player, [transition])
 
 
 	def resolve_argless(self, command, player, args):
@@ -77,13 +77,13 @@ class ArgumentResolver:
 			if not item.is_switchable():
 				return self.data.get_response("reject_no_know_how"), item.shortname
 
-			next_state_text = self.get_first_arg(switch_args)
+			transition_text = self.get_first_arg(switch_args)
 
-			if not next_state_text in item.text_to_state:
-				return self.data.get_response("reject_switch_item"), [item.shortname, next_state_text]
+			if not transition_text in item.text_to_transition:
+				return self.data.get_response("reject_switch_item"), [item.shortname, transition_text]
 
-			next_state = item.text_to_state.get(next_state_text)
-			return command.handler_function(player, item, next_state)
+			transition = item.text_to_transition.get(transition_text)
+			return command.handler_function(player, item, transition)
 
 		return self.execute(command, player, [item])
 

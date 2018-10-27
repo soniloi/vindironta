@@ -1,4 +1,5 @@
 from adventure.direction import Direction
+from adventure.item import SwitchTransition
 
 class CommandHandler:
 
@@ -244,12 +245,13 @@ class CommandHandler:
 		return self.get_response("describe_score"), [player.score, player.instructions]
 
 
-	# TODO: merge with toggle command
-	def handle_switch(self, player, item, next_state):
-		if next_state:
-			item.switch_on()
-		else:
+	def handle_switch(self, player, item, transition):
+		if transition == SwitchTransition.OFF:
 			item.switch_off()
+		elif transition == SwitchTransition.ON:
+			item.switch_on()
+		elif transition == SwitchTransition.TOGGLE:
+			item.switch_toggle()
 
 		return self.get_response("describe_switch_item"), [item.shortname, item.get_state_text()]
 
@@ -273,13 +275,7 @@ class CommandHandler:
 	def handle_toggle(self, player, item):
 		if not item.is_switchable():
 			return self.get_response("reject_no_know_how"), item.shortname
-
-		if item.is_on():
-			item.switch_off()
-		else:
-			item.switch_on()
-
-		return self.get_response("describe_switch_item"), [item.shortname, item.get_state_text()]
+		return self.handle_switch(player, item, SwitchTransition.TOGGLE)
 
 
 	def handle_verbose(self, player, arg):

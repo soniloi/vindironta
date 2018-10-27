@@ -24,3 +24,7 @@ class DataElement:
 
 	def unset_attribute(self, attribute):
 		self.attributes &= ~attribute
+
+
+	def toggle_attribute(self, attribute):
+		self.attributes ^= attribute
