@@ -1,5 +1,5 @@
 from adventure.data_element import Labels
-from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo
+from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo, WearableItem
 from adventure.file_reader import FileReader
 
 
@@ -33,6 +33,7 @@ class ItemCollection:
 		description = tokens[6]
 		writing = self.parse_item_writing(tokens[7])
 		switched_element_id, switch_info = self.parse_switch_info(tokens[8])
+		attribute_when_worn = self.parse_wearing_info(tokens[9])
 		labels = Labels(shortname=primary_shortname, longname=longname, description=description)
 
 		item = self.init_item(
@@ -44,6 +45,7 @@ class ItemCollection:
 			switched_element_ids=switched_element_ids,
 			switched_element_id=switched_element_id,
 			switch_info=switch_info,
+			attribute_when_worn=attribute_when_worn,
 		)
 
 		elements[item_id] = item
@@ -95,16 +97,26 @@ class ItemCollection:
 		return element_id, switch_info
 
 
-	def init_item(self, item_id, attributes, labels, size, writing,
-		switched_element_id, switched_element_ids, switch_info):
+	def parse_wearing_info(self, token):
+		if not token:
+			return None
+		return int(token, 16)
 
-		if attributes & Item.ATTRIBUTE_CONTAINER != 0:
+
+	def init_item(self, item_id, attributes, labels, size, writing,
+		switched_element_id, switched_element_ids, switch_info, attribute_when_worn):
+
+		if bool(attributes & Item.ATTRIBUTE_CONTAINER):
 			item = ContainerItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
 
-		elif attributes & Item.ATTRIBUTE_SWITCHABLE != 0:
+		elif bool(attributes & Item.ATTRIBUTE_SWITCHABLE):
 			item = SwitchableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
 				switch_info=switch_info)
 			switched_element_ids[item] = switched_element_id
+
+		elif bool(attributes & Item.ATTRIBUTE_WEARABLE):
+			item = WearableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
+				attribute_activated=attribute_when_worn)
 
 		else:
 			item = Item(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)

@@ -13,6 +13,7 @@ class Item(DataElement):
 	ATTRIBUTE_SWITCHABLE = 0x8
 	ATTRIBUTE_GIVES_LIGHT = 0x10
 	ATTRIBUTE_GIVES_AIR = 0x20
+	ATTRIBUTE_WEARABLE= 0x400
 	ATTRIBUTE_SILENT = 0x20000
 
 	def __init__(self, item_id, attributes, labels, size, writing):
