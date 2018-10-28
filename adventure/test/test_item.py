@@ -9,7 +9,7 @@ class TestItem(unittest.TestCase):
 	def setUp(self):
 		lamp_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "off", "on")
 		button_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "up", "down")
-		lever_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "down", "up")
+		lever_switching_info = SwitchInfo(Location.ATTRIBUTE_GIVES_LIGHT, "down", "up")
 
 		self.book = Item(1105, 0x2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
 		self.desk = Item(1106, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None)
@@ -17,7 +17,7 @@ class TestItem(unittest.TestCase):
 		self.box = ContainerItem(1108, 0x3, Labels("box", "a box", "a small box"), 3, None)
 		self.lamp = SwitchableItem(1043, 0x100A, Labels("lamp", "a lamp", "a small lamp"), 2, None, lamp_switching_info)
 		self.button = SwitchableItem(1044, 0x8, Labels("button", "a button", "a red button"), 2, None, button_switching_info)
-		self.lever = SwitchableItem(1045, 0x8, Labels("lever", "a lever", "a mysterious lever"), 2, None, lamp_switching_info)
+		self.lever = SwitchableItem(1045, 0x8, Labels("lever", "a lever", "a mysterious lever"), 2, None, lever_switching_info)
 		self.suit = WearableItem(1046, 0x2, Labels("suit", "a suit", "a space-suit"), 2, None, Item.ATTRIBUTE_GIVES_AIR)
 		self.mine_location = Location(11, 0x0, Labels("Mines", "in the mines", ". There are dark passages everywhere."))
 
@@ -118,7 +118,7 @@ class TestItem(unittest.TestCase):
 		self.assertTrue(self.mine_location.gives_light())
 
 
-	def test_switch_on_other_location(self):
+	def test_switch_off_other_location(self):
 		self.lever.switched_element = self.mine_location
 
 		self.lever.switch_off()
@@ -137,7 +137,7 @@ class TestItem(unittest.TestCase):
 		self.lever.switched_element = self.mine_location
 		self.lever.switch_on()
 
-		self.assertEqual("\n\ta lever (on)", self.lever.get_list_name())
+		self.assertEqual("\n\ta lever (up)", self.lever.get_list_name())
 
 
 	def test_has_attribute_wearable_not_being_worn(self):
