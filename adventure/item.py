@@ -45,6 +45,10 @@ class Item(DataElement):
 		return ""
 
 
+	def update_container(self, container):
+		self.container = container
+
+
 	def contains(self, item):
 		return False
 

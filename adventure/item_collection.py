@@ -129,7 +129,7 @@ class ItemCollection:
 		for item, container_id in container_ids.items():
 			container = containers.get(container_id)
 			if container:
-				item.container = container
+				item.update_container(container)
 				container.insert(item)
 
 

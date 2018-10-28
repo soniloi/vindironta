@@ -26,5 +26,6 @@ class Inventory(ItemContainer):
 
 
 	def drop_all_items(self, location):
-		location.items.update(self.items)
+		for item in self.items.values():
+			location.insert(item)
 		self.items.clear()

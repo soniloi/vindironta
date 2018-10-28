@@ -17,7 +17,7 @@ class ItemContainer:
 
 	def insert(self, item):
 		self.items[item.data_id] = item
-		item.container = self
+		item.update_container(self)
 
 
 	def remove(self, item):

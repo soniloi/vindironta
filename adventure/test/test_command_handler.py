@@ -387,6 +387,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("You fall to your death in the darkness.", ""), response)
 		self.assertFalse(self.player.alive)
 		self.assertFalse(self.player.holding_items())
+		self.assertEqual(self.mine_location, self.book.container)
 
 
 	def test_handle_go_from_dark_to_dark_not_carrying_light_immune_on(self):
