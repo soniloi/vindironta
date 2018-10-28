@@ -49,6 +49,10 @@ class Item(DataElement):
 		self.container = container
 
 
+	def get_weight(self):
+		return self.size
+
+
 	def contains(self, item):
 		return False
 
@@ -63,6 +67,10 @@ class Item(DataElement):
 
 	def is_obstruction(self):
 		return self.obstruction
+
+
+	def is_wearable(self):
+		return self.has_attribute(Item.ATTRIBUTE_WEARABLE)
 
 
 	def gives_light(self):
@@ -186,3 +194,14 @@ class WearableItem(Item):
 		if self.being_worn:
 			return bool((self.attributes | self.attribute_activated) & attribute)
 		return Item.has_attribute(self, attribute)
+
+
+	def get_weight(self):
+		if self.being_worn:
+			return 0
+		return self.size
+
+
+	def update_container(self, container):
+		Item.update_container(self, container)
+		self.being_worn = False

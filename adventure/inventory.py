@@ -15,14 +15,11 @@ class Inventory(ItemContainer):
 
 
 	def can_accommodate(self, item):
-		return self.get_current_size() + item.size <= self.capacity
+		return self.get_current_weight() + item.get_weight() <= self.capacity
 
 
-	def get_current_size(self):
-		result = 0
-		for item in self.items.values():
-			result = result + item.size
-		return result
+	def get_current_weight(self):
+		return sum(item.get_weight() for item in self.items.values())
 
 
 	def drop_all_items(self, location):

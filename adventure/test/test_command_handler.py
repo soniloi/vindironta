@@ -5,7 +5,7 @@ from adventure.command import Command
 from adventure.command_handler import CommandHandler
 from adventure.data_element import Labels
 from adventure.direction import Direction
-from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo, SwitchTransition
+from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo, SwitchTransition, WearableItem
 from adventure.location import Location
 from adventure.player import Player
 
@@ -56,6 +56,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.obstruction = Item(1002, 0x4, Labels("obstruction", "an obstruction", "an obstruction blocking you"), 8, None)
 		self.mobile_obstruction = Item(1003, 0x6, Labels("mobile_obstruction", "a mobile obstruction", "a mobile obstruction"), 5, None)
 		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None)
+		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, Item.ATTRIBUTE_GIVES_AIR)
 
 
 	def setup_texts(self):
@@ -79,6 +80,7 @@ class TestCommandHandler(unittest.TestCase):
 			"confirm_immune_on" : "Immune on.",
 			"confirm_verbose_off" : "Verbose off.",
 			"confirm_verbose_on" : "Verbose on.",
+			"confirm_wearing" : "You are wearing the {0}.",
 			"death_darkness" : "You fall to your death in the darkness.",
 			"describe_commands" : "I know these commands: {0}.",
 			"describe_help" : "Welcome and good luck.",
@@ -94,6 +96,7 @@ class TestCommandHandler(unittest.TestCase):
 			"list_inventory_empty" : "You have nothing.",
 			"list_location" : " Nearby: {1}.",
 			"reject_already_switched" : "The {0} is already {1}.",
+			"reject_already_wearing" : "You are already wearing the {0}.",
 			"reject_climb" : "Use \"up\" or \"down\".",
 			"reject_excess_light" : "It is too bright.",
 			"reject_go" : "Use a compass point.",
@@ -105,6 +108,7 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_no_out" : "I cannot tell in from out here.",
 			"reject_no_writing" : "There is no writing.",
 			"reject_not_portable" : "You cannot take that.",
+			"reject_not_wearable" : "You cannot wear the {0}.",
 			"reject_obstruction_known" : "You are blocked by {0}.",
 			"reject_obstruction_unknown" : "You are blocked by something here.",
 			"reject_too_full" : "That is too large to carry.",
@@ -164,7 +168,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("It is {0}. It is {1}.", ["a small lamp", "on"]), response)
 
 
-	def test_handle_drop(self):
+	def test_handle_drop_non_wearable(self):
 		self.player.inventory.insert(self.lamp)
 
 		response = self.handler.handle_drop(self.player, self.lamp)
@@ -172,6 +176,18 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("Dropped.", "lamp"), response)
 		self.assertFalse(self.player.is_carrying(self.lamp))
 		self.assertTrue(self.player.is_near_item(self.lamp))
+
+
+	def test_handle_drop_wearable(self):
+		self.player.inventory.insert(self.suit)
+		self.suit.being_worn = True
+
+		response = self.handler.handle_drop(self.player, self.suit)
+
+		self.assertEqual(("Dropped.", "suit"), response)
+		self.assertFalse(self.player.is_carrying(self.suit))
+		self.assertTrue(self.player.is_near_item(self.suit))
+		self.assertFalse(self.suit.being_worn)
 
 
 	def test_handle_explain_default(self):
@@ -697,6 +713,29 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertTrue(self.player.verbose)
 		self.assertEqual(("Verbose on.", ""), response)
+
+
+	def test_handle_wear_not_wearable(self):
+		response = self.handler.handle_wear(self.player, self.lamp)
+
+		self.assertEqual(("You cannot wear the {0}.", "lamp"), response)
+
+
+	def test_handle_wear_wearable_already_wearing(self):
+		self.suit.being_worn = True
+
+		response = self.handler.handle_wear(self.player, self.suit)
+
+		self.assertEqual(("You are already wearing the {0}.", "suit"), response)
+
+
+	def test_handle_wear_wearable_not_already_wearing(self):
+		self.player.location.insert(self.suit)
+		self.suit.being_worn = False
+
+		response = self.handler.handle_wear(self.player, self.suit)
+
+		self.assertEqual(("You are wearing the {0}.", "suit"), response)
 
 
 if __name__ == "__main__":

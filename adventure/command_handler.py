@@ -298,6 +298,24 @@ class CommandHandler:
 		return template, ""
 
 
+	def handle_wear(self, player, item):
+		template = ""
+		content = item.shortname
+
+		if not item.is_wearable():
+			template = self.get_response("reject_not_wearable")
+
+		elif item.being_worn:
+			template = self.get_response("reject_already_wearing")
+
+		else:
+			player.take_item(item)
+			item.being_worn = True
+			template = self.get_response("confirm_wearing")
+
+		return template, content
+
+
 	def interact_vision(self, player, arg, interaction):
 
 		if player.has_light_and_needs_no_light():

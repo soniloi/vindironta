@@ -18,7 +18,7 @@ class TestItem(unittest.TestCase):
 		self.lamp = SwitchableItem(1043, 0x100A, Labels("lamp", "a lamp", "a small lamp"), 2, None, lamp_switching_info)
 		self.button = SwitchableItem(1044, 0x8, Labels("button", "a button", "a red button"), 2, None, button_switching_info)
 		self.lever = SwitchableItem(1045, 0x8, Labels("lever", "a lever", "a mysterious lever"), 2, None, lever_switching_info)
-		self.suit = WearableItem(1046, 0x2, Labels("suit", "a suit", "a space-suit"), 2, None, Item.ATTRIBUTE_GIVES_AIR)
+		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, Item.ATTRIBUTE_GIVES_AIR)
 		self.mine_location = Location(11, 0x0, Labels("Mines", "in the mines", ". There are dark passages everywhere."))
 
 
