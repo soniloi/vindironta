@@ -12,6 +12,7 @@ class Item(DataElement):
 	ATTRIBUTE_OBSTRUCTION = 0x4
 	ATTRIBUTE_SWITCHABLE = 0x8
 	ATTRIBUTE_GIVES_LIGHT = 0x10
+	ATTRIBUTE_GIVES_AIR = 0x20
 	ATTRIBUTE_SILENT = 0x20000
 
 	def __init__(self, item_id, attributes, labels, size, writing):
@@ -19,7 +20,7 @@ class Item(DataElement):
 		self.size = size
 		self.writing = writing
 		self.container = None
-		self.obstruction = self.has_attribute(Item.ATTRIBUTE_OBSTRUCTION)
+		self.obstruction = bool(attributes & Item.ATTRIBUTE_OBSTRUCTION)
 
 
 	def is_switchable(self):
@@ -61,6 +62,10 @@ class Item(DataElement):
 
 	def gives_light(self):
 		return self.has_attribute(Item.ATTRIBUTE_GIVES_LIGHT)
+
+
+	def gives_air(self):
+		return self.has_attribute(Item.ATTRIBUTE_GIVES_AIR)
 
 
 	def is_silent(self):
@@ -162,3 +167,17 @@ class SwitchableItem(Item):
 
 	def switch_toggle(self):
 		self.switched_element.toggle_attribute(self.switched_attribute)
+
+
+class WearableItem(Item):
+
+	def __init__(self, item_id, attributes, labels, size, writing, attribute_activated):
+		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
+		self.attribute_activated = attribute_activated
+		self.being_worn = False
+
+
+	def has_attribute(self, attribute):
+		if self.being_worn:
+			return bool((self.attributes | self.attribute_activated) & attribute)
+		return Item.has_attribute(self, attribute)
