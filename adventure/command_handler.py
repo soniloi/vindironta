@@ -48,6 +48,11 @@ class CommandHandler:
 
 
 	def handle_drop(self, player, item):
+
+		if item.is_liquid():
+			player.lose_item(item)
+			return self.get_response("confirm_poured"), [item.shortname, item.container.shortname]
+
 		player.drop_item(item)
 		return self.get_response("confirm_dropped"), item.shortname
 
@@ -269,6 +274,9 @@ class CommandHandler:
 
 		if not item.is_portable():
 			template = self.get_response("reject_not_portable")
+
+		elif item.is_liquid():
+			template = self.get_response("reject_take_liquid")
 
 		elif not player.can_carry(item):
 			template = self.get_response("reject_too_full")

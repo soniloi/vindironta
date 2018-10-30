@@ -13,6 +13,7 @@ class Item(DataElement):
 	ATTRIBUTE_SWITCHABLE = 0x8
 	ATTRIBUTE_GIVES_LIGHT = 0x10
 	ATTRIBUTE_GIVES_AIR = 0x20
+	ATTRIBUTE_LIQUID = 0x100
 	ATTRIBUTE_WEARABLE= 0x400
 	ATTRIBUTE_SILENT = 0x20000
 
@@ -79,6 +80,10 @@ class Item(DataElement):
 
 	def gives_air(self):
 		return self.has_attribute(Item.ATTRIBUTE_GIVES_AIR)
+
+
+	def is_liquid(self):
+		return self.has_attribute(Item.ATTRIBUTE_LIQUID)
 
 
 	def is_silent(self):

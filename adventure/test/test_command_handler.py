@@ -57,6 +57,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.mobile_obstruction = Item(1003, 0x6, Labels("mobile_obstruction", "a mobile obstruction", "a mobile obstruction"), 5, None)
 		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None)
 		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, Item.ATTRIBUTE_GIVES_AIR)
+		self.bottle = ContainerItem(1108, 0x203, Labels("bottle", "a bottle", "a small bottle"), 2, None)
+		self.water = Item(1109, 0x102, Labels("water", "some water", "some water"), 1, None)
 
 
 	def setup_texts(self):
@@ -74,6 +76,7 @@ class TestCommandHandler(unittest.TestCase):
 			"confirm_dropped" : "Dropped.",
 			"confirm_look" : "You are {0}.",
 			"confirm_ok" : "OK.",
+			"confirm_poured" : "You pour the liquid away.",
 			"confirm_quit" : "OK.",
 			"confirm_taken" : "Taken.",
 			"confirm_immune_off" : "Immune off.",
@@ -111,6 +114,7 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_not_wearable" : "You cannot wear the {0}.",
 			"reject_obstruction_known" : "You are blocked by {0}.",
 			"reject_obstruction_unknown" : "You are blocked by something here.",
+			"reject_take_liquid" : "You cannot take a liquid.",
 			"reject_too_full" : "That is too large to carry.",
 		}
 
@@ -199,6 +203,17 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("Dropped.", "book"), response)
 		self.assertFalse(self.player.is_carrying(self.book))
 		self.assertTrue(self.player.is_near_item(self.book))
+
+
+	def test_handle_drop_liquid(self):
+		self.bottle.insert(self.water)
+		self.player.inventory.insert(self.bottle)
+
+		response = self.handler.handle_drop(self.player, self.water)
+
+		self.assertEqual(("You pour the liquid away.", ["water", "bottle"]), response)
+		self.assertFalse(self.player.is_carrying(self.water))
+		self.assertFalse(self.player.is_near_item(self.water))
 
 
 	def test_handle_explain_default(self):
@@ -682,6 +697,17 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("Taken.", "book"), response)
 		self.assertTrue(self.player.is_carrying(self.book))
 		self.assertFalse(self.player.is_near_item(self.book))
+
+
+	def test_handle_take_liquid(self):
+		self.bottle.insert(self.water)
+		self.player.location.insert(self.bottle)
+
+		response = self.handler.handle_take(self.player, self.water)
+
+		self.assertEqual(("You cannot take a liquid.", "water"), response)
+		self.assertFalse(self.player.is_carrying(self.water))
+		self.assertTrue(self.player.is_near_item(self.water))
 
 
 	def test_handle_toggle_non_switchable_item(self):
