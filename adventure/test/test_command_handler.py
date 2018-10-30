@@ -190,6 +190,17 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertFalse(self.suit.being_worn)
 
 
+	def test_handle_drop_from_inside_container(self):
+		self.basket.insert(self.book)
+		self.player.inventory.insert(self.basket)
+
+		response = self.handler.handle_drop(self.player, self.book)
+
+		self.assertEqual(("Dropped.", "book"), response)
+		self.assertFalse(self.player.is_carrying(self.book))
+		self.assertTrue(self.player.is_near_item(self.book))
+
+
 	def test_handle_explain_default(self):
 		response = self.handler.handle_explain(self.player, "dreams")
 

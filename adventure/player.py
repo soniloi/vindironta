@@ -59,7 +59,7 @@ class Player:
 
 
 	def drop_item(self, item):
-		self.inventory.remove(item)
+		item.container.remove(item)
 		self.location.insert(item)
 
 
