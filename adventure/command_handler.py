@@ -252,6 +252,12 @@ class CommandHandler:
 		return template, content
 
 
+	def handle_pour(self, player, item):
+		if not item.is_liquid():
+			return self.get_response("reject_not_liquid"), item.shortname
+		return self.handle_drop(player, item)
+
+
 	def handle_quit(self, player, arg):
 		player.decrement_instructions()
 		player.playing = False

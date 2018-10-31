@@ -113,6 +113,7 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_no_out" : "I cannot tell in from out here.",
 			"reject_no_writing" : "There is no writing.",
 			"reject_not_container" : "That is not a container.",
+			"reject_not_liquid" : "That is not a liquid.",
 			"reject_not_portable" : "You cannot take that.",
 			"reject_not_wearable" : "You cannot wear the {0}.",
 			"reject_obstruction_known" : "You are blocked by {0}.",
@@ -645,6 +646,25 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertEqual(("It is too dark.", ""), response)
 		self.assertIs(self.mine_location, self.player.location)
+
+
+	def test_pour_non_liquid(self):
+		self.player.inventory.insert(self.book)
+
+		response = self.handler.handle_pour(self.player, self.book)
+
+		self.assertEqual(("That is not a liquid.", "book"), response)
+
+
+	def test_handle_pour_liquid(self):
+		self.bottle.insert(self.water)
+		self.player.inventory.insert(self.bottle)
+
+		response = self.handler.handle_pour(self.player, self.water)
+
+		self.assertEqual(("You pour the liquid away.", ["water", "bottle"]), response)
+		self.assertFalse(self.bottle.contains(self.water))
+		self.assertFalse(self.player.is_near_item(self.water))
 
 
 	def test_handle_quit(self):
