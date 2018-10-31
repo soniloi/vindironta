@@ -1,6 +1,7 @@
 import unittest
 
 from adventure.data_element import Labels
+from adventure.inventory import Inventory
 from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo, WearableItem
 from adventure.location import Location
 
@@ -20,6 +21,7 @@ class TestItem(unittest.TestCase):
 		self.lever = SwitchableItem(1045, 0x8, Labels("lever", "a lever", "a mysterious lever"), 2, None, lever_switching_info)
 		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, Item.ATTRIBUTE_GIVES_AIR)
 		self.mine_location = Location(11, 0x0, Labels("Mines", "in the mines", ". There are dark passages everywhere."))
+		self.inventory = Inventory(100)
 
 
 	def test_get_list_name_simple(self):
@@ -76,6 +78,26 @@ class TestItem(unittest.TestCase):
 		self.assertTrue(self.basket.contains(self.box))
 		self.assertTrue(self.box.contains(self.book))
 		self.assertTrue(self.basket.contains(self.book))
+
+
+	def test_get_outermost_container_location(self):
+		self.mine_location.insert(self.book)
+
+		self.assertEqual(self.mine_location, self.book.get_outermost_container())
+
+
+	def test_get_outermost_container_inventory(self):
+		self.inventory.insert(self.book)
+
+		self.assertEqual(self.inventory, self.book.get_outermost_container())
+
+
+	def test_get_outermost_container_multi(self):
+		self.mine_location.insert(self.basket)
+		self.basket.insert(self.box)
+		self.box.insert(self.book)
+
+		self.assertEqual(self.mine_location, self.book.get_outermost_container())
 
 
 	def test_switch_on_self(self):

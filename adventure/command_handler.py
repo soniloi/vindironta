@@ -57,6 +57,25 @@ class CommandHandler:
 		return self.get_response("confirm_dropped"), item.shortname
 
 
+	def handle_empty(self, player, item):
+		if not item.is_container():
+			return self.get_response("reject_not_container"), item.shortname
+
+		container = item
+		if not container.has_items():
+			return self.get_response("reject_already_empty"), container.shortname
+
+		contained_item = container.get_contained_item()
+		container.remove(contained_item)
+
+		if container.is_liquid_container():
+			return self.get_response("confirm_poured"), [contained_item.shortname, container.shortname]
+
+		outermost_container = container.get_outermost_container()
+		outermost_container.insert(contained_item)
+		return self.get_response("confirm_emptied"), [contained_item.shortname, container.shortname]
+
+
 	def handle_explain(self, player, arg):
 		template = self.data.get_explanation(arg)
 

@@ -14,6 +14,7 @@ class Item(DataElement):
 	ATTRIBUTE_GIVES_LIGHT = 0x10
 	ATTRIBUTE_GIVES_AIR = 0x20
 	ATTRIBUTE_LIQUID = 0x100
+	ATTRIBUTE_LIQUID_CONTAINER = 0x200
 	ATTRIBUTE_WEARABLE= 0x400
 	ATTRIBUTE_SILENT = 0x20000
 
@@ -58,6 +59,10 @@ class Item(DataElement):
 		return False
 
 
+	def is_container(self):
+		return self.has_attribute(Item.ATTRIBUTE_CONTAINER)
+
+
 	def is_portable(self):
 		return self.is_mobile() and not self.obstruction
 
@@ -86,8 +91,19 @@ class Item(DataElement):
 		return self.has_attribute(Item.ATTRIBUTE_LIQUID)
 
 
+	def is_liquid_container(self):
+		return self.has_attribute(Item.ATTRIBUTE_LIQUID_CONTAINER)
+
+
 	def is_silent(self):
 		return self.has_attribute(Item.ATTRIBUTE_SILENT)
+
+
+	def get_outermost_container(self):
+		container = self.container
+		while isinstance(container, Item):
+			container = container.container
+		return container
 
 
 class ContainerItem(Item, ItemContainer):
@@ -119,13 +135,17 @@ class ContainerItem(Item, ItemContainer):
 
 		if self.has_items():
 
-			inner_item = next(iter(self.items.values()))
+			inner_item = self.get_contained_item()
 			if item == inner_item:
 				return True
 
 			return inner_item.contains(item)
 
 		return False
+
+
+	def get_contained_item(self):
+		return next(iter(self.items.values()))
 
 
 SwitchInfo = namedtuple("SwitchInfo", "attribute off on")

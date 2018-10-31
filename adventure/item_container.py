@@ -31,3 +31,7 @@ class ItemContainer:
 
 	def gives_light(self):
 		return any(item.gives_light() for item in self.items.values())
+
+
+	def get_outermost_container(self):
+		return self
