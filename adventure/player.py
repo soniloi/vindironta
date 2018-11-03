@@ -4,12 +4,12 @@ class Player:
 
 	INVENTORY_CAPACITY = 16
 
-	def __init__(self, location):
-		self.location = location
+	def __init__(self, initial_location, initial_inventory):
+		self.location = initial_location
 		self.previous_location = None
 		self.playing = True
 		self.score = 0
-		self.inventory = Inventory(Player.INVENTORY_CAPACITY)
+		self.inventory = initial_inventory
 		self.current_command = None
 		self.verbose = False
 		self.instructions = 0

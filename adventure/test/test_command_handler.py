@@ -5,6 +5,7 @@ from adventure.command import Command
 from adventure.command_handler import CommandHandler
 from adventure.data_element import Labels
 from adventure.direction import Direction
+from adventure.inventory import Inventory
 from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo, SwitchTransition, WearableItem
 from adventure.location import Location
 from adventure.player import Player
@@ -13,6 +14,7 @@ class TestCommandHandler(unittest.TestCase):
 
 	def setUp(self):
 		self.setup_data()
+		self.setup_inventories()
 		self.setup_locations()
 		self.setup_items()
 		self.setup_texts()
@@ -29,6 +31,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.data.get_hint.side_effect = self.hints_side_effect
 		self.data.get_explanation.side_effect = self.explanations_side_effect
 		self.data.get_response.side_effect = self.responses_side_effect
+
+
+	def setup_inventories(self):
+		self.default_inventory = Inventory(13)
 
 
 	def setup_locations(self):
@@ -124,7 +130,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def setup_player(self):
-		self.player = Player(self.lighthouse_location)
+		self.player = Player(self.lighthouse_location, self.default_inventory)
 		self.player.instructions = 7
 
 

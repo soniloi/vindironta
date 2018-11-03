@@ -1,5 +1,6 @@
 from adventure.command_collection import CommandCollection
 from adventure.input_collection import InputCollection
+from adventure.inventory_collection import InventoryCollection
 from adventure.item_collection import ItemCollection
 from adventure.location_collection import LocationCollection
 from adventure.text_collection import TextCollection
@@ -8,6 +9,7 @@ class DataCollection:
 
 	def __init__(self, reader, resolvers):
 		self.commands = CommandCollection(reader, resolvers)
+		self.inventories = InventoryCollection(reader)
 		self.locations = LocationCollection(reader)
 		self.items = ItemCollection(reader, self.locations.locations.copy())
 		self.hints = TextCollection(reader)
@@ -20,6 +22,10 @@ class DataCollection:
 
 	def list_commands(self):
 		return self.commands.list_commands()
+
+
+	def get_inventory(self, inventory_id):
+		return self.inventories.get(inventory_id)
 
 
 	def get_location(self, location_id):

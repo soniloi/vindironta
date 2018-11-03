@@ -110,7 +110,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def test_resolve_args_without_arg(self):
 		command = Command(1, 0x209, None, self.handler_function, None, "take", [], None, None)
-		player = Player(0)
+		player = Player(0, 0)
 
 		response = self.resolver.resolve_args(command, player, [])
 

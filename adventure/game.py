@@ -9,7 +9,8 @@ from adventure.vision_resolver import VisionResolver
 class Game:
 
 	# TODO: decide where this should go
-	PLAYER_START_LOCATION_ID = 9
+	PLAYER_INITIAL_LOCATION_ID = 9
+	PLAYER_DEFAULT_INVENTORY_ID = 0
 
 	def __init__(self, filename=None):
 		self.on = True
@@ -38,7 +39,9 @@ class Game:
 
 
 	def init_player(self):
-		self.player = Player(self.data.get_location(Game.PLAYER_START_LOCATION_ID))
+		initial_location = self.data.get_location(Game.PLAYER_INITIAL_LOCATION_ID)
+		initial_inventory = self.data.get_inventory(Game.PLAYER_DEFAULT_INVENTORY_ID)
+		self.player = Player(initial_location, initial_inventory)
 
 
 	def process_input(self, line):
@@ -110,5 +113,5 @@ class Game:
 
 	def process_reincarnation(self):
 		self.player.alive = True
-		self.player.location = self.data.get_location(Game.PLAYER_START_LOCATION_ID)
+		self.player.location = self.data.get_location(Game.PLAYER_INITIAL_LOCATION_ID)
 		self.player.previous_location = None

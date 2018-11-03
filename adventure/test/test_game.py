@@ -4,6 +4,7 @@ from unittest.mock import Mock
 from adventure.data_collection import DataCollection
 from adventure.data_element import Labels
 from adventure.game import Game
+from adventure.inventory import Inventory
 from adventure.location import Location
 
 class TestGame(unittest.TestCase):
@@ -17,9 +18,15 @@ class TestGame(unittest.TestCase):
 
 	def setup_data(self):
 		data = Mock()
+		data.get_inventory.side_effect = self.inventory_side_effect
 		data.get_location.side_effect = self.location_side_effect
 		data.get_response.side_effect = self.response_side_effect
 		data.matches_input.side_effect = self.matches_input_side_effect
+
+		self.default_inventory = Inventory(13)
+		self.inventory_map = {
+			0 : self.default_inventory,
+		}
 
 		self.initial_location = Location(9, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
 		self.beach_location = Location(13, 0x1, Labels("Beach", "on a beach", " of black sand"))
@@ -85,11 +92,14 @@ class TestGame(unittest.TestCase):
 		return None
 
 
+	def inventory_side_effect(self, *args):
+		inventory_id = int(args[0])
+		return self.inventory_map.get(inventory_id, None)
+
+
 	def location_side_effect(self, *args):
 		location_id = int(args[0])
-		if location_id in self.location_map:
-			return self.location_map[location_id]
-		return None
+		return self.location_map.get(location_id, None)
 
 
 	def response_side_effect(self, *args):
