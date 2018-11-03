@@ -1,4 +1,6 @@
-class Command:
+from adventure.data_element import DataElement
+
+class Command(DataElement):
 
 	ATTRIBUTE_ARG_ITEM_INVENTORY = 0x02
 	ATTRIBUTE_ARG_ITEM_LOCATION = 0x04
@@ -13,8 +15,7 @@ class Command:
 
 	def __init__(self, command_id, attributes, arg_function, handler_function, vision_function, primary, aliases,
 			off_switch, on_switch):
-		self.command_id = command_id
-		self.attributes = attributes
+		DataElement.__init__(self, data_id=command_id, attributes=attributes)
 		self.arg_function = arg_function
 		self.handler_function = handler_function
 		self.vision_function = vision_function
@@ -26,10 +27,6 @@ class Command:
 			self.transitions[off_switch] = False
 		if on_switch:
 			self.transitions[on_switch] = True
-
-
-	def has_attribute(self, attribute):
-		return self.attributes & attribute != 0
 
 
 	def is_secret(self):

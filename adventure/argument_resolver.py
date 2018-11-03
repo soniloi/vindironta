@@ -16,7 +16,7 @@ class ArgumentResolver:
 	def resolve_movement(self, command, player, args):
 		if args:
 			return self.data.get_response("request_argless"), self.get_first_arg(args)
-		return self.execute(command, player, [command.command_id])
+		return self.execute(command, player, [command.data_id])
 
 
 	def resolve_switchable(self, command, player, args):

@@ -16,7 +16,7 @@ class TestCommand(unittest.TestCase):
 
 
 	def arg_function_movement(self, command, player, arg):
-		arg = command.command_id
+		arg = command.data_id
 		return command.handler_function(player, arg)
 
 
