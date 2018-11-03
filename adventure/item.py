@@ -1,11 +1,11 @@
 from enum import Enum
 
-from adventure.data_element import DataElement
+from adventure.data_element import NamedDataElement
 from adventure.item_container import ItemContainer
 
 from collections import namedtuple
 
-class Item(DataElement):
+class Item(NamedDataElement):
 
 	ATTRIBUTE_CONTAINER = 0x1
 	ATTRIBUTE_MOBILE = 0x2
@@ -19,7 +19,7 @@ class Item(DataElement):
 	ATTRIBUTE_SILENT = 0x20000
 
 	def __init__(self, item_id, attributes, labels, size, writing):
-		super().__init__(data_id=item_id, attributes=attributes, labels=labels)
+		NamedDataElement.__init__(self, data_id=item_id, attributes=attributes, labels=labels)
 		self.size = size
 		self.writing = writing
 		self.container = None

@@ -1,13 +1,13 @@
-from adventure.data_element import DataElement
+from adventure.data_element import NamedDataElement
 from adventure.item_container import ItemContainer
 
-class Location(DataElement, ItemContainer):
+class Location(NamedDataElement, ItemContainer):
 
 	ATTRIBUTE_GIVES_LIGHT = 0x1
 	ATTRIBUTE_NEEDS_NO_LIGHT = 0x10
 
 	def __init__(self, location_id, attributes, labels):
-		DataElement.__init__(self, data_id=location_id, attributes=attributes, labels=labels)
+		NamedDataElement.__init__(self, data_id=location_id, attributes=attributes, labels=labels)
 		ItemContainer.__init__(self)
 		self.directions = {}
 		self.seen = False
