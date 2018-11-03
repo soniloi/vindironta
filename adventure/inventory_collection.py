@@ -16,9 +16,10 @@ class InventoryCollection:
 		tokens = line.split("\t")
 
 		inventory_id = int(tokens[0])
-		capacity = int(tokens[1])
+		attributes = int(tokens[1], 16)
+		capacity = int(tokens[2])
 
-		inventory = Inventory(capacity)
+		inventory = Inventory(inventory_id=inventory_id, attributes=attributes, capacity=capacity)
 		self.inventories[inventory_id] = inventory
 
 

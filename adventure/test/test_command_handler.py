@@ -34,7 +34,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def setup_inventories(self):
-		self.default_inventory = Inventory(13)
+		self.default_inventory = Inventory(0, 0x1, 13)
 
 
 	def setup_locations(self):

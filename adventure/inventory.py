@@ -2,8 +2,12 @@ from adventure.item_container import ItemContainer
 
 class Inventory(ItemContainer):
 
-	def __init__(self, capacity):
+	ATTRIBUTE_DEFAULT = 0x1
+
+	def __init__(self, inventory_id, attributes, capacity):
 		ItemContainer.__init__(self)
+		self.inventory_id = inventory_id
+		self.attributes = attributes
 		self.capacity = capacity
 
 

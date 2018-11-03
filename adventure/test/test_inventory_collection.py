@@ -12,7 +12,7 @@ class TestInventoryCollection(unittest.TestCase):
 	def test_init(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"0\t13\t1",
+			"0\t0x1\t13",
 			"---",
 		]
 

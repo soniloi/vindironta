@@ -23,7 +23,7 @@ class TestGame(unittest.TestCase):
 		data.get_response.side_effect = self.response_side_effect
 		data.matches_input.side_effect = self.matches_input_side_effect
 
-		self.default_inventory = Inventory(13)
+		self.default_inventory = Inventory(0, 0x1, 13)
 		self.inventory_map = {
 			0 : self.default_inventory,
 		}
