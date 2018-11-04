@@ -3,6 +3,13 @@ from adventure.file_reader import FileReader
 
 class CommandCollection:
 
+	INDEX_ID = 0
+	INDEX_ATTRIBUTES = 1
+	INDEX_HANDLER = 3
+	INDEX_NAMES = 4
+	INDEX_SWITCHES = 5
+
+
 	def __init__(self, reader, resolvers):
 		self.vision_resolver = resolvers.vision_resolver
 		self.argument_resolver = resolvers.argument_resolver
@@ -19,18 +26,18 @@ class CommandCollection:
 	def parse_command(self, line):
 		tokens = line.split("\t")
 
-		command_id = self.parse_command_id(tokens[0])
-		command_attributes = self.parse_command_attributes(tokens[1])
-		arg_function = self.get_arg_function(command_attributes)
-		handler_function = self.parse_handler_function(tokens[2])
-		vision_function = self.get_vision_function(command_attributes)
-		off_switch, on_switch = self.get_switches(tokens, command_attributes)
+		command_id = self.parse_command_id(tokens[CommandCollection.INDEX_ID])
+		attributes = self.parse_attributes(tokens[CommandCollection.INDEX_ATTRIBUTES])
+		arg_function = self.get_arg_function(attributes)
+		handler_function = self.parse_handler_function(tokens[CommandCollection.INDEX_HANDLER])
+		vision_function = self.get_vision_function(attributes)
+		off_switch, on_switch = self.get_switches(tokens[CommandCollection.INDEX_SWITCHES], attributes)
 
 		if handler_function and arg_function:
-			(primary_command_name, command_names) = self.parse_command_names(tokens[3])
+			(primary_command_name, command_names) = self.parse_command_names(tokens[CommandCollection.INDEX_NAMES])
 			command = Command(
 				command_id=command_id,
-				attributes=command_attributes,
+				attributes=attributes,
 				arg_function=arg_function,
 				handler_function=handler_function,
 				vision_function=vision_function,
@@ -47,7 +54,7 @@ class CommandCollection:
 		return int(token)
 
 
-	def parse_command_attributes(self, token):
+	def parse_attributes(self, token):
 		return int(token, 16)
 
 
@@ -71,8 +78,8 @@ class CommandCollection:
 
 	def get_vision_function(self, attributes):
 		vision_function_name = "resolve_"
-		if attributes & Command.ATTRIBUTE_REQUIRES_VISION != 0:
-			if attributes & Command.ATTRIBUTE_TAKES_ARG != 0:
+		if bool(attributes & Command.ATTRIBUTE_REQUIRES_VISION):
+			if bool(attributes & Command.ATTRIBUTE_TAKES_ARG):
 				vision_function_name += "dark"
 			else:
 				vision_function_name += "light_and_dark"
@@ -86,10 +93,10 @@ class CommandCollection:
 		return (command_names[0], command_names)
 
 
-	def get_switches(self, tokens, attributes):
-		if attributes & Command.ATTRIBUTE_SWITCHABLE == 0:
+	def get_switches(self, token, attributes):
+		if not bool(attributes & Command.ATTRIBUTE_SWITCHABLE):
 			return None, None
-		return tokens[4], tokens[5]
+		return token.split(",")
 
 
 	def get(self, name):
