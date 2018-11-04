@@ -2,6 +2,7 @@ from adventure.argument_resolver import ArgumentResolver
 from adventure.command_handler import CommandHandler
 from adventure.data_collection import DataCollection
 from adventure.file_reader import FileReader
+from adventure.inventory import Inventory
 from adventure.player import Player
 from adventure.resolvers import Resolvers
 from adventure.vision_resolver import VisionResolver
@@ -40,7 +41,12 @@ class Game:
 
 	def init_player(self):
 		initial_location = self.data.get_location(Game.PLAYER_INITIAL_LOCATION_ID)
-		initial_inventory = self.data.get_inventory(Game.PLAYER_DEFAULT_INVENTORY_ID)
+		initial_inventory_template = self.data.get_inventory_template(Game.PLAYER_DEFAULT_INVENTORY_ID)
+		initial_inventory = Inventory(
+			initial_inventory_template.data_id,
+			initial_inventory_template.attributes,
+			initial_inventory_template.capacity,
+		)
 		self.player = Player(initial_location, initial_inventory)
 
 

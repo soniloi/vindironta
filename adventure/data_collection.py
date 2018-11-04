@@ -24,7 +24,7 @@ class DataCollection:
 		return self.commands.list_commands()
 
 
-	def get_inventory(self, inventory_id):
+	def get_inventory_template(self, inventory_id):
 		return self.inventories.get(inventory_id)
 
 

@@ -18,14 +18,14 @@ class TestGame(unittest.TestCase):
 
 	def setup_data(self):
 		data = Mock()
-		data.get_inventory.side_effect = self.inventory_side_effect
+		data.get_inventory_template.side_effect = self.inventory_side_effect
 		data.get_location.side_effect = self.location_side_effect
 		data.get_response.side_effect = self.response_side_effect
 		data.matches_input.side_effect = self.matches_input_side_effect
 
-		self.default_inventory = Inventory(0, 0x1, 13)
+		self.default_inventory_template = Inventory(0, 0x1, 13)
 		self.inventory_map = {
-			0 : self.default_inventory,
+			0 : self.default_inventory_template,
 		}
 
 		self.initial_location = Location(9, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
@@ -118,8 +118,14 @@ class TestGame(unittest.TestCase):
 
 	def test_init_player(self):
 		self.assertEqual(self.initial_location, self.game.player.location)
-		# TODO: fix this assertion
-		self.assertEqual(0, len(self.game.player.inventory.items))
+
+		# TODO: fix
+		inventory = self.game.player.inventory
+		self.assertIsNot(self.default_inventory_template, inventory)
+		self.assertEqual(self.default_inventory_template.data_id, inventory.data_id)
+		self.assertEqual(self.default_inventory_template.attributes, inventory.attributes)
+		self.assertEqual(self.default_inventory_template.capacity, inventory.capacity)
+		self.assertEqual(0, len(inventory.items))
 
 
 	def test_process_input_empty(self):
