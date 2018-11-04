@@ -601,7 +601,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_locate(self.player, self.book)
 
-		self.assertEqual(("The {0} is at {1} ({2}).", ["book", -1, "inventory"]), response)
+		self.assertEqual(("The {0} is at {1} ({2}).", ["book", 0, "inventory"]), response)
 
 
 	def test_handle_look_no_items(self):

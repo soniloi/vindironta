@@ -1,4 +1,5 @@
 from adventure.direction import Direction
+from adventure.inventory import Inventory
 from adventure.item import SwitchTransition
 
 class CommandHandler:
@@ -211,11 +212,11 @@ class CommandHandler:
 	def handle_locate(self, player, item):
 		template = self.get_response("describe_locate")
 		container = item.container
-		if container == player.get_inventory():
-			# TODO: fix this
-			contents = [item.shortname, -1, "inventory"]
-		else:
-			contents = [item.shortname, container.data_id, container.longname]
+		# TODO: fix
+		longname = "inventory"
+		if not isinstance(container, Inventory):
+			longname = container.longname
+		contents = [item.shortname, container.data_id, longname]
 		return template, contents
 
 
