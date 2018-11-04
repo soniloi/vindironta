@@ -129,7 +129,7 @@ class TestGame(unittest.TestCase):
 		self.assertEqual(self.initial_location, self.game.player.location)
 
 		# TODO: fix
-		default_inventory = self.game.player.inventory
+		default_inventory = self.game.player.default_inventory
 		self.assertIsNot(self.default_inventory_template, default_inventory)
 		self.assertEqual(self.default_inventory_template.data_id, default_inventory.data_id)
 		self.assertEqual(self.default_inventory_template.attributes, default_inventory.attributes)

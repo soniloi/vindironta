@@ -6,7 +6,7 @@ class Player:
 
 	def __init__(self, initial_location, default_inventory, inventories_by_location={}):
 		self.location = initial_location
-		self.inventory = default_inventory
+		self.default_inventory = default_inventory
 		self.inventories_by_location = inventories_by_location
 		self.previous_location = None
 		self.playing = True
@@ -30,8 +30,13 @@ class Player:
 		self.location.seen = True
 
 
+	def get_inventory(self):
+		location_id = self.location.data_id
+		return self.inventories_by_location.get(location_id, self.default_inventory)
+
+
 	def holding_items(self):
-		return self.inventory.has_items()
+		return self.get_inventory().has_items()
 
 
 	def has_non_silent_items_nearby(self):
@@ -39,7 +44,7 @@ class Player:
 
 
 	def is_carrying(self, item):
-		return self.inventory.contains(item)
+		return self.get_inventory().contains(item)
 
 
 	def is_near_item(self, item):
@@ -51,12 +56,12 @@ class Player:
 
 
 	def can_carry(self, item):
-		return self.inventory.can_accommodate(item)
+		return self.get_inventory().can_accommodate(item)
 
 
 	def take_item(self, item):
 		item.container.remove(item)
-		self.inventory.insert(item)
+		self.get_inventory().insert(item)
 
 
 	def drop_item(self, item):
@@ -69,11 +74,11 @@ class Player:
 
 
 	def drop_all_items(self):
-		self.inventory.drop_all_items(self.location)
+		self.get_inventory().drop_all_items(self.location)
 
 
 	def describe_inventory(self):
-		return self.inventory.get_contents_description()
+		return self.get_inventory().get_contents_description()
 
 
 	def increment_instructions(self):
@@ -93,8 +98,8 @@ class Player:
 
 
 	def has_light_and_needs_no_light(self):
-		return self.location.needs_no_light() and self.inventory.gives_light()
+		return self.location.needs_no_light() and self.get_inventory().gives_light()
 
 
 	def has_light(self):
-		return self.location.gives_light() or self.inventory.gives_light()
+		return self.location.gives_light() or self.get_inventory().gives_light()

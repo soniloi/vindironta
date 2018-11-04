@@ -211,7 +211,7 @@ class CommandHandler:
 	def handle_locate(self, player, item):
 		template = self.get_response("describe_locate")
 		container = item.container
-		if container == player.inventory:
+		if container == player.get_inventory():
 			# TODO: fix this
 			contents = [item.shortname, -1, "inventory"]
 		else:
