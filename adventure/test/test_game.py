@@ -17,16 +17,16 @@ class TestGame(unittest.TestCase):
 
 
 	def setup_data(self):
+
+		self.setup_inventories()
+
 		data = Mock()
 		data.get_inventory_template.side_effect = self.inventory_side_effect
+		data.get_inventory_templates.return_value = self.inventory_map.values()
 		data.get_location.side_effect = self.location_side_effect
 		data.get_response.side_effect = self.response_side_effect
 		data.matches_input.side_effect = self.matches_input_side_effect
 
-		self.default_inventory_template = Inventory(0, 0x1, 13)
-		self.inventory_map = {
-			0 : self.default_inventory_template,
-		}
 
 		self.initial_location = Location(9, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
 		self.beach_location = Location(13, 0x1, Labels("Beach", "on a beach", " of black sand"))
@@ -36,6 +36,15 @@ class TestGame(unittest.TestCase):
 		}
 
 		return data
+
+
+	def setup_inventories(self):
+		self.default_inventory_template = Inventory(0, 0x1, 13)
+		self.non_default_inventory_template = Inventory(1, 0x0, 8, [37, 38, 39])
+		self.inventory_map = {
+			0 : self.default_inventory_template,
+			1 : self.non_default_inventory_template,
+		}
 
 
 	def setup_commands(self):
@@ -120,12 +129,23 @@ class TestGame(unittest.TestCase):
 		self.assertEqual(self.initial_location, self.game.player.location)
 
 		# TODO: fix
-		inventory = self.game.player.inventory
-		self.assertIsNot(self.default_inventory_template, inventory)
-		self.assertEqual(self.default_inventory_template.data_id, inventory.data_id)
-		self.assertEqual(self.default_inventory_template.attributes, inventory.attributes)
-		self.assertEqual(self.default_inventory_template.capacity, inventory.capacity)
-		self.assertEqual(0, len(inventory.items))
+		default_inventory = self.game.player.inventory
+		self.assertIsNot(self.default_inventory_template, default_inventory)
+		self.assertEqual(self.default_inventory_template.data_id, default_inventory.data_id)
+		self.assertEqual(self.default_inventory_template.attributes, default_inventory.attributes)
+		self.assertEqual(self.default_inventory_template.capacity, default_inventory.capacity)
+		self.assertEqual(0, len(default_inventory.items))
+
+		non_default_inventories = self.game.player.inventories_by_location
+		self.assertEqual(3, len(non_default_inventories))
+		self.assertTrue(37 in non_default_inventories)
+		self.assertTrue(38 in non_default_inventories)
+		self.assertTrue(39 in non_default_inventories)
+		non_default_inventory_37 = non_default_inventories[37]
+		self.assertIsNot(self.non_default_inventory_template, non_default_inventory_37)
+		self.assertIs(non_default_inventory_37, non_default_inventories[38])
+		self.assertIs(non_default_inventory_37, non_default_inventories[39])
+		self.assertEqual(self.non_default_inventory_template.capacity, non_default_inventory_37.capacity)
 
 
 	def test_process_input_empty(self):

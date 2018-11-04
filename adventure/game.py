@@ -41,13 +41,31 @@ class Game:
 
 	def init_player(self):
 		initial_location = self.data.get_location(Game.PLAYER_INITIAL_LOCATION_ID)
-		initial_inventory_template = self.data.get_inventory_template(Game.PLAYER_DEFAULT_INVENTORY_ID)
-		initial_inventory = Inventory(
-			initial_inventory_template.data_id,
-			initial_inventory_template.attributes,
-			initial_inventory_template.capacity,
+		default_inventory_template = self.data.get_inventory_template(Game.PLAYER_DEFAULT_INVENTORY_ID)
+		default_inventory = self.copy_template_inventory(default_inventory_template)
+
+		inventories_by_location = {}
+		inventory_templates = self.data.get_inventory_templates()
+		for inventory_template in inventory_templates:
+			self.create_non_default_inventory(inventories_by_location, inventory_template)
+
+		self.player = Player(initial_location, default_inventory, inventories_by_location)
+
+
+	def copy_template_inventory(self, inventory_template):
+		return Inventory(
+			inventory_template.data_id,
+			inventory_template.attributes,
+			inventory_template.capacity,
+			inventory_template.location_ids,
 		)
-		self.player = Player(initial_location, initial_inventory)
+
+
+	def create_non_default_inventory(self, inventories_by_location, inventory_template):
+		if not inventory_template.is_default():
+			non_default_inventory = self.copy_template_inventory(inventory_template)
+			for location_id in inventory_template.location_ids:
+				inventories_by_location[location_id] = non_default_inventory
 
 
 	def process_input(self, line):

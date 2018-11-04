@@ -5,10 +5,15 @@ class Inventory(DataElement, ItemContainer):
 
 	ATTRIBUTE_DEFAULT = 0x1
 
-	def __init__(self, inventory_id, attributes, capacity):
+	def __init__(self, inventory_id, attributes, capacity, location_ids=[]):
 		DataElement.__init__(self, data_id=inventory_id, attributes=attributes)
 		ItemContainer.__init__(self)
 		self.capacity = capacity
+		self.location_ids = location_ids
+
+
+	def is_default(self):
+		return self.has_attribute(Inventory.ATTRIBUTE_DEFAULT)
 
 
 	def get_contents_description(self):

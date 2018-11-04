@@ -28,6 +28,10 @@ class DataCollection:
 		return self.inventories.get(inventory_id)
 
 
+	def get_inventory_templates(self):
+		return self.inventories.get_all()
+
+
 	def get_location(self, location_id):
 		return self.locations.get(location_id)
 
