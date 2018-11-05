@@ -43,7 +43,7 @@ class ArgumentResolver:
 
 	def resolve_args_for_item(self, command, player, args):
 
-		if not command.takes_item_arg():
+		if not command.takes_item_arg(0):
 			return self.execute(command, player, args)
 
 		item = self.data.get_item(self.get_first_arg(args))
@@ -55,16 +55,16 @@ class ArgumentResolver:
 
 	def resolve_item_source(self, command, player, item, other_args):
 
-		if command.takes_item_arg_from_inventory_only() and not player.is_carrying(item):
+		if command.takes_item_arg_from_inventory_only(0) and not player.is_carrying(item):
 			return self.data.get_response("reject_not_holding"), item.shortname
 
-		if command.takes_item_arg_from_location_only():
+		if command.takes_item_arg_from_location_only(0):
 			if player.is_carrying(item):
 				return self.data.get_response("reject_carrying"), item.shortname
 			if not player.is_near_item(item):
 				return self.data.get_response("reject_not_here"), item.shortname
 
-		if command.takes_item_arg_from_inventory_or_location() and not player.has_or_is_near_item(item):
+		if command.takes_item_arg_from_inventory_or_location(0) and not player.has_or_is_near_item(item):
 			return self.data.get_response("reject_not_here"), item.shortname
 
 		return self.resolve_item_switch(command, player, item, other_args)

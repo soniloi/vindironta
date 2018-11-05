@@ -188,7 +188,7 @@ class CommandHandler:
 
 
 	def handle_ignore(self, player, arg):
-		pass
+		return "", ""
 
 
 	def handle_immune(self, player, arg):
@@ -201,6 +201,10 @@ class CommandHandler:
 			template = self.get_response("confirm_immune_off")
 
 		return template, ""
+
+
+	def handle_insert(self, player, item):
+		return "", ""
 
 
 	def handle_inventory(self, player, arg):

@@ -29,7 +29,7 @@ class CommandCollection:
 
 		command_id = self.parse_command_id(tokens[CommandCollection.INDEX_ID])
 		attributes = self.parse_attributes(tokens[CommandCollection.INDEX_ATTRIBUTES])
-		arg_info = self.parse_arg_info(tokens[CommandCollection.INDEX_ARG_INFO])
+		arg_infos = self.parse_arg_infos(tokens[CommandCollection.INDEX_ARG_INFO])
 		arg_function = self.get_arg_function(attributes)
 		handler_function = self.parse_handler_function(tokens[CommandCollection.INDEX_HANDLER])
 		vision_function = self.get_vision_function(attributes)
@@ -40,7 +40,7 @@ class CommandCollection:
 			command = Command(
 				command_id=command_id,
 				attributes=attributes,
-				arg_info=arg_info,
+				arg_infos=arg_infos,
 				arg_function=arg_function,
 				handler_function=handler_function,
 				vision_function=vision_function,
@@ -61,12 +61,12 @@ class CommandCollection:
 		return int(token, 16)
 
 
-	def parse_arg_info(self, token):
-		arg_attributes = 0
-		# TODO: fix
-		if token:
-			arg_attributes = int(token, 16)
-		return ArgInfo(arg_attributes)
+	def parse_arg_infos(self, token):
+		if not token:
+			return []
+		arg_info_tokens = token.split(",")
+		arg_info_attributes_values = [int(arg_info_token, 16) for arg_info_token in arg_info_tokens]
+		return [ArgInfo(arg_info_attributes_value) for arg_info_attributes_value in arg_info_attributes_values]
 
 
 	def get_arg_function(self, attributes):

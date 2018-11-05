@@ -133,6 +133,21 @@ class TestCommandCollection(unittest.TestCase):
 		self.assertEqual(self.argument_resolver.resolve_args, take_command.arg_function)
 
 
+	def test_init_multiple_arg_command(self):
+		reader_mock = Mock()
+		reader_mock.read_line.side_effect = [
+			"57\t0C\tB,F\tinsert\tinsert\t",
+			"---\t\t\t",
+		]
+
+		collection = CommandCollection(reader_mock, self.resolvers)
+
+		self.assertTrue("insert" in collection.commands)
+		insert_command = collection.commands["insert"]
+		self.assertEqual(self.argument_resolver.resolve_args, insert_command.arg_function)
+		self.assertEqual(2, len(insert_command.arg_infos))
+
+
 	def test_init_resolve_vision_light_and_dark(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [

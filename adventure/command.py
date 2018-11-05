@@ -10,10 +10,10 @@ class Command(DataElement):
 	ATTRIBUTE_REQUIRES_VISION = 0x400
 	ATTRIBUTE_SWITCHING = 0x800
 
-	def __init__(self, command_id, attributes, arg_info, arg_function, handler_function, vision_function, primary,
+	def __init__(self, command_id, attributes, arg_infos, arg_function, handler_function, vision_function, primary,
 			aliases, off_switch, on_switch):
 		DataElement.__init__(self, data_id=command_id, attributes=attributes)
-		self.arg_info = arg_info
+		self.arg_infos = arg_infos
 		self.arg_function = arg_function
 		self.handler_function = handler_function
 		self.vision_function = vision_function
@@ -39,20 +39,20 @@ class Command(DataElement):
 		return self.has_attribute(Command.ATTRIBUTE_REQUIRES_VISION)
 
 
-	def takes_item_arg(self):
-		return self.arg_info.is_item
+	def takes_item_arg(self, arg_index):
+		return self.arg_infos[arg_index].is_item
 
 
-	def takes_item_arg_from_inventory_only(self):
-		return self.arg_info.takes_item_arg_from_inventory_only()
+	def takes_item_arg_from_inventory_only(self, arg_index):
+		return self.arg_infos[arg_index].takes_item_arg_from_inventory_only()
 
 
-	def takes_item_arg_from_location_only(self):
-		return self.arg_info.takes_item_arg_from_location_only()
+	def takes_item_arg_from_location_only(self, arg_index):
+		return self.arg_infos[arg_index].takes_item_arg_from_location_only()
 
 
-	def takes_item_arg_from_inventory_or_location(self):
-		return self.arg_info.takes_item_arg_from_inventory_or_location()
+	def takes_item_arg_from_inventory_or_location(self, arg_index):
+		return self.arg_infos[arg_index].takes_item_arg_from_inventory_or_location()
 
 
 	def is_switching(self):
