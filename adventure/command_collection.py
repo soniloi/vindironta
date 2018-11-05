@@ -5,6 +5,7 @@ class CommandCollection:
 
 	INDEX_ID = 0
 	INDEX_ATTRIBUTES = 1
+	INDEX_ARG_INFO = 2
 	INDEX_HANDLER = 3
 	INDEX_NAMES = 4
 	INDEX_SWITCHES = 5
@@ -28,6 +29,7 @@ class CommandCollection:
 
 		command_id = self.parse_command_id(tokens[CommandCollection.INDEX_ID])
 		attributes = self.parse_attributes(tokens[CommandCollection.INDEX_ATTRIBUTES])
+		arg_attributes = self.parse_arg_info(tokens[CommandCollection.INDEX_ARG_INFO])
 		arg_function = self.get_arg_function(attributes)
 		handler_function = self.parse_handler_function(tokens[CommandCollection.INDEX_HANDLER])
 		vision_function = self.get_vision_function(attributes)
@@ -38,6 +40,7 @@ class CommandCollection:
 			command = Command(
 				command_id=command_id,
 				attributes=attributes,
+				arg_attributes=arg_attributes,
 				arg_function=arg_function,
 				handler_function=handler_function,
 				vision_function=vision_function,
@@ -58,13 +61,19 @@ class CommandCollection:
 		return int(token, 16)
 
 
+	def parse_arg_info(self, token):
+		# TODO: fix
+		if not token:
+			return 0
+		return int(token, 16)
+
 	def get_arg_function(self, attributes):
 		arg_function_name = "resolve_"
-		if attributes & Command.ATTRIBUTE_MOVEMENT != 0:
+		if bool(attributes & Command.ATTRIBUTE_MOVEMENT):
 			arg_function_name += "movement"
-		elif attributes & Command.ATTRIBUTE_SWITCHABLE != 0:
+		elif bool(attributes & Command.ATTRIBUTE_SWITCHABLE):
 			arg_function_name += "switchable"
-		elif attributes & Command.ATTRIBUTE_TAKES_ARG == 0:
+		elif not bool(attributes & Command.ATTRIBUTE_TAKES_ARG):
 			arg_function_name += "argless"
 		else:
 			arg_function_name += "args"

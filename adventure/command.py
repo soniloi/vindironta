@@ -2,20 +2,24 @@ from adventure.data_element import DataElement
 
 class Command(DataElement):
 
-	ATTRIBUTE_ARG_ITEM_INVENTORY = 0x02
-	ATTRIBUTE_ARG_ITEM_LOCATION = 0x04
 	ATTRIBUTE_TAKES_ARG = 0x08
 	ATTRIBUTE_SECRET = 0x10
 	ATTRIBUTE_MOVEMENT = 0x40
 	ATTRIBUTE_PERMISSIVE = 0x80
 	ATTRIBUTE_SWITCHABLE = 0x100
-	ATTRIBUTE_ARG_IS_ITEM = 0x200
 	ATTRIBUTE_REQUIRES_VISION = 0x400
 	ATTRIBUTE_SWITCHING = 0x800
 
-	def __init__(self, command_id, attributes, arg_function, handler_function, vision_function, primary, aliases,
-			off_switch, on_switch):
+	ATTRIBUTE_ARG_MANDATORY = 0x1
+	ATTRIBUTE_ARG_IS_ITEM = 0x2
+	ATTRIBUTE_ARG_ITEM_LOCATION = 0x4
+	ATTRIBUTE_ARG_ITEM_INVENTORY = 0x8
+
+
+	def __init__(self, command_id, attributes, arg_attributes, arg_function, handler_function, vision_function, primary,
+			aliases, off_switch, on_switch):
 		DataElement.__init__(self, data_id=command_id, attributes=attributes)
+		self.arg_attributes = arg_attributes
 		self.arg_function = arg_function
 		self.handler_function = handler_function
 		self.vision_function = vision_function
@@ -42,15 +46,15 @@ class Command(DataElement):
 
 
 	def takes_item_arg(self):
-		return self.has_attribute(Command.ATTRIBUTE_ARG_IS_ITEM)
-
-
-	def takes_item_arg_from_inventory(self):
-		return self.has_attribute(Command.ATTRIBUTE_ARG_ITEM_INVENTORY)
+		return bool(self.arg_attributes & Command.ATTRIBUTE_ARG_IS_ITEM)
 
 
 	def takes_item_arg_from_location(self):
-		return self.has_attribute(Command.ATTRIBUTE_ARG_ITEM_LOCATION)
+		return bool(self.arg_attributes & Command.ATTRIBUTE_ARG_ITEM_LOCATION)
+
+
+	def takes_item_arg_from_inventory(self):
+		return bool(self.arg_attributes & Command.ATTRIBUTE_ARG_ITEM_INVENTORY)
 
 
 	def is_switching(self):

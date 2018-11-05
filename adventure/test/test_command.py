@@ -5,13 +5,13 @@ from adventure.command import Command
 class TestCommand(unittest.TestCase):
 
 	def setUp(self):
-		self.command_singular = Command(1, 0x9, self.arg_function_non_movement, self.handler_function_singular,
+		self.command_singular = Command(1, 0x9, 0x0, self.arg_function_non_movement, self.handler_function_singular,
 			self.vision_function, "", [],  None, None)
-		self.command_movement = Command(1, 0x49, self.arg_function_movement, self.handler_function_singular,
+		self.command_movement = Command(1, 0x49, 0x0, self.arg_function_movement, self.handler_function_singular,
 			self.vision_function, "", [],  None, None)
-		self.command_switchable = Command(1, 0x100, self.arg_function_non_movement, self.handler_function_singular,
+		self.command_switchable = Command(1, 0x100, 0x0, self.arg_function_non_movement, self.handler_function_singular,
 			self.vision_function, "", [],  "off", "on")
-		self.command_list = Command(1, 0x9, self.arg_function_non_movement, self.handler_function_list,
+		self.command_list = Command(1, 0x9, 0x0, self.arg_function_non_movement, self.handler_function_list,
 			self.vision_function, "", [],  None, None)
 
 
