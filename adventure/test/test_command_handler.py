@@ -637,7 +637,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_node_arg_invalid(self):
 		response = self.handler.handle_node(self.player, "abc")
 
-		self.assertEqual(("You are {0}.", ["at a lighthouse by the sea.", ""]), response)
+		self.assertEqual(("There is no such node id.", ""), response)
 		self.assertIs(self.lighthouse_location, self.player.location)
 
 

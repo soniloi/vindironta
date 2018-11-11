@@ -242,17 +242,15 @@ class CommandHandler:
 			template = self.get_response("describe_node")
 			content = player.location.data_id
 		else:
+			template = self.get_response("reject_no_node")
 			location_id = player.location.data_id
 			try:
 				location_id = int(arg)
+				proposed_location = self.data.get_location(location_id)
+				if proposed_location:
+					template, content = self.execute_go(player, arg, proposed_location)
 			except:
 				pass
-
-			proposed_location = self.data.get_location(location_id)
-			if proposed_location:
-				template, content =  self.execute_go(player, arg, proposed_location)
-			else:
-				template = self.get_response("reject_no_node")
 
 		return template, content
 
