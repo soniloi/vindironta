@@ -6,7 +6,6 @@ from adventure.command import ArgInfo, Command
 from adventure.data_collection import DataCollection
 from adventure.data_element import Labels
 from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo
-from adventure.player import Player
 
 class TestArgumentResolver(unittest.TestCase):
 
@@ -41,6 +40,9 @@ class TestArgumentResolver(unittest.TestCase):
 		self.resolver = ArgumentResolver()
 		self.resolver.init_data(data)
 
+		self.player = Mock()
+		self.player.get_current_args.return_value = []
+
 
 	def items_side_effect(self, *args):
 		return self.item_map.get(args[0])
@@ -57,7 +59,7 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_movement_without_arg(self):
 		command = Command(1, 0x40, [ArgInfo(0x0)], None, self.handler_function, None, "", [], None, None)
 
-		response = self.resolver.resolve_movement(command, None, [])
+		response = self.resolver.resolve_movement(command, self.player, [])
 
 		self.assertEqual(("{0} success!", 1), response)
 
@@ -65,7 +67,7 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_movement_with_arg(self):
 		command = Command(1, 0x40, [ArgInfo(0x1)], None, self.handler_function, None, "", [], None, None)
 
-		response = self.resolver.resolve_movement(command, None, ["test"])
+		response = self.resolver.resolve_movement(command, self.player, ["test"])
 
 		self.assertEqual(("Do not give an argument for this command.", "test"), response)
 
@@ -73,7 +75,7 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_switchable_without_arg(self):
 		command = Command(1, 0x100, [ArgInfo(0x0)], None, self.handler_function, None, "verbose", [], "no", "yes")
 
-		response = self.resolver.resolve_switchable(command, None, [""])
+		response = self.resolver.resolve_switchable(command, self.player, [""])
 
 		self.assertEqual(("Use the command \"{0}\" with either \"{1}\" or \"{2}\".", ["verbose", "no", "yes"]), response)
 
@@ -81,7 +83,7 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_switchable_with_invalid_arg(self):
 		command = Command(1, 0x100, [ArgInfo(0x1)], None, self.handler_function, None, "verbose", [], "no", "yes")
 
-		response = self.resolver.resolve_switchable(command, None, ["off"])
+		response = self.resolver.resolve_switchable(command, self.player, ["off"])
 
 		self.assertEqual(("Use the command \"{0}\" with either \"{1}\" or \"{2}\".", ["verbose", "no", "yes"]), response)
 
@@ -89,7 +91,7 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_switchable_with_switch_arg(self):
 		command = Command(1, 0x100, [ArgInfo(0x1)], None, self.handler_function, None, "verbose", [], "no", "yes")
 
-		response = self.resolver.resolve_switchable(command, None, ["yes"])
+		response = self.resolver.resolve_switchable(command, self.player, ["yes"])
 
 		self.assertEqual(("{0} success!", True), response)
 
@@ -97,7 +99,7 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_argless_without_arg(self):
 		command = Command(1, 0x0, [ArgInfo(0x0)], None, self.handler_function, None, "", [], None, None)
 
-		response = self.resolver.resolve_argless(command, None, [])
+		response = self.resolver.resolve_argless(command, self.player, [])
 
 		self.assertEqual(("{0} success!", None), response)
 
@@ -105,16 +107,15 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_argless_with_arg(self):
 		command = Command(1, 0x0, [ArgInfo(0x0)], None, self.handler_function, None, "", [], None, None)
 
-		response = self.resolver.resolve_argless(command, None, ["test"])
+		response = self.resolver.resolve_argless(command, self.player, ["test"])
 
 		self.assertEqual(("Do not give an argument for this command.", "test"), response)
 
 
 	def test_resolve_args_without_arg(self):
 		command = Command(1, 0x9, [ArgInfo(0x1)], None, self.handler_function, None, "take", [], None, None)
-		player = Player(0, 0)
 
-		response = self.resolver.resolve_args(command, player, [])
+		response = self.resolver.resolve_args(command, self.player, [])
 
 		self.assertEqual(("What do you want to {0}?", "take"), response)
 
@@ -122,7 +123,7 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_args_without_arg_permissive(self):
 		command = Command(1, 0x89, [ArgInfo(0x0)], None, self.handler_function, None, "", [], None, None)
 
-		response = self.resolver.resolve_args(command, None, [""])
+		response = self.resolver.resolve_args(command, self.player, [""])
 
 		self.assertEqual(("{0} success!", ""), response)
 
@@ -130,7 +131,7 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_args_with_non_item_arg(self):
 		command = Command(1, 0x9, [ArgInfo(0x1)], None, self.handler_function, None, "explain", [], None, None)
 
-		response = self.resolver.resolve_args(command, None, ["test"])
+		response = self.resolver.resolve_args(command, self.player, ["test"])
 
 		self.assertEqual(("{0} success!", "test"), response)
 
@@ -138,119 +139,127 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_args_with_item_arg_unknown(self):
 		command = Command(1, 0x9, [ArgInfo(0x3)], None, self.handler_function, None, "take", [], None, None)
 
-		response = self.resolver.resolve_args(command, None, ["test"])
+		response = self.resolver.resolve_args(command, self.player, ["test"])
 
 		self.assertEqual(("I do not know what that is.", "test"), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_inventory_only_and_player_not_carrying(self):
 		command = Command(1, 0x8, [ArgInfo(0xB)], None, self.handler_function, None, "drop", [], None, None)
-		player = Mock()
-		player.is_carrying.return_value = False
+		self.player.is_carrying.return_value = False
 
-		response = self.resolver.resolve_args(command, player, ["book"])
+		response = self.resolver.resolve_args(command, self.player, ["book"])
 
 		self.assertEqual(("You are not holding it.", "book"), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_location_only_and_player_is_carrying(self):
 		command = Command(1, 0x8, [ArgInfo(0x7)], None, self.handler_function, None, "take", [], None, None)
-		player = Mock()
-		player.is_carrying.return_value = True
+		self.player.is_carrying.return_value = True
 
-		response = self.resolver.resolve_args(command, player, ["book"])
+		response = self.resolver.resolve_args(command, self.player, ["book"])
 
 		self.assertEqual(("You are carrying it.", "book"), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_location_only_and_player_not_near(self):
 		command = Command(1, 0x8, [ArgInfo(0x7)], None, self.handler_function, None, "take", [], None, None)
-		player = Mock()
-		player.is_carrying.return_value = False
-		player.is_near_item.return_value = False
+		self.player.is_carrying.return_value = False
+		self.player.is_near_item.return_value = False
 
-		response = self.resolver.resolve_args(command, player, ["book"])
+		response = self.resolver.resolve_args(command, self.player, ["book"])
 
 		self.assertEqual(("It is not here.", "book"), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_location_only_and_player_is_near(self):
 		command = Command(1, 0x8, [ArgInfo(0x7)], None, self.handler_function, None, "take", [], None, None)
-		player = Mock()
-		player.is_carrying.return_value = False
-		player.is_near_item.return_value = True
+		self.player.is_carrying.return_value = False
+		self.player.is_near_item.return_value = True
 
-		response = self.resolver.resolve_args(command, player, ["book"])
+		response = self.resolver.resolve_args(command, self.player, ["book"])
 
 		self.assertEqual(("{0} success!", self.book), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_inventory_or_location_and_player_not_near(self):
 		command = Command(1, 0x8, [ArgInfo(0xF)], None, self.handler_function, None, "describe", [], None, None)
-		player = Mock()
-		player.has_or_is_near_item.return_value = False
+		self.player.has_or_is_near_item.return_value = False
 
-		response = self.resolver.resolve_args(command, player, ["book"])
+		response = self.resolver.resolve_args(command, self.player, ["book"])
 
 		self.assertEqual(("It is not here.", "book"), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_inventory_or_location_and_player_is_near(self):
 		command = Command(1, 0x8, [ArgInfo(0xF)], None, self.handler_function, None, "describe", [], None, None)
-		player = Mock()
-		player.has_or_is_near_item.return_value = True
+		self.player.has_or_is_near_item.return_value = True
 
-		response = self.resolver.resolve_args(command, player, ["book"])
+		response = self.resolver.resolve_args(command, self.player, ["book"])
 
 		self.assertEqual(("{0} success!", self.book), response)
 
 
 	def test_resolve_args_multiple_items(self):
 		command = Command(1, 0x8, [ArgInfo(0xF), ArgInfo(0xF)], None, self.handler_function, None, "insert", [], None, None)
-		player = Mock()
-		player.has_or_is_near_item.return_value = True
+		self.player.has_or_is_near_item.return_value = True
 
-		response = self.resolver.resolve_args(command, player, ["book", "box"])
+		response = self.resolver.resolve_args(command, self.player, ["book", "box"])
+
+		self.assertEqual(("{0} success!", self.book), response)
+
+
+	def test_resolve_args_multiple_missing_arg(self):
+		command = Command(1, 0x8, [ArgInfo(0xF), ArgInfo(0xF)], None, self.handler_function, None, "insert", [], None, None)
+		self.player.has_or_is_near_item.return_value = True
+
+		response = self.resolver.resolve_args(command, self.player, ["book"])
+
+		self.assertEqual(("What do you want to {0}?", "insert"), response)
+
+
+	def test_resolve_args_multiple_first_resolved(self):
+		command = Command(1, 0x8, [ArgInfo(0xF), ArgInfo(0xF)], None, self.handler_function, None, "insert", [], None, None)
+		self.player.get_current_args.return_value = [self.book]
+		self.player.has_or_is_near_item.return_value = True
+
+		response = self.resolver.resolve_args(command, self.player, ["box"])
 
 		self.assertEqual(("{0} success!", self.book), response)
 
 
 	def test_resolve_args_switching_command_not_switchable_item(self):
 		command = Command(1, 0x808, [ArgInfo(0xF)], None, self.handler_function, None, "turn", [], None, None)
-		player = Mock()
-		player.has_or_is_near_item.return_value = True
+		self.player.has_or_is_near_item.return_value = True
 
-		response = self.resolver.resolve_args(command, player, ["book"])
+		response = self.resolver.resolve_args(command, self.player, ["book"])
 
 		self.assertEqual(("I do not understand.", "book"), response)
 
 
 	def test_resolve_args_switching_command_switchable_item_no_next_state(self):
 		command = Command(1, 0x808, [ArgInfo(0xF)], None, self.handler_function, None, "turn", [], None, None)
-		player = Mock()
-		player.has_or_is_near_item.return_value = True
+		self.player.has_or_is_near_item.return_value = True
 
-		response = self.resolver.resolve_args(command, player, ["lamp"])
+		response = self.resolver.resolve_args(command, self.player, ["lamp"])
 
 		self.assertEqual(("Use \"{0} <{1}|{2}>\".", ["lamp", "off", "on"]), response)
 
 
 	def test_resolve_args_switching_command_switchable_item_invalid_next_state(self):
 		command = Command(1, 0x808, [ArgInfo(0xF)], None, self.handler_function, None, "turn", [], None, None)
-		player = Mock()
-		player.has_or_is_near_item.return_value = True
+		self.player.has_or_is_near_item.return_value = True
 
-		response = self.resolver.resolve_args(command, player, ["lamp", "cinnamon"])
+		response = self.resolver.resolve_args(command, self.player, ["lamp", "cinnamon"])
 
 		self.assertEqual(("Use \"{0} <{1}|{2}>\".", ["lamp", "off", "on"]), response)
 
 
 	def test_resolve_args_switching_command_switchable_item_valid_next_state(self):
 		command = Command(1, 0x808, [ArgInfo(0xF), ArgInfo(0x0)], None, self.handler_function, None, "turn", [], None, None)
-		player = Mock()
-		player.has_or_is_near_item.return_value = True
+		self.player.has_or_is_near_item.return_value = True
 
-		response = self.resolver.resolve_args(command, player, ["lamp", "off"])
+		response = self.resolver.resolve_args(command, self.player, ["lamp", "off"])
 
 		self.assertEqual(("{0} success!", self.lamp), response)
 

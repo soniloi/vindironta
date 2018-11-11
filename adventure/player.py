@@ -12,6 +12,7 @@ class Player:
 		self.playing = True
 		self.score = 0
 		self.current_command = None
+		self.current_args = []
 		self.verbose = False
 		self.instructions = 0
 		self.alive = True
@@ -103,3 +104,12 @@ class Player:
 
 	def has_light(self):
 		return self.location.gives_light() or self.get_inventory().gives_light()
+
+
+	def get_current_args(self):
+		return self.current_args
+
+
+	def reset_current_command(self):
+		self.current_command = None
+		self.current_args.clear()

@@ -36,19 +36,27 @@ class ArgumentResolver:
 
 	def resolve_args(self, command, player, args):
 
-		resolved_args = []
+		resolved_args = player.get_current_args()
+		arg_input_offset = len(resolved_args)
 
-		for i in range(0, len(command.arg_infos)):
+		for i in range(arg_input_offset, len(command.arg_infos)):
 			arg_info = command.arg_infos[i]
-			arg_input = self.get_arg(args, i)
+			arg_input = self.get_arg(args, i - arg_input_offset)
 			success, response = self.resolve_arg_for_command(command, player, arg_info, arg_input)
+
 			if not success:
+				player.current_args = resolved_args
 				return response
 			resolved_args.append(response)
 
+		response = ""
 		if command.is_switching():
-			return self.execute_switching(command, player, resolved_args[0], resolved_args[1:])
-		return self.execute(command, player, resolved_args)
+			response =  self.execute_switching(command, player, resolved_args[0], resolved_args[1:])
+		else:
+			response = self.execute(command, player, resolved_args)
+
+		player.reset_current_command()
+		return response
 
 
 	def get_arg(self, args, index):
@@ -61,6 +69,7 @@ class ArgumentResolver:
 		if not arg_input:
 			if arg_info.mandatory:
 				player.current_command = command
+				# TODO: improve this to request non-direct args properly also
 				return False, (self.data.get_response("request_direct"), command.primary)
 			return True, ""
 
