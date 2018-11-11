@@ -10,17 +10,17 @@ class ArgumentResolver:
 
 	def execute(self, command, player, args):
 		function = command.handler_function
-		return function(player, self.get_first_arg(args))
+		return function(player, self.get_arg(args, 0))
 
 
 	def resolve_movement(self, command, player, args):
 		if args:
-			return self.data.get_response("request_argless"), self.get_first_arg(args)
+			return self.data.get_response("request_argless"), self.get_arg(args, 0)
 		return self.execute(command, player, [command.data_id])
 
 
 	def resolve_switchable(self, command, player, args):
-		arg = self.get_first_arg(args)
+		arg = self.get_arg(args, 0)
 		if arg not in command.transitions:
 			content = [command.primary] + sorted(list(command.transitions.keys()))
 			return self.data.get_response("request_switch_command"), content
@@ -30,17 +30,31 @@ class ArgumentResolver:
 
 	def resolve_argless(self, command, player, args):
 		if args:
-			return self.data.get_response("request_argless"), self.get_first_arg(args)
+			return self.data.get_response("request_argless"), self.get_arg(args, 0)
 		return self.execute(command, player, args)
 
 
 	def resolve_args(self, command, player, args):
-		success, response = self.resolve_arg_for_command(command, player, command.arg_infos[0], self.get_first_arg(args))
-		if not success:
-			return response
+
+		resolved_args = []
+
+		for i in range(0, len(command.arg_infos)):
+			arg_info = command.arg_infos[i]
+			arg_input = self.get_arg(args, i)
+			success, response = self.resolve_arg_for_command(command, player, arg_info, arg_input)
+			if not success:
+				return response
+			resolved_args.append(response)
+
 		if command.is_switching():
-			return self.execute_switching(command, player, response, args[1:])
-		return self.execute(command, player, [response])
+			return self.execute_switching(command, player, resolved_args[0], resolved_args[1:])
+		return self.execute(command, player, resolved_args)
+
+
+	def get_arg(self, args, index):
+		if index < len(args):
+			return args[index]
+		return None
 
 
 	def resolve_arg_for_command(self, command, player, arg_info, arg_input):
@@ -77,7 +91,7 @@ class ArgumentResolver:
 		if not item.is_switchable():
 			return self.data.get_response("reject_no_understand_instruction"), item.shortname
 
-		transition_text = self.get_first_arg(switch_args)
+		transition_text = self.get_arg(switch_args, 0)
 
 		if not transition_text in item.text_to_transition:
 			content = [item.shortname] + sorted(list(item.text_to_transition.keys()))
@@ -85,9 +99,3 @@ class ArgumentResolver:
 
 		transition = item.text_to_transition.get(transition_text)
 		return command.handler_function(player, item, transition)
-
-
-	def get_first_arg(self, args):
-		if args:
-			return args[0]
-		return None

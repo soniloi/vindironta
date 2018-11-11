@@ -5,7 +5,7 @@ from adventure.argument_resolver import ArgumentResolver
 from adventure.command import ArgInfo, Command
 from adventure.data_collection import DataCollection
 from adventure.data_element import Labels
-from adventure.item import Item, SwitchableItem, SwitchInfo
+from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo
 from adventure.player import Player
 
 class TestArgumentResolver(unittest.TestCase):
@@ -16,11 +16,13 @@ class TestArgumentResolver(unittest.TestCase):
 		data.get_response.side_effect = self.responses_side_effect
 		data.get_item.side_effect = self.items_side_effect
 
-		self.book = Item(1105, 2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
+		self.book = Item(1105, 0x2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
+		self.box = ContainerItem(1106, 0x3, Labels("box", "a box", "a small box"), 3, None)
 		lamp_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "off", "on")
 		self.lamp = SwitchableItem(1043, 0x101A, Labels("lamp", "a lamp", "a small lamp"), 2, None, lamp_switching_info)
 		self.item_map = {
 			"book" : self.book,
+			"box" : self.box,
 			"lamp" : self.lamp,
 		}
 
@@ -203,6 +205,16 @@ class TestArgumentResolver(unittest.TestCase):
 		self.assertEqual(("{0} success!", self.book), response)
 
 
+	def test_resolve_args_multiple_items(self):
+		command = Command(1, 0x8, [ArgInfo(0xF), ArgInfo(0xF)], None, self.handler_function, None, "insert", [], None, None)
+		player = Mock()
+		player.has_or_is_near_item.return_value = True
+
+		response = self.resolver.resolve_args(command, player, ["book", "box"])
+
+		self.assertEqual(("{0} success!", self.book), response)
+
+
 	def test_resolve_args_switching_command_not_switchable_item(self):
 		command = Command(1, 0x808, [ArgInfo(0xF)], None, self.handler_function, None, "turn", [], None, None)
 		player = Mock()
@@ -234,7 +246,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 
 	def test_resolve_args_switching_command_switchable_item_valid_next_state(self):
-		command = Command(1, 0x808, [ArgInfo(0xF)], None, self.handler_function, None, "turn", [], None, None)
+		command = Command(1, 0x808, [ArgInfo(0xF), ArgInfo(0x0)], None, self.handler_function, None, "turn", [], None, None)
 		player = Mock()
 		player.has_or_is_near_item.return_value = True
 
