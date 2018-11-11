@@ -59,7 +59,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.lamp.switched_element = self.lamp
 		self.kohlrabi = Item(1042, 0x2002, Labels("kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar"), 3, None)
 		self.desk = Item(1000, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None)
-		self.heavy_item = Item(1001, 0x0, Labels("heavy", "a heavy item", "a dummy heavy item"), 15, None)
+		self.heavy_item = Item(1001, 0x2, Labels("heavy", "a heavy item", "a dummy heavy item"), 15, None)
 		self.obstruction = Item(1002, 0x4, Labels("obstruction", "an obstruction", "an obstruction blocking you"), 8, None)
 		self.mobile_obstruction = Item(1003, 0x6, Labels("mobile_obstruction", "a mobile obstruction", "a mobile obstruction"), 5, None)
 		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None)
@@ -89,6 +89,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.response_map = {
 			"confirm_dropped" : "Dropped.",
 			"confirm_emptied" : "You take the {0} out of the {1}.",
+			"confirm_inserted" : "Inserted.",
 			"confirm_look" : "You are {0}.",
 			"confirm_ok" : "OK.",
 			"confirm_poured" : "You pour the liquid away.",
@@ -113,10 +114,13 @@ class TestCommandHandler(unittest.TestCase):
 			"list_inventory_nonempty" : "You have: {0}.",
 			"list_inventory_empty" : "You have nothing.",
 			"list_location" : " Nearby: {1}.",
+			"reject_already_contained" : "The {0} is already in the {1}.",
 			"reject_already_empty" : "It is already empty.",
 			"reject_already_switched" : "The {0} is already {1}.",
 			"reject_already_wearing" : "You are already wearing the {0}.",
 			"reject_climb" : "Use \"up\" or \"down\".",
+			"reject_container_self" : "You cannot insert the {0} into itself.",
+			"reject_container_size" : "The {1} is not big enough.",
 			"reject_excess_light" : "It is too bright.",
 			"reject_go" : "Use a compass point.",
 			"reject_no_direction" : "You cannot go that way.",
@@ -127,8 +131,9 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_no_out" : "I cannot tell in from out here.",
 			"reject_no_writing" : "There is no writing.",
 			"reject_not_container" : "That is not a container.",
+			"reject_not_empty" : "There is already something in that container.",
 			"reject_not_liquid" : "That is not a liquid.",
-			"reject_not_portable" : "You cannot take that.",
+			"reject_not_portable" : "You cannot move that.",
 			"reject_not_wearable" : "You cannot wear the {0}.",
 			"reject_obstruction_known" : "You are blocked by {0}.",
 			"reject_obstruction_unknown" : "You are blocked by something here.",
@@ -566,6 +571,52 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("Immune on.", ""), response)
 
 
+	def test_handle_insert_into_non_container(self):
+		response = self.handler.handle_insert(self.player, self.book, self.lamp)
+
+		self.assertEqual(("That is not a container.", "lamp"), response)
+
+
+	def test_handle_insert_container_into_self(self):
+		response = self.handler.handle_insert(self.player, self.basket, self.basket)
+
+		self.assertEqual(("You cannot insert the {0} into itself.", "basket"), response)
+
+
+	def test_handle_insert_already_inserted(self):
+		self.basket.insert(self.book)
+
+		response = self.handler.handle_insert(self.player, self.book, self.basket)
+
+		self.assertEqual(("The {0} is already in the {1}.", ["book", "basket"]), response)
+
+
+	def test_handle_insert_non_portable(self):
+		response = self.handler.handle_insert(self.player, self.desk, self.basket)
+
+		self.assertEqual(("You cannot move that.", "desk"), response)
+
+
+	def test_handle_insert_container_not_empty(self):
+		self.basket.insert(self.lamp)
+
+		response = self.handler.handle_insert(self.player, self.book, self.basket)
+
+		self.assertEqual(("There is already something in that container.", "basket"), response)
+
+
+	def test_handle_insert_container_too_small(self):
+		response = self.handler.handle_insert(self.player, self.heavy_item, self.basket)
+
+		self.assertEqual(("The {1} is not big enough.", ["heavy", "basket"]), response)
+
+
+	def test_handle_insert_valid(self):
+		response = self.handler.handle_insert(self.player, self.book, self.basket)
+
+		self.assertEqual(("Inserted.", ["book", "basket"]), response)
+
+
 	def test_handle_inventory_empty(self):
 		response = self.handler.handle_inventory(self.player)
 
@@ -748,12 +799,12 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(self.lamp.is_on())
 
 
-	def test_handle_take_not_mobile(self):
+	def test_handle_take_not_portable(self):
 		self.player.location.insert(self.desk)
 
 		response = self.handler.handle_take(self.player, self.desk)
 
-		self.assertEqual(("You cannot take that.", "desk"), response)
+		self.assertEqual(("You cannot move that.", "desk"), response)
 		self.assertFalse(self.player.is_carrying(self.desk))
 		self.assertTrue(self.player.is_near_item(self.desk))
 
@@ -763,7 +814,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_take(self.player, self.mobile_obstruction)
 
-		self.assertEqual(("You cannot take that.", "mobile_obstruction"), response)
+		self.assertEqual(("You cannot move that.", "mobile_obstruction"), response)
 		self.assertFalse(self.player.is_carrying(self.mobile_obstruction))
 		self.assertTrue(self.player.is_near_item(self.mobile_obstruction))
 

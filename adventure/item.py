@@ -148,6 +148,10 @@ class ContainerItem(Item, ItemContainer):
 		return next(iter(self.items.values()))
 
 
+	def can_accommodate(self, item):
+		return self.size > item.size
+
+
 SwitchInfo = namedtuple("SwitchInfo", "attribute off on")
 
 class SwitchTransition(Enum):

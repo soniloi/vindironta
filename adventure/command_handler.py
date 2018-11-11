@@ -203,8 +203,32 @@ class CommandHandler:
 		return template, ""
 
 
-	def handle_insert(self, player, item):
-		return "", ""
+	def handle_insert(self, player, item, proposed_container):
+
+		template = ""
+		content = ""
+
+		if not proposed_container.is_container():
+			return self.get_response("reject_not_container"), proposed_container.shortname
+
+		if item is proposed_container:
+			return self.get_response("reject_container_self"), proposed_container.shortname
+
+		if item.container is proposed_container:
+			return self.get_response("reject_already_contained"), [item.shortname, proposed_container.shortname]
+
+		if not item.is_portable():
+			return self.get_response("reject_not_portable"), item.shortname
+
+		if proposed_container.has_items():
+			return self.get_response("reject_not_empty"), proposed_container.shortname
+
+		if not proposed_container.can_accommodate(item):
+			return self.get_response("reject_container_size"), [item.shortname, proposed_container.shortname]
+
+		item.container.remove(item)
+		proposed_container.insert(item)
+		return self.get_response("confirm_inserted"), [item.shortname, proposed_container.shortname]
 
 
 	def handle_inventory(self, player):
