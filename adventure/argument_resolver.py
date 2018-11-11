@@ -10,7 +10,7 @@ class ArgumentResolver:
 
 	def execute(self, command, player, args):
 		function = command.handler_function
-		return function(player, self.get_arg(args, 0))
+		return function(player, *args)
 
 
 	def resolve_movement(self, command, player, args):

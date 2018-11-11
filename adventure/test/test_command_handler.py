@@ -169,7 +169,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_commands(self):
-		response = self.handler.handle_commands(self.player, "")
+		response = self.handler.handle_commands(self.player)
 
 		self.assertEqual(("I know these commands: {0}.", "look, ne"), response)
 
@@ -567,7 +567,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_inventory_empty(self):
-		response = self.handler.handle_inventory(self.player, "")
+		response = self.handler.handle_inventory(self.player)
 
 		self.assertEqual(("You have nothing.", ""), response)
 
@@ -575,7 +575,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_inventory_nonempty(self):
 		self.player.take_item(self.book)
 
-		response = self.handler.handle_inventory(self.player, "")
+		response = self.handler.handle_inventory(self.player)
 
 		self.assertEqual(("You have: {0}.", "\n\ta book"), response)
 
@@ -605,7 +605,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_look_no_items(self):
-		response = self.handler.handle_look(self.player, "")
+		response = self.handler.handle_look(self.player)
 
 		self.assertEqual(("You are {0}.", ["at a lighthouse by the sea.", ""]), response)
 
@@ -613,7 +613,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_look_with_item(self):
 		self.player.location.insert(self.book)
 
-		response = self.handler.handle_look(self.player, "")
+		response = self.handler.handle_look(self.player)
 
 		self.assertEqual(("You are {0}. Nearby: {1}.",
 			["at a lighthouse by the sea.", "\n\ta book"]), response)
@@ -622,7 +622,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_look_with_silent_item(self):
 		self.player.location.insert(self.desk)
 
-		response = self.handler.handle_look(self.player, "")
+		response = self.handler.handle_look(self.player)
 
 		self.assertEqual(("You are {0}.", ["at a lighthouse by the sea.", ""]), response)
 
@@ -682,7 +682,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_quit(self):
-		response = self.handler.handle_quit(self.player, "")
+		response = self.handler.handle_quit(self.player)
 
 		self.assertEqual(("OK.", ""), response)
 		self.assertEqual(6, self.player.instructions)
@@ -706,7 +706,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_score(self):
-		response = self.handler.handle_score(self.player, "")
+		response = self.handler.handle_score(self.player)
 
 		self.assertEqual(("Current score: {0} point(s). Instructions entered: {1}.", [0, 6]), response)
 		self.assertEqual(6, self.player.instructions)

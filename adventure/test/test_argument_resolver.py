@@ -50,7 +50,7 @@ class TestArgumentResolver(unittest.TestCase):
 		return self.response_map.get(args[0])
 
 
-	def handler_function(self, player, arg, next_state=None):
+	def handler_function(self, player, arg=None, next_state=None):
 		return "{0} success!", arg
 
 

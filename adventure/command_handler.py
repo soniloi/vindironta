@@ -31,11 +31,11 @@ class CommandHandler:
 		return self.data.get_response(response_key)
 
 
-	def handle_climb(self, player, arg):
+	def handle_climb(self, player, arg=None):
 		return self.get_response("reject_climb"), ""
 
 
-	def handle_commands(self, player, arg):
+	def handle_commands(self, player):
 		template = self.get_response("describe_commands")
 		content = self.data.list_commands()
 		return template, content
@@ -207,7 +207,7 @@ class CommandHandler:
 		return "", ""
 
 
-	def handle_inventory(self, player, arg):
+	def handle_inventory(self, player):
 		if not player.holding_items():
 			return self.get_response("list_inventory_empty"), ""
 		return self.get_response("list_inventory_nonempty"), player.describe_inventory()
@@ -224,7 +224,7 @@ class CommandHandler:
 		return template, contents
 
 
-	def handle_look(self, player, arg):
+	def handle_look(self, player):
 		template = self.get_response("describe_location")
 
 		if player.has_non_silent_items_nearby():
@@ -233,7 +233,7 @@ class CommandHandler:
 		return template, player.get_full_location_description()
 
 
-	def handle_node(self, player, arg):
+	def handle_node(self, player, arg=None):
 
 		template = ""
 		content = ""
@@ -263,7 +263,7 @@ class CommandHandler:
 		return self.handle_drop(player, item)
 
 
-	def handle_quit(self, player, arg):
+	def handle_quit(self, player):
 		player.decrement_instructions()
 		player.playing = False
 		return self.get_response("confirm_quit"), ""
@@ -275,7 +275,7 @@ class CommandHandler:
 		return self.get_response("describe_writing"), item.writing
 
 
-	def handle_score(self, player, arg):
+	def handle_score(self, player):
 		player.decrement_instructions()
 		return self.get_response("describe_score"), [player.score, player.instructions]
 
