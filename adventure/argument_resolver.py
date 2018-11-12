@@ -39,13 +39,24 @@ class ArgumentResolver:
 		resolved_args = player.get_current_args()
 		arg_input_offset = len(resolved_args)
 
+		# TODO: fix the flow control here
 		for i in range(arg_input_offset, len(command.arg_infos)):
 			arg_info = command.arg_infos[i]
 			arg_input = self.get_arg(args, i - arg_input_offset)
+
+			if not arg_input:
+				if arg_info.mandatory:
+					player.current_command = command
+					player.current_args = resolved_args
+					# TODO: improve this to request non-direct args properly also
+					return self.data.get_response("request_direct"), command.primary
+				else:
+					response = ""
+
 			success, response = self.resolve_arg_for_command(command, player, arg_info, arg_input)
 
 			if not success:
-				player.current_args = resolved_args
+				player.reset_current_command()
 				return response
 			resolved_args.append(response)
 
@@ -66,13 +77,6 @@ class ArgumentResolver:
 
 
 	def resolve_arg_for_command(self, command, player, arg_info, arg_input):
-		if not arg_input:
-			if arg_info.mandatory:
-				player.current_command = command
-				# TODO: improve this to request non-direct args properly also
-				return False, (self.data.get_response("request_direct"), command.primary)
-			return True, ""
-
 		if not arg_info.is_item:
 			return True, arg_input
 
