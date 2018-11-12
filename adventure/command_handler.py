@@ -220,6 +220,12 @@ class CommandHandler:
 		if not item.is_portable():
 			return self.get_response("reject_not_portable"), item.shortname
 
+		if item.is_liquid() and not proposed_container.is_liquid_container():
+			return self.get_response("reject_insert_liquid"), proposed_container.shortname
+
+		if not item.is_liquid() and proposed_container.is_liquid_container():
+			return self.get_response("reject_insert_solid"), proposed_container.shortname
+
 		if proposed_container.has_items():
 			return self.get_response("reject_not_empty"), proposed_container.shortname
 

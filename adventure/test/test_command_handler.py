@@ -64,7 +64,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.mobile_obstruction = Item(1003, 0x6, Labels("mobile_obstruction", "a mobile obstruction", "a mobile obstruction"), 5, None)
 		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None)
 		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, Item.ATTRIBUTE_GIVES_AIR)
-		self.bottle = ContainerItem(1108, 0x203, Labels("bottle", "a bottle", "a small bottle"), 2, None)
+		self.bottle = ContainerItem(1108, 0x203, Labels("bottle", "a bottle", "a small bottle"), 3, None)
 		self.water = Item(1109, 0x102, Labels("water", "some water", "some water"), 1, None)
 
 		self.item_start_location.insert(self.book)
@@ -123,6 +123,8 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_container_size" : "The {1} is not big enough.",
 			"reject_excess_light" : "It is too bright.",
 			"reject_go" : "Use a compass point.",
+			"reject_insert_liquid" : "The {0} cannot hold liquids.",
+			"reject_insert_solid" : "The {0} cannot hold solids.",
 			"reject_no_direction" : "You cannot go that way.",
 			"reject_no_light" : "It is too dark.",
 			"reject_no_back" : "I do not remember how you got here.",
@@ -595,6 +597,20 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_insert(self.player, self.desk, self.basket)
 
 		self.assertEqual(("You cannot move that.", "desk"), response)
+
+
+	def test_handle_insert_liquid_into_solid_container(self):
+		self.item_start_location.insert(self.water)
+
+		response = self.handler.handle_insert(self.player, self.water, self.basket)
+
+		self.assertEqual(("The {0} cannot hold liquids.", "basket"), response)
+
+
+	def test_handle_insert_solid_into_liquid_container(self):
+		response = self.handler.handle_insert(self.player, self.book, self.bottle)
+
+		self.assertEqual(("The {0} cannot hold solids.", "bottle"), response)
 
 
 	def test_handle_insert_container_not_empty(self):
