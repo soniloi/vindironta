@@ -39,22 +39,6 @@ class Command(DataElement):
 		return self.has_attribute(Command.ATTRIBUTE_REQUIRES_VISION)
 
 
-	def takes_item_arg(self, arg_index):
-		return self.arg_infos[arg_index].is_item
-
-
-	def takes_item_arg_from_inventory_only(self, arg_index):
-		return self.arg_infos[arg_index].takes_item_arg_from_inventory_only()
-
-
-	def takes_item_arg_from_location_only(self, arg_index):
-		return self.arg_infos[arg_index].takes_item_arg_from_location_only()
-
-
-	def takes_item_arg_from_inventory_or_location(self, arg_index):
-		return self.arg_infos[arg_index].takes_item_arg_from_inventory_or_location()
-
-
 	def is_switching(self):
 		return self.has_attribute(Command.ATTRIBUTE_SWITCHING)
 
