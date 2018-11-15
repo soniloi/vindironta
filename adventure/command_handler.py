@@ -327,9 +327,12 @@ class CommandHandler:
 		return template, [item.shortname, item.get_state_text()]
 
 
-	def handle_take(self, player, item):
-		template = ""
+	def handle_take(self, player, item, proposed_container=None):
 
+		if proposed_container:
+			return self.handle_insert(player, item, proposed_container)
+
+		template = ""
 		if not item.is_portable():
 			template = self.get_response("reject_not_portable")
 

@@ -50,15 +50,14 @@ class ArgumentResolver:
 					player.current_args = resolved_args
 					# TODO: improve this to request non-direct args properly also
 					return self.data.get_response("request_direct"), command.primary
-				else:
-					response = ""
 
-			success, response = self.resolve_arg_for_command(command, player, arg_info, arg_input)
+			else:
+				success, response = self.resolve_arg_for_command(command, player, arg_info, arg_input)
 
-			if not success:
-				player.reset_current_command()
-				return response
-			resolved_args.append(response)
+				if not success:
+					player.reset_current_command()
+					return response
+				resolved_args.append(response)
 
 		response = ""
 		if command.is_switching():

@@ -125,7 +125,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, [""])
 
-		self.assertEqual(("{0} success!", ""), response)
+		self.assertEqual(("{0} success!", None), response)
 
 
 	def test_resolve_args_with_non_item_arg(self):

@@ -867,6 +867,16 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(self.player.is_near_item(self.water))
 
 
+	def test_handle_take_multi_arg(self):
+		self.player.location.insert(self.water)
+		self.player.take_item(self.bottle)
+
+		response = self.handler.handle_take(self.player, self.water, self.bottle)
+
+		self.assertEqual(("Inserted.", ["water", "bottle"]), response)
+		self.assertTrue(self.bottle.contains(self.water))
+
+
 	def test_handle_toggle_non_switchable_item(self):
 		response = self.handler.handle_toggle(self.player, self.book)
 
