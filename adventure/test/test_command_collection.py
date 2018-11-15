@@ -27,8 +27,8 @@ class TestCommandCollection(unittest.TestCase):
 	def test_init_command_different_commands(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"50\t0\t\tscore\tscore\t",
-			"81\t10\t\tlook\tlook\t",
+			"50\t0\t\t\tscore\tscore\t",
+			"81\t10\t\t\tlook\tlook\t",
 			"---\t\t\t",
 		]
 
@@ -46,7 +46,7 @@ class TestCommandCollection(unittest.TestCase):
 	def test_init_command_aliases(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"33\t80\t\tlook\tlook,l\t",
+			"33\t80\t\t\tlook\tlook,l\t",
 			"---\t\t\t",
 		]
 
@@ -64,7 +64,7 @@ class TestCommandCollection(unittest.TestCase):
 	def test_init_non_existent_command(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"1000\t0\t\tnotacommand\tnotacommand\t",
+			"1000\t0\t\t\tnotacommand\tnotacommand\t",
 			"---\t\t\t",
 		]
 
@@ -76,7 +76,7 @@ class TestCommandCollection(unittest.TestCase):
 	def test_init_movement_command(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"16\t40\t\tgo\teast\t",
+			"16\t40\t\t\tgo\teast\t",
 			"---\t\t\t",
 		]
 
@@ -90,7 +90,7 @@ class TestCommandCollection(unittest.TestCase):
 	def test_init_switchable_command(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"116\t100\t1\tverbose\tverbose\tno,yes",
+			"116\t100\t1\t\tverbose\tverbose\tno,yes",
 			"---\t\t\t",
 		]
 
@@ -108,7 +108,7 @@ class TestCommandCollection(unittest.TestCase):
 	def test_init_argless_command(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"50\t0\t\tscore\tscore\t",
+			"50\t0\t\t\tscore\tscore\t",
 			"---\t\t\t",
 		]
 
@@ -122,7 +122,7 @@ class TestCommandCollection(unittest.TestCase):
 	def test_init_single_arg_command(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"56\t0C\t7\ttake\ttake\t",
+			"56\t0C\t7\t\ttake\ttake\t",
 			"---\t\t\t",
 		]
 
@@ -136,7 +136,7 @@ class TestCommandCollection(unittest.TestCase):
 	def test_init_multiple_arg_command(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"57\t0C\tB,F\tinsert\tinsert\t",
+			"57\t0C\tB,F\t,into|in\tinsert\tinsert\t",
 			"---\t\t\t",
 		]
 
@@ -146,12 +146,15 @@ class TestCommandCollection(unittest.TestCase):
 		insert_command = collection.commands["insert"]
 		self.assertEqual(self.argument_resolver.resolve_args, insert_command.arg_function)
 		self.assertEqual(2, len(insert_command.arg_infos))
+		self.assertEqual([""], insert_command.arg_infos[0].linkers)
+		self.assertEqual(["into", "in"], insert_command.arg_infos[1].linkers)
+
 
 
 	def test_init_resolve_vision_light_and_dark(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"81\t410\t\tlook\tlook\t",
+			"81\t410\t\t\tlook\tlook\t",
 			"---\t\t\t",
 		]
 
@@ -164,7 +167,7 @@ class TestCommandCollection(unittest.TestCase):
 	def test_init_resolve_vision_dark(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"82\t60C\t\tread\tread\t",
+			"82\t60C\t\t\tread\tread\t",
 			"---\t\t\t",
 		]
 
@@ -177,7 +180,7 @@ class TestCommandCollection(unittest.TestCase):
 	def test_init_resolve_vision_none(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"50\t0\t\tscore\tscore\t",
+			"50\t0\t\t\tscore\tscore\t",
 			"---\t\t\t",
 		]
 
@@ -190,11 +193,11 @@ class TestCommandCollection(unittest.TestCase):
 	def test_list_commands(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect= [
-			"33\t80\t\tlook\tlook,l\t",
-			"50\t0\t\tscore\tscore\t",
-			"16\t40\t\tgo\teast,e\t",
-			"56\t0C\t7\ttake\ttake\t",
-			"1000\t0\t\tnotacommand\tnotacommand\t",
+			"33\t80\t\t\tlook\tlook,l\t",
+			"50\t0\t\t\tscore\tscore\t",
+			"16\t40\t\t\tgo\teast,e\t",
+			"56\t0C\t7\t\ttake\ttake\t",
+			"1000\t0\t\t\tnotacommand\tnotacommand\t",
 			"---\t\t\t",
 		]
 

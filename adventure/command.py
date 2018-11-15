@@ -60,11 +60,12 @@ class ArgInfo:
 	ATTRIBUTE_ITEM_LOCATION = 0x4
 	ATTRIBUTE_ITEM_INVENTORY = 0x8
 
-	def __init__(self, arg_attributes):
+	def __init__(self, arg_attributes, linkers=[]):
 		self.mandatory = bool(arg_attributes & ArgInfo.ATTRIBUTE_MANDATORY)
 		self.is_item = bool(arg_attributes & ArgInfo.ATTRIBUTE_IS_ITEM)
 		self.is_location_item = bool(arg_attributes & ArgInfo.ATTRIBUTE_ITEM_LOCATION)
 		self.is_inventory_item = bool(arg_attributes & ArgInfo.ATTRIBUTE_ITEM_INVENTORY)
+		self.linkers = linkers
 
 
 	def takes_item_arg_from_location_only(self):

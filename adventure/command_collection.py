@@ -6,9 +6,10 @@ class CommandCollection:
 	INDEX_ID = 0
 	INDEX_ATTRIBUTES = 1
 	INDEX_ARG_INFO = 2
-	INDEX_HANDLER = 3
-	INDEX_NAMES = 4
-	INDEX_SWITCHES = 5
+	INDEX_LINK_INFO = 3
+	INDEX_HANDLER = 4
+	INDEX_NAMES = 5
+	INDEX_SWITCHES = 6
 
 
 	def __init__(self, reader, resolvers):
@@ -29,7 +30,8 @@ class CommandCollection:
 
 		command_id = self.parse_command_id(tokens[CommandCollection.INDEX_ID])
 		attributes = self.parse_attributes(tokens[CommandCollection.INDEX_ATTRIBUTES])
-		arg_infos = self.parse_arg_infos(tokens[CommandCollection.INDEX_ARG_INFO])
+		arg_infos = self.parse_arg_infos(tokens[CommandCollection.INDEX_ARG_INFO],
+			tokens[CommandCollection.INDEX_LINK_INFO])
 		arg_function = self.get_arg_function(attributes)
 		handler_function = self.parse_handler_function(tokens[CommandCollection.INDEX_HANDLER])
 		vision_function = self.get_vision_function(attributes)
@@ -61,12 +63,19 @@ class CommandCollection:
 		return int(token, 16)
 
 
-	def parse_arg_infos(self, token):
-		if not token:
+	def parse_arg_infos(self, arg_info_token, link_info_token):
+		if not arg_info_token:
 			return []
-		arg_info_tokens = token.split(",")
-		arg_info_attributes_values = [int(arg_info_token, 16) for arg_info_token in arg_info_tokens]
-		return [ArgInfo(arg_info_attributes_value) for arg_info_attributes_value in arg_info_attributes_values]
+		arg_info_tokens = arg_info_token.split(",")
+		link_info_tokens = link_info_token.split(",")
+
+		arg_infos = []
+		for i in range(0, len(arg_info_tokens)):
+			arg_info_attributes_value = int(arg_info_tokens[i], 16)
+			linkers = link_info_tokens[i].split("|")
+			arg_infos.append(ArgInfo(arg_info_attributes_value, linkers))
+
+		return arg_infos
 
 
 	def get_arg_function(self, attributes):
