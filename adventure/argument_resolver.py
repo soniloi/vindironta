@@ -40,9 +40,16 @@ class ArgumentResolver:
 		arg_input_offset = len(resolved_args)
 
 		# TODO: fix the flow control here
+		input_index = 0
 		for i in range(arg_input_offset, len(command.arg_infos)):
+
 			arg_info = command.arg_infos[i]
-			arg_input = self.get_arg(args, i - arg_input_offset)
+			arg_input = self.get_arg(args, input_index)
+			input_index += 1
+
+			if arg_info.is_valid_linker(arg_input):
+				arg_input = self.get_arg(args, input_index)
+				input_index += 1
 
 			if not arg_input:
 				if arg_info.mandatory:

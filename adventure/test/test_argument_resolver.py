@@ -240,6 +240,26 @@ class TestArgumentResolver(unittest.TestCase):
 		self.assertEqual(("{0} success!", self.book), response)
 
 
+	def test_resolve_args_multiple_items_all_valid_with_invalid_linker(self):
+		command = Command(1, 0x8, [ArgInfo(0xF), ArgInfo(0xF, ["into", "in"])], None, self.handler_function, None, "insert", [], None, None)
+		self.player.has_or_is_near_item.return_value = True
+
+		response = self.resolver.resolve_args(command, self.player, ["book", "the", "box"])
+
+		self.assertEqual(("I do not know what that is.", "the"), response)
+		self.player.reset_current_command.assert_called_once()
+
+
+	def test_resolve_args_multiple_items_all_valid_with_valid_linker(self):
+		command = Command(1, 0x8, [ArgInfo(0xF), ArgInfo(0xF, ["into", "in"])], None, self.handler_function, None, "insert", [], None, None)
+		self.player.has_or_is_near_item.return_value = True
+
+		response = self.resolver.resolve_args(command, self.player, ["book", "into", "box"])
+
+		self.assertEqual(("{0} success!", self.book), response)
+		self.player.reset_current_command.assert_called_once()
+
+
 	def test_resolve_args_switching_command_not_switchable_item(self):
 		command = Command(1, 0x808, [ArgInfo(0xF)], None, self.handler_function, None, "turn", [], None, None)
 		self.player.has_or_is_near_item.return_value = True

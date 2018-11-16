@@ -78,3 +78,7 @@ class ArgInfo:
 
 	def takes_item_arg_from_inventory_or_location(self):
 		return self.is_location_item and self.is_inventory_item
+
+
+	def is_valid_linker(self, linker):
+		return linker in self.linkers
