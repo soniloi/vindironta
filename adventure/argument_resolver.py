@@ -88,19 +88,32 @@ class ArgumentResolver:
 	def get_addinfo_response(self, command, resolved_args):
 		template = self.data.get_response("request_addinfo")
 		verb = command.primary
+		arg_infos = command.arg_infos
 
 		noun_content = ""
 		if resolved_args:
-			nouns = []
-			for arg in resolved_args:
-				if isinstance(arg, Item):
-					nouns.append(arg.shortname)
-				else:
-					nouns.append(arg)
-			noun_content = " " + " ".join(nouns)
+			noun_content = self.get_addinfo_noun_content(resolved_args, arg_infos)
 
 		content = [verb, noun_content]
 		return template, content
+
+
+	def get_addinfo_noun_content(self, resolved_args, arg_infos):
+		noun_tokens = []
+
+		for i in range(0, len(resolved_args)):
+			arg = resolved_args[i]
+			linker = arg_infos[i+1].primary_linker
+
+			if isinstance(arg, Item):
+				noun_tokens.append(arg.shortname)
+			else:
+				noun_tokens.append(arg)
+
+			if linker:
+				noun_tokens.append(linker)
+
+		return " " + " ".join(noun_tokens)
 
 
 	def resolve_arg_for_command(self, command, player, arg_info, arg_input):

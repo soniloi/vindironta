@@ -19,10 +19,12 @@ class TestArgumentResolver(unittest.TestCase):
 		self.box = ContainerItem(1106, 0x3, Labels("box", "a box", "a small box"), 3, None)
 		lamp_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "off", "on")
 		self.lamp = SwitchableItem(1043, 0x101A, Labels("lamp", "a lamp", "a small lamp"), 2, None, lamp_switching_info)
+		self.salt = Item(1110, 0x102, Labels("salt", "some salt", "some salt"), 1, None)
 		self.item_map = {
 			"book" : self.book,
 			"box" : self.box,
 			"lamp" : self.lamp,
+			"salt" : self.salt,
 		}
 
 		self.response_map = {
@@ -220,13 +222,24 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.reset_current_command.assert_called_once()
 
 
-	def test_resolve_args_multiple_missing_arg(self):
+	def test_resolve_args_multiple_missing_arg_without_link_info(self):
 		command = Command(1, 0x8, [ArgInfo(0xF), ArgInfo(0xF)], None, self.handler_function, None, "insert", [], None, None)
 		self.player.has_or_is_near_item.return_value = True
 
 		response = self.resolver.resolve_args(command, self.player, ["book"])
 
 		self.assertEqual(("What do you want to {0}{1}?", ["insert", " book"]), response)
+		self.player.reset_current_command.assert_not_called()
+
+
+	def test_resolve_args_multiple_missing_arg_with_link_info(self):
+		arg_infos = [ArgInfo(0xF), ArgInfo(0xF, ["into", "in", "to"]), ArgInfo(0xB, ["using"])]
+		command = Command(1, 0x8, arg_infos, None, self.handler_function, None, "scoop", [], None, None)
+		self.player.has_or_is_near_item.return_value = True
+
+		response = self.resolver.resolve_args(command, self.player, ["salt", "box"])
+
+		self.assertEqual(("What do you want to {0}{1}?", ["scoop", " salt into box using"]), response)
 		self.player.reset_current_command.assert_not_called()
 
 

@@ -66,6 +66,9 @@ class ArgInfo:
 		self.is_location_item = bool(arg_attributes & ArgInfo.ATTRIBUTE_ITEM_LOCATION)
 		self.is_inventory_item = bool(arg_attributes & ArgInfo.ATTRIBUTE_ITEM_INVENTORY)
 		self.linkers = linkers
+		self.primary_linker = ""
+		if linkers:
+			self.primary_linker = linkers[0]
 
 
 	def takes_item_arg_from_location_only(self):
