@@ -1,3 +1,5 @@
+from adventure.item import Item
+
 class ArgumentResolver:
 
 	def init_data(self, data):
@@ -56,7 +58,8 @@ class ArgumentResolver:
 					player.current_command = command
 					player.current_args = resolved_args
 					# TODO: improve this to request non-direct args properly also
-					return self.data.get_response("request_direct"), command.primary
+					template, content = self.get_addinfo_response(command, resolved_args)
+					return template, content
 
 			else:
 				success, response = self.resolve_arg_for_command(command, player, arg_info, arg_input)
@@ -80,6 +83,24 @@ class ArgumentResolver:
 		if index < len(args):
 			return args[index]
 		return None
+
+
+	def get_addinfo_response(self, command, resolved_args):
+		template = self.data.get_response("request_addinfo")
+		verb = command.primary
+
+		noun_content = ""
+		if resolved_args:
+			nouns = []
+			for arg in resolved_args:
+				if isinstance(arg, Item):
+					nouns.append(arg.shortname)
+				else:
+					nouns.append(arg)
+			noun_content = " " + " ".join(nouns)
+
+		content = [verb, noun_content]
+		return template, content
 
 
 	def resolve_arg_for_command(self, command, player, arg_info, arg_input):

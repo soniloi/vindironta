@@ -32,8 +32,8 @@ class TestArgumentResolver(unittest.TestCase):
 			"reject_not_holding" : "You are not holding it.",
 			"request_switch_item" : "Use \"{0} <{1}|{2}>\".",
 			"reject_unknown" : "I do not know what that is.",
+			"request_addinfo" : "What do you want to {0}{1}?",
 			"request_argless" : "Do not give an argument for this command.",
-			"request_direct" : "What do you want to {0}?",
 			"request_switch_command" : "Use the command \"{0}\" with either \"{1}\" or \"{2}\".",
 		}
 
@@ -117,7 +117,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, [])
 
-		self.assertEqual(("What do you want to {0}?", "take"), response)
+		self.assertEqual(("What do you want to {0}{1}?", ["take", ""]), response)
 
 
 	def test_resolve_args_without_arg_permissive(self):
@@ -226,7 +226,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, ["book"])
 
-		self.assertEqual(("What do you want to {0}?", "insert"), response)
+		self.assertEqual(("What do you want to {0}{1}?", ["insert", " book"]), response)
 		self.player.reset_current_command.assert_not_called()
 
 
