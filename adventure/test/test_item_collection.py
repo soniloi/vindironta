@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import Mock
 
 from adventure.data_element import Labels
-from adventure.item import ContainerItem, SwitchableItem, WearableItem
+from adventure.item import ContainerItem, SentientItem, SwitchableItem, WearableItem
 from adventure.item_collection import ItemCollection
 from adventure.location import Location
 
@@ -99,6 +99,21 @@ class TestItemCollection(unittest.TestCase):
 		self.assertTrue("basket" in collection.items)
 		basket = collection.items["basket"]
 		self.assertTrue(isinstance(basket, ContainerItem))
+
+
+	def test_init_sentient_item(self):
+		reader_mock = Mock()
+		reader_mock.read_line.side_effect = [
+			"1002\t80003\t119\t3\tcat\ta cat\ta black cat\t0\t\t",
+			"---",
+		]
+
+		collection = ItemCollection(reader_mock, self.elements)
+
+		self.assertEqual(1, len(collection.items))
+		self.assertTrue("cat" in collection.items)
+		cat = collection.items["cat"]
+		self.assertTrue(isinstance(cat, SentientItem))
 
 
 	def test_init_item_with_item_container(self):

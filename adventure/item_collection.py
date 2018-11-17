@@ -1,5 +1,5 @@
 from adventure.data_element import Labels
-from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo, WearableItem
+from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, WearableItem
 from adventure.file_reader import FileReader
 
 
@@ -106,7 +106,10 @@ class ItemCollection:
 	def init_item(self, item_id, attributes, labels, size, writing,
 		switched_element_id, switched_element_ids, switch_info, attribute_when_worn):
 
-		if bool(attributes & Item.ATTRIBUTE_CONTAINER):
+		if bool(attributes & Item.ATTRIBUTE_SENTIENT):
+			item = SentientItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
+
+		elif bool(attributes & Item.ATTRIBUTE_CONTAINER):
 			item = ContainerItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
 
 		elif bool(attributes & Item.ATTRIBUTE_SWITCHABLE):
