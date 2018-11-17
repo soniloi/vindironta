@@ -17,6 +17,7 @@ class Item(NamedDataElement):
 	ATTRIBUTE_LIQUID_CONTAINER = 0x200
 	ATTRIBUTE_WEARABLE= 0x400
 	ATTRIBUTE_SILENT = 0x20000
+	ATTRIBUTE_SENTIENT = 0x80000
 
 	def __init__(self, item_id, attributes, labels, size, writing):
 		NamedDataElement.__init__(self, data_id=item_id, attributes=attributes, labels=labels)
@@ -99,6 +100,10 @@ class Item(NamedDataElement):
 		return self.has_attribute(Item.ATTRIBUTE_SILENT)
 
 
+	def is_sentient(self):
+		return self.has_attribute(Item.ATTRIBUTE_SENTIENT)
+
+
 	def get_outermost_container(self):
 		container = self.container
 		while isinstance(container, Item):
@@ -150,6 +155,27 @@ class ContainerItem(Item, ItemContainer):
 
 	def can_accommodate(self, item):
 		return self.size > item.size
+
+
+class SentientItem(Item, ItemContainer):
+
+	def __init__(self, item_id, attributes, labels, size, writing):
+		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
+		ItemContainer.__init__(self)
+
+
+	def get_list_name(self, indentation=1):
+
+		result = Item.get_list_name(self, indentation)
+		inner_indentation = indentation + 1
+
+		if self.items:
+			template = " +{0}"
+			inner_item = next(iter(self.items.values()))
+			contents = inner_item.get_list_name(inner_indentation)
+			result += template.format(contents)
+
+		return result
 
 
 SwitchInfo = namedtuple("SwitchInfo", "attribute off on")

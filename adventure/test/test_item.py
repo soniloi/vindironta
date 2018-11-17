@@ -2,7 +2,7 @@ import unittest
 
 from adventure.data_element import Labels
 from adventure.inventory import Inventory
-from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo, WearableItem
+from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, WearableItem
 from adventure.location import Location
 
 class TestItem(unittest.TestCase):
@@ -20,6 +20,7 @@ class TestItem(unittest.TestCase):
 		self.button = SwitchableItem(1044, 0x8, Labels("button", "a button", "a red button"), 2, None, button_switching_info)
 		self.lever = SwitchableItem(1045, 0x8, Labels("lever", "a lever", "a mysterious lever"), 2, None, lever_switching_info)
 		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, Item.ATTRIBUTE_GIVES_AIR)
+		self.cat = SentientItem(1047, 0x80002, Labels("cat", "a cat", "a black cat"), 3, None)
 		self.mine_location = Location(11, 0x0, Labels("Mines", "in the mines", ". There are dark passages everywhere."))
 		self.inventory = Inventory(0, 0x1, 100)
 
@@ -98,6 +99,16 @@ class TestItem(unittest.TestCase):
 		self.box.insert(self.book)
 
 		self.assertEqual(self.mine_location, self.book.get_outermost_container())
+
+
+	def test_get_list_name_sentient(self):
+		self.assertEqual("\n\ta cat", self.cat.get_list_name())
+
+
+	def test_get_list_name_container_nonempty(self):
+		self.cat.insert(self.book)
+
+		self.assertEqual("\n\ta cat +\n\t\ta book", self.cat.get_list_name())
 
 
 	def test_switch_on_self(self):

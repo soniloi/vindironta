@@ -35,3 +35,7 @@ class ItemContainer:
 
 	def get_outermost_container(self):
 		return self
+
+
+	def can_accommodate(self, item):
+		return True
