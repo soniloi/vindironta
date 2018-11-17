@@ -737,6 +737,16 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("That is not a liquid.", "book"), response)
 
 
+	def test_handle_pick(self):
+		self.player.location.insert(self.book)
+
+		response = self.handler.handle_pick(self.player, self.book)
+
+		self.assertEqual(("Taken.", "book"), response)
+		self.assertTrue(self.player.is_carrying(self.book))
+		self.assertFalse(self.player.is_near_item(self.book))
+
+
 	def test_handle_pour_liquid(self):
 		self.bottle.insert(self.water)
 		self.player.take_item(self.bottle)
@@ -777,6 +787,16 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertEqual(("Current score: {0} point(s). Instructions entered: {1}.", [0, 6]), response)
 		self.assertEqual(6, self.player.instructions)
+
+
+	def test_handle_set(self):
+		self.player.take_item(self.lamp)
+
+		response = self.handler.handle_set(self.player, self.lamp)
+
+		self.assertEqual(("Dropped.", "lamp"), response)
+		self.assertFalse(self.player.is_carrying(self.lamp))
+		self.assertTrue(self.player.is_near_item(self.lamp))
 
 
 	def test_handle_switch_off_to_off(self):

@@ -285,6 +285,10 @@ class CommandHandler:
 		return template, content
 
 
+	def handle_pick(self, player, item):
+		return self.handle_take(player, item)
+
+
 	def handle_pour(self, player, item):
 		if not item.is_liquid():
 			return self.get_response("reject_not_liquid"), item.shortname
@@ -306,6 +310,10 @@ class CommandHandler:
 	def handle_score(self, player):
 		player.decrement_instructions()
 		return self.get_response("describe_score"), [player.score, player.instructions]
+
+
+	def handle_set(self, player, item):
+		return self.handle_drop(player, item)
 
 
 	def handle_switch(self, player, item, transition):
