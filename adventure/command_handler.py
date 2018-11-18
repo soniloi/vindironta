@@ -86,6 +86,18 @@ class CommandHandler:
 		return template, arg
 
 
+	def handle_give(self, player, proposed_gift, proposed_recipient):
+		if not proposed_recipient.is_sentient():
+			return self.get_response("reject_give_inanimate"), proposed_recipient.shortname
+
+		if proposed_gift.is_liquid():
+			return self.get_response("reject_give_liquid"), proposed_gift.shortname
+
+		proposed_gift.container.remove(proposed_gift)
+		proposed_recipient.insert(proposed_gift)
+		return self.get_response("confirm_given"), [proposed_gift.shortname, proposed_recipient.shortname]
+
+
 	def handle_go(self, player, arg):
 		direction = CommandHandler.DIRECTIONS[arg]
 

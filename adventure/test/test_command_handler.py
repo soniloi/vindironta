@@ -6,7 +6,7 @@ from adventure.command_handler import CommandHandler
 from adventure.data_element import Labels
 from adventure.direction import Direction
 from adventure.inventory import Inventory
-from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo, SwitchTransition, WearableItem
+from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, SwitchTransition, WearableItem
 from adventure.location import Location
 from adventure.player import Player
 
@@ -66,6 +66,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, Item.ATTRIBUTE_GIVES_AIR)
 		self.bottle = ContainerItem(1108, 0x203, Labels("bottle", "a bottle", "a small bottle"), 3, None)
 		self.water = Item(1109, 0x102, Labels("water", "some water", "some water"), 1, None)
+		self.cat = SentientItem(1047, 0x80003, Labels("cat", "a cat", "a black cat"), 3, None)
 
 		self.item_start_location.insert(self.book)
 		self.item_start_location.insert(self.lamp)
@@ -73,6 +74,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.item_start_location.insert(self.basket)
 		self.item_start_location.insert(self.suit)
 		self.item_start_location.insert(self.bottle)
+		self.item_start_location.insert(self.cat)
 
 
 	def setup_texts(self):
@@ -89,6 +91,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.response_map = {
 			"confirm_dropped" : "Dropped.",
 			"confirm_emptied" : "You take the {0} out of the {1}.",
+			"confirm_given" : "Given.",
 			"confirm_inserted" : "Inserted.",
 			"confirm_look" : "You are {0}.",
 			"confirm_ok" : "OK.",
@@ -122,6 +125,8 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_container_self" : "You cannot insert the {0} into itself.",
 			"reject_container_size" : "The {1} is not big enough.",
 			"reject_excess_light" : "It is too bright.",
+			"reject_give_inanimate" : "You cannot give to an inanimate object.",
+			"reject_give_liquid" : "You cannot give a liquid.",
 			"reject_go" : "Use a compass point.",
 			"reject_insert_liquid" : "The {0} cannot hold liquids.",
 			"reject_insert_solid" : "The {0} cannot hold solids.",
@@ -304,6 +309,31 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_explain(self.player, "spaize")
 
 		self.assertEqual(("Spaize is space-maize.", "spaize"), response)
+
+
+	def test_handle_give_non_sentient_recipient(self):
+		self.player.take_item(self.book)
+
+		response = self.handler.handle_give(self.player, self.book, self.lamp)
+
+		self.assertEqual(("You cannot give to an inanimate object.", "lamp"), response)
+
+
+	def test_handle_give_liquid_item(self):
+		self.bottle.insert(self.water)
+		self.player.take_item(self.bottle)
+
+		response = self.handler.handle_give(self.player, self.water, self.cat)
+
+		self.assertEqual(("You cannot give a liquid.", "water"), response)
+
+
+	def test_handle_give_valid(self):
+		self.player.take_item(self.book)
+
+		response = self.handler.handle_give(self.player, self.book, self.cat)
+
+		self.assertEqual(("Given.", ["book", "cat"]), response)
 
 
 	def test_handle_go_without_destination(self):
