@@ -32,7 +32,7 @@ class Item(NamedDataElement):
 
 
 	def get_full_description(self):
-		return self.description
+		return [self.description]
 
 
 	def get_list_name(self, indentation=1):
@@ -218,7 +218,7 @@ class SwitchableItem(Item):
 
 
 	def get_full_description(self):
-		return [Item.get_full_description(self), self.get_state_text()]
+		return [self.description, self.get_state_text()]
 
 
 	def get_state_text(self):

@@ -90,7 +90,8 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.response_map = {
 			"confirm_dropped" : "Dropped.",
-			"confirm_emptied" : "You take the {0} out of the {1}.",
+			"confirm_emptied_liquid" : "You pour the {1} out of the {0}.",
+			"confirm_emptied_solid" : "You take the {1} out of the {0}.",
 			"confirm_given" : "Given.",
 			"confirm_inserted" : "Inserted.",
 			"confirm_look" : "You are {0}.",
@@ -128,8 +129,8 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_give_inanimate" : "You cannot give to an inanimate object.",
 			"reject_give_liquid" : "You cannot give a liquid.",
 			"reject_go" : "Use a compass point.",
-			"reject_insert_liquid" : "The {0} cannot hold liquids.",
-			"reject_insert_solid" : "The {0} cannot hold solids.",
+			"reject_insert_liquid" : "The {1} cannot hold liquids.",
+			"reject_insert_solid" : "The {1} cannot hold solids.",
 			"reject_no_direction" : "You cannot go that way.",
 			"reject_no_light" : "It is too dark.",
 			"reject_no_back" : "I do not remember how you got here.",
@@ -178,13 +179,13 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_climb(self):
 		response = self.handler.handle_climb(self.player, "tree")
 
-		self.assertEqual(("Use \"up\" or \"down\".", ""), response)
+		self.assertEqual(("Use \"up\" or \"down\".", [""]), response)
 
 
 	def test_handle_commands(self):
 		response = self.handler.handle_commands(self.player)
 
-		self.assertEqual(("I know these commands: {0}.", "look, ne"), response)
+		self.assertEqual(("I know these commands: {0}.", ["look, ne"]), response)
 
 
 	def test_handle_describe_in_inventory(self):
@@ -192,7 +193,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_describe(self.player, self.book)
 
-		self.assertEqual(("It is {0}.", "a book of fairytales"), response)
+		self.assertEqual(("It is {0}.", ["a book of fairytales"]), response)
 
 
 	def test_handle_describe_at_location(self):
@@ -208,7 +209,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_drop(self.player, self.lamp)
 
-		self.assertEqual(("Dropped.", "lamp"), response)
+		self.assertEqual(("Dropped.", ["lamp"]), response)
 		self.assertFalse(self.player.is_carrying(self.lamp))
 		self.assertTrue(self.player.is_near_item(self.lamp))
 
@@ -219,7 +220,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_drop(self.player, self.suit)
 
-		self.assertEqual(("Dropped.", "suit"), response)
+		self.assertEqual(("Dropped.", ["suit"]), response)
 		self.assertFalse(self.player.is_carrying(self.suit))
 		self.assertTrue(self.player.is_near_item(self.suit))
 		self.assertFalse(self.suit.being_worn)
@@ -231,7 +232,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_drop(self.player, self.book)
 
-		self.assertEqual(("Dropped.", "book"), response)
+		self.assertEqual(("Dropped.", ["book"]), response)
 		self.assertFalse(self.player.is_carrying(self.book))
 		self.assertTrue(self.player.is_near_item(self.book))
 
@@ -252,7 +253,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_empty(self.player, self.book)
 
-		self.assertEqual(("That is not a container.", "book"), response)
+		self.assertEqual(("That is not a container.", ["book"]), response)
 
 
 	def test_handle_empty_already_empty(self):
@@ -260,7 +261,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_empty(self.player, self.basket)
 
-		self.assertEqual(("It is already empty.", "basket"), response)
+		self.assertEqual(("It is already empty.", ["basket"]), response)
 		self.assertFalse(self.basket.has_items())
 
 
@@ -270,7 +271,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_empty(self.player, self.bottle)
 
-		self.assertEqual(("You pour the liquid away.", ["water", "bottle"]), response)
+		self.assertEqual(("You pour the {1} out of the {0}.", ["bottle", "water"]), response)
 		self.assertFalse(self.bottle.contains(self.water))
 		self.assertFalse(self.player.is_carrying(self.water))
 		self.assertFalse(self.player.is_near_item(self.water))
@@ -282,7 +283,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_empty(self.player, self.basket)
 
-		self.assertEqual(("You take the {0} out of the {1}.", ["book", "basket"]), response)
+		self.assertEqual(("You take the {1} out of the {0}.", ["basket", "book"]), response)
 		self.assertFalse(self.basket.contains(self.book))
 		self.assertTrue(self.player.is_carrying(self.book))
 		self.assertFalse(self.player.is_near_item(self.book))
@@ -294,7 +295,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_empty(self.player, self.basket)
 
-		self.assertEqual(("You take the {0} out of the {1}.", ["book", "basket"]), response)
+		self.assertEqual(("You take the {1} out of the {0}.", ["basket", "book"]), response)
 		self.assertFalse(self.basket.contains(self.book))
 		self.assertFalse(self.player.is_carrying(self.book))
 		self.assertTrue(self.player.is_near_item(self.book))
@@ -303,13 +304,13 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_explain_default(self):
 		response = self.handler.handle_explain(self.player, "dreams")
 
-		self.assertEqual(("I have no explanation.", "dreams"), response)
+		self.assertEqual(("I have no explanation.", ["dreams"]), response)
 
 
 	def test_handle_explain_non_default(self):
 		response = self.handler.handle_explain(self.player, "spaize")
 
-		self.assertEqual(("Spaize is space-maize.", "spaize"), response)
+		self.assertEqual(("Spaize is space-maize.", ["spaize"]), response)
 
 
 	def test_handle_give_non_sentient_recipient(self):
@@ -317,7 +318,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_give(self.player, self.book, self.lamp)
 
-		self.assertEqual(("You cannot give to an inanimate object.", "lamp"), response)
+		self.assertEqual(("You cannot give to an inanimate object.", ["book", "lamp"]), response)
 
 
 	def test_handle_give_liquid_item(self):
@@ -326,7 +327,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_give(self.player, self.water, self.cat)
 
-		self.assertEqual(("You cannot give a liquid.", "water"), response)
+		self.assertEqual(("You cannot give a liquid.", ["water", "cat"]), response)
 
 
 	def test_handle_give_valid(self):
@@ -340,7 +341,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_go_without_destination(self):
 		response = self.handler.handle_go(self.player, 34)
 
-		self.assertEqual(("You cannot go that way.", ""), response)
+		self.assertEqual(("You cannot go that way.", [""]), response)
 		self.assertIs(self.lighthouse_location, self.player.location)
 		self.assertIsNone(self.player.previous_location)
 
@@ -378,7 +379,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_go(self.player, 13)
 
-		self.assertEqual(("It is too dark.", ""), response)
+		self.assertEqual(("It is too dark.", [""]), response)
 		self.assertIs(self.mine_location, self.player.location)
 		self.assertIs(self.lighthouse_location, self.player.previous_location)
 		self.assertFalse(self.mine_location.seen)
@@ -391,7 +392,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_go(self.player, 60)
 
-		self.assertEqual(("It is too bright.", ""), response)
+		self.assertEqual(("It is too bright.", [""]), response)
 		self.assertIs(self.sun_location, self.player.location)
 		self.assertIs(self.lighthouse_location, self.player.previous_location)
 
@@ -410,7 +411,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_go_back_without_destination(self):
 		response = self.handler.handle_go(self.player, 5)
 
-		self.assertEqual(("I do not remember how you got here.", ""), response)
+		self.assertEqual(("I do not remember how you got here.", [""]), response)
 		self.assertIs(self.lighthouse_location, self.player.location)
 		self.assertIsNone(self.player.previous_location)
 
@@ -439,7 +440,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_go_out_without_destination(self):
 		response = self.handler.handle_go(self.player, 37)
 
-		self.assertEqual(("I cannot tell in from out here.", ""), response)
+		self.assertEqual(("I cannot tell in from out here.", [""]), response)
 		self.assertIs(self.lighthouse_location, self.player.location)
 		self.assertIsNone(self.player.previous_location)
 
@@ -449,7 +450,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_go(self.player, 34)
 
-		self.assertEqual(("You cannot go that way.", ""), response)
+		self.assertEqual(("You cannot go that way.", [""]), response)
 		self.assertIs(self.lighthouse_location, self.player.location)
 		self.assertIsNone(self.player.previous_location)
 
@@ -460,7 +461,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_go(self.player, 52)
 
-		self.assertEqual(("You are blocked by {0}.", "an obstruction"), response)
+		self.assertEqual(("You are blocked by {0}.", ["an obstruction"]), response)
 
 
 	def test_handle_go_with_destination_with_obstruction_no_light(self):
@@ -470,7 +471,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_go(self.player, 16)
 
-		self.assertEqual(("You are blocked by something here.", ""), response)
+		self.assertEqual(("You are blocked by something here.", [""]), response)
 
 
 	def test_handle_go_back_with_destination_with_obstruction(self):
@@ -514,7 +515,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_go(self.player, 16)
 
-		self.assertEqual(("It is too dark.", ""), response)
+		self.assertEqual(("It is too dark.", [""]), response)
 		self.assertTrue(self.player.playing)
 
 
@@ -535,7 +536,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_go(self.player, 16)
 
-		self.assertEqual(("You fall to your death in the darkness.", ""), response)
+		self.assertEqual(("You fall to your death in the darkness.", [""]), response)
 		self.assertFalse(self.player.alive)
 		self.assertFalse(self.player.holding_items())
 		self.assertEqual(self.mine_location, self.book.container)
@@ -548,7 +549,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_go(self.player, 16)
 
-		self.assertEqual(("It is too dark.", ""), response)
+		self.assertEqual(("It is too dark.", [""]), response)
 		self.assertTrue(self.player.alive)
 
 
@@ -566,26 +567,26 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_go_disambiguate(self):
 		response = self.handler.handle_go_disambiguate(self.player, "east")
 
-		self.assertEqual(("Use a compass point.", ""), response)
+		self.assertEqual(("Use a compass point.", [""]), response)
 
 
 	def test_handle_help(self):
 		response = self.handler.handle_help(self.player, "")
 
-		self.assertEqual(("Welcome and good luck.", ""), response)
+		self.assertEqual(("Welcome and good luck.", [""]), response)
 		self.assertEqual(6, self.player.instructions)
 
 
 	def test_handle_hint_default(self):
 		response = self.handler.handle_hint(self.player, "cat")
 
-		self.assertEqual(("I have no hint.", "cat"), response)
+		self.assertEqual(("I have no hint.", ["cat"]), response)
 
 
 	def test_handle_hint_non_default(self):
 		response = self.handler.handle_hint(self.player, "magic")
 
-		self.assertEqual(("abrakadabra", "magic"), response)
+		self.assertEqual(("abrakadabra", ["magic"]), response)
 
 
 	def test_handle_immune_off(self):
@@ -594,26 +595,26 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_immune(self.player, False)
 
 		self.assertFalse(self.player.immune)
-		self.assertEqual(("Immune off.", ""), response)
+		self.assertEqual(("Immune off.", [""]), response)
 
 
 	def test_handle_immune_on(self):
 		response = self.handler.handle_immune(self.player, True)
 
 		self.assertTrue(self.player.immune)
-		self.assertEqual(("Immune on.", ""), response)
+		self.assertEqual(("Immune on.", [""]), response)
 
 
 	def test_handle_insert_into_non_container(self):
 		response = self.handler.handle_insert(self.player, self.book, self.lamp)
 
-		self.assertEqual(("That is not a container.", "lamp"), response)
+		self.assertEqual(("That is not a container.", ["book", "lamp"]), response)
 
 
 	def test_handle_insert_container_into_self(self):
 		response = self.handler.handle_insert(self.player, self.basket, self.basket)
 
-		self.assertEqual(("You cannot insert the {0} into itself.", "basket"), response)
+		self.assertEqual(("You cannot insert the {0} into itself.", ["basket", "basket"]), response)
 
 
 	def test_handle_insert_already_inserted(self):
@@ -627,7 +628,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_insert_non_portable(self):
 		response = self.handler.handle_insert(self.player, self.desk, self.basket)
 
-		self.assertEqual(("You cannot move that.", "desk"), response)
+		self.assertEqual(("You cannot move that.", ["desk", "basket"]), response)
 
 
 	def test_handle_insert_liquid_into_solid_container(self):
@@ -635,13 +636,13 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_insert(self.player, self.water, self.basket)
 
-		self.assertEqual(("The {0} cannot hold liquids.", "basket"), response)
+		self.assertEqual(("The {1} cannot hold liquids.", ["water", "basket"]), response)
 
 
 	def test_handle_insert_solid_into_liquid_container(self):
 		response = self.handler.handle_insert(self.player, self.book, self.bottle)
 
-		self.assertEqual(("The {0} cannot hold solids.", "bottle"), response)
+		self.assertEqual(("The {1} cannot hold solids.", ["book", "bottle"]), response)
 
 
 	def test_handle_insert_container_not_empty(self):
@@ -649,7 +650,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_insert(self.player, self.book, self.basket)
 
-		self.assertEqual(("There is already something in that container.", "basket"), response)
+		self.assertEqual(("There is already something in that container.", ["book", "basket"]), response)
 
 
 	def test_handle_insert_container_too_small(self):
@@ -667,7 +668,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_inventory_empty(self):
 		response = self.handler.handle_inventory(self.player)
 
-		self.assertEqual(("You have nothing.", ""), response)
+		self.assertEqual(("You have nothing.", [""]), response)
 
 
 	def test_handle_inventory_nonempty(self):
@@ -675,7 +676,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_inventory(self.player)
 
-		self.assertEqual(("You have: {0}.", "\n\ta book"), response)
+		self.assertEqual(("You have: {0}.", ["\n\ta book"]), response)
 
 
 	def test_handle_locate_at_location(self):
@@ -713,8 +714,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_look(self.player)
 
-		self.assertEqual(("You are {0}. Nearby: {1}.",
-			["at a lighthouse by the sea.", "\n\ta book"]), response)
+		self.assertEqual(("You are {0}. Nearby: {1}.", ["at a lighthouse by the sea.", "\n\ta book"]), response)
 
 
 	def test_handle_look_with_silent_item(self):
@@ -728,21 +728,21 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_node_no_arg(self):
 		response = self.handler.handle_node(self.player, "")
 
-		self.assertEqual(("You are at node {0}.", 12), response)
+		self.assertEqual(("You are at node {0}.", [12]), response)
 		self.assertIs(self.lighthouse_location, self.player.location)
 
 
 	def test_handle_node_arg_invalid(self):
 		response = self.handler.handle_node(self.player, "abc")
 
-		self.assertEqual(("There is no such node id.", ""), response)
+		self.assertEqual(("There is no such node id.", [""]), response)
 		self.assertIs(self.lighthouse_location, self.player.location)
 
 
 	def test_handle_node_arg_out_of_range(self):
 		response = self.handler.handle_node(self.player, 61)
 
-		self.assertEqual(("There is no such node id.", ""), response)
+		self.assertEqual(("There is no such node id.", [""]), response)
 		self.assertIs(self.lighthouse_location, self.player.location)
 
 
@@ -756,7 +756,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_node_arg_valid_no_light(self):
 		response = self.handler.handle_node(self.player, 11)
 
-		self.assertEqual(("It is too dark.", ""), response)
+		self.assertEqual(("It is too dark.", [""]), response)
 		self.assertIs(self.mine_location, self.player.location)
 
 
@@ -765,7 +765,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_pour(self.player, self.book)
 
-		self.assertEqual(("That is not a liquid.", "book"), response)
+		self.assertEqual(("That is not a liquid.", ["book"]), response)
 
 
 	def test_handle_pick(self):
@@ -773,7 +773,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_pick(self.player, self.book)
 
-		self.assertEqual(("Taken.", "book"), response)
+		self.assertEqual(("Taken.", ["book"]), response)
 		self.assertTrue(self.player.is_carrying(self.book))
 		self.assertFalse(self.player.is_near_item(self.book))
 
@@ -792,7 +792,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_quit(self):
 		response = self.handler.handle_quit(self.player)
 
-		self.assertEqual(("OK.", ""), response)
+		self.assertEqual(("OK.", [""]), response)
 		self.assertEqual(6, self.player.instructions)
 		self.assertFalse(self.player.playing)
 
@@ -802,7 +802,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_read(self.player, self.lamp)
 
-		self.assertEqual(("There is no writing.", "lamp"), response)
+		self.assertEqual(("There is no writing.", ["lamp"]), response)
 
 
 	def test_handle_read_with_writing(self):
@@ -810,7 +810,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_read(self.player, self.book)
 
-		self.assertEqual(("It reads {0}.", "The Pied Piper"), response)
+		self.assertEqual(("It reads {0}.", ["The Pied Piper"]), response)
 
 
 	def test_handle_score(self):
@@ -825,7 +825,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_set(self.player, self.lamp)
 
-		self.assertEqual(("Dropped.", "lamp"), response)
+		self.assertEqual(("Dropped.", ["lamp"]), response)
 		self.assertFalse(self.player.is_carrying(self.lamp))
 		self.assertTrue(self.player.is_near_item(self.lamp))
 
@@ -881,7 +881,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_take(self.player, self.desk)
 
-		self.assertEqual(("You cannot move that.", "desk"), response)
+		self.assertEqual(("You cannot move that.", ["desk"]), response)
 		self.assertFalse(self.player.is_carrying(self.desk))
 		self.assertTrue(self.player.is_near_item(self.desk))
 
@@ -891,7 +891,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_take(self.player, self.mobile_obstruction)
 
-		self.assertEqual(("You cannot move that.", "mobile_obstruction"), response)
+		self.assertEqual(("You cannot move that.", ["mobile_obstruction"]), response)
 		self.assertFalse(self.player.is_carrying(self.mobile_obstruction))
 		self.assertTrue(self.player.is_near_item(self.mobile_obstruction))
 
@@ -902,7 +902,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_take(self.player, self.book)
 
-		self.assertEqual(("That is too large to carry.", "book"), response)
+		self.assertEqual(("That is too large to carry.", ["book"]), response)
 		self.assertFalse(self.player.is_carrying(self.book))
 		self.assertTrue(self.player.is_near_item(self.book))
 
@@ -912,7 +912,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_take(self.player, self.book)
 
-		self.assertEqual(("Taken.", "book"), response)
+		self.assertEqual(("Taken.", ["book"]), response)
 		self.assertTrue(self.player.is_carrying(self.book))
 		self.assertFalse(self.player.is_near_item(self.book))
 
@@ -923,7 +923,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_take(self.player, self.water)
 
-		self.assertEqual(("You cannot take a liquid.", "water"), response)
+		self.assertEqual(("You cannot take a liquid.", ["water"]), response)
 		self.assertFalse(self.player.is_carrying(self.water))
 		self.assertTrue(self.player.is_near_item(self.water))
 
@@ -941,7 +941,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_toggle_non_switchable_item(self):
 		response = self.handler.handle_toggle(self.player, self.book)
 
-		self.assertEqual(("I do not know how.", "book"), response)
+		self.assertEqual(("I do not know how.", ["book"]), response)
 
 
 	def test_handle_toggle_off_to_on(self):
@@ -968,7 +968,7 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_verbose(self.player, False)
 
 		self.assertFalse(self.player.verbose)
-		self.assertEqual(("Verbose off.", ""), response)
+		self.assertEqual(("Verbose off.", [""]), response)
 
 
 	def test_handle_verbose_on(self):
@@ -977,13 +977,13 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_verbose(self.player, True)
 
 		self.assertTrue(self.player.verbose)
-		self.assertEqual(("Verbose on.", ""), response)
+		self.assertEqual(("Verbose on.", [""]), response)
 
 
 	def test_handle_wear_not_wearable(self):
 		response = self.handler.handle_wear(self.player, self.lamp)
 
-		self.assertEqual(("You cannot wear the {0}.", "lamp"), response)
+		self.assertEqual(("You cannot wear the {0}.", ["lamp"]), response)
 
 
 	def test_handle_wear_wearable_already_wearing(self):
@@ -991,7 +991,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_wear(self.player, self.suit)
 
-		self.assertEqual(("You are already wearing the {0}.", "suit"), response)
+		self.assertEqual(("You are already wearing the {0}.", ["suit"]), response)
 
 
 	def test_handle_wear_wearable_not_already_wearing(self):
@@ -1000,7 +1000,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_wear(self.player, self.suit)
 
-		self.assertEqual(("You are wearing the {0}.", "suit"), response)
+		self.assertEqual(("You are wearing the {0}.", ["suit"]), response)
 
 
 if __name__ == "__main__":
