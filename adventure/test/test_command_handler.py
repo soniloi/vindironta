@@ -144,6 +144,7 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_not_wearable" : "You cannot wear the {0}.",
 			"reject_obstruction_known" : "You are blocked by {0}.",
 			"reject_obstruction_unknown" : "You are blocked by something here.",
+			"reject_take_animate" : "You cannot take anything from the {1}.",
 			"reject_take_liquid" : "You cannot take a liquid.",
 			"reject_too_full" : "That is too large to carry.",
 		}
@@ -863,6 +864,16 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertEqual(("The {0} is already {1}.", ["lamp", "on"]), response)
 		self.assertTrue(self.lamp.is_on())
+
+
+	def test_handle_take_from_sentient(self):
+		self.cat.insert(self.book)
+
+		response = self.handler.handle_take(self.player, self.book)
+
+		self.assertEqual(("You cannot take anything from the {1}.", ["book", "cat"]), response)
+		self.assertFalse(self.player.is_carrying(self.book))
+		self.assertTrue(self.cat.contains(self.book))
 
 
 	def test_handle_take_not_portable(self):

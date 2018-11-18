@@ -157,7 +157,7 @@ class ContainerItem(Item, ItemContainer):
 		return self.size > item.size
 
 
-class SentientItem(Item, ItemContainer):
+class SentientItem(ItemContainer, Item):
 
 	def __init__(self, item_id, attributes, labels, size, writing):
 		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
@@ -176,6 +176,10 @@ class SentientItem(Item, ItemContainer):
 			result += template.format(contents)
 
 		return result
+
+
+	def is_sentient(self):
+		return True
 
 
 SwitchInfo = namedtuple("SwitchInfo", "attribute off on")

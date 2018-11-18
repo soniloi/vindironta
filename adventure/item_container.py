@@ -39,3 +39,7 @@ class ItemContainer:
 
 	def can_accommodate(self, item):
 		return True
+
+
+	def is_sentient(self):
+		return False
