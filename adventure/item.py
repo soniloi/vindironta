@@ -111,6 +111,15 @@ class Item(NamedDataElement):
 		return container
 
 
+	def get_sentient_owner(self):
+		owner = self.container
+		if isinstance(owner, SentientItem):
+			return owner
+		elif not isinstance(owner, Item):
+			return None
+		return owner.get_sentient_owner()
+
+
 class ContainerItem(Item, ItemContainer):
 
 	def __init__(self, item_id, attributes, labels, size, writing):

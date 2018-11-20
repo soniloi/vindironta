@@ -866,8 +866,19 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(self.lamp.is_on())
 
 
-	def test_handle_take_from_sentient(self):
+	def test_handle_take_from_sentient_simple(self):
 		self.cat.insert(self.book)
+
+		response = self.handler.handle_take(self.player, self.book)
+
+		self.assertEqual(("You cannot take anything from the {1}.", ["book", "cat"]), response)
+		self.assertFalse(self.player.is_carrying(self.book))
+		self.assertTrue(self.cat.contains(self.book))
+
+
+	def test_handle_take_from_sentient_nested(self):
+		self.basket.insert(self.book)
+		self.cat.insert(self.basket)
 
 		response = self.handler.handle_take(self.player, self.book)
 

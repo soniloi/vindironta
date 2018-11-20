@@ -351,9 +351,9 @@ class CommandHandler:
 
 	def handle_take(self, player, item, proposed_container=None):
 
-		# TODO: fix this area
-		if item.container.is_sentient():
-			return self.get_response("reject_take_animate"), [item.shortname, item.container.shortname]
+		owner = item.get_sentient_owner()
+		if owner:
+			return self.get_response("reject_take_animate"), [item.shortname, owner.shortname]
 
 		if proposed_container:
 			return self.handle_insert(player, item, proposed_container)
