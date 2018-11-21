@@ -65,8 +65,9 @@ class TestCommandHandler(unittest.TestCase):
 		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None)
 		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, Item.ATTRIBUTE_GIVES_AIR)
 		self.bottle = ContainerItem(1108, 0x203, Labels("bottle", "a bottle", "a small bottle"), 3, None)
-		self.water = Item(1109, 0x102, Labels("water", "some water", "some water"), 1, None)
+		self.water = Item(1109, 0x2102, Labels("water", "some water", "some water"), 1, None)
 		self.cat = SentientItem(1047, 0x80003, Labels("cat", "a cat", "a black cat"), 3, None)
+		self.bread = Item(1109, 0x2002, Labels("bread", "some bread", "a loaf of bread"), 2, None)
 
 		self.item_start_location.insert(self.book)
 		self.item_start_location.insert(self.lamp)
@@ -75,6 +76,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.item_start_location.insert(self.suit)
 		self.item_start_location.insert(self.bottle)
 		self.item_start_location.insert(self.cat)
+		self.item_start_location.insert(self.bread)
 
 
 	def setup_texts(self):
@@ -89,6 +91,7 @@ class TestCommandHandler(unittest.TestCase):
 		}
 
 		self.response_map = {
+			"confirm_consume" : "You consume the {0}.",
 			"confirm_dropped" : "Dropped.",
 			"confirm_emptied_liquid" : "You pour the {1} out of the {0}.",
 			"confirm_emptied_solid" : "You take the {1} out of the {0}.",
@@ -125,6 +128,8 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_climb" : "Use \"up\" or \"down\".",
 			"reject_container_self" : "You cannot insert the {0} into itself.",
 			"reject_container_size" : "The {1} is not big enough.",
+			"reject_drink_solid" : "You cannot drink a solid.",
+			"reject_eat_liquid" : "You cannot eat a liquid.",
 			"reject_excess_light" : "It is too bright.",
 			"reject_give_inanimate" : "You cannot give to an inanimate object.",
 			"reject_give_liquid" : "You cannot give a liquid.",
@@ -141,6 +146,7 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_not_container" : "That is not a container.",
 			"reject_not_empty" : "There is already something in that container.",
 			"reject_not_liquid" : "That is not a liquid.",
+			"reject_not_consumable" : "You cannot consume that.",
 			"reject_not_portable" : "You cannot move that.",
 			"reject_not_wearable" : "You cannot wear the {0}.",
 			"reject_obstruction_known" : "You are blocked by {0}.",
@@ -188,6 +194,20 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("I know these commands: {0}.", ["look, ne"]), response)
 
 
+	def test_handle_consume_non_edible(self):
+		response = self.handler.handle_consume(self.player, self.book)
+
+		self.assertEqual(("You cannot consume that.", ["book"]), response)
+		self.assertTrue(self.item_start_location.contains(self.book))
+
+
+	def test_handle_consume_edible(self):
+		response = self.handler.handle_consume(self.player, self.bread)
+
+		self.assertEqual(("You consume the {0}.", ["bread"]), response)
+		self.assertFalse(self.item_start_location.contains(self.bread))
+
+
 	def test_handle_describe_in_inventory(self):
 		self.player.take_item(self.book)
 
@@ -202,6 +222,22 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_describe(self.player, self.lamp)
 
 		self.assertEqual(("It is {0}. It is {1}.", ["a small lamp", "on"]), response)
+
+
+	def test_handle_drink_solid(self):
+		response = self.handler.handle_drink(self.player, self.bread)
+
+		self.assertEqual(("You cannot drink a solid.", ["bread"]), response)
+		self.assertTrue(self.item_start_location.contains(self.bread))
+
+
+	def test_handle_drink_liquid(self):
+		self.bottle.insert(self.water)
+
+		response = self.handler.handle_drink(self.player, self.water)
+
+		self.assertEqual(("You consume the {0}.", ["water"]), response)
+		self.assertFalse(self.item_start_location.contains(self.water))
 
 
 	def test_handle_drop_non_wearable(self):
@@ -246,6 +282,22 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("You pour the liquid away.", ["water", "bottle"]), response)
 		self.assertFalse(self.player.is_carrying(self.water))
 		self.assertFalse(self.player.is_near_item(self.water))
+
+
+	def test_handle_eat_liquid(self):
+		self.bottle.insert(self.water)
+
+		response = self.handler.handle_eat(self.player, self.water)
+
+		self.assertEqual(("You cannot eat a liquid.", ["water"]), response)
+		self.assertTrue(self.item_start_location.contains(self.water))
+
+
+	def test_handle_eat_solid(self):
+		response = self.handler.handle_eat(self.player, self.bread)
+
+		self.assertEqual(("You consume the {0}.", ["bread"]), response)
+		self.assertFalse(self.item_start_location.contains(self.bread))
 
 
 	def test_handle_empty_non_container(self):

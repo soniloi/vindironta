@@ -15,7 +15,8 @@ class Item(NamedDataElement):
 	ATTRIBUTE_GIVES_AIR = 0x20
 	ATTRIBUTE_LIQUID = 0x100
 	ATTRIBUTE_LIQUID_CONTAINER = 0x200
-	ATTRIBUTE_WEARABLE= 0x400
+	ATTRIBUTE_WEARABLE = 0x400
+	ATTRIBUTE_EDIBLE = 0x2000
 	ATTRIBUTE_SILENT = 0x20000
 	ATTRIBUTE_SENTIENT = 0x80000
 
@@ -94,6 +95,10 @@ class Item(NamedDataElement):
 
 	def is_liquid_container(self):
 		return self.has_attribute(Item.ATTRIBUTE_LIQUID_CONTAINER)
+
+
+	def is_edible(self):
+		return self.has_attribute(Item.ATTRIBUTE_EDIBLE)
 
 
 	def is_silent(self):

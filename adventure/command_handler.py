@@ -41,6 +41,14 @@ class CommandHandler:
 		return template, content
 
 
+	def handle_consume(self, player, item):
+		if not item.is_edible():
+			return self.get_response("reject_not_consumable"), [item.shortname]
+
+		player.lose_item(item)
+		return self.get_response("confirm_consume"), [item.shortname]
+
+
 	def handle_describe(self, player, item):
 		template = self.get_response("describe_item")
 		if item.is_switchable():
@@ -48,14 +56,27 @@ class CommandHandler:
 		return template, item.get_full_description()
 
 
-	def handle_drop(self, player, item):
+	def handle_drink(self, player, item):
+		if not item.is_liquid():
+			return self.get_response("reject_drink_solid"), [item.shortname]
 
+		return self.handle_consume(player, item)
+
+
+	def handle_drop(self, player, item):
 		if item.is_liquid():
 			player.lose_item(item)
 			return self.get_response("confirm_poured"), [item.shortname, item.container.shortname]
 
 		player.drop_item(item)
 		return self.get_response("confirm_dropped"), [item.shortname]
+
+
+	def handle_eat(self, player, item):
+		if item.is_liquid():
+			return self.get_response("reject_eat_liquid"), [item.shortname]
+
+		return self.handle_consume(player, item)
 
 
 	def handle_empty(self, player, item):
