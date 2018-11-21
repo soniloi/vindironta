@@ -49,7 +49,9 @@ class ArgumentResolver:
 			arg_input = self.get_arg(args, input_index)
 			input_index += 1
 
+			current_linker = None
 			if arg_info.is_valid_linker(arg_input):
+				current_linker = arg_input
 				arg_input = self.get_arg(args, input_index)
 				input_index += 1
 
@@ -58,7 +60,7 @@ class ArgumentResolver:
 					player.current_command = command
 					player.current_args = resolved_args
 					# TODO: improve this to request non-direct args properly also
-					template, content = self.get_addinfo_response(command, resolved_args)
+					template, content = self.get_addinfo_response(command, resolved_args, current_linker)
 					return template, content
 
 			else:
@@ -85,20 +87,20 @@ class ArgumentResolver:
 		return None
 
 
-	def get_addinfo_response(self, command, resolved_args):
+	def get_addinfo_response(self, command, resolved_args, given_linker):
 		template = self.data.get_response("request_addinfo")
 		verb = command.primary
 		arg_infos = command.arg_infos
 
 		noun_content = ""
 		if resolved_args:
-			noun_content = self.get_addinfo_noun_content(resolved_args, arg_infos)
+			noun_content = self.get_addinfo_noun_content(resolved_args, arg_infos, given_linker)
 
 		content = [verb, noun_content]
 		return template, content
 
 
-	def get_addinfo_noun_content(self, resolved_args, arg_infos):
+	def get_addinfo_noun_content(self, resolved_args, arg_infos, given_linker):
 		noun_tokens = []
 
 		for i in range(0, len(resolved_args)):
@@ -112,6 +114,9 @@ class ArgumentResolver:
 
 			if linker:
 				noun_tokens.append(linker)
+
+		if given_linker:
+			noun_tokens[-1] = given_linker
 
 		return " " + " ".join(noun_tokens)
 

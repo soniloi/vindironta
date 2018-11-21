@@ -232,7 +232,29 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.reset_current_command.assert_not_called()
 
 
-	def test_resolve_args_multiple_missing_arg_with_link_info(self):
+	def test_resolve_args_multiple_missing_arg_with_link_info_linker_implicit(self):
+		arg_infos = [ArgInfo(0xF), ArgInfo(0xF, ["into", "in", "to"])]
+		command = Command(1, 0x8, arg_infos, None, self.handler_function, None, "insert", [], None, None)
+		self.player.has_or_is_near_item.return_value = True
+
+		response = self.resolver.resolve_args(command, self.player, ["book"])
+
+		self.assertEqual(("What do you want to {0}{1}?", ["insert", " book into"]), response)
+		self.player.reset_current_command.assert_not_called()
+
+
+	def test_resolve_args_multiple_missing_arg_with_link_info_linker_explicit(self):
+		arg_infos = [ArgInfo(0xF), ArgInfo(0xF, ["into", "in", "to"])]
+		command = Command(1, 0x8, arg_infos, None, self.handler_function, None, "insert", [], None, None)
+		self.player.has_or_is_near_item.return_value = True
+
+		response = self.resolver.resolve_args(command, self.player, ["book", "to"])
+
+		self.assertEqual(("What do you want to {0}{1}?", ["insert", " book to"]), response)
+		self.player.reset_current_command.assert_not_called()
+
+
+	def test_resolve_args_multiple_missing_arg_with_link_info_three_args(self):
 		arg_infos = [ArgInfo(0xF), ArgInfo(0xF, ["into", "in", "to"]), ArgInfo(0xB, ["using"])]
 		command = Command(1, 0x8, arg_infos, None, self.handler_function, None, "scoop", [], None, None)
 		self.player.has_or_is_near_item.return_value = True
