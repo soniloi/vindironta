@@ -1,12 +1,6 @@
-class VisionResolver:
+from adventure.resolver import Resolver
 
-	def init_data(self, data):
-		self.data = data
-
-
-	def get_resolver_function(self, resolver_function_name):
-		return getattr(self, resolver_function_name, None)
-
+class VisionResolver(Resolver):
 
 	def resolve(self, command, player, args):
 		return command.arg_function(command, player, args)
