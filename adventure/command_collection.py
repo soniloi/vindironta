@@ -36,7 +36,7 @@ class CommandCollection:
 		arg_function = self.get_arg_function(attributes)
 		handler_function = self.parse_handler_function(tokens[CommandCollection.INDEX_HANDLER])
 		vision_function = self.get_vision_function(attributes, arg_infos)
-		off_switch, on_switch = self.get_switches(tokens[CommandCollection.INDEX_SWITCHES], attributes)
+		transitions = self.get_transitions(tokens[CommandCollection.INDEX_SWITCHES], attributes)
 		teleport_locations = self.get_teleport_locations(tokens[CommandCollection.INDEX_TELEPORTS], attributes)
 
 		if handler_function and arg_function:
@@ -50,8 +50,7 @@ class CommandCollection:
 				vision_function=vision_function,
 				primary=primary_command_name,
 				aliases=command_names,
-				off_switch=off_switch,
-				on_switch=on_switch,
+				transitions=transitions,
 				teleport_locations=teleport_locations,
 			)
 			for command_name in command_names:
@@ -114,10 +113,15 @@ class CommandCollection:
 		return (command_names[0], command_names)
 
 
-	def get_switches(self, token, attributes):
-		if not bool(attributes & Command.ATTRIBUTE_SWITCHABLE):
-			return None, None
-		return token.split(",")
+	def get_transitions(self, token, attributes):
+		transitions = {}
+
+		if bool(attributes & Command.ATTRIBUTE_SWITCHABLE):
+			switches = token.split(",")
+			transitions[switches[0]] = False
+			transitions[switches[1]] = True
+
+		return transitions
 
 
 	def get_teleport_locations(self, token, attributes):

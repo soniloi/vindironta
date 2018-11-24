@@ -10,7 +10,7 @@ class Command(DataElement):
 	ATTRIBUTE_SWITCHING = 0x800
 
 	def __init__(self, command_id, attributes, arg_infos, arg_function, handler_function, vision_function, primary,
-			aliases, off_switch, on_switch, teleport_locations):
+			aliases, transitions, teleport_locations):
 		DataElement.__init__(self, data_id=command_id, attributes=attributes)
 		self.arg_infos = arg_infos
 		self.arg_function = arg_function
@@ -18,13 +18,8 @@ class Command(DataElement):
 		self.vision_function = vision_function
 		self.primary = primary
 		self.aliases = aliases
+		self.transitions = transitions
 		self.teleport_locations = teleport_locations
-
-		self.transitions = {}
-		if off_switch:
-			self.transitions[off_switch] = False
-		if on_switch:
-			self.transitions[on_switch] = True
 
 
 	def is_secret(self):
