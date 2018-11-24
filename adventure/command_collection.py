@@ -10,6 +10,7 @@ class CommandCollection:
 	INDEX_HANDLER = 4
 	INDEX_NAMES = 5
 	INDEX_SWITCHES = 6
+	INDEX_TELEPORTS = 7
 
 
 	def __init__(self, reader, resolvers):
@@ -36,6 +37,7 @@ class CommandCollection:
 		handler_function = self.parse_handler_function(tokens[CommandCollection.INDEX_HANDLER])
 		vision_function = self.get_vision_function(attributes, arg_infos)
 		off_switch, on_switch = self.get_switches(tokens[CommandCollection.INDEX_SWITCHES], attributes)
+		teleport_locations = self.get_teleport_locations(tokens[CommandCollection.INDEX_TELEPORTS], attributes)
 
 		if handler_function and arg_function:
 			(primary_command_name, command_names) = self.parse_command_names(tokens[CommandCollection.INDEX_NAMES])
@@ -49,7 +51,8 @@ class CommandCollection:
 				primary=primary_command_name,
 				aliases=command_names,
 				off_switch=off_switch,
-				on_switch=on_switch
+				on_switch=on_switch,
+				teleport_locations=teleport_locations,
 			)
 			for command_name in command_names:
 				self.commands[command_name] = command
@@ -115,6 +118,25 @@ class CommandCollection:
 		if not bool(attributes & Command.ATTRIBUTE_SWITCHABLE):
 			return None, None
 		return token.split(",")
+
+
+	def get_teleport_locations(self, token, attributes):
+		teleport_locations = {}
+
+		if bool(attributes & Command.ATTRIBUTE_TELEPORT):
+			teleport_pair_tokens = token.split(",")
+			for teleport_pair_token in teleport_pair_tokens:
+				source, destination = self.get_teleport_location_ids(teleport_pair_token)
+				teleport_locations[source] = destination
+
+		return teleport_locations
+
+
+	def get_teleport_location_ids(self, token):
+		teleport_pair = token.split("|")
+		source = int(teleport_pair[0])
+		destination = int(teleport_pair[1])
+		return source, destination
 
 
 	def get(self, name):

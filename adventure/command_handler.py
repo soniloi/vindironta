@@ -351,6 +351,10 @@ class CommandHandler:
 		return self.handle_drop(player, item)
 
 
+	def handle_sleep(self, player):
+		return "", ""
+
+
 	def handle_switch(self, player, item, transition):
 		template = self.get_response("describe_switch_item")
 

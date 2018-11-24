@@ -2,6 +2,7 @@ from adventure.data_element import DataElement
 
 class Command(DataElement):
 
+	ATTRIBUTE_TELEPORT = 0x2
 	ATTRIBUTE_SECRET = 0x10
 	ATTRIBUTE_MOVEMENT = 0x40
 	ATTRIBUTE_SWITCHABLE = 0x100
@@ -9,7 +10,7 @@ class Command(DataElement):
 	ATTRIBUTE_SWITCHING = 0x800
 
 	def __init__(self, command_id, attributes, arg_infos, arg_function, handler_function, vision_function, primary,
-			aliases, off_switch, on_switch):
+			aliases, off_switch, on_switch, teleport_locations):
 		DataElement.__init__(self, data_id=command_id, attributes=attributes)
 		self.arg_infos = arg_infos
 		self.arg_function = arg_function
@@ -17,6 +18,7 @@ class Command(DataElement):
 		self.vision_function = vision_function
 		self.primary = primary
 		self.aliases = aliases
+		self.teleport_locations = teleport_locations
 
 		self.transitions = {}
 		if off_switch:

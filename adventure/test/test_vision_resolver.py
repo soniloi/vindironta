@@ -33,7 +33,7 @@ class TestVisionResolver(unittest.TestCase):
 	def test_resolve_light_and_dark_player_has_light_and_needs_no_light(self):
 		player = Mock()
 		player.has_light_and_needs_no_light.return_value = True
-		command = Command(1, 0x9, 0x0, self.arg_function, None, None, "", [], None, None)
+		command = Command(1, 0x9, 0x0, self.arg_function, None, None, "", [], None, None, {})
 
 		response = self.resolver.resolve_light_and_dark(command, player, "")
 
@@ -44,7 +44,7 @@ class TestVisionResolver(unittest.TestCase):
 		player = Mock()
 		player.has_light_and_needs_no_light.return_value = False
 		player.has_light.return_value = False
-		command = Command(1, 0x9, 0x0, self.arg_function, None, None, "", [], None, None)
+		command = Command(1, 0x9, 0x0, self.arg_function, None, None, "", [], None, None, {})
 
 		response = self.resolver.resolve_light_and_dark(command, player, "")
 
@@ -55,7 +55,7 @@ class TestVisionResolver(unittest.TestCase):
 		player = Mock()
 		player.has_light_and_needs_no_light.return_value = False
 		player.has_light.return_value = True
-		command = Command(1, 0x9, 0x0, self.arg_function, None, None, "", [], None, None)
+		command = Command(1, 0x9, 0x0, self.arg_function, None, None, "", [], None, None, {})
 
 		response = self.resolver.resolve_light_and_dark(command, player, "")
 
@@ -66,7 +66,7 @@ class TestVisionResolver(unittest.TestCase):
 		player = Mock()
 		player.has_light_and_needs_no_light.return_value = False
 		player.has_light.return_value = False
-		command = Command(1, 0x9, 0x0, self.arg_function, None, None, "", [], None, None)
+		command = Command(1, 0x9, 0x0, self.arg_function, None, None, "", [], None, None, {})
 
 		response = self.resolver.resolve_dark(command, player, "")
 
@@ -77,7 +77,7 @@ class TestVisionResolver(unittest.TestCase):
 		player = Mock()
 		player.has_light_and_needs_no_light.return_value = False
 		player.has_light.return_value = True
-		command = Command(1, 0x9, 0x0, self.arg_function, None, None, "", [], None, None)
+		command = Command(1, 0x9, 0x0, self.arg_function, None, None, "", [], None, None, {})
 
 		response = self.resolver.resolve_dark(command, player, "")
 
