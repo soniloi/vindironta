@@ -30,12 +30,6 @@ class ArgumentResolver:
 		return self.execute(command, player, [transition])
 
 
-	def resolve_argless(self, command, player, args):
-		if args:
-			return self.data.get_response("request_argless"), self.get_arg(args, 0)
-		return self.execute(command, player, args)
-
-
 	def resolve_args(self, command, player, args):
 
 		resolved_args = player.get_current_args()

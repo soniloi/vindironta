@@ -105,20 +105,6 @@ class TestCommandCollection(unittest.TestCase):
 		self.assertEqual(self.argument_resolver.resolve_switchable, verbose_command.arg_function)
 
 
-	def test_init_argless_command(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"50\t0\t\t\tscore\tscore\t",
-			"---\t\t\t",
-		]
-
-		collection = CommandCollection(reader_mock, self.resolvers)
-
-		self.assertTrue("score" in collection.commands)
-		score_command = collection.commands["score"]
-		self.assertEqual(self.argument_resolver.resolve_argless, score_command.arg_function)
-
-
 	def test_init_single_arg_command(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [

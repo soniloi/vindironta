@@ -84,8 +84,6 @@ class CommandCollection:
 			arg_function_name += "movement"
 		elif bool(attributes & Command.ATTRIBUTE_SWITCHABLE):
 			arg_function_name += "switchable"
-		elif not bool(attributes & Command.ATTRIBUTE_TAKES_ARG):
-			arg_function_name += "argless"
 		else:
 			arg_function_name += "args"
 		return self.argument_resolver.get_resolver_function(arg_function_name)

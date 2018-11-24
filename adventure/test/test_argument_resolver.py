@@ -98,22 +98,6 @@ class TestArgumentResolver(unittest.TestCase):
 		self.assertEqual(("{0} success!", True), response)
 
 
-	def test_resolve_argless_without_arg(self):
-		command = Command(1, 0x0, [ArgInfo(0x0)], None, self.handler_function, None, "", [], None, None)
-
-		response = self.resolver.resolve_argless(command, self.player, [])
-
-		self.assertEqual(("{0} success!", None), response)
-
-
-	def test_resolve_argless_with_arg(self):
-		command = Command(1, 0x0, [ArgInfo(0x0)], None, self.handler_function, None, "", [], None, None)
-
-		response = self.resolver.resolve_argless(command, self.player, ["test"])
-
-		self.assertEqual(("Do not give an argument for this command.", "test"), response)
-
-
 	def test_resolve_args_without_arg(self):
 		command = Command(1, 0x9, [ArgInfo(0x1)], None, self.handler_function, None, "take", [], None, None)
 
