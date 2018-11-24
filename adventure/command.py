@@ -2,10 +2,8 @@ from adventure.data_element import DataElement
 
 class Command(DataElement):
 
-	ATTRIBUTE_TAKES_ARG = 0x08
 	ATTRIBUTE_SECRET = 0x10
 	ATTRIBUTE_MOVEMENT = 0x40
-	ATTRIBUTE_PERMISSIVE = 0x80
 	ATTRIBUTE_SWITCHABLE = 0x100
 	ATTRIBUTE_REQUIRES_VISION = 0x400
 	ATTRIBUTE_SWITCHING = 0x800
@@ -29,10 +27,6 @@ class Command(DataElement):
 
 	def is_secret(self):
 		return self.has_attribute(Command.ATTRIBUTE_SECRET)
-
-
-	def is_permissive(self):
-		return self.has_attribute(Command.ATTRIBUTE_PERMISSIVE)
 
 
 	def requires_vision(self):

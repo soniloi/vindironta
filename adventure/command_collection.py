@@ -34,7 +34,7 @@ class CommandCollection:
 			tokens[CommandCollection.INDEX_LINK_INFO])
 		arg_function = self.get_arg_function(attributes)
 		handler_function = self.parse_handler_function(tokens[CommandCollection.INDEX_HANDLER])
-		vision_function = self.get_vision_function(attributes)
+		vision_function = self.get_vision_function(attributes, arg_infos)
 		off_switch, on_switch = self.get_switches(tokens[CommandCollection.INDEX_SWITCHES], attributes)
 
 		if handler_function and arg_function:
@@ -94,10 +94,10 @@ class CommandCollection:
 		return self.command_handler.get_handler_function(handler_function_name)
 
 
-	def get_vision_function(self, attributes):
+	def get_vision_function(self, attributes, arg_infos):
 		vision_function_name = "resolve_"
 		if bool(attributes & Command.ATTRIBUTE_REQUIRES_VISION):
-			if bool(attributes & Command.ATTRIBUTE_TAKES_ARG):
+			if arg_infos:
 				vision_function_name += "dark"
 			else:
 				vision_function_name += "light_and_dark"

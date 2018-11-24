@@ -153,7 +153,7 @@ class TestCommandCollection(unittest.TestCase):
 	def test_init_resolve_vision_dark(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"82\t60C\t\t\tread\tread\t",
+			"82\t60C\tF\t\tread\tread\t",
 			"---\t\t\t",
 		]
 
