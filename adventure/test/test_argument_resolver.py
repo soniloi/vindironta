@@ -283,37 +283,37 @@ class TestArgumentResolver(unittest.TestCase):
 
 
 	def test_resolve_args_switching_command_not_switchable_item(self):
-		command = Command(1, 0x808, [ArgInfo(0xF)], None, self.handler_function, None, "turn", [], {}, {})
+		command = Command(1, 0x208, [ArgInfo(0xF)], None, self.handler_function, None, "turn", [], {}, {})
 		self.player.has_or_is_near_item.return_value = True
 
-		response = self.resolver.resolve_args(command, self.player, ["book"])
+		response = self.resolver.resolve_switching(command, self.player, ["book"])
 
 		self.assertEqual(("I do not understand.", "book"), response)
 
 
 	def test_resolve_args_switching_command_switchable_item_no_next_state(self):
-		command = Command(1, 0x808, [ArgInfo(0xF)], None, self.handler_function, None, "turn", [], {}, {})
+		command = Command(1, 0x208, [ArgInfo(0xF)], None, self.handler_function, None, "turn", [], {}, {})
 		self.player.has_or_is_near_item.return_value = True
 
-		response = self.resolver.resolve_args(command, self.player, ["lamp"])
+		response = self.resolver.resolve_switching(command, self.player, ["lamp"])
 
 		self.assertEqual(("Use \"{0} <{1}|{2}>\".", ["lamp", "off", "on"]), response)
 
 
 	def test_resolve_args_switching_command_switchable_item_invalid_next_state(self):
-		command = Command(1, 0x808, [ArgInfo(0xF)], None, self.handler_function, None, "turn", [], {}, {})
+		command = Command(1, 0x208, [ArgInfo(0xF)], None, self.handler_function, None, "turn", [], {}, {})
 		self.player.has_or_is_near_item.return_value = True
 
-		response = self.resolver.resolve_args(command, self.player, ["lamp", "cinnamon"])
+		response = self.resolver.resolve_switching(command, self.player, ["lamp", "cinnamon"])
 
 		self.assertEqual(("Use \"{0} <{1}|{2}>\".", ["lamp", "off", "on"]), response)
 
 
 	def test_resolve_args_switching_command_switchable_item_valid_next_state(self):
-		command = Command(1, 0x808, [ArgInfo(0xF), ArgInfo(0x0)], None, self.handler_function, None, "turn", [], {}, {})
+		command = Command(1, 0x208, [ArgInfo(0xF), ArgInfo(0x0)], None, self.handler_function, None, "turn", [], {}, {})
 		self.player.has_or_is_near_item.return_value = True
 
-		response = self.resolver.resolve_args(command, self.player, ["lamp", "off"])
+		response = self.resolver.resolve_switching(command, self.player, ["lamp", "off"])
 
 		self.assertEqual(("{0} success!", self.lamp), response)
 

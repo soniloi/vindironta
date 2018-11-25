@@ -6,8 +6,8 @@ class Command(DataElement):
 	ATTRIBUTE_SECRET = 0x10
 	ATTRIBUTE_MOVEMENT = 0x40
 	ATTRIBUTE_SWITCHABLE = 0x100
+	ATTRIBUTE_SWITCHING = 0x200
 	ATTRIBUTE_REQUIRES_VISION = 0x400
-	ATTRIBUTE_SWITCHING = 0x800
 
 	def __init__(self, command_id, attributes, arg_infos, arg_function, handler_function, vision_function, primary,
 			aliases, transitions, teleport_locations):
@@ -28,10 +28,6 @@ class Command(DataElement):
 
 	def requires_vision(self):
 		return self.has_attribute(Command.ATTRIBUTE_REQUIRES_VISION)
-
-
-	def is_switching(self):
-		return self.has_attribute(Command.ATTRIBUTE_SWITCHING)
 
 
 	def execute(self, player, args):

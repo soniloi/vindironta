@@ -23,6 +23,28 @@ class ArgumentResolver(Resolver):
 		return self.execute(command, player, [transition])
 
 
+	def resolve_switching(self, command, player, args):
+		arg_info = command.arg_infos[0]
+		arg_input = self.get_arg(args, 0)
+
+		# Switching commands always take a single mandatory item argument
+		if not arg_input:
+			player.current_command = command
+			player.current_args = []
+			template, content = self.get_addinfo_response(command, [], None)
+			return template, content
+
+		success, response = self.resolve_arg_for_command(command, player, arg_info, arg_input)
+
+		if not success:
+			player.reset_current_command()
+			return response
+
+		handling_response = self.execute_switching(command, player, response, args[1:])
+		player.reset_current_command()
+		return handling_response
+
+
 	def resolve_args(self, command, player, args):
 
 		resolved_args = player.get_current_args()
@@ -58,14 +80,9 @@ class ArgumentResolver(Resolver):
 					return response
 				resolved_args.append(response)
 
-		response = ""
-		if command.is_switching():
-			response =  self.execute_switching(command, player, resolved_args[0], resolved_args[1:])
-		else:
-			response = self.execute(command, player, resolved_args)
-
+		handling_response = self.execute(command, player, resolved_args)
 		player.reset_current_command()
-		return response
+		return handling_response
 
 
 	def get_arg(self, args, index):
