@@ -82,7 +82,10 @@ class CommandCollection:
 
 	def get_arg_function(self, attributes):
 		arg_function_name = "resolve_"
-		if bool(attributes & Command.ATTRIBUTE_MOVEMENT):
+
+		if bool(attributes & Command.ATTRIBUTE_TELEPORT):
+			arg_function_name += "teleport"
+		elif bool(attributes & Command.ATTRIBUTE_MOVEMENT):
 			arg_function_name += "movement"
 		elif bool(attributes & Command.ATTRIBUTE_SWITCHABLE):
 			arg_function_name += "switchable"

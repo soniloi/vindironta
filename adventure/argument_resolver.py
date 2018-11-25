@@ -3,9 +3,23 @@ from adventure.resolver import Resolver
 
 class ArgumentResolver(Resolver):
 
-	def execute(self, command, player, args):
+	def execute(self, command, player, args=[]):
 		function = command.handler_function
 		return function(player, *args)
+
+
+	def resolve_teleport(self, command, player, args):
+		if args:
+			return self.data.get_response("request_argless"), self.get_arg(args, 0)
+
+		source_location_id = player.get_location_id()
+		if not source_location_id in command.teleport_locations:
+			return self.data.get_response("reject_nothing"), None
+
+		destination_location_id = command.teleport_locations[source_location_id]
+		destination_location = self.data.get_location(destination_location_id)
+
+		return self.execute(command, player, [destination_location])
 
 
 	def resolve_movement(self, command, player, args):

@@ -11,9 +11,9 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def setUp(self):
 
-		data = Mock()
-		data.get_response.side_effect = self.responses_side_effect
-		data.get_item.side_effect = self.items_side_effect
+		self.data = Mock()
+		self.data.get_response.side_effect = self.responses_side_effect
+		self.data.get_item.side_effect = self.items_side_effect
 
 		self.book = Item(1105, 0x2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
 		self.box = ContainerItem(1106, 0x3, Labels("box", "a box", "a small box"), 3, None)
@@ -32,6 +32,7 @@ class TestArgumentResolver(unittest.TestCase):
 			"reject_no_understand_instruction" : "I do not understand.",
 			"reject_not_here" : "It is not here.",
 			"reject_not_holding" : "You are not holding it.",
+			"reject_nothing" : "Nothing happens.",
 			"request_switch_item" : "Use \"{0} <{1}|{2}>\".",
 			"reject_unknown" : "I do not know what that is.",
 			"request_addinfo" : "What do you want to {0}{1}?",
@@ -40,7 +41,7 @@ class TestArgumentResolver(unittest.TestCase):
 		}
 
 		self.resolver = ArgumentResolver()
-		self.resolver.init_data(data)
+		self.resolver.init_data(self.data)
 
 		self.player = Mock()
 		self.player.get_current_args.return_value = []
@@ -58,12 +59,35 @@ class TestArgumentResolver(unittest.TestCase):
 		return "{0} success!", arg
 
 
-	def test_resolve_movement_without_arg(self):
-		command = Command(1, 0x40, [ArgInfo(0x0)], None, self.handler_function, None, "", [], {}, {})
+	def test_resolve_teleport_with_arg(self):
+		teleport_locations = {23 : 24, 26 : 23}
+		command = Command(1, 0x12, [], None, self.handler_function, None, "", [], {}, teleport_locations)
 
-		response = self.resolver.resolve_movement(command, self.player, [])
+		response = self.resolver.resolve_teleport(command, self.player, ["test"])
 
-		self.assertEqual(("{0} success!", 1), response)
+		self.assertEqual(("Do not give an argument for this command.", "test"), response)
+
+
+	def test_resolve_teleport_without_matching_source(self):
+		teleport_locations = {23 : 24, 26 : 23}
+		self.player.get_location_id.return_value = 1
+		command = Command(1, 0x12, [], None, self.handler_function, None, "", [], {}, teleport_locations)
+
+		response = self.resolver.resolve_teleport(command, self.player, [])
+
+		self.assertEqual(("Nothing happens.", None), response)
+
+
+	def test_resolve_teleport_with_matching_source(self):
+		teleport_locations = {23 : 24, 26 : 23}
+		self.player.get_location_id.return_value = 26
+		destination = Mock()
+		self.data.get_location.return_value = destination
+		command = Command(1, 0x12, [], None, self.handler_function, None, "", [], {}, teleport_locations)
+
+		response = self.resolver.resolve_teleport(command, self.player, [])
+
+		self.assertEqual(("{0} success!", destination), response)
 
 
 	def test_resolve_movement_with_arg(self):
@@ -72,6 +96,14 @@ class TestArgumentResolver(unittest.TestCase):
 		response = self.resolver.resolve_movement(command, self.player, ["test"])
 
 		self.assertEqual(("Do not give an argument for this command.", "test"), response)
+
+
+	def test_resolve_movement_without_arg(self):
+		command = Command(1, 0x40, [ArgInfo(0x0)], None, self.handler_function, None, "", [], {}, {})
+
+		response = self.resolver.resolve_movement(command, self.player, [])
+
+		self.assertEqual(("{0} success!", 1), response)
 
 
 	def test_resolve_switchable_without_arg(self):

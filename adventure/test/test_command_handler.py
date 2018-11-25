@@ -1001,6 +1001,16 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(self.bottle.contains(self.water))
 
 
+
+	def test_handle_teleport(self):
+		response = self.handler.handle_teleport(self.player, self.beach_location)
+
+		self.assertEqual(("You are {0}.", ["on a beach of black sand", ""]), response)
+		self.assertIs(self.beach_location, self.player.location)
+		self.assertIs(None, self.player.previous_location)
+		self.assertTrue(self.beach_location.seen)
+
+
 	def test_handle_toggle_non_switchable_item(self):
 		response = self.handler.handle_toggle(self.player, self.book)
 

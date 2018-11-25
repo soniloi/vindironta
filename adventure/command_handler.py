@@ -351,10 +351,6 @@ class CommandHandler:
 		return self.handle_drop(player, item)
 
 
-	def handle_sleep(self, player):
-		return "", ""
-
-
 	def handle_switch(self, player, item, transition):
 		template = self.get_response("describe_switch_item")
 
@@ -398,6 +394,12 @@ class CommandHandler:
 			template = self.get_response("confirm_taken")
 
 		return template, [item.shortname]
+
+
+	def handle_teleport(self, player, destination):
+		template, content = self.execute_go(player, None, destination)
+		self.interact_vision(player, None, self.execute_see_location)
+		return template, content
 
 
 	def handle_toggle(self, player, item):

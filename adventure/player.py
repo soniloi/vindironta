@@ -19,6 +19,10 @@ class Player:
 		self.immune = False
 
 
+	def get_location_id(self):
+		return self.location.data_id
+
+
 	def get_adjacent_location(self, direction):
 		return self.location.get_adjacent_location(direction)
 
@@ -32,7 +36,7 @@ class Player:
 
 
 	def get_inventory(self):
-		location_id = self.location.data_id
+		location_id = self.get_location_id()
 		return self.inventories_by_location.get(location_id, self.default_inventory)
 
 

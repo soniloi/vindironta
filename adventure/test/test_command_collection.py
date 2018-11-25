@@ -108,17 +108,18 @@ class TestCommandCollection(unittest.TestCase):
 	def test_init_teleport_command(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"119\t12\t\t\tsleep\tsleep\t\t23|24,26|23",
+			"119\t12\t\t\tteleport\tabrakadabra\t\t23|24,26|23",
 			"---\t\t\t",
 		]
 
 		collection = CommandCollection(reader_mock, self.resolvers)
 
-		self.assertTrue("sleep" in collection.commands)
-		teleport_command = collection.commands["sleep"]
+		self.assertTrue("abrakadabra" in collection.commands)
+		teleport_command = collection.commands["abrakadabra"]
 		self.assertEqual(2, len(teleport_command.teleport_locations))
 		self.assertEqual(24, teleport_command.teleport_locations[23])
 		self.assertEqual(23, teleport_command.teleport_locations[26])
+		self.assertEqual(self.argument_resolver.resolve_teleport, teleport_command.arg_function)
 
 
 	def test_init_single_arg_command(self):
