@@ -14,7 +14,7 @@ class ArgumentResolver(Resolver):
 
 		source_location_id = player.get_location_id()
 		if not source_location_id in command.teleport_locations:
-			return self.data.get_response("reject_nothing"), None
+			return self.data.get_response("reject_nothing"), [None]
 
 		destination_location_id = command.teleport_locations[source_location_id]
 		destination_location = self.data.get_location(destination_location_id)
@@ -24,7 +24,7 @@ class ArgumentResolver(Resolver):
 
 	def resolve_movement(self, command, player, args):
 		if args:
-			return self.data.get_response("request_argless"), self.get_arg(args, 0)
+			return self.data.get_response("request_argless"), [self.get_arg(args, 0)]
 		return self.execute(command, player, [command.data_id])
 
 
@@ -145,19 +145,19 @@ class ArgumentResolver(Resolver):
 
 		item = self.data.get_item(arg_input)
 		if not item:
-			return False, (self.data.get_response("reject_unknown"), arg_input)
+			return False, (self.data.get_response("reject_unknown"), [arg_input])
 
 		if arg_info.takes_item_arg_from_inventory_only() and not player.is_carrying(item):
-			return False, (self.data.get_response("reject_not_holding"), item.shortname)
+			return False, (self.data.get_response("reject_not_holding"), [item.shortname])
 
 		if arg_info.takes_item_arg_from_location_only():
 			if player.is_carrying(item):
-				return False, (self.data.get_response("reject_carrying"), item.shortname)
+				return False, (self.data.get_response("reject_carrying"), [item.shortname])
 			if not player.is_near_item(item):
-				return False, (self.data.get_response("reject_not_here"), item.shortname)
+				return False, (self.data.get_response("reject_not_here"), [item.shortname])
 
 		if arg_info.takes_item_arg_from_inventory_or_location() and not player.has_or_is_near_item(item):
-			return False, (self.data.get_response("reject_not_here"), item.shortname)
+			return False, (self.data.get_response("reject_not_here"), [item.shortname])
 
 		return True, item
 

@@ -5,11 +5,9 @@ from adventure.command import Command
 class TestCommand(unittest.TestCase):
 
 	def setUp(self):
-		self.command_singular = Command(1, 0x9, 0x0, self.arg_function_non_movement, self.handler_function_singular,
+		self.command_movement = Command(1, 0x49, 0x0, self.arg_function_movement, self.handler_function,
 			self.vision_function, "", [],  {}, {})
-		self.command_movement = Command(1, 0x49, 0x0, self.arg_function_movement, self.handler_function_singular,
-			self.vision_function, "", [],  {}, {})
-		self.command_list = Command(1, 0x9, 0x0, self.arg_function_non_movement, self.handler_function_list,
+		self.command_non_movement = Command(1, 0x9, 0x0, self.arg_function_non_movement, self.handler_function,
 			self.vision_function, "", [],  {}, {})
 
 
@@ -22,11 +20,7 @@ class TestCommand(unittest.TestCase):
 		return command.handler_function(player, arg)
 
 
-	def handler_function_singular(self, player, arg):
-		return "{0} success!", arg
-
-
-	def handler_function_list(self, player, arg):
+	def handler_function(self, player, arg):
 		return "{0} success!", [arg]
 
 
@@ -35,27 +29,21 @@ class TestCommand(unittest.TestCase):
 
 
 	def test_has_attribute_set(self):
-		self.assertTrue(self.command_singular.has_attribute(0x8))
+		self.assertTrue(self.command_non_movement.has_attribute(0x8))
 
 
 	def test_has_attribute_not_set(self):
-		self.assertFalse(self.command_singular.has_attribute(0x4))
+		self.assertFalse(self.command_non_movement.has_attribute(0x4))
 
 
-	def test_execute_singular_non_movement(self):
-		result = self.command_singular.execute(None, "test")
-
-		self.assertEqual("test success!", result)
-
-
-	def test_execute_singular_movement(self):
+	def test_execute_movement(self):
 		result = self.command_movement.execute(None, "test")
 
 		self.assertEqual("1 success!", result)
 
 
-	def test_execute_list(self):
-		result = self.command_list.execute(None, "test")
+	def test_execute_non_movement(self):
+		result = self.command_non_movement.execute(None, "test")
 
 		self.assertEqual("test success!", result)
 

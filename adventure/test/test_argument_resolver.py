@@ -75,7 +75,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_teleport(command, self.player, [])
 
-		self.assertEqual(("Nothing happens.", None), response)
+		self.assertEqual(("Nothing happens.", [None]), response)
 
 
 	def test_resolve_teleport_with_matching_source(self):
@@ -95,7 +95,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_movement(command, self.player, ["test"])
 
-		self.assertEqual(("Do not give an argument for this command.", "test"), response)
+		self.assertEqual(("Do not give an argument for this command.", ["test"]), response)
 
 
 	def test_resolve_movement_without_arg(self):
@@ -162,7 +162,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, ["test"])
 
-		self.assertEqual(("I do not know what that is.", "test"), response)
+		self.assertEqual(("I do not know what that is.", ["test"]), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_inventory_only_and_player_not_carrying(self):
@@ -171,7 +171,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, ["book"])
 
-		self.assertEqual(("You are not holding it.", "book"), response)
+		self.assertEqual(("You are not holding it.", ["book"]), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_location_only_and_player_is_carrying(self):
@@ -180,7 +180,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, ["book"])
 
-		self.assertEqual(("You are carrying it.", "book"), response)
+		self.assertEqual(("You are carrying it.", ["book"]), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_location_only_and_player_not_near(self):
@@ -190,7 +190,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, ["book"])
 
-		self.assertEqual(("It is not here.", "book"), response)
+		self.assertEqual(("It is not here.", ["book"]), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_location_only_and_player_is_near(self):
@@ -209,7 +209,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, ["book"])
 
-		self.assertEqual(("It is not here.", "book"), response)
+		self.assertEqual(("It is not here.", ["book"]), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_inventory_or_location_and_player_is_near(self):
@@ -237,7 +237,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, ["book", "blah"])
 
-		self.assertEqual(("I do not know what that is.", "blah"), response)
+		self.assertEqual(("I do not know what that is.", ["blah"]), response)
 		self.player.reset_current_command.assert_called_once()
 
 
@@ -300,7 +300,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, ["book", "the", "box"])
 
-		self.assertEqual(("I do not know what that is.", "the"), response)
+		self.assertEqual(("I do not know what that is.", ["the"]), response)
 		self.player.reset_current_command.assert_called_once()
 
 

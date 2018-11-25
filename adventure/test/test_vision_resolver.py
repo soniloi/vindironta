@@ -27,7 +27,7 @@ class TestVisionResolver(unittest.TestCase):
 
 
 	def arg_function(self, command, player, arg):
-		return "{0} success!", arg
+		return "{0} success!", [arg]
 
 
 	def test_resolve_light_and_dark_player_has_light_and_needs_no_light(self):
@@ -37,7 +37,7 @@ class TestVisionResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_light_and_dark(command, player, "")
 
-		self.assertEqual(("It is too bright.", ""), response)
+		self.assertEqual(("It is too bright.", []), response)
 
 
 	def test_resolve_light_and_dark_player_has_no_light_and_needs_light(self):
@@ -46,9 +46,9 @@ class TestVisionResolver(unittest.TestCase):
 		player.has_light.return_value = False
 		command = Command(1, 0x9, 0x0, self.arg_function, None, None, "", [], {}, {})
 
-		response = self.resolver.resolve_light_and_dark(command, player, "")
+		response = self.resolver.resolve_light_and_dark(command, player, [""])
 
-		self.assertEqual(("It is too dark.", ""), response)
+		self.assertEqual(("It is too dark.", []), response)
 
 
 	def test_resolve_light_and_dark_player_has_suitable_light(self):
@@ -59,7 +59,7 @@ class TestVisionResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_light_and_dark(command, player, "")
 
-		self.assertEqual(("{0} success!", ""), response)
+		self.assertEqual(("{0} success!", [""]), response)
 
 
 	def test_resolve_dark_player_has_no_light_and_needs_light(self):
@@ -70,7 +70,7 @@ class TestVisionResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_dark(command, player, "")
 
-		self.assertEqual(("It is too dark.", ""), response)
+		self.assertEqual(("It is too dark.", []), response)
 
 
 	def test_resolve_dark_player_has_suitable_light(self):
@@ -81,7 +81,7 @@ class TestVisionResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_dark(command, player, "")
 
-		self.assertEqual(("{0} success!", ""), response)
+		self.assertEqual(("{0} success!", [""]), response)
 
 
 if __name__ == "__main__":

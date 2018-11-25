@@ -32,11 +32,6 @@ class Command(DataElement):
 
 	def execute(self, player, args):
 		template, content = self.vision_function(self, player, args)
-
-		# TODO: revisit
-		if not isinstance(content, list):
-			content = [content]
-
 		return template.format(*content)
 
 
