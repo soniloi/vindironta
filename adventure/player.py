@@ -116,4 +116,4 @@ class Player:
 
 	def reset_current_command(self):
 		self.current_command = None
-		self.current_args.clear()
+		self.current_args = []

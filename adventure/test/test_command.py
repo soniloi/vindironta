@@ -11,13 +11,12 @@ class TestCommand(unittest.TestCase):
 			self.vision_function, "", [],  {}, {})
 
 
-	def arg_function_movement(self, command, player, arg):
-		arg = command.data_id
-		return command.handler_function(player, arg)
+	def arg_function_movement(self, command, player, args):
+		return True, (player, [command.data_id])
 
 
-	def arg_function_non_movement(self, command, player, arg):
-		return command.handler_function(player, arg)
+	def arg_function_non_movement(self, command, player, args):
+		return True, (player, args)
 
 
 	def handler_function(self, player, arg):
@@ -37,13 +36,13 @@ class TestCommand(unittest.TestCase):
 
 
 	def test_execute_movement(self):
-		result = self.command_movement.execute(None, "test")
+		result = self.command_movement.execute(None, ["test"])
 
 		self.assertEqual("1 success!", result)
 
 
 	def test_execute_non_movement(self):
-		result = self.command_non_movement.execute(None, "test")
+		result = self.command_non_movement.execute(None, ["test"])
 
 		self.assertEqual("test success!", result)
 

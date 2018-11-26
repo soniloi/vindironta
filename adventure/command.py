@@ -31,12 +31,21 @@ class Command(DataElement):
 
 
 	def execute(self, player, args):
+
 		success, body = self.vision_function(self, player, args)
 		if not success:
 			template, content = body
+
 		else:
 			player, args = body
-			template, content = self.arg_function(self, player, args)
+			success, body = self.arg_function(self, player, args)
+			if not success:
+				template, content = body
+
+			else:
+				player, args = body
+				template, content = self.handler_function(player, *args)
+
 		return template.format(*content)
 
 
