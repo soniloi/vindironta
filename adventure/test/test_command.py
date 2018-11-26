@@ -25,7 +25,7 @@ class TestCommand(unittest.TestCase):
 
 
 	def vision_function(self, command, player, arg):
-		return command.arg_function(command, player, arg)
+		return True, (player, arg)
 
 
 	def test_has_attribute_set(self):

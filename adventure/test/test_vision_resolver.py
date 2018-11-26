@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import Mock
 
-from adventure.command import Command
 from adventure.data_collection import DataCollection
 from adventure.player import Player
 from adventure.vision_resolver import VisionResolver
@@ -26,62 +25,58 @@ class TestVisionResolver(unittest.TestCase):
 		return self.response_map.get(args[0])
 
 
-	def arg_function(self, command, player, arg):
-		return "{0} success!", [arg]
-
-
 	def test_resolve_light_and_dark_player_has_light_and_needs_no_light(self):
 		player = Mock()
 		player.has_light_and_needs_no_light.return_value = True
-		command = Command(1, 0x9, 0x0, self.arg_function, None, None, "", [], {}, {})
+		command = Mock()
 
-		response = self.resolver.resolve_light_and_dark(command, player, "")
+		response = self.resolver.resolve_light_and_dark(command, player, ["test"])
 
-		self.assertEqual(("It is too bright.", []), response)
+		self.assertEqual((False, ("It is too bright.", [])), response)
 
 
 	def test_resolve_light_and_dark_player_has_no_light_and_needs_light(self):
 		player = Mock()
 		player.has_light_and_needs_no_light.return_value = False
 		player.has_light.return_value = False
-		command = Command(1, 0x9, 0x0, self.arg_function, None, None, "", [], {}, {})
+		command = Mock()
 
-		response = self.resolver.resolve_light_and_dark(command, player, [""])
+		response = self.resolver.resolve_light_and_dark(command, player, ["test"])
 
-		self.assertEqual(("It is too dark.", []), response)
+		self.assertEqual((False, ("It is too dark.", [])), response)
 
 
 	def test_resolve_light_and_dark_player_has_suitable_light(self):
 		player = Mock()
 		player.has_light_and_needs_no_light.return_value = False
 		player.has_light.return_value = True
-		command = Command(1, 0x9, 0x0, self.arg_function, None, None, "", [], {}, {})
+		command = Mock()
 
-		response = self.resolver.resolve_light_and_dark(command, player, "")
+		response = self.resolver.resolve_light_and_dark(command, player, ["test"])
 
-		self.assertEqual(("{0} success!", [""]), response)
+		self.assertEqual((True, (player, ["test"])), response)
 
 
 	def test_resolve_dark_player_has_no_light_and_needs_light(self):
 		player = Mock()
 		player.has_light_and_needs_no_light.return_value = False
 		player.has_light.return_value = False
-		command = Command(1, 0x9, 0x0, self.arg_function, None, None, "", [], {}, {})
+		command = Mock()
 
-		response = self.resolver.resolve_dark(command, player, "")
+		response = self.resolver.resolve_dark(command, player, ["test"])
 
-		self.assertEqual(("It is too dark.", []), response)
+		self.assertEqual((False, ("It is too dark.", [])), response)
 
 
 	def test_resolve_dark_player_has_suitable_light(self):
 		player = Mock()
 		player.has_light_and_needs_no_light.return_value = False
 		player.has_light.return_value = True
-		command = Command(1, 0x9, 0x0, self.arg_function, None, None, "", [], {}, {})
+		command = Mock()
 
-		response = self.resolver.resolve_dark(command, player, "")
+		response = self.resolver.resolve_dark(command, player, ["test"])
 
-		self.assertEqual(("{0} success!", [""]), response)
+		self.assertEqual((True, (player, ["test"])), response)
 
 
 if __name__ == "__main__":
