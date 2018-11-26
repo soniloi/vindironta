@@ -9,13 +9,12 @@ class Command(DataElement):
 	ATTRIBUTE_SWITCHING = 0x200
 	ATTRIBUTE_REQUIRES_VISION = 0x400
 
-	def __init__(self, command_id, attributes, arg_infos, arg_function, handler_function, vision_function, primary,
+	def __init__(self, command_id, attributes, arg_infos, resolver_functions, handler_function, primary,
 			aliases, transitions, teleport_locations):
 		DataElement.__init__(self, data_id=command_id, attributes=attributes)
 		self.arg_infos = arg_infos
-		self.arg_function = arg_function
+		self.resolver_functions = resolver_functions
 		self.handler_function = handler_function
-		self.vision_function = vision_function
 		self.primary = primary
 		self.aliases = aliases
 		self.transitions = transitions
@@ -32,20 +31,16 @@ class Command(DataElement):
 
 	def execute(self, player, args):
 
-		success, body = self.vision_function(self, player, args)
-		if not success:
-			template, content = body
+		for resolver_function in self.resolver_functions:
 
-		else:
-			player, args = body
-			success, body = self.arg_function(self, player, args)
+			success, body = resolver_function(self, player, args)
 			if not success:
 				template, content = body
+				return template.format(*content)
 
-			else:
-				player, args = body
-				template, content = self.handler_function(player, *args)
+			player, args = body
 
+		template, content = self.handler_function(player, *args)
 		return template.format(*content)
 
 
