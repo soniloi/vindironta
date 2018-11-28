@@ -95,6 +95,7 @@ class TestCommandHandler(unittest.TestCase):
 			"confirm_dropped" : "Dropped.",
 			"confirm_emptied_liquid" : "You pour the {1} out of the {0}.",
 			"confirm_emptied_solid" : "You take the {1} out of the {0}.",
+			"confirm_feed" : "You feed the {0} to the {1}.",
 			"confirm_given" : "Given.",
 			"confirm_inserted" : "Inserted.",
 			"confirm_look" : "You are {0}.",
@@ -363,6 +364,24 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_explain(self.player, "spaize")
 
 		self.assertEqual(("Spaize is space-maize.", ["spaize"]), response)
+
+
+	def test_feed_non_sentient(self):
+		response = self.handler.handle_feed(self.player, self.bread, self.book)
+
+		self.assertEqual(("You cannot give to an inanimate object.", ["bread", "book"]), response)
+
+
+	def test_feed_non_edible(self):
+		response = self.handler.handle_feed(self.player, self.book, self.cat)
+
+		self.assertEqual(("You cannot consume that.", ["book", "cat"]), response)
+
+
+	def test_feed_valid(self):
+		response = self.handler.handle_feed(self.player, self.bread, self.cat)
+
+		self.assertEqual(("You feed the {0} to the {1}.", ["bread", "cat"]), response)
 
 
 	def test_handle_give_non_sentient_recipient(self):

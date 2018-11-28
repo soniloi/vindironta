@@ -108,6 +108,20 @@ class CommandHandler:
 		return template, [arg]
 
 
+	def handle_feed(self, player, proposed_gift, proposed_recipient):
+
+		content = [proposed_gift.shortname, proposed_recipient.shortname]
+
+		if not proposed_recipient.is_sentient():
+			return self.get_response("reject_give_inanimate"), content
+
+		if not proposed_gift.is_edible():
+			return self.get_response("reject_not_consumable"), content
+
+		player.lose_item(proposed_gift)
+		return self.get_response("confirm_feed"), content
+
+
 	def handle_give(self, player, proposed_gift, proposed_recipient):
 
 		content = [proposed_gift.shortname, proposed_recipient.shortname]
