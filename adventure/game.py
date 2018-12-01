@@ -1,9 +1,7 @@
 from adventure.argument_resolver import ArgumentResolver
 from adventure.command_handler import CommandHandler
 from adventure.data_collection import DataCollection
-from adventure.data_element import Labels
 from adventure.file_reader import FileReader
-from adventure.inventory import Inventory
 from adventure.player import Player
 from adventure.resolvers import Resolvers
 from adventure.vision_resolver import VisionResolver
@@ -43,32 +41,8 @@ class Game:
 	def init_player(self):
 		initial_location = self.data.get_location(Game.PLAYER_INITIAL_LOCATION_ID)
 		default_inventory_template = self.data.get_inventory_template(Game.PLAYER_DEFAULT_INVENTORY_ID)
-		default_inventory = self.copy_template_inventory(default_inventory_template)
-
-		inventories_by_location = {}
 		inventory_templates = self.data.get_inventory_templates()
-		for inventory_template in inventory_templates:
-			self.create_non_default_inventory(inventories_by_location, inventory_template)
-
-		self.player = Player(initial_location, default_inventory, inventories_by_location)
-
-
-	def copy_template_inventory(self, inventory_template):
-		labels = Labels(inventory_template.shortname, inventory_template.longname, inventory_template.description)
-		return Inventory(
-			inventory_id=inventory_template.data_id,
-			attributes=inventory_template.attributes,
-			labels=labels,
-			capacity=inventory_template.capacity,
-			location_ids=inventory_template.location_ids,
-		)
-
-
-	def create_non_default_inventory(self, inventories_by_location, inventory_template):
-		if not inventory_template.is_default():
-			non_default_inventory = self.copy_template_inventory(inventory_template)
-			for location_id in inventory_template.location_ids:
-				inventories_by_location[location_id] = non_default_inventory
+		self.player = Player(initial_location, default_inventory_template, inventory_templates)
 
 
 	def process_input(self, line):

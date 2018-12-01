@@ -127,29 +127,6 @@ class TestGame(unittest.TestCase):
 		return False
 
 
-	def test_init_player(self):
-		self.assertEqual(self.initial_location, self.game.player.location)
-
-		# TODO: fix
-		default_inventory = self.game.player.default_inventory
-		self.assertIsNot(self.default_inventory_template, default_inventory)
-		self.assertEqual(self.default_inventory_template.data_id, default_inventory.data_id)
-		self.assertEqual(self.default_inventory_template.attributes, default_inventory.attributes)
-		self.assertEqual(self.default_inventory_template.capacity, default_inventory.capacity)
-		self.assertEqual(0, len(default_inventory.items))
-
-		non_default_inventories = self.game.player.inventories_by_location
-		self.assertEqual(3, len(non_default_inventories))
-		self.assertTrue(37 in non_default_inventories)
-		self.assertTrue(38 in non_default_inventories)
-		self.assertTrue(39 in non_default_inventories)
-		non_default_inventory_37 = non_default_inventories[37]
-		self.assertIsNot(self.non_default_inventory_template, non_default_inventory_37)
-		self.assertIs(non_default_inventory_37, non_default_inventories[38])
-		self.assertIs(non_default_inventory_37, non_default_inventories[39])
-		self.assertEqual(self.non_default_inventory_template.capacity, non_default_inventory_37.capacity)
-
-
 	def test_process_input_empty(self):
 		response = self.game.process_input("")
 

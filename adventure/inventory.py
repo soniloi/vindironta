@@ -1,4 +1,4 @@
-from adventure.data_element import NamedDataElement
+from adventure.data_element import Labels, NamedDataElement
 from adventure.item_container import ItemContainer
 
 class Inventory(NamedDataElement, ItemContainer):
@@ -10,6 +10,11 @@ class Inventory(NamedDataElement, ItemContainer):
 		ItemContainer.__init__(self)
 		self.capacity = capacity
 		self.location_ids = location_ids
+
+
+	def __copy__(self):
+		labels = Labels(self.shortname, self.longname, self.description)
+		return Inventory(self.data_id, self.attributes, labels, self.capacity, self.location_ids)
 
 
 	def is_default(self):

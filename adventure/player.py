@@ -1,13 +1,14 @@
+from copy import copy
+
 from adventure.inventory import Inventory
 
 class Player:
 
 	INVENTORY_CAPACITY = 16
 
-	def __init__(self, initial_location, default_inventory, inventories_by_location={}):
+	def __init__(self, initial_location, default_inventory_template, inventory_templates=[]):
 		self.location = initial_location
-		self.default_inventory = default_inventory
-		self.inventories_by_location = inventories_by_location
+		self.default_inventory = copy(default_inventory_template)
 		self.previous_location = None
 		self.playing = True
 		self.score = 0
@@ -17,6 +18,17 @@ class Player:
 		self.instructions = 0
 		self.alive = True
 		self.immune = False
+
+		self.inventories_by_location = {}
+		for inventory_template in inventory_templates:
+			self.add_non_default_inventory(inventory_template)
+
+
+	def add_non_default_inventory(self, inventory_template):
+		if not inventory_template.is_default():
+			non_default_inventory = copy(inventory_template)
+			for location_id in inventory_template.location_ids:
+				self.inventories_by_location[location_id] = non_default_inventory
 
 
 	def get_location_id(self):
