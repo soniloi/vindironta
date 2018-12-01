@@ -1,6 +1,7 @@
 from adventure.argument_resolver import ArgumentResolver
 from adventure.command_handler import CommandHandler
 from adventure.data_collection import DataCollection
+from adventure.data_element import Labels
 from adventure.file_reader import FileReader
 from adventure.inventory import Inventory
 from adventure.player import Player
@@ -53,11 +54,13 @@ class Game:
 
 
 	def copy_template_inventory(self, inventory_template):
+		labels = Labels(inventory_template.shortname, inventory_template.longname, inventory_template.description)
 		return Inventory(
-			inventory_template.data_id,
-			inventory_template.attributes,
-			inventory_template.capacity,
-			inventory_template.location_ids,
+			inventory_id=inventory_template.data_id,
+			attributes=inventory_template.attributes,
+			labels=labels,
+			capacity=inventory_template.capacity,
+			location_ids=inventory_template.location_ids,
 		)
 
 

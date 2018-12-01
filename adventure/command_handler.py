@@ -295,11 +295,7 @@ class CommandHandler:
 	def handle_locate(self, player, item):
 		template = self.get_response("describe_locate")
 		container = item.container
-		# TODO: fix
-		longname = "inventory"
-		if not isinstance(container, Inventory):
-			longname = container.longname
-		contents = [item.shortname, container.data_id, longname]
+		contents = [item.shortname, container.data_id, container.longname]
 		return template, contents
 
 

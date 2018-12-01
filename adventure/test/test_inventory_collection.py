@@ -12,7 +12,7 @@ class TestInventoryCollection(unittest.TestCase):
 	def test_init_default(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"0\t0x1\t13\t",
+			"0\t0x1\tMain Inventory\tin the main inventory\t, where items live usually.\t13\t\t\t\t",
 			"---",
 		]
 
@@ -28,7 +28,7 @@ class TestInventoryCollection(unittest.TestCase):
 	def test_init_non_default(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"1\t0x1\t17\t4,5,19",
+			"1\t0x1\tSpecial Inventory\tin the special inventory\t, where items live sometimes.\t17\t4,5,19\t\t\t",
 			"---",
 		]
 

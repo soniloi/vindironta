@@ -34,7 +34,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def setup_inventories(self):
-		self.default_inventory = Inventory(0, 0x1, 13)
+		self.default_inventory = Inventory(0, 0x1, Labels("Main Inventory", "in the main inventory", ", where items live usually."), 13)
 
 
 	def setup_locations(self):
@@ -771,7 +771,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_locate(self.player, self.book)
 
-		self.assertEqual(("The {0} is at {1} ({2}).", ["book", 0, "inventory"]), response)
+		self.assertEqual(("The {0} is at {1} ({2}).", ["book", 0, "in the main inventory"]), response)
 
 
 	def test_handle_look_no_items(self):

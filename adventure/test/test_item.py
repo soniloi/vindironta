@@ -22,7 +22,7 @@ class TestItem(unittest.TestCase):
 		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, Item.ATTRIBUTE_GIVES_AIR)
 		self.cat = SentientItem(1047, 0x80002, Labels("cat", "a cat", "a black cat"), 3, None)
 		self.mine_location = Location(11, 0x0, Labels("Mines", "in the mines", ". There are dark passages everywhere."))
-		self.inventory = Inventory(0, 0x1, 100)
+		self.inventory = Inventory(0, 0x1, Labels("Main Inventory", "in the main inventory", ", where items live usually."), 100)
 
 
 	def test_get_list_name_simple(self):

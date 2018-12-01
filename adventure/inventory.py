@@ -1,12 +1,12 @@
-from adventure.data_element import DataElement
+from adventure.data_element import NamedDataElement
 from adventure.item_container import ItemContainer
 
-class Inventory(DataElement, ItemContainer):
+class Inventory(NamedDataElement, ItemContainer):
 
 	ATTRIBUTE_DEFAULT = 0x1
 
-	def __init__(self, inventory_id, attributes, capacity, location_ids=[]):
-		DataElement.__init__(self, data_id=inventory_id, attributes=attributes)
+	def __init__(self, inventory_id, attributes, labels, capacity, location_ids=[]):
+		NamedDataElement.__init__(self, data_id=inventory_id, attributes=attributes, labels=labels)
 		ItemContainer.__init__(self)
 		self.capacity = capacity
 		self.location_ids = location_ids

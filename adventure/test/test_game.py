@@ -39,8 +39,10 @@ class TestGame(unittest.TestCase):
 
 
 	def setup_inventories(self):
-		self.default_inventory_template = Inventory(0, 0x1, 13)
-		self.non_default_inventory_template = Inventory(1, 0x0, 8, [37, 38, 39])
+		default_labels = Labels("Main Inventory", "in the main inventory", ", where items live usually.")
+		self.default_inventory_template = Inventory(0, 0x1, default_labels, 13)
+		non_default_labels = Labels("Special Inventory", "in the special inventory", ", where items live sometimes.")
+		self.non_default_inventory_template = Inventory(1, 0x0, non_default_labels, 8, [37, 38, 39])
 		self.inventory_map = {
 			0 : self.default_inventory_template,
 			1 : self.non_default_inventory_template,
