@@ -5,8 +5,6 @@ from adventure.file_reader import FileReader
 
 class ItemCollection:
 
-	NO_WRITING = "0"
-
 	def __init__(self, reader, elements):
 		self.items = {}
 		container_ids = {}
@@ -77,8 +75,6 @@ class ItemCollection:
 
 
 	def parse_item_writing(self, token):
-		if token == ItemCollection.NO_WRITING:
-			return None
 		return token
 
 

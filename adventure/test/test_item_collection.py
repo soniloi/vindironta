@@ -44,7 +44,7 @@ class TestItemCollection(unittest.TestCase):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
 			"1105\t0x2\t80\t2\tbook\ta book\ta book of fairytales in English. It is open on a particular page\tThe Pied Piper of Hamelin\t\t",
-			"1106\t0x101A\t81\t3\tlamp\ta lamp\ta small lamp\t0\t1106,10,off,on\t",
+			"1106\t0x101A\t81\t3\tlamp\ta lamp\ta small lamp\t\t1106,10,off,on\t",
 			"---",
 		]
 
@@ -59,7 +59,7 @@ class TestItemCollection(unittest.TestCase):
 	def test_init_aliased_item(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"1042\t2002\t27\t3\tkohlrabi,cabbage\tsome kohlrabi\tsome kohlrabi, or Brassica oleracea var. gongylodes, a cabbage cultivar\t0\t\t",
+			"1042\t2002\t27\t3\tkohlrabi,cabbage\tsome kohlrabi\tsome kohlrabi, or Brassica oleracea var. gongylodes, a cabbage cultivar\t\t\t",
 			"---",
 		]
 
@@ -74,7 +74,7 @@ class TestItemCollection(unittest.TestCase):
 	def test_init_item_without_container(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"1076\t22802\t1007\t1\twater\twater\tRiver Amethyst water. It is cold and clear\t0\t\t",
+			"1076\t22802\t1007\t1\twater\twater\tRiver Amethyst water. It is cold and clear\t\t\t",
 			"---",
 		]
 
@@ -89,7 +89,7 @@ class TestItemCollection(unittest.TestCase):
 	def test_init_container_item(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"1002\t3\t119\t5\tbasket\ta basket\ta large basket\t0\t\t",
+			"1002\t3\t119\t5\tbasket\ta basket\ta large basket\t\t\t",
 			"---",
 		]
 
@@ -104,7 +104,7 @@ class TestItemCollection(unittest.TestCase):
 	def test_init_sentient_item(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"1002\t80003\t119\t3\tcat\ta cat\ta black cat\t0\t\t",
+			"1002\t80003\t119\t3\tcat\ta cat\ta black cat\t\t\t",
 			"---",
 		]
 
@@ -133,7 +133,7 @@ class TestItemCollection(unittest.TestCase):
 	def test_init_switchable_switching_self(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"1201\t0x8\t81\t3\tlamp\ta lamp\ta small lamp\t0\t1201,10,off,on\t",
+			"1201\t0x8\t81\t3\tlamp\ta lamp\ta small lamp\t\t1201,10,off,on\t",
 			"---",
 		]
 
@@ -152,7 +152,7 @@ class TestItemCollection(unittest.TestCase):
 	def test_init_switchable_switching_other_item(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"1202\t0x8\t81\t3\tbutton\ta button\ta red button\t0\t1108,20,up,down\t",
+			"1202\t0x8\t81\t3\tbutton\ta button\ta red button\t\t1108,20,up,down\t",
 			"---",
 		]
 
@@ -168,7 +168,7 @@ class TestItemCollection(unittest.TestCase):
 	def test_init_switchable_switching_other_location(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"1203\t0x8\t81\t3\tlever\ta lever\ta mysterious lever\t0\t80,40,down,up\t",
+			"1203\t0x8\t81\t3\tlever\ta lever\ta mysterious lever\t\t80,40,down,up\t",
 			"---",
 		]
 
@@ -184,7 +184,7 @@ class TestItemCollection(unittest.TestCase):
 	def test_init_wearable(self):
 		reader_mock = Mock()
 		reader_mock.read_line.side_effect = [
-			"1204\t0x400\t81\t3\tsuit\ta suit\ta space-suit\t0\t\t20",
+			"1204\t0x400\t81\t3\tsuit\ta suit\ta space-suit\t\t\t20",
 			"---",
 		]
 
