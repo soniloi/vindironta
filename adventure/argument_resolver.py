@@ -80,14 +80,16 @@ class ArgumentResolver(Resolver):
 			arg_input = self.get_arg(args, input_index)
 			input_index += 1
 
+			arg_expected = False
 			current_linker = None
 			if arg_info.is_valid_linker(arg_input):
 				current_linker = arg_input
 				arg_input = self.get_arg(args, input_index)
+				arg_expected = True
 				input_index += 1
 
 			if not arg_input:
-				if arg_info.mandatory:
+				if arg_expected or arg_info.mandatory:
 					player.current_command = command
 					player.current_args = resolved_args
 					# TODO: improve this to request non-direct args properly also

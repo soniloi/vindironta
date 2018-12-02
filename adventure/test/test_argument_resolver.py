@@ -269,6 +269,15 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.reset_current_command.assert_not_called()
 
 
+	def test_resolve_args_multiple_permissive_with_linker_explicit(self):
+		command = Command(1, 0x9, [ArgInfo(0x7), ArgInfo(0xA, ["in"])], [], None, "take", [], {}, {})
+		self.player.is_carrying.return_value = False
+
+		response = self.resolver.resolve_args(command, self.player, ["book", "in"])
+
+		self.assertEqual((False, ("What do you want to {0}{1}?", ["take", " book in"])), response)
+
+
 	def test_resolve_args_multiple_missing_arg_with_link_info_three_args(self):
 		arg_infos = [ArgInfo(0xF), ArgInfo(0xF, ["into", "in", "to"]), ArgInfo(0xB, ["using"])]
 		command = Command(1, 0x8, arg_infos, [], None, "scoop", [], {}, {})
