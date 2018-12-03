@@ -66,7 +66,7 @@ class CommandHandler:
 	def handle_drop(self, player, item):
 		if item.is_liquid():
 			player.lose_item(item)
-			return self.get_response("confirm_poured"), [item.shortname, item.container.shortname]
+			return self.get_response("confirm_poured"), [item.shortname, item.get_first_container().shortname]
 
 		player.drop_item(item)
 		return self.get_response("confirm_dropped"), [item.shortname]
@@ -132,7 +132,7 @@ class CommandHandler:
 		if proposed_gift.is_liquid():
 			return self.get_response("reject_give_liquid"), content
 
-		proposed_gift.container.remove(proposed_gift)
+		proposed_gift.remove_from_containers()
 		proposed_recipient.insert(proposed_gift)
 		return self.get_response("confirm_given"), content
 
@@ -263,7 +263,7 @@ class CommandHandler:
 		if item is proposed_container:
 			return self.get_response("reject_container_self"), content
 
-		if item.container is proposed_container:
+		if proposed_container in item.containers:
 			return self.get_response("reject_already_contained"), content
 
 		if not item.is_portable():
@@ -281,7 +281,7 @@ class CommandHandler:
 		if not proposed_container.can_accommodate(item):
 			return self.get_response("reject_container_size"), content
 
-		item.container.remove(item)
+		item.remove_from_containers()
 		proposed_container.insert(item)
 		return self.get_response("confirm_inserted"), content
 
@@ -294,8 +294,9 @@ class CommandHandler:
 
 	def handle_locate(self, player, item):
 		template = self.get_response("describe_locate")
-		container = item.container
-		contents = [item.shortname, container.data_id, container.longname]
+		containers = item.containers
+		container_descriptions = [str(container.data_id) + ":" + container.longname for container in containers]
+		contents = [item.shortname, str(container_descriptions)]
 		return template, contents
 
 

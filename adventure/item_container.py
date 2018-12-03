@@ -20,6 +20,11 @@ class ItemContainer:
 		item.update_container(self)
 
 
+	def add(self, item):
+		self.items[item.data_id] = item
+		item.add_container(self)
+
+
 	def remove(self, item):
 		if item.data_id in self.items:
 			del self.items[item.data_id]

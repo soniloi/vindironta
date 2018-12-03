@@ -7,24 +7,24 @@ class ItemCollection:
 
 	def __init__(self, reader, elements):
 		self.items = {}
-		container_ids = {}
+		container_ids_by_item = {}
 		switched_element_ids = {}
 
 		line = reader.read_line()
 		while not line.startswith("---"):
-			self.create_item(line, container_ids, elements, switched_element_ids)
+			self.create_item(line, container_ids_by_item, elements, switched_element_ids)
 			line = reader.read_line()
 
-		self.place_items(container_ids, elements)
+		self.place_items(container_ids_by_item, elements)
 		self.resolve_switches(switched_element_ids, elements)
 
 
-	def create_item(self, line, container_ids, elements, switched_element_ids):
+	def create_item(self, line, container_ids_by_item, elements, switched_element_ids):
 		tokens = line.split("\t")
 
 		item_id = self.parse_item_id(tokens[0])
 		attributes = self.parse_item_attributes(tokens[1])
-		container_id = self.parse_item_container_id(tokens[2])
+		container_ids = self.parse_item_container_ids(tokens[2])
 		size = self.parse_item_size(tokens[3])
 		primary_shortname, shortnames = self.parse_item_shortnames(tokens[4])
 		longname = tokens[5]
@@ -50,7 +50,7 @@ class ItemCollection:
 		for shortname in shortnames:
 			self.items[shortname] = item
 
-		container_ids[item] = container_id
+		container_ids_by_item[item] = container_ids
 
 
 	def parse_item_id(self, token):
@@ -61,8 +61,9 @@ class ItemCollection:
 		return int(token, 16)
 
 
-	def parse_item_container_id(self, token):
-		return int(token)
+	def parse_item_container_ids(self, token):
+		container_id_tokens = token.split(",")
+		return [int(container_id_token) for container_id_token in container_id_tokens]
 
 
 	def parse_item_size(self, token):
@@ -123,13 +124,12 @@ class ItemCollection:
 		return item
 
 
-	# TODO: handle initial placement types other than Location
-	def place_items(self, container_ids, containers):
-		for item, container_id in container_ids.items():
-			container = containers.get(container_id)
-			if container:
-				item.update_container(container)
-				container.insert(item)
+	def place_items(self, container_ids_by_item, containers):
+		for item, container_ids in container_ids_by_item.items():
+			for container_id in container_ids:
+				container = containers.get(container_id)
+				if container:
+					container.add(item)
 
 
 	def resolve_switches(self, switched_element_ids, elements):

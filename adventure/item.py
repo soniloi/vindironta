@@ -24,7 +24,7 @@ class Item(NamedDataElement):
 		NamedDataElement.__init__(self, data_id=item_id, attributes=attributes, labels=labels)
 		self.size = size
 		self.writing = writing
-		self.container = None
+		self.containers = set()
 		self.obstruction = bool(attributes & Item.ATTRIBUTE_OBSTRUCTION)
 
 
@@ -49,8 +49,20 @@ class Item(NamedDataElement):
 		return ""
 
 
+	def remove_from_containers(self):
+		for container in self.containers:
+			container.remove(self)
+
+
 	def update_container(self, container):
-		self.container = container
+		first_container = self.get_first_container()
+		if first_container:
+			self.containers.remove(first_container)
+		self.containers.add(container)
+
+
+	def add_container(self, container):
+		self.containers.add(container)
 
 
 	def get_weight(self):
@@ -110,14 +122,20 @@ class Item(NamedDataElement):
 
 
 	def get_outermost_container(self):
-		container = self.container
+		container = self.get_first_container()
 		while isinstance(container, Item):
-			container = container.container
+			container = container.get_first_container()
 		return container
 
 
+	def get_first_container(self):
+		if len(self.containers) >= 1:
+			return next(iter(self.containers))
+		return None
+
+
 	def get_sentient_owner(self):
-		owner = self.container
+		owner = self.get_first_container()
 		if isinstance(owner, SentientItem):
 			return owner
 		elif not isinstance(owner, Item):

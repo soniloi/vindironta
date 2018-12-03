@@ -21,7 +21,8 @@ class TestLocation(unittest.TestCase):
 	def test_contains_simple(self):
 		self.location.insert(self.book)
 
-		self.assertEqual(self.location, self.book.container)
+		self.assertEqual(1, len(self.book.containers))
+		self.assertTrue(self.location in self.book.containers)
 		self.assertTrue(self.location.contains(self.book))
 
 

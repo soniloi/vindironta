@@ -113,7 +113,7 @@ class TestCommandHandler(unittest.TestCase):
 			"describe_help" : "Welcome and good luck.",
 			"describe_item" : "It is {0}.",
 			"describe_item_switch" : " It is {1}.",
-			"describe_locate" : "The {0} is at {1} ({2}).",
+			"describe_locate" : "The {0} is at {1}.",
 			"describe_location" : "You are {0}.",
 			"describe_node" : "You are at node {0}.",
 			"describe_score" : "Current score: {0} point(s). Instructions entered: {1}.",
@@ -610,7 +610,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("You fall to your death in the darkness.", [""]), response)
 		self.assertFalse(self.player.alive)
 		self.assertFalse(self.player.holding_items())
-		self.assertEqual(self.mine_location, self.book.container)
+		self.assertEqual(1, len(self.book.containers))
+		self.assertTrue(self.mine_location in self.book.containers)
 
 
 	def test_handle_go_from_dark_to_dark_not_carrying_light_immune_on(self):
@@ -755,7 +756,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_locate(self.player, self.book)
 
-		self.assertEqual(("The {0} is at {1} ({2}).", ["book", 12, "at a lighthouse"]), response)
+		self.assertEqual(("The {0} is at {1}.", ["book", "['12:at a lighthouse']"]), response)
 
 
 	def test_handle_locate_in_item(self):
@@ -763,7 +764,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_locate(self.player, self.book)
 
-		self.assertEqual(("The {0} is at {1} ({2}).", ["book", 1107, "a basket"]), response)
+		self.assertEqual(("The {0} is at {1}.", ["book", "['1107:a basket']"]), response)
 
 
 	def test_handle_locate_in_inventory(self):
@@ -771,7 +772,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_locate(self.player, self.book)
 
-		self.assertEqual(("The {0} is at {1} ({2}).", ["book", 0, "in the main inventory"]), response)
+		self.assertEqual(("The {0} is at {1}.", ["book", "['0:in the main inventory']"]), response)
 
 
 	def test_handle_look_no_items(self):

@@ -77,17 +77,17 @@ class Player:
 
 
 	def take_item(self, item):
-		item.container.remove(item)
+		item.remove_from_containers()
 		self.get_inventory().insert(item)
 
 
 	def drop_item(self, item):
-		item.container.remove(item)
+		item.remove_from_containers()
 		self.location.insert(item)
 
 
 	def lose_item(self, item):
-		item.container.remove(item)
+		item.remove_from_containers()
 
 
 	def drop_all_items(self):
