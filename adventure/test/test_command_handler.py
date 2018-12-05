@@ -100,7 +100,8 @@ class TestCommandHandler(unittest.TestCase):
 			"confirm_inserted" : "Inserted.",
 			"confirm_look" : "You are {0}.",
 			"confirm_ok" : "OK.",
-			"confirm_poured" : "You pour the liquid away.",
+			"confirm_poured_no_destination" : "You pour the liquid away.",
+			"confirm_poured_with_destination" : "You pour the liquid onto the {1}.",
 			"confirm_quit" : "OK.",
 			"confirm_taken" : "Taken.",
 			"confirm_immune_off" : "Immune off.",
@@ -832,14 +833,6 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertIs(self.mine_location, self.player.location)
 
 
-	def test_pour_non_liquid(self):
-		self.player.take_item(self.book)
-
-		response = self.handler.handle_pour(self.player, self.book)
-
-		self.assertEqual(("That is not a liquid.", ["book"]), response)
-
-
 	def test_handle_pick(self):
 		self.player.location.insert(self.book)
 
@@ -850,13 +843,21 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertFalse(self.player.is_near_item(self.book))
 
 
+	def test_pour_non_liquid(self):
+		self.player.take_item(self.book)
+
+		response = self.handler.handle_pour(self.player, self.book, self.lamp)
+
+		self.assertEqual(("That is not a liquid.", ["book"]), response)
+
+
 	def test_handle_pour_liquid(self):
 		self.bottle.insert(self.water)
 		self.player.take_item(self.bottle)
 
-		response = self.handler.handle_pour(self.player, self.water)
+		response = self.handler.handle_pour(self.player, self.water, self.lamp)
 
-		self.assertEqual(("You pour the liquid away.", ["water", "bottle"]), response)
+		self.assertEqual(("You pour the liquid onto the {1}.", ["water", "bottle", "lamp"]), response)
 		self.assertFalse(self.bottle.contains(self.water))
 		self.assertFalse(self.player.is_near_item(self.water))
 

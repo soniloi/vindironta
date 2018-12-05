@@ -66,7 +66,7 @@ class CommandHandler:
 	def handle_drop(self, player, item):
 		if item.is_liquid():
 			player.lose_item(item)
-			return self.get_response("confirm_poured"), [item.shortname, item.get_first_container().shortname]
+			return self.get_response("confirm_poured_no_destination"), [item.shortname, item.get_first_container().shortname]
 
 		player.drop_item(item)
 		return self.get_response("confirm_dropped"), [item.shortname]
@@ -335,10 +335,13 @@ class CommandHandler:
 		return self.handle_take(player, item)
 
 
-	def handle_pour(self, player, item):
+	def handle_pour(self, player, item, destination):
 		if not item.is_liquid():
 			return self.get_response("reject_not_liquid"), [item.shortname]
-		return self.handle_drop(player, item)
+
+		player.lose_item(item)
+		content = [item.shortname, item.get_first_container().shortname, destination.shortname]
+		return self.get_response("confirm_poured_with_destination"), content
 
 
 	def handle_quit(self, player):
