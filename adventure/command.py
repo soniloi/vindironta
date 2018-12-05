@@ -3,6 +3,7 @@ from adventure.data_element import DataElement
 class Command(DataElement):
 
 	ATTRIBUTE_TELEPORT = 0x2
+	ATTRIBUTE_VERB_IS_FIRST_ARG = 0x4
 	ATTRIBUTE_SECRET = 0x10
 	ATTRIBUTE_MOVEMENT = 0x40
 	ATTRIBUTE_SWITCHABLE = 0x100
@@ -19,6 +20,10 @@ class Command(DataElement):
 		self.aliases = aliases
 		self.transitions = transitions
 		self.teleport_locations = teleport_locations
+
+
+	def verb_is_first_arg(self):
+		return self.has_attribute(Command.ATTRIBUTE_VERB_IS_FIRST_ARG)
 
 
 	def is_secret(self):

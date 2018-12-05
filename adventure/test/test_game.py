@@ -59,12 +59,16 @@ class TestGame(unittest.TestCase):
 		look_command.execute.return_value = "You cannot see a thing."
 		self.take_command = Mock()
 		self.take_command.execute.return_value = "Taken."
+		self.pour_command = Mock()
+		self.pour_command.verb_is_first_arg.return_value = True
+		self.pour_command.execute.return_value = "Poured."
 		switch_command = Mock()
 		switch_command.execute.return_value = "Switched."
 
 		self.command_map = {
 			"die" : die_command,
 			"look" : look_command,
+			"water" : self.pour_command,
 			"switch" : switch_command,
 		}
 
@@ -141,10 +145,18 @@ class TestGame(unittest.TestCase):
 		self.assertEqual(1, self.game.player.instructions)
 
 
-	def test_process_input_command_known(self):
+	def test_process_input_command_known_explicit_verb(self):
 		response = self.game.process_input("look")
 
 		self.assertEqual("You cannot see a thing.", response)
+		self.assertEqual(1, self.game.player.instructions)
+
+
+	def test_process_input_command_known_noun_as_verb(self):
+		response = self.game.process_input("water")
+
+		self.assertEqual("Poured.", response)
+		self.pour_command.execute.assert_called_once_with(self.game.player, ["water"])
 		self.assertEqual(1, self.game.player.instructions)
 
 

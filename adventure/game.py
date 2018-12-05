@@ -82,7 +82,12 @@ class Game:
 
 		else:
 			command = self.get_command_from_input(tokens)
-			command_args = tokens[1:]
+
+			if command and command.verb_is_first_arg():
+				command_args = tokens
+			else:
+				command_args = tokens[1:]
+
 			self.player.increment_instructions()
 
 		if not command:
