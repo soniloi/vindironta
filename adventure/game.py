@@ -53,8 +53,8 @@ class Game:
 
 
 	def process_tokens(self, tokens):
-
 		response = ""
+
 		if self.player.alive:
 			response = self.process_tokens_as_command(tokens)
 
@@ -76,23 +76,17 @@ class Game:
 	def process_tokens_as_command(self, tokens):
 		command = self.player.current_command
 		self.player.current_command = None
-
-		if command:
-			command_args = tokens
-
-		else:
-			command = self.get_command_from_input(tokens)
-
-			if command and command.verb_is_first_arg():
-				command_args = tokens
-			else:
-				command_args = tokens[1:]
-
-			self.player.increment_instructions()
+		command_args = tokens
 
 		if not command:
+			command = self.get_command_from_input(tokens)
+			if command and not command.verb_is_first_arg():
+				command_args = tokens[1:]
+			self.player.increment_instructions()
+
+		# TODO: deprecate this in favour of nouns-as-verbs
+		if not command:
 			command = self.commands.get("switch")
-			command_args = tokens
 
 		if command:
 			return command.execute(self.player, command_args)
