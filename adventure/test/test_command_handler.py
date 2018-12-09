@@ -69,15 +69,6 @@ class TestCommandHandler(unittest.TestCase):
 		self.bread = Item(1109, 0x2002, Labels("bread", "some bread", "a loaf of bread"), 2, None)
 		self.water = Item(1110, 0x22902, Labels("water", "some water", "some water"), 1, None)
 
-		self.item_start_location.add(self.book)
-		self.item_start_location.add(self.lamp)
-		self.item_start_location.add(self.heavy_item)
-		self.item_start_location.add(self.basket)
-		self.item_start_location.add(self.suit)
-		self.item_start_location.add(self.bottle)
-		self.item_start_location.add(self.cat)
-		self.item_start_location.add(self.bread)
-
 
 	def setup_texts(self):
 		self.hint_map = {
@@ -197,21 +188,23 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_consume_non_edible(self):
+		self.item_start_location.add(self.book)
+
 		response = self.handler.handle_consume(self.player, self.book)
 
 		self.assertEqual(("You cannot consume that.", ["book"]), response)
-		self.assertTrue(self.item_start_location.contains(self.book))
+		self.assertTrue(self.book in self.item_start_location.items.values())
 
 
 	def test_handle_consume_edible(self):
 		response = self.handler.handle_consume(self.player, self.bread)
 
 		self.assertEqual(("You consume the {0}.", ["bread"]), response)
-		self.assertFalse(self.item_start_location.contains(self.bread))
+		self.assertFalse(self.bread in self.item_start_location.items.values())
 
 
 	def test_handle_describe_in_inventory(self):
-		self.player.take_item(self.book)
+		self.player.get_inventory().add(self.book)
 
 		response = self.handler.handle_describe(self.player, self.book)
 
@@ -219,7 +212,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_describe_at_location(self):
-		self.player.location.insert(self.book)
+		self.player.location.add(self.book)
 
 		response = self.handler.handle_describe(self.player, self.lamp)
 
@@ -227,33 +220,35 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_drink_solid(self):
+		self.item_start_location.add(self.bread)
+
 		response = self.handler.handle_drink(self.player, self.bread)
 
 		self.assertEqual(("You cannot drink a solid.", ["bread"]), response)
-		self.assertTrue(self.item_start_location.contains(self.bread))
+		self.assertTrue(self.bread in self.item_start_location.items.values())
 
 
 	def test_handle_drink_liquid(self):
-		self.bottle.insert(self.water)
+		self.bottle.add(self.water)
 
 		response = self.handler.handle_drink(self.player, self.water)
 
 		self.assertEqual(("You consume the {0}.", ["water"]), response)
-		self.assertFalse(self.item_start_location.contains(self.water))
+		self.assertFalse(self.water in self.bottle.items.values())
 
 
 	def test_handle_drop_non_wearable(self):
-		self.player.take_item(self.lamp)
+		self.player.get_inventory().add(self.lamp)
 
 		response = self.handler.handle_drop(self.player, self.lamp)
 
 		self.assertEqual(("Dropped.", ["lamp"]), response)
-		self.assertFalse(self.player.is_carrying(self.lamp))
-		self.assertTrue(self.player.is_near_item(self.lamp))
+		self.assertFalse(self.lamp in self.default_inventory.items.values())
+		self.assertTrue(self.lamp in self.player.location.items.values())
 
 
 	def test_handle_drop_wearable(self):
-		self.player.take_item(self.suit)
+		self.player.get_inventory().add(self.suit)
 		self.suit.being_worn = True
 
 		response = self.handler.handle_drop(self.player, self.suit)
@@ -265,8 +260,8 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_drop_from_inside_container(self):
-		self.basket.insert(self.book)
-		self.player.take_item(self.basket)
+		self.basket.add(self.book)
+		self.player.get_inventory().add(self.basket)
 
 		response = self.handler.handle_drop(self.player, self.book)
 
@@ -277,7 +272,7 @@ class TestCommandHandler(unittest.TestCase):
 
 	def test_handle_drop_liquid(self):
 		self.bottle.add(self.water)
-		self.player.take_item(self.bottle)
+		self.player.get_inventory().add(self.bottle)
 
 		response = self.handler.handle_drop(self.player, self.water)
 
@@ -287,23 +282,23 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_eat_liquid(self):
-		self.bottle.add(self.water)
+		self.item_start_location.add(self.water)
 
 		response = self.handler.handle_eat(self.player, self.water)
 
 		self.assertEqual(("You cannot eat a liquid.", ["water"]), response)
-		self.assertTrue(self.item_start_location.contains(self.water))
+		self.assertTrue(self.water in self.item_start_location.items.values())
 
 
 	def test_handle_eat_solid(self):
 		response = self.handler.handle_eat(self.player, self.bread)
 
 		self.assertEqual(("You consume the {0}.", ["bread"]), response)
-		self.assertFalse(self.item_start_location.contains(self.bread))
+		self.assertFalse(self.bread in self.item_start_location.items.values())
 
 
 	def test_handle_empty_non_container(self):
-		self.player.take_item(self.book)
+		self.player.get_inventory().add(self.book)
 
 		response = self.handler.handle_empty(self.player, self.book)
 
@@ -311,7 +306,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_empty_already_empty(self):
-		self.player.take_item(self.basket)
+		self.player.get_inventory().add(self.basket)
 
 		response = self.handler.handle_empty(self.player, self.basket)
 
@@ -320,37 +315,37 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_empty_liquid(self):
-		self.bottle.insert(self.water)
-		self.player.take_item(self.bottle)
+		self.bottle.add(self.water)
+		self.player.get_inventory().add(self.bottle)
 
 		response = self.handler.handle_empty(self.player, self.bottle)
 
 		self.assertEqual(("You pour the {1} out of the {0}.", ["bottle", "water"]), response)
-		self.assertFalse(self.bottle.contains(self.water))
+		self.assertFalse(self.water in self.bottle.items.values())
 		self.assertFalse(self.player.is_carrying(self.water))
 		self.assertFalse(self.player.is_near_item(self.water))
 
 
 	def test_handle_empty_solid_in_inventory(self):
-		self.basket.insert(self.book)
-		self.player.take_item(self.basket)
+		self.basket.add(self.book)
+		self.player.get_inventory().add(self.basket)
 
 		response = self.handler.handle_empty(self.player, self.basket)
 
 		self.assertEqual(("You take the {1} out of the {0}.", ["basket", "book"]), response)
-		self.assertFalse(self.basket.contains(self.book))
+		self.assertFalse(self.book in self.basket.items.values())
 		self.assertTrue(self.player.is_carrying(self.book))
 		self.assertFalse(self.player.is_near_item(self.book))
 
 
 	def test_handle_empty_solid_at_location(self):
-		self.basket.insert(self.book)
-		self.player.location.insert(self.basket)
+		self.basket.add(self.book)
+		self.player.location.add(self.basket)
 
 		response = self.handler.handle_empty(self.player, self.basket)
 
 		self.assertEqual(("You take the {1} out of the {0}.", ["basket", "book"]), response)
-		self.assertFalse(self.basket.contains(self.book))
+		self.assertFalse(self.book in self.basket.items.values())
 		self.assertFalse(self.player.is_carrying(self.book))
 		self.assertTrue(self.player.is_near_item(self.book))
 
@@ -386,7 +381,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_give_non_sentient_recipient(self):
-		self.player.take_item(self.book)
+		self.player.get_inventory().add(self.book)
 
 		response = self.handler.handle_give(self.player, self.book, self.lamp)
 
@@ -394,8 +389,8 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_give_liquid_item(self):
-		self.bottle.insert(self.water)
-		self.player.take_item(self.bottle)
+		self.bottle.add(self.water)
+		self.player.get_inventory().add(self.bottle)
 
 		response = self.handler.handle_give(self.player, self.water, self.cat)
 
@@ -403,7 +398,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_give_valid(self):
-		self.player.take_item(self.book)
+		self.player.get_inventory().add(self.book)
 
 		response = self.handler.handle_give(self.player, self.book, self.cat)
 
@@ -460,7 +455,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_go_with_destination_excess_light_carrying_light(self):
 		self.player.location.directions[Direction.UP] = self.sun_location
 		self.sun_location.directions[Direction.DOWN] = self.player.location
-		self.player.take_item(self.lamp)
+		self.player.get_inventory().add(self.lamp)
 
 		response = self.handler.handle_go(self.player, 60)
 
@@ -518,7 +513,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_go_without_destination_with_obstruction(self):
-		self.player.location.insert(self.obstruction)
+		self.player.location.add(self.obstruction)
 
 		response = self.handler.handle_go(self.player, 34)
 
@@ -528,7 +523,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_go_with_destination_with_obstruction(self):
-		self.player.location.insert(self.obstruction)
+		self.player.location.add(self.obstruction)
 		self.player.location.directions[Direction.SOUTH] = self.beach_location
 
 		response = self.handler.handle_go(self.player, 52)
@@ -538,7 +533,7 @@ class TestCommandHandler(unittest.TestCase):
 
 	def test_handle_go_with_destination_with_obstruction_no_light(self):
 		self.player.location = self.mine_location
-		self.player.location.insert(self.obstruction)
+		self.player.location.add(self.obstruction)
 		self.player.location.directions[Direction.EAST] = self.beach_location
 
 		response = self.handler.handle_go(self.player, 16)
@@ -547,7 +542,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_go_back_with_destination_with_obstruction(self):
-		self.player.location.insert(self.obstruction)
+		self.player.location.add(self.obstruction)
 		self.player.previous_location = self.beach_location
 		self.beach_location.directions[Direction.NORTH] = self.player.location
 
@@ -559,7 +554,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_go_with_obstruction_to_previous_location(self):
-		self.beach_location.insert(self.obstruction)
+		self.beach_location.add(self.obstruction)
 		self.player.location.directions[Direction.SOUTH] = self.beach_location
 		self.beach_location.directions[Direction.NORTH] = self.lighthouse_location
 
@@ -604,7 +599,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_go_from_dark_to_dark_not_carrying_light_immune_off(self):
 		self.player.location = self.mine_location
 		self.player.location.directions[Direction.EAST] = self.cave_location
-		self.player.take_item(self.book)
+		self.player.get_inventory().add(self.book)
 
 		response = self.handler.handle_go(self.player, 16)
 
@@ -629,7 +624,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_go_from_dark_to_dark_carrying_light(self):
 		self.player.location = self.mine_location
 		self.player.location.directions[Direction.EAST] = self.cave_location
-		self.player.take_item(self.lamp)
+		self.player.get_inventory().add(self.lamp)
 
 		response = self.handler.handle_go(self.player, 16)
 
@@ -691,7 +686,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_insert_already_inserted(self):
-		self.basket.insert(self.book)
+		self.basket.add(self.book)
 
 		response = self.handler.handle_insert(self.player, self.book, self.basket)
 
@@ -705,7 +700,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_insert_liquid_into_solid_container(self):
-		self.item_start_location.insert(self.water)
+		self.item_start_location.add(self.water)
 
 		response = self.handler.handle_insert(self.player, self.water, self.basket)
 
@@ -719,7 +714,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_insert_container_not_empty(self):
-		self.basket.insert(self.lamp)
+		self.basket.add(self.lamp)
 
 		response = self.handler.handle_insert(self.player, self.book, self.basket)
 
@@ -760,7 +755,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_inventory_nonempty(self):
-		self.player.take_item(self.book)
+		self.player.get_inventory().add(self.book)
 
 		response = self.handler.handle_inventory(self.player)
 
@@ -768,7 +763,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_locate_at_location(self):
-		self.player.location.insert(self.book)
+		self.player.location.add(self.book)
 
 		response = self.handler.handle_locate(self.player, self.book)
 
@@ -776,7 +771,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_locate_in_item(self):
-		self.basket.insert(self.book)
+		self.basket.add(self.book)
 
 		response = self.handler.handle_locate(self.player, self.book)
 
@@ -784,7 +779,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_locate_in_inventory(self):
-		self.player.take_item(self.book)
+		self.player.get_inventory().add(self.book)
 
 		response = self.handler.handle_locate(self.player, self.book)
 
@@ -798,7 +793,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_look_with_item(self):
-		self.player.location.insert(self.book)
+		self.player.location.add(self.book)
 
 		response = self.handler.handle_look(self.player)
 
@@ -806,7 +801,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_look_with_silent_item(self):
-		self.player.location.insert(self.desk)
+		self.player.location.add(self.desk)
 
 		response = self.handler.handle_look(self.player)
 
@@ -849,7 +844,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_pick(self):
-		self.player.location.insert(self.book)
+		self.player.location.add(self.book)
 
 		response = self.handler.handle_pick(self.player, self.book)
 
@@ -859,7 +854,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_pour_non_liquid(self):
-		self.player.take_item(self.book)
+		self.player.get_inventory().add(self.book)
 
 		response = self.handler.handle_pour(self.player, self.book, self.lamp)
 
@@ -868,12 +863,12 @@ class TestCommandHandler(unittest.TestCase):
 
 	def test_handle_pour_liquid(self):
 		self.bottle.add(self.water)
-		self.player.take_item(self.bottle)
+		self.player.get_inventory().add(self.bottle)
 
 		response = self.handler.handle_pour(self.player, self.water, self.lamp)
 
 		self.assertEqual(("You pour the liquid onto the {1}.", ["water", "bottle", "lamp"]), response)
-		self.assertFalse(self.bottle.contains(self.water))
+		self.assertFalse(self.water in self.bottle.items.values())
 		self.assertFalse(self.player.is_near_item(self.water))
 
 
@@ -886,7 +881,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_read_no_writing(self):
-		self.player.take_item(self.lamp)
+		self.player.get_inventory().add(self.lamp)
 
 		response = self.handler.handle_read(self.player, self.lamp)
 
@@ -894,7 +889,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_read_with_writing(self):
-		self.player.take_item(self.book)
+		self.player.get_inventory().add(self.book)
 
 		response = self.handler.handle_read(self.player, self.book)
 
@@ -909,7 +904,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_set(self):
-		self.player.take_item(self.lamp)
+		self.player.get_inventory().add(self.lamp)
 
 		response = self.handler.handle_set(self.player, self.lamp)
 
@@ -955,28 +950,29 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_take_from_sentient_simple(self):
-		self.cat.insert(self.book)
+		self.cat.add(self.book)
 
 		response = self.handler.handle_take(self.player, self.book)
 
 		self.assertEqual(("You cannot take anything from the {1}.", ["book", "cat"]), response)
 		self.assertFalse(self.player.is_carrying(self.book))
-		self.assertTrue(self.cat.contains(self.book))
+		self.assertTrue(self.book in self.cat.items.values())
 
 
 	def test_handle_take_from_sentient_nested(self):
-		self.basket.insert(self.book)
-		self.cat.insert(self.basket)
+		self.basket.add(self.book)
+		self.cat.add(self.basket)
 
 		response = self.handler.handle_take(self.player, self.book)
 
 		self.assertEqual(("You cannot take anything from the {1}.", ["book", "cat"]), response)
 		self.assertFalse(self.player.is_carrying(self.book))
-		self.assertTrue(self.cat.contains(self.book))
+		self.assertTrue(self.basket in self.cat.items.values())
+		self.assertTrue(self.book in self.basket.items.values())
 
 
 	def test_handle_take_not_portable(self):
-		self.player.location.insert(self.desk)
+		self.player.location.add(self.desk)
 
 		response = self.handler.handle_take(self.player, self.desk)
 
@@ -986,7 +982,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_take_obstruction(self):
-		self.player.location.insert(self.mobile_obstruction)
+		self.player.location.add(self.mobile_obstruction)
 
 		response = self.handler.handle_take(self.player, self.mobile_obstruction)
 
@@ -996,8 +992,8 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_take_over_capacity(self):
-		self.player.location.insert(self.book)
-		self.player.take_item(self.heavy_item)
+		self.player.location.add(self.book)
+		self.player.get_inventory().add(self.heavy_item)
 
 		response = self.handler.handle_take(self.player, self.book)
 
@@ -1007,7 +1003,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_take_at_location(self):
-		self.player.location.insert(self.book)
+		self.player.location.add(self.book)
 
 		response = self.handler.handle_take(self.player, self.book)
 
@@ -1028,13 +1024,13 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_take_multi_arg(self):
-		self.player.location.insert(self.book)
-		self.player.take_item(self.basket)
+		self.player.location.add(self.book)
+		self.player.get_inventory().add(self.basket)
 
 		response = self.handler.handle_take(self.player, self.book, self.basket)
 
 		self.assertEqual(("Inserted.", ["book", "basket"]), response)
-		self.assertTrue(self.basket.contains(self.book))
+		self.assertTrue(self.book in self.basket.items.values())
 
 
 
@@ -1104,7 +1100,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_wear_wearable_not_already_wearing(self):
-		self.player.location.insert(self.suit)
+		self.player.location.add(self.suit)
 		self.suit.being_worn = False
 
 		response = self.handler.handle_wear(self.player, self.suit)
