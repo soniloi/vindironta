@@ -295,10 +295,21 @@ class CommandHandler:
 
 
 	def handle_locate(self, player, item):
-		template = self.get_response("describe_locate")
-		containers = item.containers
-		container_descriptions = [str(container.data_id) + ":" + container.longname for container in containers]
-		contents = [item.shortname, str(container_descriptions)]
+		template = self.get_response("describe_locate_primary")
+		primary_containers = item.containers
+		primary_container_descriptions = [str(container.data_id) + ":" + container.longname for container in primary_containers]
+		contents = [item.shortname, str(primary_container_descriptions)]
+
+		item_copies = item.copied_to
+		copy_container_descriptions = []
+		for item_copy in item_copies:
+			copy_container = item_copy.get_first_container()
+			copy_container_descriptions.append(str(copy_container.data_id) + ":" + copy_container.longname)
+
+		if copy_container_descriptions:
+			template += self.get_response("describe_locate_copies")
+			contents.append(str(copy_container_descriptions))
+
 		return template, contents
 
 

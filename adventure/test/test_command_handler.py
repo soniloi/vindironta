@@ -105,7 +105,8 @@ class TestCommandHandler(unittest.TestCase):
 			"describe_help" : "Welcome and good luck.",
 			"describe_item" : "It is {0}.",
 			"describe_item_switch" : " It is {1}.",
-			"describe_locate" : "The {0} is at {1}.",
+			"describe_locate_copies" : "Copies at {2}.",
+			"describe_locate_primary" : "The {0} is at {1}. ",
 			"describe_location" : "You are {0}.",
 			"describe_node" : "You are at node {0}.",
 			"describe_score" : "Current score: {0} point(s). Instructions entered: {1}.",
@@ -767,7 +768,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_locate(self.player, self.book)
 
-		self.assertEqual(("The {0} is at {1}.", ["book", "['12:at a lighthouse']"]), response)
+		self.assertEqual(("The {0} is at {1}. ", ["book", "['12:at a lighthouse']"]), response)
 
 
 	def test_handle_locate_in_item(self):
@@ -775,7 +776,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_locate(self.player, self.book)
 
-		self.assertEqual(("The {0} is at {1}.", ["book", "['1107:a basket']"]), response)
+		self.assertEqual(("The {0} is at {1}. ", ["book", "['1107:a basket']"]), response)
 
 
 	def test_handle_locate_in_inventory(self):
@@ -783,7 +784,16 @@ class TestCommandHandler(unittest.TestCase):
 
 		response = self.handler.handle_locate(self.player, self.book)
 
-		self.assertEqual(("The {0} is at {1}.", ["book", "['0:in the main inventory']"]), response)
+		self.assertEqual(("The {0} is at {1}. ", ["book", "['0:in the main inventory']"]), response)
+
+
+	def test_handle_locate_with_copies(self):
+		self.player.location.add(self.water)
+		self.bottle.insert(self.water)
+
+		response = self.handler.handle_locate(self.player, self.water)
+
+		self.assertEqual(("The {0} is at {1}. Copies at {2}.", ["water", "['12:at a lighthouse']", "['1108:a bottle']"]), response)
 
 
 	def test_handle_look_no_items(self):
