@@ -163,16 +163,28 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def test_resolve_args_with_item_arg_known_needs_inventory_only_and_player_not_carrying(self):
 		command = Command(1, 0x8, [ArgInfo(0xB)], [], None, "drop", [], {}, {})
-		self.player.is_carrying.return_value = False
+		self.player.get_carried_item.return_value = None
+		self.player.get_nearby_item.return_value = None
 
 		response = self.resolver.resolve_args(command, self.player, ["book"])
 
 		self.assertEqual((False, ("You are not holding it.", ["book"])), response)
 
 
+	def test_resolve_args_with_item_arg_known_needs_inventory_only_and_player_is_carrying(self):
+		command = Command(1, 0x8, [ArgInfo(0xB)], [], None, "drop", [], {}, {})
+		self.player.get_carried_item.return_value = self.book
+		self.player.get_nearby_item.return_value = None
+
+		response = self.resolver.resolve_args(command, self.player, ["book"])
+
+		self.assertEqual((True, (self.player, [self.book])), response)
+
+
 	def test_resolve_args_with_item_arg_known_needs_location_only_and_player_is_carrying(self):
 		command = Command(1, 0x8, [ArgInfo(0x7)], [], None, "take", [], {}, {})
-		self.player.is_carrying.return_value = True
+		self.player.get_carried_item.return_value = self.book
+		self.player.get_nearby_item.return_value = None
 
 		response = self.resolver.resolve_args(command, self.player, ["book"])
 
@@ -181,8 +193,8 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def test_resolve_args_with_item_arg_known_needs_location_only_and_player_not_near(self):
 		command = Command(1, 0x8, [ArgInfo(0x7)], [], None, "take", [], {}, {})
-		self.player.is_carrying.return_value = False
-		self.player.is_near_item.return_value = False
+		self.player.get_carried_item.return_value = None
+		self.player.get_nearby_item.return_value = None
 
 		response = self.resolver.resolve_args(command, self.player, ["book"])
 
@@ -191,8 +203,8 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def test_resolve_args_with_item_arg_known_needs_location_only_and_player_is_near(self):
 		command = Command(1, 0x8, [ArgInfo(0x7)], [], None, "take", [], {}, {})
-		self.player.is_carrying.return_value = False
-		self.player.is_near_item.return_value = True
+		self.player.get_carried_item.return_value = None
+		self.player.get_nearby_item.return_value = self.book
 
 		response = self.resolver.resolve_args(command, self.player, ["book"])
 
@@ -201,7 +213,8 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def test_resolve_args_with_item_arg_known_needs_inventory_or_location_and_player_not_near(self):
 		command = Command(1, 0x8, [ArgInfo(0xF)], [], None, "describe", [], {}, {})
-		self.player.has_or_is_near_item.return_value = False
+		self.player.get_carried_item.return_value = None
+		self.player.get_nearby_item.return_value = None
 
 		response = self.resolver.resolve_args(command, self.player, ["book"])
 
@@ -210,7 +223,8 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def test_resolve_args_with_item_arg_known_needs_inventory_or_location_and_player_is_near(self):
 		command = Command(1, 0x8, [ArgInfo(0xF)], [], None, "describe", [], {}, {})
-		self.player.has_or_is_near_item.return_value = True
+		self.player.get_carried_item.return_value = self.book
+		self.player.get_nearby_item.return_value = None
 
 		response = self.resolver.resolve_args(command, self.player, ["book"])
 
@@ -219,7 +233,8 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def test_resolve_args_multiple_items_all_valid(self):
 		command = Command(1, 0x8, [ArgInfo(0xF), ArgInfo(0xF)], [], None, "insert", [], {}, {})
-		self.player.has_or_is_near_item.return_value = True
+		self.player.get_carried_item.return_value = [self.book, self.box]
+		self.player.get_nearby_item.return_value = [None, None]
 
 		response = self.resolver.resolve_args(command, self.player, ["book", "box"])
 
@@ -229,7 +244,8 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def test_resolve_args_multiple_items_second_invalid(self):
 		command = Command(1, 0x8, [ArgInfo(0xF), ArgInfo(0xF)], [], None, "insert", [], {}, {})
-		self.player.has_or_is_near_item.return_value = True
+		self.player.get_carried_item.return_value = self.book
+		self.player.get_nearby_item.return_value = None
 
 		response = self.resolver.resolve_args(command, self.player, ["book", "blah"])
 
@@ -239,7 +255,8 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def test_resolve_args_multiple_missing_arg_without_link_info(self):
 		command = Command(1, 0x8, [ArgInfo(0xF), ArgInfo(0xF)], [], None, "insert", [], {}, {})
-		self.player.has_or_is_near_item.return_value = True
+		self.player.get_carried_item.return_value = self.book
+		self.player.get_nearby_item.return_value = None
 
 		response = self.resolver.resolve_args(command, self.player, ["book"])
 
@@ -250,7 +267,8 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_args_multiple_missing_arg_with_link_info_linker_implicit(self):
 		arg_infos = [ArgInfo(0xF), ArgInfo(0xF, ["into", "in", "to"])]
 		command = Command(1, 0x8, arg_infos, [], None, "insert", [], {}, {})
-		self.player.has_or_is_near_item.return_value = True
+		self.player.get_carried_item.return_value = self.book
+		self.player.get_nearby_item.return_value = None
 
 		response = self.resolver.resolve_args(command, self.player, ["book"])
 
@@ -261,7 +279,8 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_args_multiple_missing_arg_with_link_info_linker_explicit(self):
 		arg_infos = [ArgInfo(0xF), ArgInfo(0xF, ["into", "in", "to"])]
 		command = Command(1, 0x8, arg_infos, [], None, "insert", [], {}, {})
-		self.player.has_or_is_near_item.return_value = True
+		self.player.get_carried_item.return_value = self.book
+		self.player.get_nearby_item.return_value = None
 
 		response = self.resolver.resolve_args(command, self.player, ["book", "to"])
 
@@ -271,7 +290,8 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def test_resolve_args_multiple_permissive_with_linker_explicit(self):
 		command = Command(1, 0x9, [ArgInfo(0x7), ArgInfo(0xA, ["in"])], [], None, "take", [], {}, {})
-		self.player.is_carrying.return_value = False
+		self.player.get_carried_item.return_value = None
+		self.player.get_nearby_item.return_value = self.book
 
 		response = self.resolver.resolve_args(command, self.player, ["book", "in"])
 
@@ -281,7 +301,8 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_args_multiple_missing_arg_with_link_info_three_args(self):
 		arg_infos = [ArgInfo(0xF), ArgInfo(0xF, ["into", "in", "to"]), ArgInfo(0xB, ["using"])]
 		command = Command(1, 0x8, arg_infos, [], None, "scoop", [], {}, {})
-		self.player.has_or_is_near_item.return_value = True
+		self.player.get_carried_item.return_value = self.book
+		self.player.get_nearby_item.return_value = None
 
 		response = self.resolver.resolve_args(command, self.player, ["salt", "box"])
 
@@ -292,7 +313,8 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_args_multiple_first_resolved(self):
 		command = Command(1, 0x8, [ArgInfo(0xF), ArgInfo(0xF)], [], None, "insert", [], {}, {})
 		self.player.get_current_args.return_value = [self.book]
-		self.player.has_or_is_near_item.return_value = True
+		self.player.get_carried_item.return_value = self.book
+		self.player.get_nearby_item.return_value = None
 
 		response = self.resolver.resolve_args(command, self.player, ["box"])
 
@@ -301,7 +323,8 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def test_resolve_args_multiple_items_all_valid_with_invalid_linker(self):
 		command = Command(1, 0x8, [ArgInfo(0xF), ArgInfo(0xF, ["into", "in"])], [], None, "insert", [], {}, {})
-		self.player.has_or_is_near_item.return_value = True
+		self.player.get_carried_item.return_value = self.book
+		self.player.get_nearby_item.return_value = None
 
 		response = self.resolver.resolve_args(command, self.player, ["book", "the", "box"])
 
@@ -311,7 +334,8 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def test_resolve_args_multiple_items_all_valid_with_valid_linker(self):
 		command = Command(1, 0x8, [ArgInfo(0xF), ArgInfo(0xF, ["into", "in"])], [], None, "insert", [], {}, {})
-		self.player.has_or_is_near_item.return_value = True
+		self.player.get_carried_item.return_value = self.book
+		self.player.get_nearby_item.return_value = None
 
 		response = self.resolver.resolve_args(command, self.player, ["book", "into", "box"])
 
@@ -321,7 +345,8 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def test_resolve_args_switching_command_not_switchable_item(self):
 		command = Command(1, 0x208, [ArgInfo(0xF)], [], None, "turn", [], {}, {})
-		self.player.has_or_is_near_item.return_value = True
+		self.player.get_carried_item.return_value = self.book
+		self.player.get_nearby_item.return_value = None
 
 		response = self.resolver.resolve_switching(command, self.player, ["book"])
 
@@ -330,7 +355,8 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def test_resolve_args_switching_command_switchable_item_no_next_state(self):
 		command = Command(1, 0x208, [ArgInfo(0xF)], [], None, "turn", [], {}, {})
-		self.player.has_or_is_near_item.return_value = True
+		self.player.get_carried_item.return_value = self.book
+		self.player.get_nearby_item.return_value = None
 
 		response = self.resolver.resolve_switching(command, self.player, ["lamp"])
 
@@ -339,7 +365,8 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def test_resolve_args_switching_command_switchable_item_invalid_next_state(self):
 		command = Command(1, 0x208, [ArgInfo(0xF)], [], None, "turn", [], {}, {})
-		self.player.has_or_is_near_item.return_value = True
+		self.player.get_carried_item.return_value = self.book
+		self.player.get_nearby_item.return_value = None
 
 		response = self.resolver.resolve_switching(command, self.player, ["lamp", "cinnamon"])
 
@@ -348,7 +375,8 @@ class TestArgumentResolver(unittest.TestCase):
 
 	def test_resolve_args_switching_command_switchable_item_valid_next_state(self):
 		command = Command(1, 0x208, [ArgInfo(0xF), ArgInfo(0x0)], [], None, "turn", [], {}, {})
-		self.player.has_or_is_near_item.return_value = True
+		self.player.get_carried_item.return_value = self.book
+		self.player.get_nearby_item.return_value = None
 
 		response = self.resolver.resolve_switching(command, self.player, ["lamp", "off"])
 

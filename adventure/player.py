@@ -60,16 +60,12 @@ class Player:
 		return self.location.has_non_silent_items()
 
 
-	def is_carrying(self, item):
-		return self.get_inventory().contains_allow_copy(item)
+	def get_carried_item(self, item):
+		return self.get_inventory().get_allow_copy(item)
 
 
-	def is_near_item(self, item):
-		return self.location.contains_allow_copy(item)
-
-
-	def has_or_is_near_item(self, item):
-		return self.is_carrying(item) or self.is_near_item(item)
+	def get_nearby_item(self, item):
+		return self.location.get_allow_copy(item)
 
 
 	def can_carry(self, item):

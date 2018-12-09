@@ -94,8 +94,8 @@ class Item(NamedDataElement):
 		return False
 
 
-	def contains_allow_copy(self, item):
-		return False
+	def get_allow_copy(self, item):
+		return None
 
 
 	def is_container(self):
@@ -198,29 +198,25 @@ class ContainerItem(Item, ItemContainer):
 
 
 	def contains(self, item):
-
 		if self.has_items():
-
 			inner_item = self.get_contained_item()
+
 			if item == inner_item:
 				return True
-
 			return inner_item.contains(item)
 
 		return False
 
 
-	def contains_allow_copy(self, item):
-
+	def get_allow_copy(self, item):
 		if self.has_items():
-
 			inner_item = self.get_contained_item()
+
 			if inner_item.is_allow_copy(item):
-				return True
+				return inner_item
+			return inner_item.get_allow_copy(item)
 
-			return inner_item.contains_allow_copy(item)
-
-		return False
+		return None
 
 
 	def get_contained_item(self):

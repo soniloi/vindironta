@@ -156,17 +156,28 @@ class ArgumentResolver(Resolver):
 		if not item:
 			return False, (self.data.get_response("reject_unknown"), [arg_input])
 
-		if arg_info.takes_item_arg_from_inventory_only() and not player.is_carrying(item):
-			return False, (self.data.get_response("reject_not_holding"), [item.shortname])
+		carried_item = player.get_carried_item(item)
+		nearby_item = player.get_nearby_item(item)
+
+		if arg_info.takes_item_arg_from_inventory_only():
+			if not carried_item:
+				return False, (self.data.get_response("reject_not_holding"), [item.shortname])
+			item = carried_item
 
 		if arg_info.takes_item_arg_from_location_only():
-			if player.is_carrying(item):
+			if carried_item:
 				return False, (self.data.get_response("reject_carrying"), [item.shortname])
-			if not player.is_near_item(item):
+			if not nearby_item:
 				return False, (self.data.get_response("reject_not_here"), [item.shortname])
+			item = nearby_item
 
-		if arg_info.takes_item_arg_from_inventory_or_location() and not player.has_or_is_near_item(item):
+		if arg_info.takes_item_arg_from_inventory_or_location() and not carried_item and not nearby_item:
 			return False, (self.data.get_response("reject_not_here"), [item.shortname])
+
+			# TODO: determine the ordering here
+			item = carried_item
+			if not item:
+				item = nearby_item
 
 		return True, item
 
