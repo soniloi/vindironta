@@ -1,6 +1,6 @@
 from enum import Enum
 
-from adventure.data_element import NamedDataElement
+from adventure.data_element import Labels, NamedDataElement
 from adventure.item_container import ItemContainer
 
 from collections import namedtuple
@@ -16,16 +16,33 @@ class Item(NamedDataElement):
 	ATTRIBUTE_LIQUID = 0x100
 	ATTRIBUTE_LIQUID_CONTAINER = 0x200
 	ATTRIBUTE_WEARABLE = 0x400
+	ATTRIBUTE_COPYABLE = 0x800
 	ATTRIBUTE_EDIBLE = 0x2000
 	ATTRIBUTE_SILENT = 0x20000
 	ATTRIBUTE_SENTIENT = 0x80000
 
-	def __init__(self, item_id, attributes, labels, size, writing):
+
+	def __init__(self, item_id, attributes, labels, size, writing, copied_from=None):
 		NamedDataElement.__init__(self, data_id=item_id, attributes=attributes, labels=labels)
 		self.size = size
 		self.writing = writing
 		self.containers = set()
 		self.obstruction = bool(attributes & Item.ATTRIBUTE_OBSTRUCTION)
+		self.copied_from = copied_from
+		self.copied_to = set()
+
+
+	def __copy__(self):
+		item_copy = type(self)(
+			item_id=self.data_id,
+			attributes=(self.attributes & ~Item.ATTRIBUTE_COPYABLE),
+			labels=Labels(self.shortname, self.longname, self.description),
+			size=self.size,
+			writing=self.writing,
+			copied_from=self,
+		)
+		self.copied_to.add(item_copy)
+		return item_copy
 
 
 	def is_switchable(self):
@@ -91,6 +108,10 @@ class Item(NamedDataElement):
 
 	def is_wearable(self):
 		return self.has_attribute(Item.ATTRIBUTE_WEARABLE)
+
+
+	def is_copyable(self):
+		return self.has_attribute(Item.ATTRIBUTE_COPYABLE)
 
 
 	def gives_light(self):

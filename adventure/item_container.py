@@ -1,3 +1,5 @@
+from copy import copy
+
 class ItemContainer:
 
 	def __init__(self):
@@ -16,6 +18,8 @@ class ItemContainer:
 
 
 	def insert(self, item):
+		if item.is_copyable():
+			item = copy(item)
 		self.items[item.data_id] = item
 		item.update_container(self)
 

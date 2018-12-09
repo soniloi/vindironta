@@ -65,18 +65,18 @@ class TestCommandHandler(unittest.TestCase):
 		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None)
 		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, Item.ATTRIBUTE_GIVES_AIR)
 		self.bottle = ContainerItem(1108, 0x203, Labels("bottle", "a bottle", "a small bottle"), 3, None)
-		self.water = Item(1109, 0x2102, Labels("water", "some water", "some water"), 1, None)
 		self.cat = SentientItem(1047, 0x80003, Labels("cat", "a cat", "a black cat"), 3, None)
 		self.bread = Item(1109, 0x2002, Labels("bread", "some bread", "a loaf of bread"), 2, None)
+		self.water = Item(1110, 0x22902, Labels("water", "some water", "some water"), 1, None)
 
-		self.item_start_location.insert(self.book)
-		self.item_start_location.insert(self.lamp)
-		self.item_start_location.insert(self.heavy_item)
-		self.item_start_location.insert(self.basket)
-		self.item_start_location.insert(self.suit)
-		self.item_start_location.insert(self.bottle)
-		self.item_start_location.insert(self.cat)
-		self.item_start_location.insert(self.bread)
+		self.item_start_location.add(self.book)
+		self.item_start_location.add(self.lamp)
+		self.item_start_location.add(self.heavy_item)
+		self.item_start_location.add(self.basket)
+		self.item_start_location.add(self.suit)
+		self.item_start_location.add(self.bottle)
+		self.item_start_location.add(self.cat)
+		self.item_start_location.add(self.bread)
 
 
 	def setup_texts(self):
@@ -276,7 +276,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_drop_liquid(self):
-		self.bottle.insert(self.water)
+		self.bottle.add(self.water)
 		self.player.take_item(self.bottle)
 
 		response = self.handler.handle_drop(self.player, self.water)
@@ -287,7 +287,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_eat_liquid(self):
-		self.bottle.insert(self.water)
+		self.bottle.add(self.water)
 
 		response = self.handler.handle_eat(self.player, self.water)
 
@@ -732,10 +732,25 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("The {1} is not big enough.", ["heavy", "basket"]), response)
 
 
-	def test_handle_insert_valid(self):
+	def test_handle_insert_valid_non_copyable(self):
 		response = self.handler.handle_insert(self.player, self.book, self.basket)
 
 		self.assertEqual(("Inserted.", ["book", "basket"]), response)
+		self.assertFalse(self.book.data_id in self.item_start_location.items)
+		self.assertTrue(self.book.data_id in self.basket.items)
+		self.assertIs(self.book, self.basket.items[self.book.data_id])
+
+
+	def test_handle_insert_valid_copyable(self):
+		self.item_start_location.add(self.water)
+
+		response = self.handler.handle_insert(self.player, self.water, self.bottle)
+
+		self.assertEqual(("Inserted.", ["water", "bottle"]), response)
+		self.assertTrue(self.water.data_id in self.item_start_location.items)
+		self.assertIs(self.water, self.item_start_location.items[self.water.data_id])
+		self.assertTrue(self.water.data_id in self.bottle.items)
+		self.assertIsNot(self.water, self.bottle.items[self.water.data_id])
 
 
 	def test_handle_inventory_empty(self):
@@ -852,7 +867,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_pour_liquid(self):
-		self.bottle.insert(self.water)
+		self.bottle.add(self.water)
 		self.player.take_item(self.bottle)
 
 		response = self.handler.handle_pour(self.player, self.water, self.lamp)
@@ -1002,8 +1017,8 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_take_liquid(self):
-		self.bottle.insert(self.water)
-		self.player.location.insert(self.bottle)
+		self.bottle.add(self.water)
+		self.player.location.add(self.bottle)
 
 		response = self.handler.handle_take(self.player, self.water)
 
@@ -1013,13 +1028,13 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_take_multi_arg(self):
-		self.player.location.insert(self.water)
-		self.player.take_item(self.bottle)
+		self.player.location.insert(self.book)
+		self.player.take_item(self.basket)
 
-		response = self.handler.handle_take(self.player, self.water, self.bottle)
+		response = self.handler.handle_take(self.player, self.book, self.basket)
 
-		self.assertEqual(("Inserted.", ["water", "bottle"]), response)
-		self.assertTrue(self.bottle.contains(self.water))
+		self.assertEqual(("Inserted.", ["book", "basket"]), response)
+		self.assertTrue(self.basket.contains(self.book))
 
 
 

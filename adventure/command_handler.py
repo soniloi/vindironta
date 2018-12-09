@@ -281,8 +281,10 @@ class CommandHandler:
 		if not proposed_container.can_accommodate(item):
 			return self.get_response("reject_container_size"), content
 
-		item.remove_from_containers()
+		if not item.is_copyable():
+			item.remove_from_containers()
 		proposed_container.insert(item)
+
 		return self.get_response("confirm_inserted"), content
 
 

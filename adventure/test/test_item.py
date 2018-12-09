@@ -1,3 +1,5 @@
+from copy import copy
+
 import unittest
 
 from adventure.data_element import Labels
@@ -21,8 +23,17 @@ class TestItem(unittest.TestCase):
 		self.lever = SwitchableItem(1045, 0x8, Labels("lever", "a lever", "a mysterious lever"), 2, None, lever_switching_info)
 		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, Item.ATTRIBUTE_GIVES_AIR)
 		self.cat = SentientItem(1047, 0x80002, Labels("cat", "a cat", "a black cat"), 3, None)
+		self.water = Item(1109, 0x22902, Labels("water", "some water", "some water"), 1, None)
 		self.mine_location = Location(11, 0x0, Labels("Mines", "in the mines", ". There are dark passages everywhere."))
 		self.inventory = Inventory(0, 0x1, Labels("Main Inventory", "in the main inventory", ", where items live usually."), 100)
+
+
+	def test_copy(self):
+		water_copy = copy(self.water)
+		self.assertEqual(self.water.data_id, water_copy.data_id)
+		self.assertFalse(water_copy.is_copyable())
+		self.assertIs(self.water, water_copy.copied_from)
+		self.assertTrue(water_copy in self.water.copied_to)
 
 
 	def test_get_list_name_simple(self):

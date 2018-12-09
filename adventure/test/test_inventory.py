@@ -15,7 +15,21 @@ class TestInventory(unittest.TestCase):
 		self.coin = Item(1000, 0x2, Labels("coin", "a coin", "a silver coin"), 1, None)
 		self.medal = Item(1001, 0x2, Labels("medal", "a medal", "a gold medal"), 1, None)
 		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, Item.ATTRIBUTE_GIVES_AIR)
+		self.water = Item(1109, 0x22902, Labels("water", "some water", "some water"), 1, None)
 		self.drop_location = Location(12, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
+
+
+	def test_insert_non_copyable(self):
+		self.inventory.insert(self.book)
+
+		self.assertTrue(self.inventory.contains(self.book))
+
+
+	def test_insert_copyable(self):
+		self.inventory.insert(self.water)
+
+		self.assertFalse(self.inventory.contains(self.water))
+		self.assertTrue(self.water.data_id in self.inventory.items)
 
 
 	def test_can_accommodate_below_capacity(self):
