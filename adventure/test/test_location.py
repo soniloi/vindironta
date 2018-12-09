@@ -1,3 +1,5 @@
+from copy import copy
+
 import unittest
 
 from adventure.data_element import Labels
@@ -39,6 +41,23 @@ class TestLocation(unittest.TestCase):
 		self.location.insert(self.basket)
 
 		self.assertTrue(self.location.contains(self.book))
+
+
+	def test_contains_allow_copy_simple(self):
+		book_copy = copy(self.book)
+		self.location.add(book_copy)
+
+		self.assertFalse(self.location.contains(self.book))
+		self.assertTrue(self.location.contains_allow_copy(self.book))
+
+
+	def test_contains_allow_copy_container(self):
+		book_copy = copy(self.book)
+		self.box.insert(book_copy)
+		self.location.insert(self.box)
+
+		self.assertFalse(self.location.contains(self.book))
+		self.assertTrue(self.location.contains_allow_copy(self.book))
 
 
 	def test_get_arrival_description_not_seen_not_verbose(self):

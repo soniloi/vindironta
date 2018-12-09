@@ -17,6 +17,13 @@ class ItemContainer:
 		return False
 
 
+	def contains_allow_copy(self, item):
+		for contained_item in self.items.values():
+			if contained_item.is_allow_copy(item) or contained_item.contains_allow_copy(item):
+				return True
+		return False
+
+
 	def insert(self, item):
 		if item.is_copyable():
 			item = copy(item)

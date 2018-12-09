@@ -45,6 +45,10 @@ class Item(NamedDataElement):
 		return item_copy
 
 
+	def is_allow_copy(self, item):
+		return item is self or item is self.copied_from
+
+
 	def is_switchable(self):
 		return False
 
@@ -87,6 +91,10 @@ class Item(NamedDataElement):
 
 
 	def contains(self, item):
+		return False
+
+
+	def contains_allow_copy(self, item):
 		return False
 
 
@@ -166,8 +174,8 @@ class Item(NamedDataElement):
 
 class ContainerItem(Item, ItemContainer):
 
-	def __init__(self, item_id, attributes, labels, size, writing):
-		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
+	def __init__(self, item_id, attributes, labels, size, writing, copied_from=None):
+		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing, copied_from=copied_from)
 		ItemContainer.__init__(self)
 
 
@@ -202,6 +210,19 @@ class ContainerItem(Item, ItemContainer):
 		return False
 
 
+	def contains_allow_copy(self, item):
+
+		if self.has_items():
+
+			inner_item = self.get_contained_item()
+			if inner_item.is_allow_copy(item):
+				return True
+
+			return inner_item.contains_allow_copy(item)
+
+		return False
+
+
 	def get_contained_item(self):
 		return next(iter(self.items.values()))
 
@@ -212,8 +233,8 @@ class ContainerItem(Item, ItemContainer):
 
 class SentientItem(ItemContainer, Item):
 
-	def __init__(self, item_id, attributes, labels, size, writing):
-		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
+	def __init__(self, item_id, attributes, labels, size, writing, copied_from=None):
+		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing, copied_from=copied_from)
 		ItemContainer.__init__(self)
 
 
@@ -245,8 +266,8 @@ class SwitchTransition(Enum):
 
 class SwitchableItem(Item):
 
-	def __init__(self, item_id, attributes, labels, size, writing, switch_info):
-		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
+	def __init__(self, item_id, attributes, labels, size, writing, switch_info=None, copied_from=None):
+		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing, copied_from=copied_from)
 		ItemContainer.__init__(self)
 		self.switched_element = None
 		self.switched_attribute = switch_info.attribute
@@ -296,8 +317,8 @@ class SwitchableItem(Item):
 
 class WearableItem(Item):
 
-	def __init__(self, item_id, attributes, labels, size, writing, attribute_activated):
-		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
+	def __init__(self, item_id, attributes, labels, size, writing, attribute_activated, copied_from=None):
+		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing, copied_from=copied_from)
 		self.attribute_activated = attribute_activated
 		self.being_worn = False
 

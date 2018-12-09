@@ -61,11 +61,11 @@ class Player:
 
 
 	def is_carrying(self, item):
-		return self.get_inventory().contains(item)
+		return self.get_inventory().contains_allow_copy(item)
 
 
 	def is_near_item(self, item):
-		return self.location.contains(item)
+		return self.location.contains_allow_copy(item)
 
 
 	def has_or_is_near_item(self, item):

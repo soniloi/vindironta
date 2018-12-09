@@ -92,6 +92,23 @@ class TestItem(unittest.TestCase):
 		self.assertTrue(self.basket.contains(self.book))
 
 
+	def test_contains_allow_copy_single(self):
+		book_copy = copy(self.book)
+		self.box.insert(book_copy)
+
+		self.assertFalse(self.box.contains(self.book))
+		self.assertTrue(self.box.contains_allow_copy(self.book))
+
+
+	def test_contains_allow_copy_multi(self):
+		book_copy = copy(self.book)
+		self.box.insert(book_copy)
+		self.basket.insert(self.box)
+
+		self.assertFalse(self.basket.contains(self.book))
+		self.assertTrue(self.basket.contains_allow_copy(self.book))
+
+
 	def test_get_outermost_container_location(self):
 		self.mine_location.insert(self.book)
 
