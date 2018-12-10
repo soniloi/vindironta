@@ -45,7 +45,7 @@ class CommandHandler:
 		if not item.is_edible():
 			return self.get_response("reject_not_consumable"), [item.shortname]
 
-		player.lose_item(item)
+		item.destroy()
 		return self.get_response("confirm_consume"), [item.shortname]
 
 
@@ -65,8 +65,9 @@ class CommandHandler:
 
 	def handle_drop(self, player, item):
 		if item.is_liquid():
-			player.lose_item(item)
-			return self.get_response("confirm_poured_no_destination"), [item.shortname, item.get_first_container().shortname]
+			item_source_name = item.get_first_container().shortname
+			item.destroy()
+			return self.get_response("confirm_poured_no_destination"), [item.shortname, item_source_name]
 
 		player.drop_item(item)
 		return self.get_response("confirm_dropped"), [item.shortname]
@@ -92,6 +93,7 @@ class CommandHandler:
 		item.remove(contained_item)
 
 		if item.is_liquid_container():
+			contained_item.destroy()
 			return self.get_response("confirm_emptied_liquid"), content
 
 		outermost_item = item.get_outermost_container()
@@ -118,7 +120,7 @@ class CommandHandler:
 		if not proposed_gift.is_edible():
 			return self.get_response("reject_not_consumable"), content
 
-		player.lose_item(proposed_gift)
+		proposed_gift.destroy()
 		return self.get_response("confirm_feed"), content
 
 
@@ -352,8 +354,9 @@ class CommandHandler:
 		if not item.is_liquid():
 			return self.get_response("reject_not_liquid"), [item.shortname]
 
-		player.lose_item(item)
-		content = [item.shortname, item.get_first_container().shortname, destination.shortname]
+		item_source_name = item.get_first_container().shortname
+		item.destroy()
+		content = [item.shortname, item_source_name, destination.shortname]
 		return self.get_response("confirm_poured_with_destination"), content
 
 

@@ -198,10 +198,13 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_consume_edible(self):
+		self.item_start_location.add(self.bread)
+
 		response = self.handler.handle_consume(self.player, self.bread)
 
 		self.assertEqual(("You consume the {0}.", ["bread"]), response)
 		self.assertFalse(self.bread in self.item_start_location.items.values())
+		self.assertFalse(self.item_start_location in self.bread.containers)
 
 
 	def test_handle_describe_in_inventory(self):
@@ -280,6 +283,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("You pour the liquid away.", ["water", "bottle"]), response)
 		self.assertFalse(self.water in self.bottle.items.values())
 		self.assertFalse(self.water in self.player.location.items.values())
+		self.assertFalse(self.bottle in self.water.containers)
 
 
 	def test_handle_eat_liquid(self):
@@ -324,6 +328,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(("You pour the {1} out of the {0}.", ["bottle", "water"]), response)
 		self.assertFalse(self.water in self.bottle.items.values())
 		self.assertFalse(self.water in self.player.location.items.values())
+		self.assertFalse(self.bottle in self.water.containers)
 
 
 	def test_handle_empty_solid_in_inventory(self):
@@ -403,6 +408,8 @@ class TestCommandHandler(unittest.TestCase):
 		response = self.handler.handle_give(self.player, self.book, self.cat)
 
 		self.assertEqual(("Given.", ["book", "cat"]), response)
+		self.assertFalse(self.book in self.player.get_inventory().items.values())
+		self.assertFalse(self.player.get_inventory() in self.book.containers)
 
 
 	def test_handle_go_without_destination(self):

@@ -82,10 +82,6 @@ class Player:
 		self.location.insert(item)
 
 
-	def lose_item(self, item):
-		item.remove_from_containers()
-
-
 	def drop_all_items(self):
 		self.get_inventory().drop_all_items(self.location)
 

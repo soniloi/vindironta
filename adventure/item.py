@@ -45,6 +45,13 @@ class Item(NamedDataElement):
 		return item_copy
 
 
+	def destroy(self):
+		self.remove_from_containers()
+		self.containers.clear()
+		if self.copied_from:
+			self.copied_from.copied_to.remove(self)
+
+
 	def is_allow_copy(self, item):
 		return item is self or item is self.copied_from
 
