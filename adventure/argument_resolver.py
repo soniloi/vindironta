@@ -171,9 +171,9 @@ class ArgumentResolver(Resolver):
 				return False, (self.data.get_response("reject_not_here"), [item.shortname])
 			item = nearby_item
 
-		if arg_info.takes_item_arg_from_inventory_or_location() and not carried_item and not nearby_item:
-			return False, (self.data.get_response("reject_not_here"), [item.shortname])
-
+		if arg_info.takes_item_arg_from_inventory_or_location():
+			if not carried_item and not nearby_item:
+				return False, (self.data.get_response("reject_not_here"), [item.shortname])
 			# TODO: determine the ordering here
 			item = carried_item
 			if not item:
