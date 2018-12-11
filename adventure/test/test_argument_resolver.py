@@ -83,7 +83,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_teleport(command, self.player)
 
-		self.assertEqual((True, (self.player, [destination])), response)
+		self.assertEqual((True, [destination]), response)
 
 
 	def test_resolve_movement_with_arg(self):
@@ -99,7 +99,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_movement(command, self.player)
 
-		self.assertEqual((True, (self.player, [1])), response)
+		self.assertEqual((True, [1]), response)
 
 
 	def test_resolve_switchable_without_arg(self):
@@ -126,7 +126,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_switchable(command, self.player, "yes")
 
-		self.assertEqual((True, (self.player, [True])), response)
+		self.assertEqual((True, [True]), response)
 
 
 	def test_resolve_args_without_arg(self):
@@ -142,7 +142,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player)
 
-		self.assertEqual((True,(self.player, [])), response)
+		self.assertEqual((True, []), response)
 
 
 	def test_resolve_args_with_non_item_arg(self):
@@ -150,7 +150,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "test")
 
-		self.assertEqual((True, (self.player, ["test"])), response)
+		self.assertEqual((True, ["test"]), response)
 
 
 	def test_resolve_args_with_item_arg_unknown(self):
@@ -178,7 +178,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "book")
 
-		self.assertEqual((True, (self.player, [self.book])), response)
+		self.assertEqual((True, [self.book]), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_location_only_and_player_is_carrying(self):
@@ -208,7 +208,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "book")
 
-		self.assertEqual((True, (self.player, [self.book])), response)
+		self.assertEqual((True, [self.book]), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_inventory_or_location_and_player_not_near(self):
@@ -228,7 +228,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "book")
 
-		self.assertEqual((True, (self.player, [self.book])), response)
+		self.assertEqual((True, [self.book]), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_inventory_or_location_and_player_is_near(self):
@@ -238,7 +238,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "book")
 
-		self.assertEqual((True, (self.player, [self.book])), response)
+		self.assertEqual((True, [self.book]), response)
 
 
 	def test_resolve_args_multiple_items_all_valid(self):
@@ -248,7 +248,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "book", "box")
 
-		self.assertEqual((True, (self.player, [self.book, self.box])), response)
+		self.assertEqual((True, [self.book, self.box]), response)
 		self.player.reset_current_command.assert_called_once()
 
 
@@ -328,7 +328,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "box")
 
-		self.assertEqual((True, (self.player, [self.book, self.box])), response)
+		self.assertEqual((True, [self.book, self.box]), response)
 
 
 	def test_resolve_args_multiple_items_all_valid_with_invalid_linker(self):
@@ -349,7 +349,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "book", "into", "box")
 
-		self.assertEqual((True, (self.player, [self.book, self.box])), response)
+		self.assertEqual((True, [self.book, self.box]), response)
 		self.player.reset_current_command.assert_called_once()
 
 
@@ -390,7 +390,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_switching(command, self.player, "lamp", "off")
 
-		self.assertEqual((True, (self.player, [self.lamp, SwitchTransition.OFF])), response)
+		self.assertEqual((True, [self.lamp, SwitchTransition.OFF]), response)
 
 
 if __name__ == "__main__":

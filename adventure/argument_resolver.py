@@ -14,13 +14,13 @@ class ArgumentResolver(Resolver):
 		destination_location_id = command.teleport_locations[source_location_id]
 		destination_location = self.data.get_location(destination_location_id)
 
-		return True, (player, [destination_location])
+		return True, [destination_location]
 
 
 	def resolve_movement(self, command, player, *args):
 		if args:
 			return False, (self.data.get_response("request_argless"), [self.get_arg(0, args)])
-		return True, (player, [command.data_id])
+		return True, [command.data_id]
 
 
 	def resolve_switchable(self, command, player, *args):
@@ -30,7 +30,7 @@ class ArgumentResolver(Resolver):
 			return False, (self.data.get_response("request_switch_command"), content)
 
 		transition = command.transitions[arg]
-		return True, (player, [transition])
+		return True, [transition]
 
 
 	def resolve_switching(self, command, player, *args):
@@ -64,7 +64,7 @@ class ArgumentResolver(Resolver):
 
 		transition = item.text_to_transition.get(transition_text)
 		player.reset_current_command()
-		return True, (player, [item, transition])
+		return True, [item, transition]
 
 
 	def resolve_args(self, command, player, *args):
@@ -105,7 +105,7 @@ class ArgumentResolver(Resolver):
 				resolved_args.append(response)
 
 		player.reset_current_command()
-		return True, (player, resolved_args)
+		return True, resolved_args
 
 
 	def get_arg(self, index, args):
@@ -194,4 +194,4 @@ class ArgumentResolver(Resolver):
 			return False, (self.data.get_response("request_switch_item"), content)
 
 		transition = item.text_to_transition.get(transition_text)
-		return True, (player, [item, transition])
+		return True, [item, transition]

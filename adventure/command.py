@@ -43,7 +43,7 @@ class Command(DataElement):
 				template, content = body
 				return template.format(*content)
 
-			player, args = body
+			args = body
 
 		template, content = self.handler_function(self, player, *args)
 		return template.format(*content)

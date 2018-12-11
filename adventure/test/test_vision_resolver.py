@@ -54,7 +54,7 @@ class TestVisionResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_light_and_dark(command, player, "test")
 
-		self.assertEqual((True, (player, ["test"])), response)
+		self.assertEqual((True, ["test"]), response)
 
 
 	def test_resolve_dark_player_has_no_light_and_needs_light(self):
@@ -76,7 +76,7 @@ class TestVisionResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_dark(command, player, "test")
 
-		self.assertEqual((True, (player, ["test"])), response)
+		self.assertEqual((True, ["test"]), response)
 
 
 if __name__ == "__main__":
