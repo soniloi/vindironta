@@ -30,7 +30,7 @@ class TestVisionResolver(unittest.TestCase):
 		player.has_light_and_needs_no_light.return_value = True
 		command = Mock()
 
-		response = self.resolver.resolve_light_and_dark(command, player, ["test"])
+		response = self.resolver.resolve_light_and_dark(command, player, "test")
 
 		self.assertEqual((False, ("It is too bright.", [])), response)
 
@@ -41,7 +41,7 @@ class TestVisionResolver(unittest.TestCase):
 		player.has_light.return_value = False
 		command = Mock()
 
-		response = self.resolver.resolve_light_and_dark(command, player, ["test"])
+		response = self.resolver.resolve_light_and_dark(command, player, "test")
 
 		self.assertEqual((False, ("It is too dark.", [])), response)
 
@@ -52,7 +52,7 @@ class TestVisionResolver(unittest.TestCase):
 		player.has_light.return_value = True
 		command = Mock()
 
-		response = self.resolver.resolve_light_and_dark(command, player, ["test"])
+		response = self.resolver.resolve_light_and_dark(command, player, "test")
 
 		self.assertEqual((True, (player, ["test"])), response)
 
@@ -63,7 +63,7 @@ class TestVisionResolver(unittest.TestCase):
 		player.has_light.return_value = False
 		command = Mock()
 
-		response = self.resolver.resolve_dark(command, player, ["test"])
+		response = self.resolver.resolve_dark(command, player, "test")
 
 		self.assertEqual((False, ("It is too dark.", [])), response)
 
@@ -74,7 +74,7 @@ class TestVisionResolver(unittest.TestCase):
 		player.has_light.return_value = True
 		command = Mock()
 
-		response = self.resolver.resolve_dark(command, player, ["test"])
+		response = self.resolver.resolve_dark(command, player, "test")
 
 		self.assertEqual((True, (player, ["test"])), response)
 

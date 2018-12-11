@@ -38,7 +38,7 @@ class Command(DataElement):
 
 		for resolver_function in self.resolver_functions:
 
-			success, body = resolver_function(self, player, args)
+			success, body = resolver_function(self, player, *args)
 			if not success:
 				template, content = body
 				return template.format(*content)

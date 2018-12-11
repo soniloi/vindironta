@@ -59,7 +59,7 @@ class TestArgumentResolver(unittest.TestCase):
 		teleport_locations = {23 : 24, 26 : 23}
 		command = Command(1, 0x12, [], [], None, "", [], {}, teleport_locations)
 
-		response = self.resolver.resolve_teleport(command, self.player, ["test"])
+		response = self.resolver.resolve_teleport(command, self.player, "test")
 
 		self.assertEqual((False, (("Do not give an argument for this command.", "test"))), response)
 
@@ -69,7 +69,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_location_id.return_value = 1
 		command = Command(1, 0x12, [], [], None, "", [], {}, teleport_locations)
 
-		response = self.resolver.resolve_teleport(command, self.player, [])
+		response = self.resolver.resolve_teleport(command, self.player)
 
 		self.assertEqual((False, (("Nothing happens.", [None]))), response)
 
@@ -81,7 +81,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.data.get_location.return_value = destination
 		command = Command(1, 0x12, [], [], None, "", [], {}, teleport_locations)
 
-		response = self.resolver.resolve_teleport(command, self.player, [])
+		response = self.resolver.resolve_teleport(command, self.player)
 
 		self.assertEqual((True, (self.player, [destination])), response)
 
@@ -89,7 +89,7 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_movement_with_arg(self):
 		command = Command(1, 0x40, [ArgInfo(0x1)], [], None, "", [], {}, {})
 
-		response = self.resolver.resolve_movement(command, self.player, ["test"])
+		response = self.resolver.resolve_movement(command, self.player, "test")
 
 		self.assertEqual((False, ("Do not give an argument for this command.", ["test"])), response)
 
@@ -97,7 +97,7 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_movement_without_arg(self):
 		command = Command(1, 0x40, [ArgInfo(0x0)], [], None, "", [], {}, {})
 
-		response = self.resolver.resolve_movement(command, self.player, [])
+		response = self.resolver.resolve_movement(command, self.player)
 
 		self.assertEqual((True, (self.player, [1])), response)
 
@@ -106,7 +106,7 @@ class TestArgumentResolver(unittest.TestCase):
 		transitions = {"no" : False, "yes" : True}
 		command = Command(1, 0x100, [ArgInfo(0x0)], [], None, "verbose", [], transitions, {})
 
-		response = self.resolver.resolve_switchable(command, self.player, [""])
+		response = self.resolver.resolve_switchable(command, self.player)
 
 		self.assertEqual((False, ("Use the command \"{0}\" with either \"{1}\" or \"{2}\".", ["verbose", "no", "yes"])), response)
 
@@ -115,7 +115,7 @@ class TestArgumentResolver(unittest.TestCase):
 		transitions = {"no" : False, "yes" : True}
 		command = Command(1, 0x100, [ArgInfo(0x1)], [], None, "verbose", [], transitions, {})
 
-		response = self.resolver.resolve_switchable(command, self.player, ["off"])
+		response = self.resolver.resolve_switchable(command, self.player, "off")
 
 		self.assertEqual((False, ("Use the command \"{0}\" with either \"{1}\" or \"{2}\".", ["verbose", "no", "yes"])), response)
 
@@ -124,7 +124,7 @@ class TestArgumentResolver(unittest.TestCase):
 		transitions = {"no" : False, "yes" : True}
 		command = Command(1, 0x100, [ArgInfo(0x1)], [], None, "verbose", [], transitions, {})
 
-		response = self.resolver.resolve_switchable(command, self.player, ["yes"])
+		response = self.resolver.resolve_switchable(command, self.player, "yes")
 
 		self.assertEqual((True, (self.player, [True])), response)
 
@@ -132,7 +132,7 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_args_without_arg(self):
 		command = Command(1, 0x9, [ArgInfo(0x1)], [], None, "take", [], {}, {})
 
-		response = self.resolver.resolve_args(command, self.player, [])
+		response = self.resolver.resolve_args(command, self.player)
 
 		self.assertEqual((False, ("What do you want to {0}{1}?", ["take", ""])), response)
 
@@ -140,7 +140,7 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_args_without_arg_permissive(self):
 		command = Command(1, 0x89, [ArgInfo(0x0)], [], None, "", [], {}, {})
 
-		response = self.resolver.resolve_args(command, self.player, [""])
+		response = self.resolver.resolve_args(command, self.player)
 
 		self.assertEqual((True,(self.player, [])), response)
 
@@ -148,7 +148,7 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_args_with_non_item_arg(self):
 		command = Command(1, 0x9, [ArgInfo(0x1)], [], None, "explain", [], {}, {})
 
-		response = self.resolver.resolve_args(command, self.player, ["test"])
+		response = self.resolver.resolve_args(command, self.player, "test")
 
 		self.assertEqual((True, (self.player, ["test"])), response)
 
@@ -156,7 +156,7 @@ class TestArgumentResolver(unittest.TestCase):
 	def test_resolve_args_with_item_arg_unknown(self):
 		command = Command(1, 0x9, [ArgInfo(0x3)], [], None, "take", [], {}, {})
 
-		response = self.resolver.resolve_args(command, self.player, ["test"])
+		response = self.resolver.resolve_args(command, self.player, "test")
 
 		self.assertEqual((False, ("I do not know what that is.", ["test"])), response)
 
@@ -166,7 +166,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = None
 		self.player.get_nearby_item.return_value = None
 
-		response = self.resolver.resolve_args(command, self.player, ["book"])
+		response = self.resolver.resolve_args(command, self.player, "book")
 
 		self.assertEqual((False, ("You are not holding it.", ["book"])), response)
 
@@ -176,7 +176,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = self.book
 		self.player.get_nearby_item.return_value = None
 
-		response = self.resolver.resolve_args(command, self.player, ["book"])
+		response = self.resolver.resolve_args(command, self.player, "book")
 
 		self.assertEqual((True, (self.player, [self.book])), response)
 
@@ -186,7 +186,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = self.book
 		self.player.get_nearby_item.return_value = None
 
-		response = self.resolver.resolve_args(command, self.player, ["book"])
+		response = self.resolver.resolve_args(command, self.player, "book")
 
 		self.assertEqual((False, ("You are carrying it.", ["book"])), response)
 
@@ -196,7 +196,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = None
 		self.player.get_nearby_item.return_value = None
 
-		response = self.resolver.resolve_args(command, self.player, ["book"])
+		response = self.resolver.resolve_args(command, self.player, "book")
 
 		self.assertEqual((False, ("It is not here.", ["book"])), response)
 
@@ -206,7 +206,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = None
 		self.player.get_nearby_item.return_value = self.book
 
-		response = self.resolver.resolve_args(command, self.player, ["book"])
+		response = self.resolver.resolve_args(command, self.player, "book")
 
 		self.assertEqual((True, (self.player, [self.book])), response)
 
@@ -216,7 +216,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = None
 		self.player.get_nearby_item.return_value = None
 
-		response = self.resolver.resolve_args(command, self.player, ["book"])
+		response = self.resolver.resolve_args(command, self.player, "book")
 
 		self.assertEqual((False, ("It is not here.", ["book"])), response)
 
@@ -226,7 +226,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = self.book
 		self.player.get_nearby_item.return_value = None
 
-		response = self.resolver.resolve_args(command, self.player, ["book"])
+		response = self.resolver.resolve_args(command, self.player, "book")
 
 		self.assertEqual((True, (self.player, [self.book])), response)
 
@@ -236,7 +236,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = None
 		self.player.get_nearby_item.return_value = self.book
 
-		response = self.resolver.resolve_args(command, self.player, ["book"])
+		response = self.resolver.resolve_args(command, self.player, "book")
 
 		self.assertEqual((True, (self.player, [self.book])), response)
 
@@ -246,7 +246,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.side_effect = [self.book, self.box]
 		self.player.get_nearby_item.side_effect = [None, None]
 
-		response = self.resolver.resolve_args(command, self.player, ["book", "box"])
+		response = self.resolver.resolve_args(command, self.player, "book", "box")
 
 		self.assertEqual((True, (self.player, [self.book, self.box])), response)
 		self.player.reset_current_command.assert_called_once()
@@ -257,7 +257,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = self.book
 		self.player.get_nearby_item.return_value = None
 
-		response = self.resolver.resolve_args(command, self.player, ["book", "blah"])
+		response = self.resolver.resolve_args(command, self.player, "book", "blah")
 
 		self.assertEqual((False, ("I do not know what that is.", ["blah"])), response)
 		self.player.reset_current_command.assert_called_once()
@@ -268,7 +268,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = self.book
 		self.player.get_nearby_item.return_value = None
 
-		response = self.resolver.resolve_args(command, self.player, ["book"])
+		response = self.resolver.resolve_args(command, self.player, "book")
 
 		self.assertEqual((False, ("What do you want to {0}{1}?", ["insert", " book"])), response)
 		self.player.reset_current_command.assert_not_called()
@@ -280,7 +280,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = self.book
 		self.player.get_nearby_item.return_value = None
 
-		response = self.resolver.resolve_args(command, self.player, ["book"])
+		response = self.resolver.resolve_args(command, self.player, "book")
 
 		self.assertEqual((False, ("What do you want to {0}{1}?", ["insert", " book into"])), response)
 		self.player.reset_current_command.assert_not_called()
@@ -292,7 +292,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = self.book
 		self.player.get_nearby_item.return_value = None
 
-		response = self.resolver.resolve_args(command, self.player, ["book", "to"])
+		response = self.resolver.resolve_args(command, self.player, "book", "to")
 
 		self.assertEqual((False, ("What do you want to {0}{1}?", ["insert", " book to"])), response)
 		self.player.reset_current_command.assert_not_called()
@@ -303,7 +303,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = None
 		self.player.get_nearby_item.return_value = self.book
 
-		response = self.resolver.resolve_args(command, self.player, ["book", "in"])
+		response = self.resolver.resolve_args(command, self.player, "book", "in")
 
 		self.assertEqual((False, ("What do you want to {0}{1}?", ["take", " book in"])), response)
 
@@ -314,7 +314,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.side_effect = [self.salt, self.box]
 		self.player.get_nearby_item.side_effect = [None, None]
 
-		response = self.resolver.resolve_args(command, self.player, ["salt", "box"])
+		response = self.resolver.resolve_args(command, self.player, "salt", "box")
 
 		self.assertEqual((False, ("What do you want to {0}{1}?", ["scoop", " salt into box using"])), response)
 		self.player.reset_current_command.assert_not_called()
@@ -326,7 +326,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = self.box
 		self.player.get_nearby_item.return_value = None
 
-		response = self.resolver.resolve_args(command, self.player, ["box"])
+		response = self.resolver.resolve_args(command, self.player, "box")
 
 		self.assertEqual((True, (self.player, [self.book, self.box])), response)
 
@@ -336,7 +336,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = self.book
 		self.player.get_nearby_item.return_value = None
 
-		response = self.resolver.resolve_args(command, self.player, ["book", "the", "box"])
+		response = self.resolver.resolve_args(command, self.player, "book", "the", "box")
 
 		self.assertEqual((False, ("I do not know what that is.", ["the"])), response)
 		self.player.reset_current_command.assert_called_once()
@@ -347,7 +347,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.side_effect = [self.book, self.box]
 		self.player.get_nearby_item.return_value = None
 
-		response = self.resolver.resolve_args(command, self.player, ["book", "into", "box"])
+		response = self.resolver.resolve_args(command, self.player, "book", "into", "box")
 
 		self.assertEqual((True, (self.player, [self.book, self.box])), response)
 		self.player.reset_current_command.assert_called_once()
@@ -358,7 +358,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = self.book
 		self.player.get_nearby_item.return_value = None
 
-		response = self.resolver.resolve_switching(command, self.player, ["book"])
+		response = self.resolver.resolve_switching(command, self.player, "book")
 
 		self.assertEqual((False, ("I do not understand.", ["book"])), response)
 
@@ -368,7 +368,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = self.lamp
 		self.player.get_nearby_item.return_value = None
 
-		response = self.resolver.resolve_switching(command, self.player, ["lamp"])
+		response = self.resolver.resolve_switching(command, self.player, "lamp")
 
 		self.assertEqual((False, ("Use \"{0} <{1}|{2}>\".", ["lamp", "off", "on"])), response)
 
@@ -378,7 +378,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = self.lamp
 		self.player.get_nearby_item.return_value = None
 
-		response = self.resolver.resolve_switching(command, self.player, ["lamp", "cinnamon"])
+		response = self.resolver.resolve_switching(command, self.player, "lamp", "cinnamon")
 
 		self.assertEqual((False, ("Use \"{0} <{1}|{2}>\".", ["lamp", "off", "on"])), response)
 
@@ -388,7 +388,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.player.get_carried_item.return_value = self.lamp
 		self.player.get_nearby_item.return_value = None
 
-		response = self.resolver.resolve_switching(command, self.player, ["lamp", "off"])
+		response = self.resolver.resolve_switching(command, self.player, "lamp", "off")
 
 		self.assertEqual((True, (self.player, [self.lamp, SwitchTransition.OFF])), response)
 

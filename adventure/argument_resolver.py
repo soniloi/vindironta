@@ -3,9 +3,9 @@ from adventure.resolver import Resolver
 
 class ArgumentResolver(Resolver):
 
-	def resolve_teleport(self, command, player, args):
+	def resolve_teleport(self, command, player, *args):
 		if args:
-			return False, (self.data.get_response("request_argless"), self.get_arg(args, 0))
+			return False, (self.data.get_response("request_argless"), self.get_arg(0, args))
 
 		source_location_id = player.get_location_id()
 		if not source_location_id in command.teleport_locations:
@@ -17,14 +17,14 @@ class ArgumentResolver(Resolver):
 		return True, (player, [destination_location])
 
 
-	def resolve_movement(self, command, player, args):
+	def resolve_movement(self, command, player, *args):
 		if args:
-			return False, (self.data.get_response("request_argless"), [self.get_arg(args, 0)])
+			return False, (self.data.get_response("request_argless"), [self.get_arg(0, args)])
 		return True, (player, [command.data_id])
 
 
-	def resolve_switchable(self, command, player, args):
-		arg = self.get_arg(args, 0)
+	def resolve_switchable(self, command, player, *args):
+		arg = self.get_arg(0, args)
 		if arg not in command.transitions:
 			content = [command.primary] + sorted(list(command.transitions.keys()))
 			return False, (self.data.get_response("request_switch_command"), content)
@@ -33,9 +33,9 @@ class ArgumentResolver(Resolver):
 		return True, (player, [transition])
 
 
-	def resolve_switching(self, command, player, args):
+	def resolve_switching(self, command, player, *args):
 		arg_info = command.arg_infos[0]
-		arg_input = self.get_arg(args, 0)
+		arg_input = self.get_arg(0, args)
 
 		# Switching commands always take a single mandatory item argument
 		if not arg_input:
@@ -56,7 +56,7 @@ class ArgumentResolver(Resolver):
 		if not item.is_switchable():
 			return False, (self.data.get_response("reject_no_understand_instruction"), [item.shortname])
 
-		transition_text = self.get_arg(switch_args, 0)
+		transition_text = self.get_arg(0, switch_args)
 
 		if not transition_text in item.text_to_transition:
 			content = [item.shortname] + sorted(list(item.text_to_transition.keys()))
@@ -67,7 +67,7 @@ class ArgumentResolver(Resolver):
 		return True, (player, [item, transition])
 
 
-	def resolve_args(self, command, player, args):
+	def resolve_args(self, command, player, *args):
 
 		resolved_args = player.get_current_args()
 		arg_input_offset = len(resolved_args)
@@ -77,14 +77,14 @@ class ArgumentResolver(Resolver):
 		for i in range(arg_input_offset, len(command.arg_infos)):
 
 			arg_info = command.arg_infos[i]
-			arg_input = self.get_arg(args, input_index)
+			arg_input = self.get_arg(input_index, args)
 			input_index += 1
 
 			arg_expected = False
 			current_linker = None
 			if arg_info.is_valid_linker(arg_input):
 				current_linker = arg_input
-				arg_input = self.get_arg(args, input_index)
+				arg_input = self.get_arg(input_index, args)
 				arg_expected = True
 				input_index += 1
 
@@ -108,7 +108,7 @@ class ArgumentResolver(Resolver):
 		return True, (player, resolved_args)
 
 
-	def get_arg(self, args, index):
+	def get_arg(self, index, args):
 		if index < len(args):
 			return args[index]
 		return None
@@ -187,7 +187,7 @@ class ArgumentResolver(Resolver):
 		if not item.is_switchable():
 			return False, (self.data.get_response("reject_no_understand_instruction"), item.shortname)
 
-		transition_text = self.get_arg(switch_args, 0)
+		transition_text = self.get_arg(0, switch_args)
 
 		if not transition_text in item.text_to_transition:
 			content = [item.shortname] + sorted(list(item.text_to_transition.keys()))

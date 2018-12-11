@@ -11,20 +11,20 @@ class TestCommand(unittest.TestCase):
 			self.handler_function, "", [],  {}, {})
 
 
-	def arg_function_movement(self, command, player, args):
+	def arg_function_movement(self, command, player, *args):
 		return True, (player, [command.data_id])
 
 
-	def arg_function_non_movement(self, command, player, args):
+	def arg_function_non_movement(self, command, player, *args):
 		return True, (player, args)
 
 
-	def handler_function(self, player, arg):
-		return "{0} success!", [arg]
+	def handler_function(self, player, *arg):
+		return "{0} success!", list(arg)
 
 
-	def vision_function(self, command, player, arg):
-		return True, (player, arg)
+	def vision_function(self, command, player, *arg):
+		return True, (player, list(arg))
 
 
 	def test_has_attribute_set(self):
