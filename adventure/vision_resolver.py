@@ -19,7 +19,3 @@ class VisionResolver(Resolver):
 			return False, (self.data.get_response("reject_no_light"), [])
 
 		return True, (player, args)
-
-
-	def resolve_none(self, command, player, args):
-		return True, (player, args)

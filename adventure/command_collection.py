@@ -33,19 +33,18 @@ class CommandCollection:
 		attributes = self.parse_attributes(tokens[CommandCollection.INDEX_ATTRIBUTES])
 		arg_infos = self.parse_arg_infos(tokens[CommandCollection.INDEX_ARG_INFO],
 			tokens[CommandCollection.INDEX_LINK_INFO])
-		arg_function = self.get_arg_function(attributes)
+		resolver_functions = self.get_resolver_functions(attributes, arg_infos)
 		handler_function = self.parse_handler_function(tokens[CommandCollection.INDEX_HANDLER])
-		vision_function = self.get_vision_function(attributes, arg_infos)
 		transitions = self.get_transitions(tokens[CommandCollection.INDEX_SWITCHES], attributes)
 		teleport_locations = self.get_teleport_locations(tokens[CommandCollection.INDEX_TELEPORTS], attributes)
 
-		if handler_function and arg_function:
+		if handler_function:
 			(primary_command_name, command_names) = self.parse_command_names(tokens[CommandCollection.INDEX_NAMES])
 			command = Command(
 				command_id=command_id,
 				attributes=attributes,
 				arg_infos=arg_infos,
-				resolver_functions=[vision_function, arg_function],
+				resolver_functions=resolver_functions,
 				handler_function=handler_function,
 				primary=primary_command_name,
 				aliases=command_names,
@@ -79,6 +78,18 @@ class CommandCollection:
 		return arg_infos
 
 
+	def get_vision_function(self, attributes, arg_infos):
+		if not bool(attributes & Command.ATTRIBUTE_REQUIRES_VISION):
+			return None
+
+		vision_function_name = "resolve_"
+		if arg_infos:
+			vision_function_name += "dark"
+		else:
+			vision_function_name += "light_and_dark"
+		return self.vision_resolver.get_resolver_function(vision_function_name)
+
+
 	def get_arg_function(self, attributes):
 		arg_function_name = "resolve_"
 
@@ -100,16 +111,17 @@ class CommandCollection:
 		return self.command_handler.get_handler_function(handler_function_name)
 
 
-	def get_vision_function(self, attributes, arg_infos):
-		vision_function_name = "resolve_"
-		if bool(attributes & Command.ATTRIBUTE_REQUIRES_VISION):
-			if arg_infos:
-				vision_function_name += "dark"
-			else:
-				vision_function_name += "light_and_dark"
-		else:
-			vision_function_name += "none"
-		return self.vision_resolver.get_resolver_function(vision_function_name)
+	def get_resolver_functions(self, attributes, arg_infos):
+		vision_function = self.get_vision_function(attributes, arg_infos)
+		arg_function = self.get_arg_function(attributes)
+
+		resolver_functions = []
+		if vision_function:
+			resolver_functions.append(vision_function)
+		if arg_function:
+			resolver_functions.append(arg_function)
+
+		return resolver_functions
 
 
 	def parse_command_names(self, token):
