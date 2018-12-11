@@ -31,17 +31,17 @@ class CommandHandler:
 		return self.data.get_response(response_key)
 
 
-	def handle_climb(self, player, arg=None):
+	def handle_climb(self, command, player, arg=None):
 		return self.get_response("reject_climb"), [""]
 
 
-	def handle_commands(self, player):
+	def handle_commands(self, command, player):
 		template = self.get_response("describe_commands")
 		content = [self.data.list_commands()]
 		return template, content
 
 
-	def handle_consume(self, player, item):
+	def handle_consume(self, command, player, item):
 		if not item.is_edible():
 			return self.get_response("reject_not_consumable"), [item.shortname]
 
@@ -49,21 +49,21 @@ class CommandHandler:
 		return self.get_response("confirm_consume"), [item.shortname]
 
 
-	def handle_describe(self, player, item):
+	def handle_describe(self, command, player, item):
 		template = self.get_response("describe_item")
 		if item.is_switchable():
 			template += self.get_response("describe_item_switch")
 		return template, item.get_full_description()
 
 
-	def handle_drink(self, player, item):
+	def handle_drink(self, command, player, item):
 		if not item.is_liquid():
 			return self.get_response("reject_drink_solid"), [item.shortname]
 
-		return self.handle_consume(player, item)
+		return self.handle_consume(command, player, item)
 
 
-	def handle_drop(self, player, item):
+	def handle_drop(self, command, player, item):
 		if item.is_liquid():
 			item_source_name = item.get_first_container().shortname
 			item.destroy()
@@ -73,14 +73,14 @@ class CommandHandler:
 		return self.get_response("confirm_dropped"), [item.shortname]
 
 
-	def handle_eat(self, player, item):
+	def handle_eat(self, command, player, item):
 		if item.is_liquid():
 			return self.get_response("reject_eat_liquid"), [item.shortname]
 
-		return self.handle_consume(player, item)
+		return self.handle_consume(command, player, item)
 
 
-	def handle_empty(self, player, item):
+	def handle_empty(self, command, player, item):
 		content = [item.shortname]
 		if not item.is_container():
 			return self.get_response("reject_not_container"), content
@@ -101,7 +101,7 @@ class CommandHandler:
 		return self.get_response("confirm_emptied_solid"), content
 
 
-	def handle_explain(self, player, arg):
+	def handle_explain(self, command, player, arg):
 		template = self.data.get_explanation(arg)
 
 		if not template:
@@ -110,7 +110,7 @@ class CommandHandler:
 		return template, [arg]
 
 
-	def handle_feed(self, player, proposed_gift, proposed_recipient):
+	def handle_feed(self, command, player, proposed_gift, proposed_recipient):
 
 		content = [proposed_gift.shortname, proposed_recipient.shortname]
 
@@ -124,7 +124,7 @@ class CommandHandler:
 		return self.get_response("confirm_feed"), content
 
 
-	def handle_give(self, player, proposed_gift, proposed_recipient):
+	def handle_give(self, command, player, proposed_gift, proposed_recipient):
 
 		content = [proposed_gift.shortname, proposed_recipient.shortname]
 
@@ -139,7 +139,7 @@ class CommandHandler:
 		return self.get_response("confirm_given"), content
 
 
-	def handle_go(self, player, arg):
+	def handle_go(self, command, player, arg):
 		direction = CommandHandler.DIRECTIONS[arg]
 
 		proposed_location, reject_template_key = self.get_proposed_location_and_reject_key(player, direction)
@@ -220,16 +220,16 @@ class CommandHandler:
 		player.see_location()
 
 
-	def handle_go_disambiguate(self, player, arg):
+	def handle_go_disambiguate(self, command, player, arg):
 		return self.get_response("reject_go"), [""]
 
 
-	def handle_help(self, player, arg):
+	def handle_help(self, command, player, arg):
 		player.decrement_instructions()
 		return self.get_response("describe_help"), [""]
 
 
-	def handle_hint(self, player, arg):
+	def handle_hint(self, command, player, arg):
 		template = self.data.get_hint(arg)
 
 		if not template:
@@ -238,11 +238,11 @@ class CommandHandler:
 		return template, [arg]
 
 
-	def handle_ignore(self, player, arg):
+	def handle_ignore(self, command, player, arg):
 		return "", ""
 
 
-	def handle_immune(self, player, arg):
+	def handle_immune(self, command, player, arg):
 		template = ""
 
 		player.immune = arg
@@ -254,7 +254,7 @@ class CommandHandler:
 		return template, [""]
 
 
-	def handle_insert(self, player, item, proposed_container):
+	def handle_insert(self, command, player, item, proposed_container):
 
 		template = ""
 		content = [item.shortname, proposed_container.shortname]
@@ -290,13 +290,13 @@ class CommandHandler:
 		return self.get_response("confirm_inserted"), content
 
 
-	def handle_inventory(self, player):
+	def handle_inventory(self, command, player):
 		if not player.holding_items():
 			return self.get_response("list_inventory_empty"), [""]
 		return self.get_response("list_inventory_nonempty"), [player.describe_inventory()]
 
 
-	def handle_locate(self, player, item):
+	def handle_locate(self, command, player, item):
 		template = self.get_response("describe_locate_primary")
 		primary_containers = item.containers
 		primary_container_descriptions = [str(container.data_id) + ":" + container.longname for container in primary_containers]
@@ -315,7 +315,7 @@ class CommandHandler:
 		return template, contents
 
 
-	def handle_look(self, player):
+	def handle_look(self, command, player):
 		template = self.get_response("describe_location")
 
 		if player.has_non_silent_items_nearby():
@@ -324,7 +324,7 @@ class CommandHandler:
 		return template, player.get_full_location_description()
 
 
-	def handle_node(self, player, arg=None):
+	def handle_node(self, command, player, arg=None):
 
 		template = ""
 		content = [""]
@@ -346,11 +346,11 @@ class CommandHandler:
 		return template, content
 
 
-	def handle_pick(self, player, item):
-		return self.handle_take(player, item)
+	def handle_pick(self, command, player, item):
+		return self.handle_take(command, player, item)
 
 
-	def handle_pour(self, player, item, destination):
+	def handle_pour(self, command, player, item, destination):
 		if not item.is_liquid():
 			return self.get_response("reject_not_liquid"), [item.shortname]
 
@@ -360,28 +360,28 @@ class CommandHandler:
 		return self.get_response("confirm_poured_with_destination"), content
 
 
-	def handle_quit(self, player):
+	def handle_quit(self, command, player):
 		player.decrement_instructions()
 		player.playing = False
 		return self.get_response("confirm_quit"), [""]
 
 
-	def handle_read(self, player, item):
+	def handle_read(self, command, player, item):
 		if not item.writing:
 			return self.get_response("reject_no_writing"), [item.shortname]
 		return self.get_response("describe_writing"), [item.writing]
 
 
-	def handle_score(self, player):
+	def handle_score(self, command, player):
 		player.decrement_instructions()
 		return self.get_response("describe_score"), [player.score, player.instructions]
 
 
-	def handle_set(self, player, item):
-		return self.handle_drop(player, item)
+	def handle_set(self, command, player, item):
+		return self.handle_drop(command, player, item)
 
 
-	def handle_switch(self, player, item, transition):
+	def handle_switch(self, command, player, item, transition):
 		template = self.get_response("describe_switch_item")
 
 		if transition == SwitchTransition.OFF:
@@ -400,14 +400,14 @@ class CommandHandler:
 		return template, [item.shortname, item.get_state_text()]
 
 
-	def handle_take(self, player, item, proposed_container=None):
+	def handle_take(self, command, player, item, proposed_container=None):
 
 		owner = item.get_sentient_owner()
 		if owner:
 			return self.get_response("reject_take_animate"), [item.shortname, owner.shortname]
 
 		if proposed_container:
-			return self.handle_insert(player, item, proposed_container)
+			return self.handle_insert(command, player, item, proposed_container)
 
 		template = ""
 		if not item.is_portable():
@@ -426,19 +426,19 @@ class CommandHandler:
 		return template, [item.shortname]
 
 
-	def handle_teleport(self, player, destination):
+	def handle_teleport(self, command, player, destination):
 		template, content = self.execute_go(player, None, destination)
 		self.interact_vision(player, None, self.execute_see_location)
 		return template, content
 
 
-	def handle_toggle(self, player, item):
+	def handle_toggle(self, command, player, item):
 		if not item.is_switchable():
 			return self.get_response("reject_no_know_how"), [item.shortname]
-		return self.handle_switch(player, item, SwitchTransition.TOGGLE)
+		return self.handle_switch(command, player, item, SwitchTransition.TOGGLE)
 
 
-	def handle_verbose(self, player, arg):
+	def handle_verbose(self, command, player, arg):
 		template = ""
 
 		player.verbose = arg
@@ -450,7 +450,7 @@ class CommandHandler:
 		return template, [""]
 
 
-	def handle_wear(self, player, item):
+	def handle_wear(self, command, player, item):
 		template = ""
 
 		if not item.is_wearable():

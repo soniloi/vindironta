@@ -19,7 +19,7 @@ class TestCommand(unittest.TestCase):
 		return True, (player, args)
 
 
-	def handler_function(self, player, *arg):
+	def handler_function(self, command, player, *arg):
 		return "{0} success!", list(arg)
 
 
