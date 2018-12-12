@@ -45,7 +45,8 @@ class Command(DataElement):
 
 			args = body
 
-		template, content = self.handler_function(self, player, *args)
+		success, body = self.handler_function(self, player, *args)
+		template, content = body
 		return template.format(*content)
 
 

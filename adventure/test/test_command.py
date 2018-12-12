@@ -20,7 +20,7 @@ class TestCommand(unittest.TestCase):
 
 
 	def handler_function(self, command, player, *arg):
-		return "{0} success!", list(arg)
+		return True, ("{0} success!", list(arg))
 
 
 	def vision_function(self, command, player, *arg):
