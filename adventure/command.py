@@ -1,4 +1,5 @@
 from adventure.data_element import DataElement
+from adventure.item import Item
 
 class Command(DataElement):
 
@@ -40,14 +41,25 @@ class Command(DataElement):
 
 			success, body = resolver_function(self, player, *args)
 			if not success:
-				template, content = body
-				return template.format(*content)
+				return self.format_response(body)
 
 			args = body
 
 		success, body = self.handler_function(self, player, *args)
-		template, content = body
-		return template.format(*content)
+		return self.format_response(body)
+
+
+	def format_response(self, body):
+		template, tokens = body
+		contents = []
+
+		for token in tokens:
+			token_content = token
+			if isinstance(token, Item):
+				token_content = token.shortname
+			contents.append(token_content)
+
+		return template.format(*contents)
 
 
 class ArgInfo:

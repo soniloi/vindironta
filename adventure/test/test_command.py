@@ -1,6 +1,8 @@
 import unittest
 
 from adventure.command import Command
+from adventure.data_element import Labels
+from adventure.item import Item
 
 class TestCommand(unittest.TestCase):
 
@@ -45,6 +47,14 @@ class TestCommand(unittest.TestCase):
 		result = self.command_non_movement.execute(None, ["test"])
 
 		self.assertEqual("test success!", result)
+
+
+	def test_execute_item_args(self):
+		book = Item(1105, 2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
+
+		result = self.command_non_movement.execute(None, [book])
+
+		self.assertEqual("book success!", result)
 
 
 if __name__ == "__main__":
