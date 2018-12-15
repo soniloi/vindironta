@@ -7,12 +7,12 @@ from adventure.item import Item
 class TestCommand(unittest.TestCase):
 
 	def setUp(self):
-		self.command_movement = Command(1, 0x49, 0x0, [self.arg_function_movement, self.vision_function],
-			self.handler_function, "", [],  {}, {})
-		self.command_non_movement = Command(1, 0x9, 0x0, [self.arg_function_non_movement, self.vision_function],
-			self.handler_function, "", [],  {}, {})
-		self.command_unsuccessful = Command(1, 0x9, 0x0, [self.arg_function_unsuccessful, self.vision_function],
-			self.handler_function, "", [], {}, {})
+		self.command_movement = Command(1, 0x49, 0x0, [self.arg_function_movement, self.vision_function, self.handler_function],
+			"", [],  {}, {})
+		self.command_non_movement = Command(1, 0x9, 0x0, [self.arg_function_non_movement, self.vision_function, self.handler_function],
+			"", [],  {}, {})
+		self.command_unsuccessful = Command(1, 0x9, 0x0, [self.arg_function_unsuccessful, self.vision_function, self.handler_function],
+			"", [], {}, {})
 
 
 	def arg_function_movement(self, command, player, *args):
@@ -28,7 +28,7 @@ class TestCommand(unittest.TestCase):
 
 
 	def handler_function(self, command, player, *arg):
-		return True, ("{0} success!", list(arg))
+		return True, "{0} success!", list(arg)
 
 
 	def vision_function(self, command, player, *arg):

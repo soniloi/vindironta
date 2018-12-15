@@ -39,13 +39,13 @@ class CommandCollection:
 		teleport_locations = self.get_teleport_locations(tokens[CommandCollection.INDEX_TELEPORTS], attributes)
 
 		if handler_function:
+			resolver_functions.append(handler_function)
 			(primary_command_name, command_names) = self.parse_command_names(tokens[CommandCollection.INDEX_NAMES])
 			command = Command(
 				command_id=command_id,
 				attributes=attributes,
 				arg_infos=arg_infos,
 				resolver_functions=resolver_functions,
-				handler_function=handler_function,
 				primary=primary_command_name,
 				aliases=command_names,
 				transitions=transitions,
