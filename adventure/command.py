@@ -39,18 +39,18 @@ class Command(DataElement):
 
 		for resolver_function in self.resolver_functions:
 
-			success, body = resolver_function(self, player, *args)
+			success, template, content = resolver_function(self, player, *args)
 			if not success:
-				return self.format_response(body)
+				return self.format_response(template, content)
 
-			args = body
+			args = content
 
 		success, body = self.handler_function(self, player, *args)
-		return self.format_response(body)
+		template, content = body
+		return self.format_response(template, content)
 
 
-	def format_response(self, body):
-		template, tokens = body
+	def format_response(self, template, tokens):
 		contents = []
 
 		for token in tokens:
