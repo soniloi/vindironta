@@ -37,13 +37,15 @@ class Command(DataElement):
 
 	def execute(self, player, args):
 
+		template = ""
 		for resolver_function in self.resolver_functions:
 
-			success, template, content = resolver_function(self, player, *args)
+			success, resolved_template, resolved_content = resolver_function(self, player, *args)
+			template += resolved_template
 			if not success:
-				return self.format_response(template, content)
+				return self.format_response(template, resolved_content)
 
-			args = content
+			args = resolved_content
 
 		success, body = self.handler_function(self, player, *args)
 		template, content = body

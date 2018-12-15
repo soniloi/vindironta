@@ -11,6 +11,8 @@ class TestCommand(unittest.TestCase):
 			self.handler_function, "", [],  {}, {})
 		self.command_non_movement = Command(1, 0x9, 0x0, [self.arg_function_non_movement, self.vision_function],
 			self.handler_function, "", [],  {}, {})
+		self.command_unsuccessful = Command(1, 0x9, 0x0, [self.arg_function_unsuccessful, self.vision_function],
+			self.handler_function, "", [], {}, {})
 
 
 	def arg_function_movement(self, command, player, *args):
@@ -19,6 +21,10 @@ class TestCommand(unittest.TestCase):
 
 	def arg_function_non_movement(self, command, player, *args):
 		return True, "", args
+
+
+	def arg_function_unsuccessful(self, command, player, *args):
+		return False, "reason template", args
 
 
 	def handler_function(self, command, player, *arg):
@@ -55,6 +61,12 @@ class TestCommand(unittest.TestCase):
 		result = self.command_non_movement.execute(None, [book])
 
 		self.assertEqual("book success!", result)
+
+
+	def test_execute_unsuccessful(self):
+		result = self.command_unsuccessful.execute(None, ["test"])
+
+		self.assertEqual("reason template", result)
 
 
 if __name__ == "__main__":
