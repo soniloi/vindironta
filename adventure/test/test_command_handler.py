@@ -94,6 +94,7 @@ class TestCommandHandler(unittest.TestCase):
 			"confirm_poured_no_destination" : "You pour the liquid away.",
 			"confirm_poured_with_destination" : "You pour the liquid onto the {1}.",
 			"confirm_quit" : "OK.",
+			"confirm_say" : "You say {0}.",
 			"confirm_taken" : "Taken.",
 			"confirm_immune_off" : "Immune off.",
 			"confirm_immune_on" : "Immune on.",
@@ -1078,6 +1079,14 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(success)
 		self.assertEqual("It reads {0}.", template)
 		self.assertEqual(["The Pied Piper"], content)
+
+
+	def test_handle_say(self):
+		success, template, content = self.handler.handle_say(self.command, self.player, "hello")
+
+		self.assertTrue(success)
+		self.assertEqual("You say {0}.", template)
+		self.assertEqual(["hello"], content)
 
 
 	def test_handle_score(self):

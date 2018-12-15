@@ -368,6 +368,10 @@ class CommandHandler:
 		return True, self.get_response("describe_writing"), [item.writing]
 
 
+	def handle_say(self, command, player, word):
+		return True, self.get_response("confirm_say"), [word]
+
+
 	def handle_score(self, command, player):
 		player.decrement_instructions()
 		return True, self.get_response("describe_score"), [player.score, player.instructions]
