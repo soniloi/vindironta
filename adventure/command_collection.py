@@ -17,6 +17,7 @@ class CommandCollection:
 		self.vision_resolver = resolvers.vision_resolver
 		self.argument_resolver = resolvers.argument_resolver
 		self.command_handler = resolvers.command_handler
+		self.puzzle_resolver = resolvers.puzzle_resolver
 		self.commands = {}
 		line = reader.read_line()
 		while not line.startswith("---"):
@@ -34,12 +35,14 @@ class CommandCollection:
 		arg_infos = self.parse_arg_infos(tokens[CommandCollection.INDEX_ARG_INFO],
 			tokens[CommandCollection.INDEX_LINK_INFO])
 		resolver_functions = self.get_resolver_functions(attributes, arg_infos)
-		handler_function = self.parse_handler_function(tokens[CommandCollection.INDEX_HANDLER])
+		command_handler_function, puzzle_resolver_function = self.parse_handler_functions(tokens[CommandCollection.INDEX_HANDLER])
 		transitions = self.get_transitions(tokens[CommandCollection.INDEX_SWITCHES], attributes)
 		teleport_locations = self.get_teleport_locations(tokens[CommandCollection.INDEX_TELEPORTS], attributes)
 
-		if handler_function:
-			resolver_functions.append(handler_function)
+		if command_handler_function:
+			resolver_functions.append(command_handler_function)
+			if puzzle_resolver_function:
+				resolver_functions.append(puzzle_resolver_function)
 			(primary_command_name, command_names) = self.parse_command_names(tokens[CommandCollection.INDEX_NAMES])
 			command = Command(
 				command_id=command_id,
@@ -106,9 +109,11 @@ class CommandCollection:
 		return self.argument_resolver.get_resolver_function(arg_function_name)
 
 
-	def parse_handler_function(self, token):
-		handler_function_name = "handle_" + token
-		return self.command_handler.get_handler_function(handler_function_name)
+	def parse_handler_functions(self, token):
+		function_name = "handle_" + token
+		command_handler_function = self.command_handler.get_handler_function(function_name)
+		puzzle_resolver_function = self.puzzle_resolver.get_resolver_function(function_name)
+		return (command_handler_function, puzzle_resolver_function)
 
 
 	def get_resolver_functions(self, attributes, arg_infos):

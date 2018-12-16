@@ -8,19 +8,22 @@ from adventure.command_handler import CommandHandler
 from adventure import file_reader
 from adventure.location import Location
 from adventure.player import Player
+from adventure.puzzle_resolver import PuzzleResolver
 from adventure.resolvers import Resolvers
 from adventure.vision_resolver import VisionResolver
 
 class TestCommandCollection(unittest.TestCase):
 
 	def setUp(self):
+		self.vision_resolver = VisionResolver()
 		self.argument_resolver = ArgumentResolver()
 		self.command_handler = CommandHandler()
-		self.vision_resolver = VisionResolver()
+		self.puzzle_resolver = PuzzleResolver()
 		self.resolvers = Resolvers(
 			vision_resolver=self.vision_resolver,
 			argument_resolver=self.argument_resolver,
-			command_handler=self.command_handler
+			command_handler=self.command_handler,
+			puzzle_resolver=self.puzzle_resolver,
 		)
 
 

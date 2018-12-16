@@ -13,6 +13,8 @@ class TestCommand(unittest.TestCase):
 			"", [],  {}, {})
 		self.command_unsuccessful = Command(1, 0x9, 0x0, [self.arg_function_unsuccessful, self.vision_function, self.handler_function],
 			"", [], {}, {})
+		self.command_puzzle = Command(1, 0x9, 0x0, [self.arg_function_non_movement, self.handler_function, self.puzzle_function],
+			"", [], {}, {})
 
 
 	def arg_function_movement(self, command, player, *args):
@@ -29,6 +31,10 @@ class TestCommand(unittest.TestCase):
 
 	def handler_function(self, command, player, *arg):
 		return True, "{0} success!", list(arg)
+
+
+	def puzzle_function(self, command, player, *arg):
+		return True, " puzzle solved!", list(arg)
 
 
 	def vision_function(self, command, player, *arg):
@@ -67,6 +73,12 @@ class TestCommand(unittest.TestCase):
 		result = self.command_unsuccessful.execute(None, ["test"])
 
 		self.assertEqual("reason template", result)
+
+
+	def test_execute_puzzle(self):
+		result = self.command_puzzle.execute(None, ["test"])
+
+		self.assertEqual("test success! puzzle solved!", result)
 
 
 if __name__ == "__main__":
