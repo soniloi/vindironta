@@ -40,6 +40,10 @@ class DataCollection:
 		return self.items.get(item_shortname)
 
 
+	def get_item_by_id(self, item_id):
+		return self.items.get_by_id(item_id)
+
+
 	def get_hint(self, hint_key):
 		return self.hints.get(hint_key)
 

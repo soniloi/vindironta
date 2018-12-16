@@ -352,7 +352,7 @@ class CommandHandler:
 
 		item_source = item.get_first_container()
 		item.destroy()
-		content = [item, item_source, destination]
+		content = [item, destination, item_source]
 		return True, self.get_response("confirm_poured_with_destination"), content
 
 

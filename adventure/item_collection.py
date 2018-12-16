@@ -7,6 +7,7 @@ class ItemCollection:
 
 	def __init__(self, reader, elements):
 		self.items = {}
+		self.items_by_id = {}
 		container_ids_by_item = {}
 		switched_element_ids = {}
 
@@ -49,6 +50,7 @@ class ItemCollection:
 		elements[item_id] = item
 		for shortname in shortnames:
 			self.items[shortname] = item
+		self.items_by_id[item_id] = item
 
 		container_ids_by_item[item] = container_ids
 
@@ -140,3 +142,7 @@ class ItemCollection:
 
 	def get(self, item_name):
 		return self.items.get(item_name)
+
+
+	def get_by_id(self, item_id):
+		return self.items_by_id.get(item_id)

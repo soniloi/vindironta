@@ -1046,7 +1046,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertTrue(success)
 		self.assertEqual("You pour the liquid onto the {1}.", template)
-		self.assertEqual([self.water, self.bottle, self.lamp], content)
+		self.assertEqual([self.water, self.lamp, self.bottle], content)
 		self.assertFalse(self.water in self.bottle.items.values())
 		self.assertFalse(self.water in self.player.location.items.values())
 
