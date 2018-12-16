@@ -14,12 +14,12 @@ class PuzzleResolver(Resolver):
 			if destination.data_id == PuzzleResolver.ITEM_ID_BEAN:
 				plant = self.data.get_item_by_id(PuzzleResolver.ITEM_ID_PLANT)
 				self.replace_item_at_location(player, destination, plant)
-				template = self.data.get_response("event_potion_bean")
+				template = self.get_response("event_potion_bean")
 
 			elif destination.data_id == PuzzleResolver.ITEM_ID_PLANT:
 				bean = self.data.get_item_by_id(PuzzleResolver.ITEM_ID_BEAN)
 				self.replace_item_at_location(player, destination, bean)
-				template = self.data.get_response("event_potion_plant")
+				template = self.get_response("event_potion_plant")
 
 		return True, template, [item, destination, source]
 

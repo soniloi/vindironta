@@ -1,8 +1,9 @@
 from adventure.direction import Direction
 from adventure.inventory import Inventory
 from adventure.item import SwitchTransition
+from adventure.resolver import Resolver
 
-class CommandHandler:
+class CommandHandler(Resolver):
 
 	DIRECTIONS = {
 		5 : Direction.BACK,
@@ -18,17 +19,6 @@ class CommandHandler:
 		60 : Direction.UP,
 		62 : Direction.WEST,
 	}
-
-	def init_data(self, data):
-		self.data = data
-
-
-	def get_handler_function(self, function_name):
-		return getattr(self, function_name, None)
-
-
-	def get_response(self, response_key):
-		return self.data.get_response(response_key)
 
 
 	def handle_climb(self, command, player, arg=None):

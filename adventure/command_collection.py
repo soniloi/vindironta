@@ -111,7 +111,7 @@ class CommandCollection:
 
 	def parse_handler_functions(self, token):
 		function_name = "handle_" + token
-		command_handler_function = self.command_handler.get_handler_function(function_name)
+		command_handler_function = self.command_handler.get_resolver_function(function_name)
 		puzzle_resolver_function = self.puzzle_resolver.get_resolver_function(function_name)
 		return (command_handler_function, puzzle_resolver_function)
 

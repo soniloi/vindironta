@@ -5,11 +5,11 @@ class ArgumentResolver(Resolver):
 
 	def resolve_teleport(self, command, player, *args):
 		if args:
-			return False, self.data.get_response("request_argless"), self.get_arg(0, args)
+			return False, self.get_response("request_argless"), self.get_arg(0, args)
 
 		source_location_id = player.get_location_id()
 		if not source_location_id in command.teleport_locations:
-			return False, self.data.get_response("reject_nothing"), [None]
+			return False, self.get_response("reject_nothing"), [None]
 
 		destination_location_id = command.teleport_locations[source_location_id]
 		destination_location = self.data.get_location(destination_location_id)
@@ -19,7 +19,7 @@ class ArgumentResolver(Resolver):
 
 	def resolve_movement(self, command, player, *args):
 		if args:
-			return False, self.data.get_response("request_argless"), [self.get_arg(0, args)]
+			return False, self.get_response("request_argless"), [self.get_arg(0, args)]
 		return True, "", [command.data_id]
 
 
@@ -27,7 +27,7 @@ class ArgumentResolver(Resolver):
 		arg = self.get_arg(0, args)
 		if arg not in command.transitions:
 			content = [command.primary] + sorted(list(command.transitions.keys()))
-			return False, self.data.get_response("request_switch_command"), content
+			return False, self.get_response("request_switch_command"), content
 
 		transition = command.transitions[arg]
 		return True, "", [transition]
@@ -54,13 +54,13 @@ class ArgumentResolver(Resolver):
 		switch_args = args[1:]
 
 		if not item.is_switchable():
-			return False, self.data.get_response("reject_no_understand_instruction"), [item.shortname]
+			return False, self.get_response("reject_no_understand_instruction"), [item.shortname]
 
 		transition_text = self.get_arg(0, switch_args)
 
 		if not transition_text in item.text_to_transition:
 			content = [item.shortname] + sorted(list(item.text_to_transition.keys()))
-			return False, self.data.get_response("request_switch_item"), content
+			return False, self.get_response("request_switch_item"), content
 
 		transition = item.text_to_transition.get(transition_text)
 		player.reset_current_command()
@@ -115,7 +115,7 @@ class ArgumentResolver(Resolver):
 
 
 	def get_addinfo_response(self, command, resolved_args, given_linker):
-		template = self.data.get_response("request_addinfo")
+		template = self.get_response("request_addinfo")
 		verb = command.primary
 		arg_infos = command.arg_infos
 
@@ -154,26 +154,26 @@ class ArgumentResolver(Resolver):
 
 		item = self.data.get_item(arg_input)
 		if not item:
-			return False, self.data.get_response("reject_unknown"), [arg_input]
+			return False, self.get_response("reject_unknown"), [arg_input]
 
 		carried_item = player.get_carried_item(item)
 		nearby_item = player.get_nearby_item(item)
 
 		if arg_info.takes_item_arg_from_inventory_only():
 			if not carried_item:
-				return False, self.data.get_response("reject_not_holding"), [item.shortname]
+				return False, self.get_response("reject_not_holding"), [item.shortname]
 			item = carried_item
 
 		if arg_info.takes_item_arg_from_location_only():
 			if carried_item:
-				return False, self.data.get_response("reject_carrying"), [item.shortname]
+				return False, self.get_response("reject_carrying"), [item.shortname]
 			if not nearby_item:
-				return False, self.data.get_response("reject_not_here"), [item.shortname]
+				return False, self.get_response("reject_not_here"), [item.shortname]
 			item = nearby_item
 
 		if arg_info.takes_item_arg_from_inventory_or_location():
 			if not carried_item and not nearby_item:
-				return False, self.data.get_response("reject_not_here"), [item.shortname]
+				return False, self.get_response("reject_not_here"), [item.shortname]
 			# TODO: determine the ordering here
 			item = carried_item
 			if not item:
@@ -185,13 +185,13 @@ class ArgumentResolver(Resolver):
 	def execute_switching(self, command, player, item, switch_args):
 
 		if not item.is_switchable():
-			return False, self.data.get_response("reject_no_understand_instruction"), item.shortname
+			return False, self.get_response("reject_no_understand_instruction"), item.shortname
 
 		transition_text = self.get_arg(0, switch_args)
 
 		if not transition_text in item.text_to_transition:
 			content = [item.shortname] + sorted(list(item.text_to_transition.keys()))
-			return False, self.data.get_response("request_switch_item"), content
+			return False, self.get_response("request_switch_item"), content
 
 		transition = item.text_to_transition.get(transition_text)
 		return True, "", [item, transition]
