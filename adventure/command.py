@@ -35,18 +35,22 @@ class Command(DataElement):
 
 
 	def execute(self, player, args):
-		template = ""
+		templates = []
 
 		for resolver_function in self.resolver_functions:
 			success, resolved_template, args = resolver_function(self, player, *args)
-			template += resolved_template
+
+			if resolved_template:
+				templates.append(resolved_template)
+
 			if not success:
-				return self.format_response(template, args)
+				return self.format_response(templates, args)
 
-		return self.format_response(template, args)
+		return self.format_response(templates, args)
 
 
-	def format_response(self, template, tokens):
+	def format_response(self, templates, tokens):
+		template = " ".join(templates)
 		contents = []
 
 		for token in tokens:

@@ -34,7 +34,7 @@ class TestCommand(unittest.TestCase):
 
 
 	def puzzle_function(self, command, player, *arg):
-		return True, " puzzle solved!", list(arg)
+		return True, "puzzle solved!", list(arg)
 
 
 	def vision_function(self, command, player, *arg):
