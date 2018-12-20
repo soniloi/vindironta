@@ -20,6 +20,10 @@ class DataCollection:
 		self.inputs = InputCollection(reader)
 
 
+	def get_commands(self):
+		return self.commands
+
+
 	def list_commands(self):
 		return self.commands.list_commands()
 

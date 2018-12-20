@@ -5,6 +5,7 @@ from adventure.file_reader import FileReader
 from adventure.player import Player
 from adventure.puzzle_resolver import PuzzleResolver
 from adventure.resolvers import Resolvers
+from adventure.token_processor import TokenProcessor
 from adventure.vision_resolver import VisionResolver
 
 class Game:
@@ -25,6 +26,7 @@ class Game:
 				reader = FileReader(input_file)
 				self.init_data(reader)
 				self.init_player()
+				self.init_token_processor(self.data)
 
 
 	def init_data(self, reader):
@@ -35,7 +37,6 @@ class Game:
 			puzzle_resolver=self.puzzle_resolver,
 		)
 		self.data = DataCollection(reader, resolvers)
-		self.commands = self.data.commands
 		self.argument_resolver.init_data(self.data)
 		self.command_handler.init_data(self.data)
 		self.vision_resolver.init_data(self.data)
@@ -49,73 +50,14 @@ class Game:
 		self.player = Player(initial_location, default_inventory_template, inventory_templates)
 
 
+	def init_token_processor(self, data):
+		self.token_processor = TokenProcessor(data)
+
+
 	def process_input(self, line):
 		tokens = line.lower().split()
 		if tokens:
-			return self.process_tokens(tokens)
+			response = self.token_processor.process_tokens(self.player, tokens)
+			self.on = self.player.is_playing()
+			return response
 		return ""
-
-
-	def process_tokens(self, tokens):
-		response = ""
-
-		if self.player.alive:
-			response = self.process_tokens_as_command(tokens)
-
-			if not self.player.alive:
-				response += " " + self.data.get_response("describe_dead") + \
-					" " + self.data.get_response("describe_reincarnation")
-
-		else:
-			response = self.process_tokens_as_reincarnation_answer(tokens)
-
-		if self.player.playing and not self.player.alive:
-			response += " " + self.data.get_response("request_reincarnation")
-
-		self.on = self.player.playing
-
-		return response
-
-
-	def process_tokens_as_command(self, tokens):
-		command = self.player.current_command
-		self.player.current_command = None
-		command_args = tokens
-
-		if not command:
-			command = self.get_command_from_input(tokens)
-			if command and not command.verb_is_first_arg():
-				command_args = tokens[1:]
-			self.player.increment_instructions()
-
-		# TODO: deprecate this in favour of nouns-as-verbs
-		if not command:
-			command = self.commands.get("switch")
-
-		if command:
-			return command.execute(self.player, command_args)
-		return ""
-
-
-	def get_command_from_input(self, tokens):
-		return self.commands.get(tokens[0])
-
-
-	def process_tokens_as_reincarnation_answer(self, tokens):
-		answer = tokens[0]
-
-		if self.data.matches_input("true", answer):
-			self.process_reincarnation()
-			return self.data.get_response("confirm_reincarnation")
-
-		elif self.data.matches_input("false", answer):
-			self.player.playing = False
-			return self.data.get_response("confirm_quit")
-
-		return self.data.get_response("reject_no_understand_selection")
-
-
-	def process_reincarnation(self):
-		self.player.alive = True
-		self.player.location = self.data.get_location(Game.PLAYER_INITIAL_LOCATION_ID)
-		self.player.previous_location = None

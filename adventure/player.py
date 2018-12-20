@@ -35,6 +35,14 @@ class Player:
 		return self.location.data_id
 
 
+	def set_location(self, location):
+		self.location = location
+
+
+	def set_previous_location(self, previous_location):
+		self.previous_location = previous_location
+
+
 	def get_adjacent_location(self, direction):
 		return self.location.get_adjacent_location(direction)
 
@@ -114,8 +122,28 @@ class Player:
 		return self.location.gives_light() or self.get_inventory().gives_light()
 
 
+	def get_current_command(self):
+		return self.current_command
+
+
 	def get_current_args(self):
 		return self.current_args
+
+
+	def is_alive(self):
+		return self.alive
+
+
+	def set_alive(self, alive):
+		self.alive = alive
+
+
+	def is_playing(self):
+		return self.playing
+
+
+	def set_playing(self, playing):
+		self.playing = playing
 
 
 	def reset_current_command(self):
