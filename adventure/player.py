@@ -1,23 +1,26 @@
 from copy import copy
 
+from adventure.element import Element
 from adventure.inventory import Inventory
 
-class Player:
+class Player(Element):
 
 	INVENTORY_CAPACITY = 16
 
+	ATTRIBUTE_PLAYING = 0x1
+	ATTRIBUTE_ALIVE = 0x2
+	ATTRIBUTE_IMMUNE = 0x4
+	ATTRIBUTE_VERBOSE = 0x8
+
 	def __init__(self, initial_location, default_inventory_template, inventory_templates=[]):
+		Element.__init__(self, attributes=0x3)
 		self.location = initial_location
 		self.default_inventory = copy(default_inventory_template)
 		self.previous_location = None
-		self.playing = True
 		self.score = 0
 		self.current_command = None
 		self.current_args = []
-		self.verbose = False
 		self.instructions = 0
-		self.alive = True
-		self.immune = False
 
 		self.inventories_by_location = {}
 		for inventory_template in inventory_templates:
@@ -107,7 +110,7 @@ class Player:
 
 
 	def get_arrival_location_description(self):
-		return self.location.get_arrival_description(self.verbose)
+		return self.location.get_arrival_description(self.is_verbose())
 
 
 	def get_full_location_description(self):
@@ -130,20 +133,43 @@ class Player:
 		return self.current_args
 
 
-	def is_alive(self):
-		return self.alive
-
-
-	def set_alive(self, alive):
-		self.alive = alive
+	def change_attribute(self, attribute, state):
+		if state:
+			self.set_attribute(attribute)
+		else:
+			self.unset_attribute(attribute)
 
 
 	def is_playing(self):
-		return self.playing
+		return self.has_attribute(Player.ATTRIBUTE_PLAYING)
 
 
 	def set_playing(self, playing):
-		self.playing = playing
+		self.change_attribute(Player.ATTRIBUTE_PLAYING, playing)
+
+
+	def is_alive(self):
+		return self.has_attribute(Player.ATTRIBUTE_ALIVE)
+
+
+	def set_alive(self, alive):
+		self.change_attribute(Player.ATTRIBUTE_ALIVE, alive)
+
+
+	def is_immune(self):
+		return self.has_attribute(Player.ATTRIBUTE_IMMUNE)
+
+
+	def set_immune(self, immune):
+		self.change_attribute(Player.ATTRIBUTE_IMMUNE, immune)
+
+
+	def is_verbose(self):
+		return self.has_attribute(Player.ATTRIBUTE_VERBOSE)
+
+
+	def set_verbose(self, verbose):
+		self.change_attribute(Player.ATTRIBUTE_VERBOSE, verbose)
 
 
 	def reset_current_command(self):

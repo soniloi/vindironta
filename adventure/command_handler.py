@@ -164,7 +164,7 @@ class CommandHandler(Resolver):
 			template_key, content = self.reject_go_obstructed(player, obstructions)
 			template = self.get_response(template_key)
 
-		elif not player.has_light() and not proposed_location.gives_light() and not player.immune:
+		elif not player.has_light() and not proposed_location.gives_light() and not player.is_immune():
 			self.kill_player(player)
 			template = self.get_response("death_darkness")
 
@@ -177,7 +177,7 @@ class CommandHandler(Resolver):
 
 
 	def kill_player(self, player):
-		player.alive = False
+		player.set_alive(False)
 		player.drop_all_items()
 
 
@@ -236,7 +236,7 @@ class CommandHandler(Resolver):
 	def handle_immune(self, command, player, arg):
 		template = ""
 
-		player.immune = arg
+		player.set_immune(arg)
 		if arg:
 			template = self.get_response("confirm_immune_on")
 		else:
@@ -348,7 +348,7 @@ class CommandHandler(Resolver):
 
 	def handle_quit(self, command, player):
 		player.decrement_instructions()
-		player.playing = False
+		player.set_playing(False)
 		return True, self.get_response("confirm_quit"), [""]
 
 
@@ -428,7 +428,7 @@ class CommandHandler(Resolver):
 	def handle_verbose(self, command, player, arg):
 		template = ""
 
-		player.verbose = arg
+		player.set_verbose(arg)
 		if arg:
 			template = self.get_response("confirm_verbose_on")
 		else:

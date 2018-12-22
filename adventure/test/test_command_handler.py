@@ -667,7 +667,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(success)
 		self.assertEqual("You are {0}.", template)
 		self.assertEqual(["at a lighthouse by the sea.", ""], content)
-		self.assertTrue(self.player.playing)
+		self.assertTrue(self.player.is_playing())
 
 
 	def test_handle_go_from_dark_to_light(self):
@@ -679,7 +679,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(success)
 		self.assertEqual("It is too dark.", template)
 		self.assertEqual([""], content)
-		self.assertTrue(self.player.playing)
+		self.assertTrue(self.player.is_playing())
 
 
 	def test_handle_go_from_dark_to_light(self):
@@ -691,7 +691,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(success)
 		self.assertEqual("You are {0}.", template)
 		self.assertEqual(["on a beach of black sand", ""], content)
-		self.assertTrue(self.player.playing)
+		self.assertTrue(self.player.is_playing())
 
 
 	def test_handle_go_from_dark_to_dark_not_carrying_light_immune_off(self):
@@ -704,7 +704,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(success)
 		self.assertEqual("You fall to your death in the darkness.", template)
 		self.assertEqual([""], content)
-		self.assertFalse(self.player.alive)
+		self.assertFalse(self.player.is_alive())
 		self.assertFalse(self.player.holding_items())
 		self.assertEqual(1, len(self.book.containers))
 		self.assertTrue(self.mine_location in self.book.containers)
@@ -713,14 +713,14 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_go_from_dark_to_dark_not_carrying_light_immune_on(self):
 		self.player.location = self.mine_location
 		self.player.location.directions[Direction.EAST] = self.cave_location
-		self.player.immune = True
+		self.player.set_immune(True)
 
 		success, template, content = self.handler.handle_go(self.command, self.player, 16)
 
 		self.assertTrue(success)
 		self.assertEqual("It is too dark.", template)
 		self.assertEqual([""], content)
-		self.assertTrue(self.player.alive)
+		self.assertTrue(self.player.is_alive())
 
 
 	def test_handle_go_from_dark_to_dark_carrying_light(self):
@@ -733,7 +733,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(success)
 		self.assertEqual("You are {0}.", template)
 		self.assertEqual(["in a cave. It is dark", ""], content)
-		self.assertTrue(self.player.playing)
+		self.assertTrue(self.player.is_playing())
 
 
 	def test_handle_go_disambiguate(self):
@@ -770,14 +770,14 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_immune_off(self):
-		self.player.immune = True
+		self.player.set_immune(True)
 
 		success, template, content = self.handler.handle_immune(self.command, self.player, False)
 
 		self.assertTrue(success)
 		self.assertEqual("Immune off.", template)
 		self.assertEqual([False], content)
-		self.assertFalse(self.player.immune)
+		self.assertFalse(self.player.is_immune())
 
 
 	def test_handle_immune_on(self):
@@ -786,7 +786,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(success)
 		self.assertEqual("Immune on.", template)
 		self.assertEqual([True], content)
-		self.assertTrue(self.player.immune)
+		self.assertTrue(self.player.is_immune())
 
 
 	def test_handle_insert_into_non_container(self):
@@ -1058,7 +1058,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual("OK.", template)
 		self.assertEqual([""], content)
 		self.assertEqual(6, self.player.instructions)
-		self.assertFalse(self.player.playing)
+		self.assertFalse(self.player.is_playing())
 
 
 	def test_handle_read_no_writing(self):
@@ -1295,25 +1295,25 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_verbose_off(self):
-		self.player.verbose = True
+		self.player.set_verbose(True)
 
 		success, template, content = self.handler.handle_verbose(self.command, self.player, False)
 
 		self.assertTrue(success)
 		self.assertEqual("Verbose off.", template)
 		self.assertEqual([False], content)
-		self.assertFalse(self.player.verbose)
+		self.assertFalse(self.player.is_verbose())
 
 
 	def test_handle_verbose_on(self):
-		self.player.verbose = False
+		self.player.set_verbose(False)
 
 		success, template, content = self.handler.handle_verbose(self.command, self.player, True)
 
 		self.assertTrue(success)
 		self.assertEqual("Verbose on.", template)
 		self.assertEqual([True], content)
-		self.assertTrue(self.player.verbose)
+		self.assertTrue(self.player.is_verbose())
 
 
 	def test_handle_wear_not_wearable(self):
