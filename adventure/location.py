@@ -1,4 +1,4 @@
-from adventure.data_element import NamedDataElement
+from adventure.element import NamedDataElement
 from adventure.item_container import ItemContainer
 
 class Location(NamedDataElement, ItemContainer):

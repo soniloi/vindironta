@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock
 
-from adventure.data_element import Labels
+from adventure.element import Labels
 from adventure.item import ContainerItem, SentientItem, SwitchableItem, WearableItem
 from adventure.item_collection import ItemCollection
 from adventure.location import Location

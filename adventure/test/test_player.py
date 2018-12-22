@@ -1,6 +1,6 @@
 import unittest
 
-from adventure.data_element import Labels
+from adventure.element import Labels
 from adventure.inventory import Inventory
 from adventure.location import Location
 from adventure.player import Player

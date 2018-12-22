@@ -1,5 +1,5 @@
-from adventure.data_element import Labels
 from adventure.direction import Direction
+from adventure.element import Labels
 from adventure.location import Location
 from adventure.file_reader import FileReader
 

@@ -1,6 +1,6 @@
 import unittest
 
-from adventure.data_element import Labels
+from adventure.element import Labels
 from adventure.item import Item, WearableItem
 from adventure.inventory import Inventory
 from adventure.location import Location

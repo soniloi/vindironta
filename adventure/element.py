@@ -3,10 +3,9 @@ from collections import namedtuple
 Labels = namedtuple("Labels", "shortname longname description")
 
 
-class DataElement:
+class Element:
 
-	def __init__(self, data_id, attributes):
-		self.data_id = data_id
+	def __init__(self, attributes):
 		self.raw_attributes = attributes
 		self.attributes = self.raw_attributes
 
@@ -25,6 +24,13 @@ class DataElement:
 
 	def toggle_attribute(self, attribute):
 		self.attributes ^= attribute
+
+
+class DataElement(Element):
+
+	def __init__(self, data_id, attributes):
+		Element.__init__(self, attributes)
+		self.data_id = data_id
 
 
 class NamedDataElement(DataElement):

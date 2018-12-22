@@ -1,6 +1,6 @@
 from enum import Enum
 
-from adventure.data_element import Labels, NamedDataElement
+from adventure.element import Labels, NamedDataElement
 from adventure.item_container import ItemContainer
 
 from collections import namedtuple

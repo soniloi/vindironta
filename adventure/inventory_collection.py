@@ -1,4 +1,4 @@
-from adventure.data_element import Labels
+from adventure.element import Labels
 from adventure.inventory import Inventory
 
 

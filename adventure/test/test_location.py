@@ -2,8 +2,8 @@ from copy import copy
 
 import unittest
 
-from adventure.data_element import Labels
 from adventure.direction import Direction
+from adventure.element import Labels
 from adventure.item import Item, ContainerItem
 from adventure.location import Location
 

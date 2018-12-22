@@ -1,7 +1,7 @@
 import unittest
 
 from adventure.command import Command
-from adventure.data_element import Labels
+from adventure.element import Labels
 from adventure.item import Item
 
 class TestCommand(unittest.TestCase):

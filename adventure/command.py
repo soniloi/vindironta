@@ -1,4 +1,4 @@
-from adventure.data_element import DataElement
+from adventure.element import DataElement
 from adventure.item import Item
 
 class Command(DataElement):

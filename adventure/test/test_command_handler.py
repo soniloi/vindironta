@@ -2,8 +2,8 @@ import unittest
 from unittest.mock import Mock
 
 from adventure.command_handler import CommandHandler
-from adventure.data_element import Labels
 from adventure.direction import Direction
+from adventure.element import Labels
 from adventure.inventory import Inventory
 from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, SwitchTransition, WearableItem
 from adventure.location import Location

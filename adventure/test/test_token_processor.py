@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import Mock
 
 from adventure.data_collection import DataCollection
-from adventure.data_element import Labels
+from adventure.element import Labels
 from adventure.token_processor import TokenProcessor
 from adventure.inventory import Inventory
 from adventure.location import Location

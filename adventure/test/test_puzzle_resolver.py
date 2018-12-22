@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import Mock
 
-from adventure.puzzle_resolver import PuzzleResolver
-from adventure.data_element import Labels
+from adventure.element import Labels
 from adventure.item import Item, ContainerItem
+from adventure.puzzle_resolver import PuzzleResolver
 
 class TestPuzzleResolver(unittest.TestCase):
 

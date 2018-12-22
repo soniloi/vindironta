@@ -4,7 +4,7 @@ from unittest.mock import Mock
 from adventure.argument_resolver import ArgumentResolver
 from adventure.command import ArgInfo, Command
 from adventure.data_collection import DataCollection
-from adventure.data_element import Labels
+from adventure.element import Labels
 from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo, SwitchTransition
 
 class TestArgumentResolver(unittest.TestCase):
