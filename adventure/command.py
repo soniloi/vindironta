@@ -30,10 +30,6 @@ class Command(DataElement):
 		return self.has_attribute(Command.ATTRIBUTE_SECRET)
 
 
-	def requires_vision(self):
-		return self.has_attribute(Command.ATTRIBUTE_REQUIRES_VISION)
-
-
 	def execute(self, player, args):
 		templates = []
 

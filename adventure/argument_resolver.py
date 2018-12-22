@@ -180,18 +180,3 @@ class ArgumentResolver(Resolver):
 				item = nearby_item
 
 		return True, "", item
-
-
-	def execute_switching(self, command, player, item, switch_args):
-
-		if not item.is_switchable():
-			return False, self.get_response("reject_no_understand_instruction"), item.shortname
-
-		transition_text = self.get_arg(0, switch_args)
-
-		if not transition_text in item.text_to_transition:
-			content = [item.shortname] + sorted(list(item.text_to_transition.keys()))
-			return False, self.get_response("request_switch_item"), content
-
-		transition = item.text_to_transition.get(transition_text)
-		return True, "", [item, transition]
