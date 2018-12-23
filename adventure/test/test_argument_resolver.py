@@ -4,6 +4,7 @@ from unittest.mock import Mock
 from adventure.argument_resolver import ArgumentResolver
 from adventure.command import ArgInfo, Command
 from adventure.data_collection import DataCollection
+from adventure.direction import Direction
 from adventure.element import Labels
 from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo, SwitchTransition
 
@@ -29,6 +30,9 @@ class TestArgumentResolver(unittest.TestCase):
 
 		self.response_map = {
 			"reject_carrying" : "You are carrying it.",
+			"reject_no_back" : "I do not remember how you got here.",
+			"reject_no_direction" : "You cannot go that way.",
+			"reject_no_out" : "I cannot tell in from out here.",
 			"reject_no_understand_instruction" : "I do not understand.",
 			"reject_not_here" : "It is not here.",
 			"reject_not_holding" : "You are not holding it.",
@@ -94,12 +98,61 @@ class TestArgumentResolver(unittest.TestCase):
 		self.assertEqual((False, "Do not give an argument for this command.", ["test"]), response)
 
 
-	def test_resolve_movement_without_arg(self):
-		command = Command(1, 0x40, [ArgInfo(0x0)], [], "", [], {}, {})
+	def test_resolve_movement_back_without_destination(self):
+		command = Command(5, 0x40, [ArgInfo(0x0)], [], "", [], {}, {})
+		self.player.get_previous_location.return_value = None
 
 		response = self.resolver.resolve_movement(command, self.player)
 
-		self.assertEqual((True, "", [1]), response)
+		self.assertEqual((False, "I do not remember how you got here.", [Direction.BACK]), response)
+
+
+	def test_resolve_movement_back_with_destination(self):
+		command = Command(5, 0x40, [ArgInfo(0x0)], [], "", [], {}, {})
+		proposed_location = Mock()
+		self.player.get_previous_location.return_value = proposed_location
+
+		response = self.resolver.resolve_movement(command, self.player)
+
+		self.assertEqual((True, "", [proposed_location]), response)
+
+
+	def test_resolve_movement_out_without_destination(self):
+		command = Command(37, 0x40, [ArgInfo(0x0)], [], "", [], {}, {})
+		self.player.get_adjacent_location.return_value = None
+
+		response = self.resolver.resolve_movement(command, self.player)
+
+		self.assertEqual((False, "I cannot tell in from out here.", [Direction.OUT]), response)
+
+
+	def test_resolve_movement_out_with_destination(self):
+		command = Command(37, 0x40, [ArgInfo(0x0)], [], "", [], {}, {})
+		proposed_location = Mock()
+		self.player.get_adjacent_location.return_value = proposed_location
+
+		response = self.resolver.resolve_movement(command, self.player)
+
+		self.assertEqual((True, "", [proposed_location]), response)
+
+
+	def test_resolve_movement_non_back_non_out_without_destination(self):
+		command = Command(34, 0x40, [ArgInfo(0x0)], [], "", [], {}, {})
+		self.player.get_adjacent_location.return_value = None
+
+		response = self.resolver.resolve_movement(command, self.player)
+
+		self.assertEqual((False, "You cannot go that way.", [Direction.NORTH]), response)
+
+
+	def test_resolve_movement_non_back_non_out_with_destination(self):
+		command = Command(34, 0x40, [ArgInfo(0x0)], [], "", [], {}, {})
+		proposed_location = Mock()
+		self.player.get_adjacent_location.return_value = proposed_location
+
+		response = self.resolver.resolve_movement(command, self.player)
+
+		self.assertEqual((True, "", [proposed_location]), response)
 
 
 	def test_resolve_switchable_without_arg(self):

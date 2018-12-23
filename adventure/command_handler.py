@@ -1,25 +1,8 @@
-from adventure.direction import Direction
 from adventure.inventory import Inventory
 from adventure.item import SwitchTransition
 from adventure.resolver import Resolver
 
 class CommandHandler(Resolver):
-
-	DIRECTIONS = {
-		5 : Direction.BACK,
-		13 : Direction.DOWN,
-		16 : Direction.EAST,
-		34 : Direction.NORTH,
-		35 : Direction.NORTHEAST,
-		36 : Direction.NORTHWEST,
-		37 : Direction.OUT,
-		52 : Direction.SOUTH,
-		53 : Direction.SOUTHEAST,
-		54 : Direction.SOUTHWEST,
-		60 : Direction.UP,
-		62 : Direction.WEST,
-	}
-
 
 	def handle_climb(self, command, player, arg=None):
 		return False, self.get_response("reject_climb"), [""]
@@ -129,32 +112,9 @@ class CommandHandler(Resolver):
 		return True, self.get_response("confirm_given"), content
 
 
-	def handle_go(self, command, player, arg):
-		direction = CommandHandler.DIRECTIONS[arg]
-		proposed_location, reject_template_key = self.get_proposed_location_and_reject_key(player, direction)
-
-		if not proposed_location:
-			return False, self.get_response(reject_template_key), [""]
-
-		return self.execute_go_if_not_obstructed(player, arg, proposed_location)
-
-
-	def get_proposed_location_and_reject_key(self, player, direction):
-		if direction == Direction.BACK:
-			return player.previous_location, "reject_no_back"
-
-		return player.get_adjacent_location(direction), self.get_non_back_reject_key(direction)
-
-
-	def get_non_back_reject_key(self, direction):
-		if direction == Direction.OUT:
-			return "reject_no_out"
-		return "reject_no_direction"
-
-
-	def execute_go_if_not_obstructed(self, player, arg, proposed_location):
+	def handle_go(self, command, player, proposed_location):
 		obstructions = player.get_obstructions()
-		if obstructions and proposed_location is not player.previous_location:
+		if obstructions and proposed_location is not player.get_previous_location():
 			template_key, content = self.reject_go_obstructed(player, obstructions)
 			return False, self.get_response(template_key), content
 
@@ -164,8 +124,8 @@ class CommandHandler(Resolver):
 			return True, template, [""]
 
 		self.update_previous_location(player, proposed_location)
-		template, content = self.execute_go(player, arg, proposed_location)
-		self.interact_vision(player, arg, self.execute_see_location)
+		template, content = self.execute_go(player, proposed_location)
+		self.interact_vision(player, None, self.execute_see_location)
 		return True, template, content
 
 
@@ -182,14 +142,14 @@ class CommandHandler(Resolver):
 
 	def update_previous_location(self, player, proposed_location):
 		if proposed_location.can_reach(player.location):
-			player.previous_location = player.location
+			player.set_previous_location(player.location)
 		else:
-			player.previous_location = None
+			player.set_previous_location(None)
 
 
-	def execute_go(self, player, arg, proposed_location):
+	def execute_go(self, player, proposed_location):
 		player.location = proposed_location
-		return self.interact_vision(player, arg, self.complete_go)
+		return self.interact_vision(player, None, self.complete_go)
 
 
 	def complete_go(self, player, arg):
@@ -317,7 +277,7 @@ class CommandHandler(Resolver):
 			location_id = int(arg)
 			proposed_location = self.data.get_location(location_id)
 			if proposed_location:
-				template, content = self.execute_go(player, arg, proposed_location)
+				template, content = self.execute_go(player, proposed_location)
 				return True, template, content
 		except:
 			pass
@@ -407,7 +367,7 @@ class CommandHandler(Resolver):
 
 
 	def handle_teleport(self, command, player, destination):
-		template, content = self.execute_go(player, None, destination)
+		template, content = self.execute_go(player, destination)
 		self.interact_vision(player, None, self.execute_see_location)
 		return True, template, content
 

@@ -42,6 +42,10 @@ class Player(Element):
 		self.location = location
 
 
+	def get_previous_location(self):
+		return self.previous_location
+
+
 	def set_previous_location(self, previous_location):
 		self.previous_location = previous_location
 

@@ -1,7 +1,23 @@
+from adventure.direction import Direction
 from adventure.item import Item
 from adventure.resolver import Resolver
 
 class ArgumentResolver(Resolver):
+
+	DIRECTIONS = {
+		5 : Direction.BACK,
+		13 : Direction.DOWN,
+		16 : Direction.EAST,
+		34 : Direction.NORTH,
+		35 : Direction.NORTHEAST,
+		36 : Direction.NORTHWEST,
+		37 : Direction.OUT,
+		52 : Direction.SOUTH,
+		53 : Direction.SOUTHEAST,
+		54 : Direction.SOUTHWEST,
+		60 : Direction.UP,
+		62 : Direction.WEST,
+	}
 
 	def resolve_teleport(self, command, player, *args):
 		if args:
@@ -20,7 +36,27 @@ class ArgumentResolver(Resolver):
 	def resolve_movement(self, command, player, *args):
 		if args:
 			return False, self.get_response("request_argless"), [self.get_arg(0, args)]
-		return True, "", [command.data_id]
+
+		direction = ArgumentResolver.DIRECTIONS[command.data_id]
+
+		if direction == Direction.BACK:
+			proposed_location = player.get_previous_location()
+			if not proposed_location:
+				return False, self.get_response("reject_no_back"), [direction]
+
+		else:
+			proposed_location = player.get_adjacent_location(direction)
+			if not proposed_location:
+				return False, self.get_reject_movement_template(direction), [direction]
+
+		return True, "", [proposed_location]
+
+
+	def get_reject_movement_template(self, direction):
+		if direction == Direction.OUT:
+			return self.get_response("reject_no_out")
+		else:
+			return self.get_response("reject_no_direction")
 
 
 	def resolve_switchable(self, command, player, *args):

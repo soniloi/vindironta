@@ -131,12 +131,9 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_go" : "Use a compass point.",
 			"reject_insert_liquid" : "The {1} cannot hold liquids.",
 			"reject_insert_solid" : "The {1} cannot hold solids.",
-			"reject_no_direction" : "You cannot go that way.",
 			"reject_no_light" : "It is too dark.",
-			"reject_no_back" : "I do not remember how you got here.",
 			"reject_no_know_how" : "I do not know how.",
 			"reject_no_node" : "There is no such node id.",
-			"reject_no_out" : "I cannot tell in from out here.",
 			"reject_no_writing" : "There is no writing.",
 			"reject_not_container" : "That is not a container.",
 			"reject_not_empty" : "There is already something in that container.",
@@ -467,21 +464,11 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertFalse(self.player.get_inventory() in self.book.containers)
 
 
-	def test_handle_go_without_destination(self):
-		success, template, content = self.handler.handle_go(self.command, self.player, 34)
-
-		self.assertFalse(success)
-		self.assertEqual("You cannot go that way.", template)
-		self.assertEqual([""], content)
-		self.assertIs(self.lighthouse_location, self.player.location)
-		self.assertIsNone(self.player.previous_location)
-
-
 	def test_handle_go_with_destination(self):
 		self.player.location.directions[Direction.SOUTH] = self.beach_location
 		self.beach_location.directions[Direction.NORTH] = self.player.location
 
-		success, template, content = self.handler.handle_go(self.command, self.player, 52)
+		success, template, content = self.handler.handle_go(self.command, self.player, self.beach_location)
 
 		self.assertTrue(success)
 		self.assertEqual("You are {0}.", template)
@@ -491,13 +478,26 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(self.beach_location.seen)
 
 
+	def test_handle_go_with_destination_one_way(self):
+		self.player.location.directions[Direction.SOUTH] = self.beach_location
+
+		success, template, content = self.handler.handle_go(self.command, self.player, self.beach_location)
+
+		self.assertTrue(success)
+		self.assertEqual("You are {0}.", template)
+		self.assertEqual(["on a beach of black sand", ""], content)
+		self.assertIs(self.beach_location, self.player.location)
+		self.assertIs(None, self.player.previous_location)
+		self.assertTrue(self.beach_location.seen)
+
+
 	def test_handle_go_with_destination_again(self):
 		self.player.location.directions[Direction.SOUTH] = self.beach_location
 		self.beach_location.directions[Direction.NORTH] = self.lighthouse_location
 
-		self.handler.handle_go(self.command, self.player, 52)
-		self.handler.handle_go(self.command, self.player, 34)
-		success, template, content = self.handler.handle_go(self.command, self.player, 52)
+		self.handler.handle_go(self.command, self.player, self.beach_location)
+		self.handler.handle_go(self.command, self.player, self.lighthouse_location)
+		success, template, content = self.handler.handle_go(self.command, self.player, self.beach_location)
 
 		self.assertTrue(success)
 		self.assertEqual("You are {0}.", template)
@@ -512,7 +512,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.directions[Direction.DOWN] = self.mine_location
 		self.mine_location.directions[Direction.UP] = self.player.location
 
-		success, template, content = self.handler.handle_go(self.command, self.player, 13)
+		success, template, content = self.handler.handle_go(self.command, self.player, self.mine_location)
 
 		self.assertTrue(success)
 		self.assertEqual("It is too dark.", template)
@@ -527,7 +527,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.sun_location.directions[Direction.DOWN] = self.player.location
 		self.player.get_inventory().add(self.lamp)
 
-		success, template, content = self.handler.handle_go(self.command, self.player, 60)
+		success, template, content = self.handler.handle_go(self.command, self.player, self.sun_location)
 
 		self.assertTrue(success)
 		self.assertEqual("It is too bright.", template)
@@ -540,7 +540,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.directions[Direction.UP] = self.sun_location
 		self.sun_location.directions[Direction.DOWN] = self.player.location
 
-		success, template, content = self.handler.handle_go(self.command, self.player, 60)
+		success, template, content = self.handler.handle_go(self.command, self.player, self.sun_location)
 
 		self.assertTrue(success)
 		self.assertEqual("You are {0}.", template)
@@ -549,68 +549,11 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertIs(self.lighthouse_location, self.player.previous_location)
 
 
-	def test_handle_go_back_without_destination(self):
-		success, template, content = self.handler.handle_go(self.command, self.player, 5)
-
-		self.assertFalse(success)
-		self.assertEqual("I do not remember how you got here.", template)
-		self.assertEqual([""], content)
-		self.assertIs(self.lighthouse_location, self.player.location)
-		self.assertIsNone(self.player.previous_location)
-
-
-	def test_handle_go_back_with_destination(self):
-		self.player.previous_location = self.beach_location
-		self.beach_location.directions[Direction.SOUTH] = self.player.location
-
-		success, template, content = self.handler.handle_go(self.command, self.player, 5)
-
-		self.assertTrue(success)
-		self.assertEqual("You are {0}.", template)
-		self.assertEqual(["on a beach of black sand", ""], content)
-		self.assertIs(self.beach_location, self.player.location)
-		self.assertIs(self.lighthouse_location, self.player.previous_location)
-
-
-	def test_handle_go_back_with_destination_one_way(self):
-		self.player.previous_location = self.beach_location
-
-		success, template, content = self.handler.handle_go(self.command, self.player, 5)
-
-		self.assertTrue(success)
-		self.assertEqual("You are {0}.", template)
-		self.assertEqual(["on a beach of black sand", ""], content)
-		self.assertIs(self.beach_location, self.player.location)
-		self.assertIsNone(self.player.previous_location)
-
-
-	def test_handle_go_out_without_destination(self):
-		success, template, content = self.handler.handle_go(self.command, self.player, 37)
-
-		self.assertFalse(success)
-		self.assertEqual("I cannot tell in from out here.", template)
-		self.assertEqual([""], content)
-		self.assertIs(self.lighthouse_location, self.player.location)
-		self.assertIsNone(self.player.previous_location)
-
-
-	def test_handle_go_without_destination_with_obstruction(self):
-		self.player.location.add(self.obstruction)
-
-		success, template, content = self.handler.handle_go(self.command, self.player, 34)
-
-		self.assertFalse(success)
-		self.assertEqual("You cannot go that way.", template)
-		self.assertEqual([""], content)
-		self.assertIs(self.lighthouse_location, self.player.location)
-		self.assertIsNone(self.player.previous_location)
-
-
 	def test_handle_go_with_destination_with_obstruction(self):
 		self.player.location.add(self.obstruction)
 		self.player.location.directions[Direction.SOUTH] = self.beach_location
 
-		success, template, content = self.handler.handle_go(self.command, self.player, 52)
+		success, template, content = self.handler.handle_go(self.command, self.player, self.beach_location)
 
 		self.assertFalse(success)
 		self.assertEqual("You are blocked by {0}.", template)
@@ -622,25 +565,11 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.add(self.obstruction)
 		self.player.location.directions[Direction.EAST] = self.beach_location
 
-		success, template, content = self.handler.handle_go(self.command, self.player, 16)
+		success, template, content = self.handler.handle_go(self.command, self.player, self.beach_location)
 
 		self.assertFalse(success)
 		self.assertEqual("You are blocked by something here.", template)
 		self.assertEqual([""], content)
-
-
-	def test_handle_go_back_with_destination_with_obstruction(self):
-		self.player.location.add(self.obstruction)
-		self.player.previous_location = self.beach_location
-		self.beach_location.directions[Direction.NORTH] = self.player.location
-
-		success, template, content = self.handler.handle_go(self.command, self.player, 5)
-
-		self.assertTrue(success)
-		self.assertEqual("You are {0}.", template)
-		self.assertEqual(["on a beach of black sand", ""], content)
-		self.assertIs(self.beach_location, self.player.location)
-		self.assertIs(self.lighthouse_location, self.player.previous_location)
 
 
 	def test_handle_go_with_obstruction_to_previous_location(self):
@@ -648,8 +577,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.directions[Direction.SOUTH] = self.beach_location
 		self.beach_location.directions[Direction.NORTH] = self.lighthouse_location
 
-		self.handler.handle_go(self.command, self.player, 52)
-		success, template, content = self.handler.handle_go(self.command, self.player, 34)
+		self.handler.handle_go(self.command, self.player, self.beach_location)
+		success, template, content = self.handler.handle_go(self.command, self.player, self.lighthouse_location)
 
 		self.assertTrue(success)
 		self.assertEqual("You are {0}.", template)
@@ -662,7 +591,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location = self.beach_location
 		self.player.location.directions[Direction.EAST] = self.lighthouse_location
 
-		success, template, content = self.handler.handle_go(self.command, self.player, 16)
+		success, template, content = self.handler.handle_go(self.command, self.player, self.lighthouse_location)
 
 		self.assertTrue(success)
 		self.assertEqual("You are {0}.", template)
@@ -674,7 +603,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location = self.beach_location
 		self.player.location.directions[Direction.EAST] = self.mine_location
 
-		success, template, content = self.handler.handle_go(self.command, self.player, 16)
+		success, template, content = self.handler.handle_go(self.command, self.player, self.mine_location)
 
 		self.assertTrue(success)
 		self.assertEqual("It is too dark.", template)
@@ -686,7 +615,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location = self.mine_location
 		self.player.location.directions[Direction.EAST] = self.beach_location
 
-		success, template, content = self.handler.handle_go(self.command, self.player, 16)
+		success, template, content = self.handler.handle_go(self.command, self.player, self.beach_location)
 
 		self.assertTrue(success)
 		self.assertEqual("You are {0}.", template)
@@ -699,7 +628,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.directions[Direction.EAST] = self.cave_location
 		self.player.get_inventory().add(self.book)
 
-		success, template, content = self.handler.handle_go(self.command, self.player, 16)
+		success, template, content = self.handler.handle_go(self.command, self.player, self.cave_location)
 
 		self.assertTrue(success)
 		self.assertEqual("You fall to your death in the darkness.", template)
@@ -715,7 +644,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.directions[Direction.EAST] = self.cave_location
 		self.player.set_immune(True)
 
-		success, template, content = self.handler.handle_go(self.command, self.player, 16)
+		success, template, content = self.handler.handle_go(self.command, self.player, self.cave_location)
 
 		self.assertTrue(success)
 		self.assertEqual("It is too dark.", template)
@@ -728,7 +657,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.directions[Direction.EAST] = self.cave_location
 		self.player.get_inventory().add(self.lamp)
 
-		success, template, content = self.handler.handle_go(self.command, self.player, 16)
+		success, template, content = self.handler.handle_go(self.command, self.player, self.cave_location)
 
 		self.assertTrue(success)
 		self.assertEqual("You are {0}.", template)
