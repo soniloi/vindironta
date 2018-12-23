@@ -131,16 +131,12 @@ class CommandHandler(Resolver):
 
 	def handle_go(self, command, player, arg):
 		direction = CommandHandler.DIRECTIONS[arg]
-
 		proposed_location, reject_template_key = self.get_proposed_location_and_reject_key(player, direction)
-		template = self.get_response(reject_template_key)
-		content = [""]
 
-		if proposed_location:
-			template, content = self.execute_go_if_not_obstructed(player, arg, proposed_location)
+		if not proposed_location:
+			return False, self.get_response(reject_template_key), [""]
 
-		# TODO: fix success indicator
-		return True, template, content
+		return self.execute_go_if_not_obstructed(player, arg, proposed_location)
 
 
 	def get_proposed_location_and_reject_key(self, player, direction):
@@ -158,22 +154,19 @@ class CommandHandler(Resolver):
 
 	def execute_go_if_not_obstructed(self, player, arg, proposed_location):
 		obstructions = player.get_obstructions()
-		content = [""]
-
 		if obstructions and proposed_location is not player.previous_location:
 			template_key, content = self.reject_go_obstructed(player, obstructions)
-			template = self.get_response(template_key)
+			return False, self.get_response(template_key), content
 
-		elif not player.has_light() and not proposed_location.gives_light() and not player.is_immune():
+		if not player.has_light() and not proposed_location.gives_light() and not player.is_immune():
 			self.kill_player(player)
 			template = self.get_response("death_darkness")
+			return True, template, [""]
 
-		else:
-			self.update_previous_location(player, proposed_location)
-			template, content = self.execute_go(player, arg, proposed_location)
-			self.interact_vision(player, arg, self.execute_see_location)
-
-		return template, content
+		self.update_previous_location(player, proposed_location)
+		template, content = self.execute_go(player, arg, proposed_location)
+		self.interact_vision(player, arg, self.execute_see_location)
+		return True, template, content
 
 
 	def kill_player(self, player):

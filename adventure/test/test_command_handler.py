@@ -470,7 +470,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_go_without_destination(self):
 		success, template, content = self.handler.handle_go(self.command, self.player, 34)
 
-		self.assertTrue(success)
+		self.assertFalse(success)
 		self.assertEqual("You cannot go that way.", template)
 		self.assertEqual([""], content)
 		self.assertIs(self.lighthouse_location, self.player.location)
@@ -552,7 +552,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_go_back_without_destination(self):
 		success, template, content = self.handler.handle_go(self.command, self.player, 5)
 
-		self.assertTrue(success)
+		self.assertFalse(success)
 		self.assertEqual("I do not remember how you got here.", template)
 		self.assertEqual([""], content)
 		self.assertIs(self.lighthouse_location, self.player.location)
@@ -587,7 +587,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_go_out_without_destination(self):
 		success, template, content = self.handler.handle_go(self.command, self.player, 37)
 
-		self.assertTrue(success)
+		self.assertFalse(success)
 		self.assertEqual("I cannot tell in from out here.", template)
 		self.assertEqual([""], content)
 		self.assertIs(self.lighthouse_location, self.player.location)
@@ -599,7 +599,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		success, template, content = self.handler.handle_go(self.command, self.player, 34)
 
-		self.assertTrue(success)
+		self.assertFalse(success)
 		self.assertEqual("You cannot go that way.", template)
 		self.assertEqual([""], content)
 		self.assertIs(self.lighthouse_location, self.player.location)
@@ -612,7 +612,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		success, template, content = self.handler.handle_go(self.command, self.player, 52)
 
-		self.assertTrue(success)
+		self.assertFalse(success)
 		self.assertEqual("You are blocked by {0}.", template)
 		self.assertEqual(["an obstruction"], content)
 
@@ -624,7 +624,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		success, template, content = self.handler.handle_go(self.command, self.player, 16)
 
-		self.assertTrue(success)
+		self.assertFalse(success)
 		self.assertEqual("You are blocked by something here.", template)
 		self.assertEqual([""], content)
 
