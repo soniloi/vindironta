@@ -1,7 +1,6 @@
+import json
 import unittest
-from unittest.mock import Mock
 
-from adventure import file_reader
 from adventure.input_collection import InputCollection
 
 class TestInputCollection(unittest.TestCase):
@@ -11,13 +10,9 @@ class TestInputCollection(unittest.TestCase):
 
 
 	def test_single_input_key(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-				"no\tno",
-				"---",
-		]
+		input_inputs = json.loads("{\"no\":[\"no\"]}")
 
-		collection = InputCollection(reader_mock)
+		collection = InputCollection(input_inputs)
 
 		self.assertEqual(1, len(collection.inputs))
 		self.assertTrue("no" in collection.inputs)
@@ -28,14 +23,10 @@ class TestInputCollection(unittest.TestCase):
 
 
 	def test_multi_input_key(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-				"no\tno,n,false",
-				"yes\tyes,y,true,absolutely",
-				"---",
-		]
+		input_inputs = json.loads("{\"no\":[\"no\",\"n\",\"false\"], \
+			\"yes\":[\"yes\",\"y\",\"true\",\"absolutely\"]}")
 
-		collection = InputCollection(reader_mock)
+		collection = InputCollection(input_inputs)
 
 		self.assertEqual(2, len(collection.inputs))
 		self.assertTrue("no" in collection.inputs)

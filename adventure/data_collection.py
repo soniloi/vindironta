@@ -7,17 +7,15 @@ from adventure.text_collection import TextCollection
 
 class DataCollection:
 
-	def __init__(self, reader, resolvers):
-		self.commands = CommandCollection(reader, resolvers)
-		self.inventories = InventoryCollection(reader)
-		self.locations = LocationCollection(reader)
-		self.items = ItemCollection(reader, self.locations.locations.copy())
-		self.hints = TextCollection(reader)
-		self.explanations = TextCollection(reader)
-		self.responses = TextCollection(reader)
-		self.puzzles = TextCollection(reader)
-		self.events = TextCollection(reader)
-		self.inputs = InputCollection(reader)
+	def __init__(self, content_input, resolvers):
+		self.commands = CommandCollection(content_input["commands"], resolvers)
+		self.inventories = InventoryCollection(content_input["inventories"])
+		self.locations = LocationCollection(content_input["locations"])
+		self.items = ItemCollection(content_input["items"], self.locations.locations.copy())
+		self.hints = TextCollection(content_input["hints"])
+		self.explanations = TextCollection(content_input["explanations"])
+		self.responses = TextCollection(content_input["responses"])
+		self.inputs = InputCollection(content_input["inputs"])
 
 
 	def get_commands(self):

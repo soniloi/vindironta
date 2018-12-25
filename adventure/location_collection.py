@@ -8,53 +8,56 @@ class LocationCollection:
 
 	NO_LOCATION_ID = 0
 
-	def __init__(self, reader):
-		self.locations = {}
+	def __init__(self, location_inputs):
 		links = {}
-
-		line = reader.read_line()
-		while not line.startswith("---"):
-			self.create_location(line, links)
-			line = reader.read_line()
-
+		self.locations = self.parse_locations(location_inputs, links)
 		self.cross_reference(links)
 
 
-	def create_location(self, line, links):
-		tokens = line.split("\t")
+	def parse_locations(self, location_inputs, links):
+		locations = {}
 
-		location_id = int(tokens[0])
-		attributes = int(tokens[11], 16)
-		shortname = tokens[12]
-		longname = tokens[13]
-		description = tokens[14]
-		labels = Labels(shortname=shortname, longname=longname, description=description)
+		for location_input in location_inputs:
+			location = self.parse_location(location_input, links)
+			locations[location.data_id] = location
+
+		return locations
+
+
+	def parse_location(self, location_input, links):
+		location_id = location_input["data_id"]
+		attributes = int(location_input["attributes"], 16)
+		labels = self.parse_labels(location_input["labels"])
 
 		location = Location(location_id, attributes, labels)
-		self.locations[location_id] = location
-		links[location] = self.parse_links(tokens)
+		links[location] = self.parse_links(location_input["directions"])
+
+		return location
 
 
-	def parse_links(self, tokens):
+	def parse_labels(self, label_input):
+		return Labels(label_input["shortname"], label_input["longname"], label_input["description"])
+
+
+	def parse_links(self, direction_inputs):
 		links = {}
-		self.parse_link(links, Direction.NORTH, tokens[1])
-		self.parse_link(links, Direction.SOUTH, tokens[2])
-		self.parse_link(links, Direction.EAST, tokens[3])
-		self.parse_link(links, Direction.WEST, tokens[4])
-		self.parse_link(links, Direction.NORTHEAST, tokens[5])
-		self.parse_link(links, Direction.SOUTHWEST, tokens[6])
-		self.parse_link(links, Direction.SOUTHEAST, tokens[7])
-		self.parse_link(links, Direction.NORTHWEST, tokens[8])
-		self.parse_link(links, Direction.UP, tokens[9])
-		self.parse_link(links, Direction.DOWN, tokens[10])
+		self.parse_link(links, Direction.NORTH, direction_inputs.get("north"))
+		self.parse_link(links, Direction.SOUTH, direction_inputs.get("south"))
+		self.parse_link(links, Direction.EAST, direction_inputs.get("east"))
+		self.parse_link(links, Direction.WEST, direction_inputs.get("west"))
+		self.parse_link(links, Direction.NORTHEAST, direction_inputs.get("northeast"))
+		self.parse_link(links, Direction.SOUTHWEST, direction_inputs.get("southwest"))
+		self.parse_link(links, Direction.SOUTHEAST, direction_inputs.get("southeast"))
+		self.parse_link(links, Direction.NORTHWEST, direction_inputs.get("northwest"))
+		self.parse_link(links, Direction.UP, direction_inputs.get("up"))
+		self.parse_link(links, Direction.DOWN, direction_inputs.get("down"))
 		self.calculate_out(links)
 		return links
 
 
-	def parse_link(self, links, direction, token):
-		link_id = int(token)
-		if link_id != LocationCollection.NO_LOCATION_ID:
-			links[direction] = link_id
+	def parse_link(self, links, direction, direction_input):
+		if direction_input:
+			links[direction] = direction_input
 
 
 	def get(self, location_id):

@@ -1,11 +1,10 @@
+import json
 import unittest
-from unittest.mock import Mock
 
 from adventure.argument_resolver import ArgumentResolver
 from adventure.command import Command
 from adventure.command_collection import CommandCollection
 from adventure.command_handler import CommandHandler
-from adventure import file_reader
 from adventure.location import Location
 from adventure.player import Player
 from adventure.puzzle_resolver import PuzzleResolver
@@ -28,14 +27,28 @@ class TestCommandCollection(unittest.TestCase):
 
 
 	def test_init_command_different_commands(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"50\t0\t\t\tscore\tscore\t\t",
-			"81\t10\t\t\tlook\tlook\t\t",
-			"---\t\t\t",
-		]
+		command_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 50, \
+					\"attributes\": \"0\", \
+					\"handler\": \"score\", \
+					\"aliases\": [ \
+						\"score\" \
+					] \
+				}, \
+				{ \
+					\"data_id\": 81, \
+					\"attributes\": \"400\", \
+					\"handler\": \"look\", \
+					\"aliases\": [ \
+						\"look\" \
+					] \
+				} \
+			]"
+		)
 
-		collection = CommandCollection(reader_mock, self.resolvers)
+		collection = CommandCollection(command_inputs, self.resolvers)
 
 		self.assertEqual(2, len(collection.commands))
 		self.assertTrue("score" in collection.commands)
@@ -47,13 +60,21 @@ class TestCommandCollection(unittest.TestCase):
 
 
 	def test_init_command_aliases(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"33\t80\t\t\tlook\tlook,l\t\t",
-			"---\t\t\t",
-		]
+		command_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 81, \
+					\"attributes\": \"400\", \
+					\"handler\": \"look\", \
+					\"aliases\": [ \
+						\"look\", \
+						\"l\" \
+					] \
+				} \
+			]"
+		)
 
-		collection = CommandCollection(reader_mock, self.resolvers)
+		collection = CommandCollection(command_inputs, self.resolvers)
 
 		self.assertEqual(2, len(collection.commands))
 		self.assertTrue("look" in collection.commands)
@@ -65,25 +86,39 @@ class TestCommandCollection(unittest.TestCase):
 
 
 	def test_init_non_existent_command(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"1000\t0\t\t\tnotacommand\tnotacommand\t\t",
-			"---\t\t\t",
-		]
+		command_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1000, \
+					\"attributes\": \"0\", \
+					\"handler\": \"notacommand\", \
+					\"aliases\": [ \
+						\"notacommand\" \
+					] \
+				} \
+			]"
+		)
 
-		collection = CommandCollection(reader_mock, self.resolvers)
+		collection = CommandCollection(command_inputs, self.resolvers)
 
 		self.assertEqual(0, len(collection.commands))
 
 
 	def test_init_movement_command(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"16\t40\t\t\tgo\teast\t\t",
-			"---\t\t\t",
-		]
+		command_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 16, \
+					\"attributes\": \"40\", \
+					\"handler\": \"go\", \
+					\"aliases\": [ \
+						\"east\" \
+					] \
+				} \
+			]"
+		)
 
-		collection = CommandCollection(reader_mock, self.resolvers)
+		collection = CommandCollection(command_inputs, self.resolvers)
 
 		self.assertTrue("east" in collection.commands)
 		east_command = collection.commands["east"]
@@ -93,13 +128,31 @@ class TestCommandCollection(unittest.TestCase):
 
 
 	def test_init_switchable_command(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"116\t100\t1\t\tverbose\tverbose\tno,yes\t",
-			"---\t\t\t",
-		]
+		command_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 116, \
+					\"attributes\": \"100\", \
+					\"argument_infos\": [ \
+						{ \
+							\"attributes\": \"1\", \
+							\"linkers\": [] \
+						} \
+					], \
+					\"handler\": \"verbose\", \
+					\"aliases\": [ \
+						\"verbose\", \
+						\"verb\" \
+					], \
+					\"switch_info\": { \
+						\"off\": \"no\", \
+						\"on\": \"yes\" \
+					} \
+				} \
+			]"
+		)
 
-		collection = CommandCollection(reader_mock, self.resolvers)
+		collection = CommandCollection(command_inputs, self.resolvers)
 
 		self.assertTrue("verbose" in collection.commands)
 		verbose_command = collection.commands["verbose"]
@@ -113,13 +166,30 @@ class TestCommandCollection(unittest.TestCase):
 
 
 	def test_init_teleport_command(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"119\t12\t\t\tteleport\tabrakadabra\t\t23|24,26|23",
-			"---\t\t\t",
-		]
+		command_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 119, \
+					\"attributes\": \"12\", \
+					\"handler\": \"teleport\", \
+					\"aliases\": [ \
+						\"abrakadabra\" \
+					], \
+					\"teleport_info\": [ \
+						{ \
+							\"source\": 23, \
+							\"destination\": 24 \
+						}, \
+						{ \
+							\"source\": 26, \
+							\"destination\": 23 \
+						} \
+					] \
+				} \
+			]"
+		)
 
-		collection = CommandCollection(reader_mock, self.resolvers)
+		collection = CommandCollection(command_inputs, self.resolvers)
 
 		self.assertTrue("abrakadabra" in collection.commands)
 		teleport_command = collection.commands["abrakadabra"]
@@ -132,13 +202,28 @@ class TestCommandCollection(unittest.TestCase):
 
 
 	def test_init_single_arg_command(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"56\t0C\t7\t\ttake\ttake\t\t",
-			"---\t\t\t",
-		]
+		command_inputs = json.loads(
+			"[ \
+				{ \
+				\"data_id\": 56, \
+					\"attributes\": \"C\", \
+					\"argument_infos\": [ \
+						{ \
+							\"attributes\": \"7\", \
+							\"linkers\": [ \
+								\"\" \
+							] \
+						} \
+					], \
+					\"handler\": \"take\", \
+					\"aliases\": [ \
+						\"take\" \
+					] \
+				} \
+			]"
+		)
 
-		collection = CommandCollection(reader_mock, self.resolvers)
+		collection = CommandCollection(command_inputs, self.resolvers)
 
 		self.assertTrue("take" in collection.commands)
 		take_command = collection.commands["take"]
@@ -148,13 +233,35 @@ class TestCommandCollection(unittest.TestCase):
 
 
 	def test_init_multiple_arg_command(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"57\t0C\tB,F\t,into|in\tinsert\tinsert\t\t",
-			"---\t\t\t",
-		]
+		command_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 57, \
+					\"attributes\": \"C\", \
+					\"argument_infos\": [ \
+						{ \
+							\"attributes\": \"B\", \
+							\"linkers\": [ \
+								\"\" \
+							] \
+						}, \
+						{ \
+							\"attributes\": \"F\", \
+							\"linkers\": [ \
+								\"into\", \
+								\"in\" \
+							] \
+						} \
+					], \
+					\"handler\": \"insert\", \
+					\"aliases\": [ \
+						\"insert\" \
+					] \
+				} \
+			]"
+		)
 
-		collection = CommandCollection(reader_mock, self.resolvers)
+		collection = CommandCollection(command_inputs, self.resolvers)
 
 		self.assertTrue("insert" in collection.commands)
 		insert_command = collection.commands["insert"]
@@ -168,13 +275,20 @@ class TestCommandCollection(unittest.TestCase):
 
 
 	def test_init_resolve_vision_light_and_dark(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"81\t410\t\t\tlook\tlook\t\t",
-			"---\t\t\t",
-		]
+		command_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 81, \
+					\"attributes\": \"410\", \
+					\"handler\": \"look\", \
+					\"aliases\": [ \
+						\"look\" \
+					] \
+				} \
+			]"
+		)
 
-		collection = CommandCollection(reader_mock, self.resolvers)
+		collection = CommandCollection(command_inputs, self.resolvers)
 
 		look_command = collection.commands["look"]
 		self.assertEqual(3, len(look_command.resolver_functions))
@@ -184,13 +298,26 @@ class TestCommandCollection(unittest.TestCase):
 
 
 	def test_init_resolve_vision_dark(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"82\t400\tF\t\tread\tread\t\t",
-			"---\t\t\t",
-		]
+		command_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 82, \
+					\"attributes\": \"400\", \
+					\"argument_infos\": [ \
+						{ \
+							\"attributes\": \"F\", \
+							\"linkers\": [] \
+						} \
+					], \
+					\"handler\": \"read\", \
+					\"aliases\": [ \
+						\"read\" \
+					] \
+				} \
+			]"
+		)
 
-		collection = CommandCollection(reader_mock, self.resolvers)
+		collection = CommandCollection(command_inputs, self.resolvers)
 
 		read_command = collection.commands["read"]
 		self.assertEqual(3, len(read_command.resolver_functions))
@@ -200,13 +327,21 @@ class TestCommandCollection(unittest.TestCase):
 
 
 	def test_init_resolve_vision_none(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"50\t0\t\t\tscore\tscore\t\t",
-			"---\t\t\t",
-		]
+		command_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 50, \
+					\"attributes\": \"0\", \
+					\"handler\": \"score\", \
+					\"aliases\": [ \
+						\"score\" \
+					] \
+				} \
+			]"
+		)
 
-		collection = CommandCollection(reader_mock, self.resolvers)
+
+		collection = CommandCollection(command_inputs, self.resolvers)
 
 		score_command = collection.commands["score"]
 		self.assertEqual(2, len(score_command.resolver_functions))
@@ -215,17 +350,62 @@ class TestCommandCollection(unittest.TestCase):
 
 
 	def test_list_commands(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect= [
-			"33\t80\t\t\tlook\tlook,l\t\t",
-			"50\t0\t\t\tscore\tscore\t\t",
-			"16\t40\t\t\tgo\teast,e\t\t",
-			"56\t0C\t7\t\ttake\ttake\t\t",
-			"1000\t0\t\t\tnotacommand\tnotacommand\t\t",
-			"---\t\t\t",
-		]
+		command_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 33, \
+					\"attributes\": \"80\", \
+					\"handler\": \"look\", \
+					\"aliases\": [ \
+						\"look\", \
+						\"l\" \
+					] \
+				}, \
+				{ \
+					\"data_id\": 50, \
+					\"attributes\": \"0\", \
+					\"handler\": \"score\", \
+					\"aliases\": [ \
+						\"score\" \
+					] \
+				}, \
+				{ \
+					\"data_id\": 16, \
+					\"attributes\": \"40\", \
+					\"handler\": \"go\", \
+					\"aliases\": [ \
+						\"east\", \
+						\"e\" \
+					] \
+				}, \
+				{ \
+					\"data_id\": 56, \
+					\"attributes\": \"C\", \
+					\"argument_infos\": [ \
+						{ \
+							\"attributes\": \"7\", \
+							\"linkers\": [ \
+								\"\" \
+							] \
+						} \
+					], \
+					\"handler\": \"take\", \
+					\"aliases\": [ \
+						\"take\" \
+					] \
+				}, \
+				{ \
+					\"data_id\": 1000, \
+					\"attributes\": \"0\", \
+					\"handler\": \"notacommand\", \
+					\"aliases\": [ \
+						\"notacommand\" \
+					] \
+				} \
+			]"
+		)
 
-		collection = CommandCollection(reader_mock, self.resolvers)
+		collection = CommandCollection(command_inputs, self.resolvers)
 
 		self.assertEqual("e/east, l/look, score, take", collection.list_commands())
 

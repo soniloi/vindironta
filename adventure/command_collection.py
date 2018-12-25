@@ -13,72 +13,83 @@ class CommandCollection:
 	INDEX_TELEPORTS = 7
 
 
-	def __init__(self, reader, resolvers):
+	def __init__(self, command_inputs, resolvers):
 		self.vision_resolver = resolvers.vision_resolver
 		self.argument_resolver = resolvers.argument_resolver
 		self.command_handler = resolvers.command_handler
 		self.puzzle_resolver = resolvers.puzzle_resolver
-		self.commands = {}
-		line = reader.read_line()
-		while not line.startswith("---"):
-			self.parse_command(line)
-			line = reader.read_line()
-
+		self.commands = self.parse_commands(command_inputs)
 		self.command_list = self.create_command_list()
 
 
-	def parse_command(self, line):
-		tokens = line.split("\t")
+	def parse_commands(self, command_inputs):
+		commands = {}
 
-		command_id = self.parse_command_id(tokens[CommandCollection.INDEX_ID])
-		attributes = self.parse_attributes(tokens[CommandCollection.INDEX_ATTRIBUTES])
-		arg_infos = self.parse_arg_infos(tokens[CommandCollection.INDEX_ARG_INFO],
-			tokens[CommandCollection.INDEX_LINK_INFO])
+		for command_input in command_inputs:
+			command = self.parse_command(command_input)
+			if command:
+				for alias in command.aliases:
+					commands[alias] = command
+
+		return commands
+
+
+	def parse_command(self, command_input):
+		command_id = command_input["data_id"]
+		attributes = int(command_input["attributes"], 16)
+		arg_infos = self.parse_arg_infos(command_input.get("argument_infos"))
 		resolver_functions = self.get_resolver_functions(attributes, arg_infos)
-		command_handler_function, puzzle_resolver_function = self.parse_handler_functions(tokens[CommandCollection.INDEX_HANDLER])
-		transitions = self.get_transitions(tokens[CommandCollection.INDEX_SWITCHES], attributes)
-		teleport_locations = self.get_teleport_locations(tokens[CommandCollection.INDEX_TELEPORTS], attributes)
+		command_handler_function, puzzle_resolver_function = self.parse_handler_functions(command_input["handler"])
+		aliases = command_input["aliases"]
+		switch_info = self.parse_switch_info(command_input.get("switch_info"))
+		teleport_info = self.parse_teleport_info(command_input.get("teleport_info"))
 
+		command = None
 		if command_handler_function:
 			resolver_functions.append(command_handler_function)
 			if puzzle_resolver_function:
 				resolver_functions.append(puzzle_resolver_function)
-			(primary_command_name, command_names) = self.parse_command_names(tokens[CommandCollection.INDEX_NAMES])
 			command = Command(
 				command_id=command_id,
 				attributes=attributes,
 				arg_infos=arg_infos,
 				resolver_functions=resolver_functions,
-				primary=primary_command_name,
-				aliases=command_names,
-				transitions=transitions,
-				teleport_locations=teleport_locations,
+				primary=aliases[0],
+				aliases=aliases,
+				transitions=switch_info,
+				teleport_locations=teleport_info,
 			)
-			for command_name in command_names:
-				self.commands[command_name] = command
+		return command
 
 
-	def parse_command_id(self, token):
-		return int(token)
-
-
-	def parse_attributes(self, token):
-		return int(token, 16)
-
-
-	def parse_arg_infos(self, arg_info_token, link_info_token):
-		if not arg_info_token:
-			return []
-		arg_info_tokens = arg_info_token.split(",")
-		link_info_tokens = link_info_token.split(",")
-
+	def parse_arg_infos(self, arg_info_inputs):
 		arg_infos = []
-		for i in range(0, len(arg_info_tokens)):
-			arg_info_attributes_value = int(arg_info_tokens[i], 16)
-			linkers = link_info_tokens[i].split("|")
-			arg_infos.append(ArgInfo(arg_info_attributes_value, linkers))
+
+		if arg_info_inputs:
+			for arg_info_input in arg_info_inputs:
+				attributes = int(arg_info_input["attributes"], 16)
+				linkers = arg_info_input["linkers"]
+				arg_infos.append(ArgInfo(attributes, linkers))
 
 		return arg_infos
+
+
+	def parse_switch_info(self, switch_info_input):
+		switch_info = {}
+		if switch_info_input:
+			switch_info[switch_info_input["off"]] = False
+			switch_info[switch_info_input["on"]] = True
+		return switch_info
+
+
+	def parse_teleport_info(self, teleport_info_inputs):
+		teleport_infos = {}
+
+		if teleport_info_inputs:
+			for teleport_info_input in teleport_info_inputs:
+				teleport_infos[teleport_info_input["source"]] = teleport_info_input["destination"]
+
+		return teleport_infos
 
 
 	def get_vision_function(self, attributes, arg_infos):
@@ -127,41 +138,6 @@ class CommandCollection:
 			resolver_functions.append(arg_function)
 
 		return resolver_functions
-
-
-	def parse_command_names(self, token):
-		command_names = token.split(",")
-		return (command_names[0], command_names)
-
-
-	def get_transitions(self, token, attributes):
-		transitions = {}
-
-		if bool(attributes & Command.ATTRIBUTE_SWITCHABLE):
-			switches = token.split(",")
-			transitions[switches[0]] = False
-			transitions[switches[1]] = True
-
-		return transitions
-
-
-	def get_teleport_locations(self, token, attributes):
-		teleport_locations = {}
-
-		if bool(attributes & Command.ATTRIBUTE_TELEPORT):
-			teleport_pair_tokens = token.split(",")
-			for teleport_pair_token in teleport_pair_tokens:
-				source, destination = self.get_teleport_location_ids(teleport_pair_token)
-				teleport_locations[source] = destination
-
-		return teleport_locations
-
-
-	def get_teleport_location_ids(self, token):
-		teleport_pair = token.split("|")
-		source = int(teleport_pair[0])
-		destination = int(teleport_pair[1])
-		return source, destination
 
 
 	def get(self, name):

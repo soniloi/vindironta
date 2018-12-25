@@ -1,5 +1,5 @@
+import json
 import unittest
-from unittest.mock import Mock
 
 from adventure.element import Labels
 from adventure.item import ContainerItem, SentientItem, SwitchableItem, WearableItem
@@ -20,13 +20,28 @@ class TestItemCollection(unittest.TestCase):
 
 
 	def test_init_single_item(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"1105\t0x2\t80\t2\tbook\ta book\ta book of fairytales in English. It is open on a particular page\tThe Pied Piper of Hamelin\t\t",
-			"---",
-		]
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1105, \
+					\"attributes\": \"2\", \
+					\"container_ids\": [ \
+						80 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"book\" \
+						], \
+						\"longname\": \"a book\", \
+						\"description\": \"a book of fairytales in English. It is open on a particular page\" \
+					}, \
+					\"writing\": \"The Pied Piper of Hamelin\" \
+				} \
+			]"
+		)
 
-		collection = ItemCollection(reader_mock, self.elements)
+		collection = ItemCollection(item_inputs, self.elements)
 
 		self.assertEqual(1, len(collection.items))
 		self.assertTrue("book" in collection.items)
@@ -44,14 +59,49 @@ class TestItemCollection(unittest.TestCase):
 
 
 	def test_init_different_items(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"1105\t0x2\t80\t2\tbook\ta book\ta book of fairytales in English. It is open on a particular page\tThe Pied Piper of Hamelin\t\t",
-			"1106\t0x101A\t81\t3\tlamp\ta lamp\ta small lamp\t\t1106,10,off,on\t",
-			"---",
-		]
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1105, \
+					\"attributes\": \"2\", \
+					\"container_ids\": [ \
+						80 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"book\" \
+						], \
+						\"longname\": \"a book\", \
+						\"description\": \"a book of fairytales in English. It is open on a particular page\" \
+					}, \
+					\"writing\": \"The Pied Piper of Hamelin\" \
+				}, \
+				{ \
+					\"data_id\": 1106, \
+					\"attributes\": \"101A\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 3, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"lamp\" \
+						], \
+						\"longname\": \"a lamp\", \
+						\"description\": \"a small lamp\" \
+					}, \
+					\"switch_info\": { \
+						\"element_id\": 1106, \
+						\"attribute\": \"10\", \
+						\"off\": \"off\", \
+						\"on\": \"on\" \
+					} \
+				} \
+			]"
+		)
 
-		collection = ItemCollection(reader_mock, self.elements)
+		collection = ItemCollection(item_inputs, self.elements)
 
 		self.assertEqual(2, len(collection.items))
 		book = collection.items["book"]
@@ -60,13 +110,28 @@ class TestItemCollection(unittest.TestCase):
 
 
 	def test_init_aliased_item(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"1042\t2002\t27\t3\tkohlrabi,cabbage\tsome kohlrabi\tsome kohlrabi, or Brassica oleracea var. gongylodes, a cabbage cultivar\t\t\t",
-			"---",
-		]
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1042, \
+					\"attributes\": \"2002\", \
+					\"container_ids\": [ \
+						27 \
+					], \
+					\"size\": 3, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"kohlrabi\", \
+							\"cabbage\" \
+						], \
+						\"longname\": \"some kolhrabi\", \
+						\"description\": \"some kohlrabi, or Brassica oleracea var. gongylodes, a cabbage cultivar\" \
+					} \
+				} \
+			]"
+		)
 
-		collection = ItemCollection(reader_mock, self.elements)
+		collection = ItemCollection(item_inputs, self.elements)
 
 		self.assertEqual(2, len(collection.items))
 		kohlrabi = collection.items["kohlrabi"]
@@ -76,13 +141,33 @@ class TestItemCollection(unittest.TestCase):
 
 
 	def test_init_item_without_container(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"1106\t0x101A\t100000\t3\tlamp\ta lamp\ta small lamp\t\t1106,10,off,on\t",
-			"---",
-		]
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1106, \
+					\"attributes\": \"101A\", \
+					\"container_ids\": [ \
+						100000 \
+					], \
+					\"size\": 3, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"lamp\" \
+						], \
+						\"longname\": \"a lamp\", \
+						\"description\": \"a small lamp\" \
+					}, \
+					\"switch_info\": { \
+						\"element_id\": 1106, \
+						\"attribute\": \"10\", \
+						\"off\": \"off\", \
+						\"on\": \"on\" \
+					} \
+				} \
+			]"
+		)
 
-		collection = ItemCollection(reader_mock, self.elements)
+		collection = ItemCollection(item_inputs, self.elements)
 
 		self.assertEqual(1, len(collection.items))
 		lamp = collection.items["lamp"]
@@ -90,13 +175,28 @@ class TestItemCollection(unittest.TestCase):
 
 
 	def test_init_item_with_multiple_containers(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"1076\t22802\t80,81\t1\twater\twater\tRiver Amethyst water. It is cold and clear\t\t\t",
-			"---",
-		]
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1076, \
+					\"attributes\": \"22802\", \
+					\"container_ids\": [ \
+						80,\
+						81 \
+					], \
+					\"size\": 1, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"water\" \
+						], \
+						\"longname\": \"water\", \
+						\"description\": \"River Amethyst water. It is cold and clear\" \
+					} \
+				} \
+			]"
+		)
 
-		collection = ItemCollection(reader_mock, self.elements)
+		collection = ItemCollection(item_inputs, self.elements)
 
 		self.assertEqual(1, len(collection.items))
 		self.assertTrue("water" in collection.items)
@@ -107,13 +207,27 @@ class TestItemCollection(unittest.TestCase):
 
 
 	def test_init_container_item(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"1002\t3\t119\t5\tbasket\ta basket\ta large basket\t\t\t",
-			"---",
-		]
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1002, \
+					\"attributes\": \"3\", \
+					\"container_ids\": [ \
+						119 \
+					], \
+					\"size\": 5, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"basket\" \
+						], \
+						\"longname\": \"a basket\", \
+						\"description\": \"a large basket\" \
+					} \
+				} \
+			]"
+		)
 
-		collection = ItemCollection(reader_mock, self.elements)
+		collection = ItemCollection(item_inputs, self.elements)
 
 		self.assertEqual(1, len(collection.items))
 		self.assertTrue("basket" in collection.items)
@@ -122,13 +236,27 @@ class TestItemCollection(unittest.TestCase):
 
 
 	def test_init_sentient_item(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"1002\t80003\t119\t3\tcat\ta cat\ta black cat\t\t\t",
-			"---",
-		]
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1002, \
+					\"attributes\": \"80003\", \
+					\"container_ids\": [ \
+						119 \
+					], \
+					\"size\": 3, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"cat\" \
+						], \
+						\"longname\": \"a cat\", \
+						\"description\": \"a black cat\" \
+					} \
+				} \
+			]"
+		)
 
-		collection = ItemCollection(reader_mock, self.elements)
+		collection = ItemCollection(item_inputs, self.elements)
 
 		self.assertEqual(1, len(collection.items))
 		self.assertTrue("cat" in collection.items)
@@ -137,13 +265,28 @@ class TestItemCollection(unittest.TestCase):
 
 
 	def test_init_item_with_item_container(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"1105\t0x2\t1108\t2\tbook\ta book\ta book of fairytales in English. It is open on a particular page\tThe Pied Piper of Hamelin\t\t",
-			"---",
-		]
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1105, \
+					\"attributes\": \"2\", \
+					\"container_ids\": [ \
+						1108 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"book\" \
+						], \
+						\"longname\": \"a book\", \
+						\"description\": \"a book of fairytales in English. It is open on a particular page\" \
+					}, \
+					\"writing\": \"The Pied Piper of Hamelin\" \
+				} \
+			]"
+		)
 
-		collection = ItemCollection(reader_mock, self.elements)
+		collection = ItemCollection(item_inputs, self.elements)
 
 		book = collection.items["book"]
 		self.assertEqual(1, len(book.containers))
@@ -152,13 +295,33 @@ class TestItemCollection(unittest.TestCase):
 
 
 	def test_init_switchable_switching_self(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"1201\t0x8\t81\t3\tlamp\ta lamp\ta small lamp\t\t1201,10,off,on\t",
-			"---",
-		]
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1201, \
+					\"attributes\": \"8\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 3, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"lamp\" \
+						], \
+						\"longname\": \"a lamp\", \
+						\"description\": \"a small lamp\" \
+					}, \
+					\"switch_info\": { \
+						\"element_id\": 1201, \
+						\"attribute\": \"10\", \
+						\"off\": \"off\", \
+						\"on\": \"on\" \
+					} \
+				} \
+			]"
+		)
 
-		collection = ItemCollection(reader_mock, self.elements)
+		collection = ItemCollection(item_inputs, self.elements)
 
 		self.assertEqual(1, len(collection.items))
 		lamp = collection.items["lamp"]
@@ -171,13 +334,33 @@ class TestItemCollection(unittest.TestCase):
 
 
 	def test_init_switchable_switching_other_item(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"1202\t0x8\t81\t3\tbutton\ta button\ta red button\t\t1108,20,up,down\t",
-			"---",
-		]
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1202, \
+					\"attributes\": \"8\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 3, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"button\" \
+						], \
+						\"longname\": \"a button\", \
+						\"description\": \"a red button\" \
+					}, \
+					\"switch_info\": { \
+						\"element_id\": 1108, \
+						\"attribute\": \"20\", \
+						\"off\": \"up\", \
+						\"on\": \"down\" \
+					} \
+				} \
+			]"
+		)
 
-		collection = ItemCollection(reader_mock, self.elements)
+		collection = ItemCollection(item_inputs, self.elements)
 
 		self.assertEqual(1, len(collection.items))
 		button = collection.items["button"]
@@ -187,13 +370,33 @@ class TestItemCollection(unittest.TestCase):
 
 
 	def test_init_switchable_switching_other_location(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"1203\t0x8\t81\t3\tlever\ta lever\ta mysterious lever\t\t80,40,down,up\t",
-			"---",
-		]
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1203, \
+					\"attributes\": \"8\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 3, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"lever\" \
+						], \
+						\"longname\": \"a lever\", \
+						\"description\": \"a mysterious lever\" \
+					}, \
+					\"switch_info\": { \
+						\"element_id\": 80, \
+						\"attribute\": \"40\", \
+						\"off\": \"down\", \
+						\"on\": \"up\" \
+					} \
+				} \
+			]"
+		)
 
-		collection = ItemCollection(reader_mock, self.elements)
+		collection = ItemCollection(item_inputs, self.elements)
 
 		self.assertEqual(1, len(collection.items))
 		lever = collection.items["lever"]
@@ -203,13 +406,28 @@ class TestItemCollection(unittest.TestCase):
 
 
 	def test_init_wearable(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"1204\t0x400\t81\t3\tsuit\ta suit\ta space-suit\t\t\t20",
-			"---",
-		]
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1204, \
+					\"attributes\": \"400\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 3, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"suit\" \
+						], \
+						\"longname\": \"a suit\", \
+						\"description\": \"a space-suit\" \
+					}, \
+					\"wearing_info\": \"20\" \
+				} \
+			]"
+		)
 
-		collection = ItemCollection(reader_mock, self.elements)
+		collection = ItemCollection(item_inputs, self.elements)
 
 		self.assertEqual(1, len(collection.items))
 		suit = collection.items["suit"]

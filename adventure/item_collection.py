@@ -5,35 +5,46 @@ from adventure.file_reader import FileReader
 
 class ItemCollection:
 
-	def __init__(self, reader, elements):
-		self.items = {}
-		self.items_by_id = {}
+	def __init__(self, item_inputs, elements):
 		container_ids_by_item = {}
 		switched_element_ids = {}
-
-		line = reader.read_line()
-		while not line.startswith("---"):
-			self.create_item(line, container_ids_by_item, elements, switched_element_ids)
-			line = reader.read_line()
+		self.items, self.items_by_id = self.parse_items(item_inputs, container_ids_by_item, elements, switched_element_ids)
 
 		self.place_items(container_ids_by_item, elements)
 		self.resolve_switches(switched_element_ids, elements)
 
 
-	def create_item(self, line, container_ids_by_item, elements, switched_element_ids):
-		tokens = line.split("\t")
+	def parse_items(self, item_inputs, container_ids_by_item, elements, switched_element_ids):
+		items = {}
+		items_by_id = {}
 
-		item_id = self.parse_item_id(tokens[0])
-		attributes = self.parse_item_attributes(tokens[1])
-		container_ids = self.parse_item_container_ids(tokens[2])
-		size = self.parse_item_size(tokens[3])
-		primary_shortname, shortnames = self.parse_item_shortnames(tokens[4])
-		longname = tokens[5]
-		description = tokens[6]
-		writing = self.parse_item_writing(tokens[7])
-		switched_element_id, switch_info = self.parse_switch_info(tokens[8])
-		attribute_when_worn = self.parse_wearing_info(tokens[9])
-		labels = Labels(shortname=primary_shortname, longname=longname, description=description)
+		for item_input in item_inputs:
+			item, shortnames = self.parse_item(item_input, container_ids_by_item, switched_element_ids)
+			items_by_id[item.data_id] = item
+			elements[item.data_id] = item
+
+			for shortname in shortnames:
+				items[shortname] = item
+
+
+		return items, items_by_id
+
+
+	def parse_item(self, item_input, container_ids_by_item, switched_element_ids):
+		item_id = item_input["data_id"]
+		attributes = int(item_input["attributes"], 16)
+		labels, shortnames = self.parse_labels(item_input["labels"])
+		size = item_input["size"]
+		writing = item_input.get("writing")
+
+		switched_element_id = None
+		switch_info = None
+		if "switch_info" in item_input:
+			switched_element_id, switch_info = self.parse_switch_info(item_input["switch_info"])
+
+		wearing_info = None
+		if "wearing_info" in item_input:
+			wearing_info = int(item_input["wearing_info"], 16)
 
 		item = self.init_item(
 			item_id=item_id,
@@ -44,62 +55,26 @@ class ItemCollection:
 			switched_element_ids=switched_element_ids,
 			switched_element_id=switched_element_id,
 			switch_info=switch_info,
-			attribute_when_worn=attribute_when_worn,
+			attribute_when_worn=wearing_info,
 		)
 
-		elements[item_id] = item
-		for shortname in shortnames:
-			self.items[shortname] = item
-		self.items_by_id[item_id] = item
-
+		container_ids = item_input["container_ids"]
 		container_ids_by_item[item] = container_ids
 
-
-	def parse_item_id(self, token):
-		return int(token)
+		return item, shortnames
 
 
-	def parse_item_attributes(self, token):
-		return int(token, 16)
+	def parse_labels(self, label_input):
+		shortnames = label_input["shortnames"]
+		return Labels(shortnames[0], label_input["longname"], label_input["description"]), shortnames
 
 
-	def parse_item_container_ids(self, token):
-		container_id_tokens = token.split(",")
-		return [int(container_id_token) for container_id_token in container_id_tokens]
-
-
-	def parse_item_size(self, token):
-		return int(token)
-
-
-	def parse_item_shortnames(self, token):
-		item_shortnames = token.split(",")
-		return (item_shortnames[0], item_shortnames)
-
-
-	def parse_item_writing(self, token):
-		return token
-
-
-	def parse_switch_info(self, token):
-		if not token:
-			return None, None
-
-		switch_info = token.split(",")
-		element_id = int(switch_info[0])
-		attribute = int(switch_info[1], 16)
-		off = switch_info[2]
-		on = switch_info[3]
-
-		switch_info = SwitchInfo(attribute=attribute, off=off, on=on)
-
-		return element_id, switch_info
-
-
-	def parse_wearing_info(self, token):
-		if not token:
-			return None
-		return int(token, 16)
+	def parse_switch_info(self, switch_info_input):
+		switched_element_id = switch_info_input["element_id"]
+		switched_attribute = int(switch_info_input["attribute"], 16)
+		off_switch = switch_info_input["off"]
+		on_switch = switch_info_input["on"]
+		return switched_element_id, SwitchInfo(attribute=switched_attribute, off=off_switch, on=on_switch)
 
 
 	def init_item(self, item_id, attributes, labels, size, writing,

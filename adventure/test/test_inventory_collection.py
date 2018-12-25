@@ -1,5 +1,5 @@
+import json
 import unittest
-from unittest.mock import Mock
 
 from adventure.inventory_collection import InventoryCollection
 
@@ -10,13 +10,22 @@ class TestInventoryCollection(unittest.TestCase):
 
 
 	def test_init_default(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"0\t0x1\tMain Inventory\tin the main inventory\t, where items live usually.\t13\t\t\t\t",
-			"---",
-		]
+		inventory_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 0, \
+					\"attributes\": \"1\", \
+					\"labels\": { \
+						\"shortname\": \"Main Inventory\", \
+						\"longname\": \"in the main unventory\", \
+						\"description\": \", where items live usually.\" \
+					}, \
+					\"capacity\": 13 \
+				} \
+			]"
+		)
 
-		collection = InventoryCollection(reader_mock)
+		collection = InventoryCollection(inventory_inputs)
 
 		self.assertEqual(1, len(collection.inventories))
 		self.assertTrue(0 in collection.inventories)
@@ -26,13 +35,27 @@ class TestInventoryCollection(unittest.TestCase):
 
 
 	def test_init_non_default(self):
-		reader_mock = Mock()
-		reader_mock.read_line.side_effect = [
-			"1\t0x1\tSpecial Inventory\tin the special inventory\t, where items live sometimes.\t17\t4,5,19\t\t\t",
-			"---",
-		]
+		inventory_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1, \
+					\"attributes\": \"0\", \
+					\"labels\": { \
+						\"shortname\": \"Special Inventory\", \
+						\"longname\": \"in the special unventory\", \
+						\"description\": \", where items live sometimes.\" \
+					}, \
+					\"capacity\": 17, \
+					\"locations\": [ \
+						4, \
+						5, \
+						19 \
+					] \
+				} \
+			]"
+		)
 
-		collection = InventoryCollection(reader_mock)
+		collection = InventoryCollection(inventory_inputs)
 
 		self.assertEqual(1, len(collection.inventories))
 		self.assertTrue(1 in collection.inventories)

@@ -1,3 +1,5 @@
+import json
+
 from adventure.argument_resolver import ArgumentResolver
 from adventure.command_handler import CommandHandler
 from adventure.data_collection import DataCollection
@@ -24,19 +26,21 @@ class Game:
 		if filename:
 			with open(filename, "rb") as input_file:
 				reader = FileReader(input_file)
-				self.init_data(reader)
+				content = reader.get_content()
+				json_content = json.loads(content)
+				self.init_data(json_content)
 				self.init_player()
 				self.init_token_processor(self.data)
 
 
-	def init_data(self, reader):
+	def init_data(self, content):
 		resolvers = Resolvers(
 			vision_resolver=self.vision_resolver,
 			argument_resolver=self.argument_resolver,
 			command_handler=self.command_handler,
 			puzzle_resolver=self.puzzle_resolver,
 		)
-		self.data = DataCollection(reader, resolvers)
+		self.data = DataCollection(content, resolvers)
 		self.argument_resolver.init_data(self.data)
 		self.command_handler.init_data(self.data)
 		self.vision_resolver.init_data(self.data)

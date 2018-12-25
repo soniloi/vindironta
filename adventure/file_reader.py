@@ -1,33 +1,26 @@
 class FileReader:
 
 	BITS_PER_BYTE = 8
-	NEW_LINE = ord('\n')
 
 	def __init__(self, input_file):
-		self.input_bytes = input_file.read()
-		self.index = 0
+		self.content = self.flip_bytes(input_file)
 
 
-	def read_line(self):
-
-		output_bytes = []
-		output_byte = -1
-
-		while not self.eof() and output_byte != FileReader.NEW_LINE:
-
-			input_byte = self.input_bytes[self.index]
-			output_byte = self.reverse_bits(input_byte)
-
-			if output_byte != FileReader.NEW_LINE:
-				output_bytes.append(output_byte)
-
-			self.index += 1
-
-		return "".join(map(chr, output_bytes))
+	def get_content(self):
+		return self.content
 
 
-	def eof(self):
-		return self.index >= len(self.input_bytes)
+	def flip_bytes(self, input_file):
+
+		flipped_bytes = []
+
+		for input_line in input_file:
+			input_bytes = list(input_line)
+			for input_byte in input_bytes:
+				flipped_byte = self.reverse_bits(input_byte)
+				flipped_bytes.append(flipped_byte)
+
+		return "".join(map(chr, flipped_bytes))
 
 
 	def reverse_bits(self, input_byte):

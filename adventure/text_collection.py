@@ -6,19 +6,18 @@ class TextCollection:
 
 	INPUT_SUBSTITUTION_PATTERN = "\$[0-9]+"
 
-	def __init__(self, reader):
-		self.texts = {}
-		line = reader.read_line()
-		while not line.startswith("---"):
-			self.create_text(line)
-			line = reader.read_line()
+	def __init__(self, text_inputs):
+		self.texts = self.parse_texts(text_inputs)
 
 
-	def create_text(self, line):
-		tokens = line.split("\t")
-		text_key = tokens[0]
-		text_value = self.translate_substitution_tokens(tokens[1])
-		self.texts[text_key] = text_value
+	def parse_texts(self, text_inputs):
+		texts = {}
+
+		for key, raw_value in text_inputs.items():
+			value = self.translate_substitution_tokens(raw_value)
+			texts[key] = value
+
+		return texts
 
 
 	def translate_substitution_tokens(self, text):

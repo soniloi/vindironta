@@ -12,42 +12,44 @@ class InventoryCollection:
 	INDEX_CAPACITY = 5
 	INDEX_LOCATIONS = 6
 
-	def __init__(self, reader):
-		self.inventories = {}
-
-		line = reader.read_line()
-		while not line.startswith("---"):
-			self.create_inventory(line)
-			line = reader.read_line()
+	def __init__(self, inventory_inputs):
+		self.inventories = self.parse_inventories(inventory_inputs)
 
 
-	def create_inventory(self, line):
-		tokens = line.split("\t")
+	def parse_inventories(self, inventory_inputs):
+		inventories = {}
 
-		inventory_id = int(tokens[InventoryCollection.INDEX_ID])
-		attributes = int(tokens[InventoryCollection.INDEX_ATTRIBUTES], 16)
-		shortname = tokens[InventoryCollection.INDEX_SHORTNAME]
-		longname = tokens[InventoryCollection.INDEX_LONGNAME]
-		description = tokens[InventoryCollection.INDEX_DESCRIPTION]
-		labels = Labels(shortname=shortname, longname=longname, description=description)
-		capacity = int(tokens[InventoryCollection.INDEX_CAPACITY])
-		location_ids = self.parse_location_ids(tokens[InventoryCollection.INDEX_LOCATIONS])
+		for inventory_input in inventory_inputs:
+			inventory = self.parse_inventory(inventory_input)
+			inventories[inventory.data_id] = inventory
 
-		inventory = Inventory(
+		return inventories
+
+
+	def parse_inventory(self, inventory_input):
+		inventory_id = inventory_input["data_id"]
+		attributes = int(inventory_input["attributes"], 16)
+		labels = self.parse_labels(inventory_input["labels"])
+		capacity = inventory_input["capacity"]
+		location_ids = self.parse_location_ids(inventory_input.get("locations"))
+
+		return Inventory(
 			inventory_id=inventory_id,
 			attributes=attributes,
 			labels=labels,
 			capacity=capacity,
 			location_ids=location_ids,
 		)
-		self.inventories[inventory_id] = inventory
 
 
-	def parse_location_ids(self, token):
-		if not token:
+	def parse_labels(self, label_input):
+		return Labels(label_input["shortname"], label_input["longname"], label_input["description"])
+
+
+	def parse_location_ids(self, location_ids_input):
+		if not location_ids_input:
 			return []
-		location_id_tokens = token.split(",")
-		return list(map(int, location_id_tokens))
+		return location_ids_input
 
 
 	def get(self, inventory_id):
