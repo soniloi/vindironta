@@ -54,10 +54,9 @@ class CommandCollection:
 				attributes=attributes,
 				arg_infos=arg_infos,
 				resolver_functions=resolver_functions,
-				primary=aliases[0],
 				aliases=aliases,
-				transitions=switch_info,
-				teleport_locations=teleport_info,
+				switch_info=switch_info,
+				teleport_info=teleport_info,
 			)
 		return command
 

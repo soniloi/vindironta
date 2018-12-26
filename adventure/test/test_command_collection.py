@@ -156,10 +156,10 @@ class TestCommandCollection(unittest.TestCase):
 
 		self.assertTrue("verbose" in collection.commands)
 		verbose_command = collection.commands["verbose"]
-		self.assertIn("no", verbose_command.transitions)
-		self.assertIn("yes", verbose_command.transitions)
-		self.assertFalse(verbose_command.transitions["no"])
-		self.assertTrue(verbose_command.transitions["yes"])
+		self.assertIn("no", verbose_command.switch_info)
+		self.assertIn("yes", verbose_command.switch_info)
+		self.assertFalse(verbose_command.switch_info["no"])
+		self.assertTrue(verbose_command.switch_info["yes"])
 		self.assertEqual(2, len(verbose_command.resolver_functions))
 		self.assertEqual(self.argument_resolver.resolve_switchable, verbose_command.resolver_functions[0])
 		self.assertEqual(self.command_handler.handle_verbose, verbose_command.resolver_functions[1])
@@ -193,9 +193,9 @@ class TestCommandCollection(unittest.TestCase):
 
 		self.assertTrue("abrakadabra" in collection.commands)
 		teleport_command = collection.commands["abrakadabra"]
-		self.assertEqual(2, len(teleport_command.teleport_locations))
-		self.assertEqual(24, teleport_command.teleport_locations[23])
-		self.assertEqual(23, teleport_command.teleport_locations[26])
+		self.assertEqual(2, len(teleport_command.teleport_info))
+		self.assertEqual(24, teleport_command.teleport_info[23])
+		self.assertEqual(23, teleport_command.teleport_info[26])
 		self.assertEqual(2, len(teleport_command.resolver_functions))
 		self.assertEqual(self.argument_resolver.resolve_teleport, teleport_command.resolver_functions[0])
 		self.assertEqual(self.command_handler.handle_teleport, teleport_command.resolver_functions[1])

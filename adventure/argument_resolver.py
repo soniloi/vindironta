@@ -24,10 +24,10 @@ class ArgumentResolver(Resolver):
 			return False, self.get_response("request_argless"), self.get_arg(0, args)
 
 		source_location_id = player.get_location_id()
-		if not source_location_id in command.teleport_locations:
+		if not source_location_id in command.teleport_info:
 			return False, self.get_response("reject_nothing"), [None]
 
-		destination_location_id = command.teleport_locations[source_location_id]
+		destination_location_id = command.teleport_info[source_location_id]
 		destination_location = self.data.get_location(destination_location_id)
 
 		return True, "", [destination_location]
@@ -61,11 +61,11 @@ class ArgumentResolver(Resolver):
 
 	def resolve_switchable(self, command, player, *args):
 		arg = self.get_arg(0, args)
-		if arg not in command.transitions:
-			content = [command.primary] + sorted(list(command.transitions.keys()))
+		if arg not in command.switch_info:
+			content = [command.primary] + sorted(list(command.switch_info.keys()))
 			return False, self.get_response("request_switch_command"), content
 
-		transition = command.transitions[arg]
+		transition = command.switch_info[arg]
 		return True, "", [transition]
 
 
