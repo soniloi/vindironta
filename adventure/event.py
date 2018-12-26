@@ -1,4 +1,8 @@
+from collections import namedtuple
+from enum import Enum
+
 from adventure.element import DataElement
+
 
 class Event(DataElement):
 
@@ -13,6 +17,14 @@ class EventRequirement:
 	def __init__(self, command_id, arguments):
 		self.command_id = command_id
 		self.arguments = arguments
+
+
+EventRequirementArgument = namedtuple("EventRequirementArgument", "type value")
+
+
+class EventRequirementArgumentType(Enum):
+	TEXT = 0
+	ITEM = 1
 
 
 class EventOutcome:

@@ -1,4 +1,4 @@
-from adventure.event import Event, EventRequirement, EventOutcome
+from adventure.event import Event, EventRequirement, EventRequirementArgument, EventRequirementArgumentType, EventOutcome
 
 class EventCollection:
 
@@ -28,8 +28,22 @@ class EventCollection:
 
 	def parse_event_requirements(self, event_requirement_input):
 		command_id = event_requirement_input["command_id"]
-		arguments  = event_requirement_input["arguments"]
+		arguments  = self.parse_event_requirement_arguments(event_requirement_input["arguments"])
 		return EventRequirement(command_id, arguments)
+
+
+	def parse_event_requirement_arguments(self, event_requirement_argument_inputs):
+		event_requirement_arguments = []
+
+		for event_requirement_argument_input in event_requirement_argument_inputs:
+			arg_type_key = event_requirement_argument_input["type"].upper()
+			arg_type = EventRequirementArgumentType[arg_type_key]
+			arg_value = event_requirement_argument_input["value"]
+
+			argument = EventRequirementArgument(type=arg_type, value=arg_value)
+			event_requirement_arguments.append(argument)
+
+		return event_requirement_arguments
 
 
 	def parse_event_outcome(self, event_outcome_input):
