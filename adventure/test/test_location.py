@@ -1,5 +1,4 @@
 from copy import copy
-
 import unittest
 
 from adventure.direction import Direction

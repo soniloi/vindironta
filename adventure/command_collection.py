@@ -1,5 +1,4 @@
 from adventure.command import ArgInfo, Command
-from adventure.file_reader import FileReader
 
 class CommandCollection:
 

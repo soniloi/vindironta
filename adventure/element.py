@@ -2,7 +2,6 @@ from collections import namedtuple
 
 Labels = namedtuple("Labels", "shortname longname description")
 
-
 class Element:
 
 	def __init__(self, attributes):

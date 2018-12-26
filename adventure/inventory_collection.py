@@ -1,7 +1,6 @@
 from adventure.element import Labels
 from adventure.inventory import Inventory
 
-
 class InventoryCollection:
 
 	INDEX_ID = 0

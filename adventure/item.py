@@ -1,9 +1,8 @@
+from collections import namedtuple
 from enum import Enum
 
 from adventure.element import Labels, NamedDataElement
 from adventure.item_container import ItemContainer
-
-from collections import namedtuple
 
 class Item(NamedDataElement):
 

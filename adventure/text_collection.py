@@ -1,7 +1,5 @@
 import re
 
-from adventure.file_reader import FileReader
-
 class TextCollection:
 
 	INPUT_SUBSTITUTION_PATTERN = "\$[0-9]+"

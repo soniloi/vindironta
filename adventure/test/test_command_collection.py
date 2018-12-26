@@ -2,10 +2,7 @@ import json
 import unittest
 from unittest.mock import Mock
 
-from adventure.command import Command
 from adventure.command_collection import CommandCollection
-from adventure.location import Location
-from adventure.player import Player
 from adventure.resolvers import Resolvers
 
 class TestCommandCollection(unittest.TestCase):

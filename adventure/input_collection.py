@@ -1,5 +1,3 @@
-from adventure.file_reader import FileReader
-
 class InputCollection:
 
 	def __init__(self, input_inputs):

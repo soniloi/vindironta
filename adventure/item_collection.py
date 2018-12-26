@@ -1,7 +1,5 @@
 from adventure.element import Labels
 from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, WearableItem
-from adventure.file_reader import FileReader
-
 
 class ItemCollection:
 

@@ -1,4 +1,3 @@
-from adventure.inventory import Inventory
 from adventure.item import SwitchTransition
 from adventure.resolver import Resolver
 

@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import Mock
 
-from adventure.data_collection import DataCollection
 from adventure.player import Player
 from adventure.vision_resolver import VisionResolver
 

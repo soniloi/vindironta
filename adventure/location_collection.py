@@ -1,12 +1,8 @@
 from adventure.direction import Direction
 from adventure.element import Labels
 from adventure.location import Location
-from adventure.file_reader import FileReader
-
 
 class LocationCollection:
-
-	NO_LOCATION_ID = 0
 
 	def __init__(self, location_inputs):
 		links = {}
