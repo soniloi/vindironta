@@ -10,8 +10,10 @@ class EventCollection:
 		events = {}
 
 		for event_input in event_inputs:
-			event = self.parse_event(event_input, commands, items_by_id)
-			events[event.data_id] = event
+			event, match = self.parse_event(event_input, commands, items_by_id)
+			match_argument_values = [argument.value for argument in match.arguments]
+			match_key = (tuple([match.command] + match_argument_values))
+			events[match_key] = event
 
 		return events
 
@@ -23,7 +25,7 @@ class EventCollection:
 		outcome = self.parse_event_outcome(event_input["outcome"])
 
 		event = Event(event_id, attributes, match, outcome)
-		return event
+		return event, match
 
 
 	def parse_event_match(self, event_match_input, commands, items_by_id):
@@ -58,5 +60,5 @@ class EventCollection:
 		return EventOutcome(text)
 
 
-	def get(self, event_id):
-		return self.events.get(event_id)
+	def get(self, event_key):
+		return self.events.get(event_key)

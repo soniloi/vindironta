@@ -37,9 +37,9 @@ class TestEventCollection(unittest.TestCase):
 		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id)
 
 		self.assertEqual(1, len(self.collection.events))
-		self.assertTrue(3001 in self.collection.events)
+		self.assertTrue((self.command,) in self.collection.events)
 
-		event = self.collection.events[3001]
+		event = self.collection.events[(self.command,)]
 		self.assertEqual(0, event.attributes)
 
 		match = event.match
@@ -80,7 +80,9 @@ class TestEventCollection(unittest.TestCase):
 		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id)
 
 		self.assertEqual(1, len(self.collection.events))
-		event = self.collection.events[3001]
+		self.assertTrue((self.command, self.item, "hello") in self.collection.events)
+
+		event = self.collection.events[(self.command, self.item, "hello")]
 		match = event.match
 		self.assertEqual(2, len(match.arguments))
 
@@ -91,6 +93,7 @@ class TestEventCollection(unittest.TestCase):
 		text_argument = match.arguments[1]
 		self.assertEqual(EventMatchArgumentType.TEXT, text_argument.type)
 		self.assertEqual("hello", text_argument.value)
+
 
 if __name__ == "__main__":
 	unittest.main()
