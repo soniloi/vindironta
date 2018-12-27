@@ -17,7 +17,7 @@ class DataCollection:
 		self.explanations = TextCollection(content_input["explanations"])
 		self.responses = TextCollection(content_input["responses"])
 		self.inputs = InputCollection(content_input["inputs"])
-		self.events = EventCollection(content_input["events"], self.commands.commands.copy(), self.items.items_by_id.copy())
+		self.events = EventCollection(content_input["events"], self.commands.commands_by_id.copy(), self.items.items_by_id.copy())
 
 
 	def get_commands(self):
@@ -62,3 +62,7 @@ class DataCollection:
 
 	def matches_input(self, internal_key, input_key):
 		return self.inputs.matches(internal_key, input_key)
+
+
+	def get_event(self, event_key):
+		return self.events.get(event_key)

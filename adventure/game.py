@@ -3,6 +3,7 @@ import json
 from adventure.argument_resolver import ArgumentResolver
 from adventure.command_handler import CommandHandler
 from adventure.data_collection import DataCollection
+from adventure.event_resolver import EventResolver
 from adventure.file_reader import FileReader
 from adventure.player import Player
 from adventure.puzzle_resolver import PuzzleResolver
@@ -22,6 +23,7 @@ class Game:
 		self.command_handler = CommandHandler()
 		self.vision_resolver = VisionResolver()
 		self.puzzle_resolver = PuzzleResolver()
+		self.event_resolver = EventResolver()
 
 		if filename:
 			with open(filename, "rb") as input_file:
@@ -39,12 +41,14 @@ class Game:
 			argument_resolver=self.argument_resolver,
 			command_handler=self.command_handler,
 			puzzle_resolver=self.puzzle_resolver,
+			event_resolver=self.event_resolver,
 		)
 		self.data = DataCollection(content, resolvers)
 		self.argument_resolver.init_data(self.data)
 		self.command_handler.init_data(self.data)
 		self.vision_resolver.init_data(self.data)
 		self.puzzle_resolver.init_data(self.data)
+		self.event_resolver.init_data(self.data)
 
 
 	def init_player(self):

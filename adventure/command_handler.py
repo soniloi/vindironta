@@ -310,6 +310,10 @@ class CommandHandler(Resolver):
 		return True, self.get_response("describe_writing"), [item.writing]
 
 
+	def handle_rub(self, command, player, item):
+		return True, "", [item]
+
+
 	def handle_say(self, command, player, word):
 		return True, self.get_response("confirm_say"), [word]
 

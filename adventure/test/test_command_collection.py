@@ -12,12 +12,14 @@ class TestCommandCollection(unittest.TestCase):
 		self.setup_argument_resolver()
 		self.setup_command_handler()
 		self.setup_puzzle_resolver()
+		self.setup_event_resolver()
 
 		self.resolvers = Resolvers(
 			vision_resolver=self.vision_resolver,
 			argument_resolver=self.argument_resolver,
 			command_handler=self.command_handler,
 			puzzle_resolver=self.puzzle_resolver,
+			event_resolver=self.event_resolver,
 		)
 
 
@@ -89,6 +91,12 @@ class TestCommandCollection(unittest.TestCase):
 		}
 
 
+	def setup_event_resolver(self):
+		self.event_resolver = Mock()
+		self.mock_resolve_event = Mock()
+		self.event_resolver.get_resolver_function.return_value = self.mock_resolve_event
+
+
 	def vision_resolver_side_effect(self, *args):
 		return self.vision_resolver_map.get(args[0])
 
@@ -130,6 +138,7 @@ class TestCommandCollection(unittest.TestCase):
 		collection = CommandCollection(command_inputs, self.resolvers)
 
 		self.assertEqual(2, len(collection.commands))
+		self.assertEqual(2, len(collection.commands_by_id))
 		self.assertTrue("score" in collection.commands)
 		self.assertTrue("look" in collection.commands)
 
@@ -156,6 +165,7 @@ class TestCommandCollection(unittest.TestCase):
 		collection = CommandCollection(command_inputs, self.resolvers)
 
 		self.assertEqual(2, len(collection.commands))
+		self.assertEqual(1, len(collection.commands_by_id))
 		self.assertTrue("look" in collection.commands)
 		self.assertTrue("l" in collection.commands)
 
@@ -181,6 +191,7 @@ class TestCommandCollection(unittest.TestCase):
 		collection = CommandCollection(command_inputs, self.resolvers)
 
 		self.assertEqual(0, len(collection.commands))
+		self.assertEqual(0, len(collection.commands_by_id))
 
 
 	def test_init_movement_command(self):
@@ -201,9 +212,10 @@ class TestCommandCollection(unittest.TestCase):
 
 		self.assertTrue("east" in collection.commands)
 		east_command = collection.commands["east"]
-		self.assertEqual(2, len(east_command.resolver_functions))
+		self.assertEqual(3, len(east_command.resolver_functions))
 		self.assertEqual(self.mock_argument_movement, east_command.resolver_functions[0])
 		self.assertEqual(self.mock_handler_go, east_command.resolver_functions[1])
+		self.assertEqual(self.mock_resolve_event, east_command.resolver_functions[2])
 
 
 	def test_init_switchable_command(self):
@@ -239,9 +251,10 @@ class TestCommandCollection(unittest.TestCase):
 		self.assertIn("yes", verbose_command.switch_info)
 		self.assertFalse(verbose_command.switch_info["no"])
 		self.assertTrue(verbose_command.switch_info["yes"])
-		self.assertEqual(2, len(verbose_command.resolver_functions))
+		self.assertEqual(3, len(verbose_command.resolver_functions))
 		self.assertEqual(self.mock_argument_switchable, verbose_command.resolver_functions[0])
 		self.assertEqual(self.mock_handler_verbose, verbose_command.resolver_functions[1])
+		self.assertEqual(self.mock_resolve_event, verbose_command.resolver_functions[2])
 
 
 	def test_init_teleport_command(self):
@@ -275,9 +288,10 @@ class TestCommandCollection(unittest.TestCase):
 		self.assertEqual(2, len(teleport_command.teleport_info))
 		self.assertEqual(24, teleport_command.teleport_info[23])
 		self.assertEqual(23, teleport_command.teleport_info[26])
-		self.assertEqual(2, len(teleport_command.resolver_functions))
+		self.assertEqual(3, len(teleport_command.resolver_functions))
 		self.assertEqual(self.mock_argument_teleport, teleport_command.resolver_functions[0])
 		self.assertEqual(self.mock_handler_teleport, teleport_command.resolver_functions[1])
+		self.assertEqual(self.mock_resolve_event, teleport_command.resolver_functions[2])
 
 
 	def test_init_single_arg_command(self):
@@ -306,10 +320,11 @@ class TestCommandCollection(unittest.TestCase):
 
 		self.assertTrue("take" in collection.commands)
 		take_command = collection.commands["take"]
-		self.assertEqual(3, len(take_command.resolver_functions))
+		self.assertEqual(4, len(take_command.resolver_functions))
 		self.assertEqual(self.mock_argument_args, take_command.resolver_functions[0])
 		self.assertEqual(self.mock_handler_take, take_command.resolver_functions[1])
 		self.assertEqual(self.mock_puzzle_take, take_command.resolver_functions[2])
+		self.assertEqual(self.mock_resolve_event, take_command.resolver_functions[3])
 
 
 	def test_init_multiple_arg_command(self):
@@ -345,9 +360,10 @@ class TestCommandCollection(unittest.TestCase):
 
 		self.assertTrue("insert" in collection.commands)
 		insert_command = collection.commands["insert"]
-		self.assertEqual(2, len(insert_command.resolver_functions))
+		self.assertEqual(3, len(insert_command.resolver_functions))
 		self.assertEqual(self.mock_argument_args, insert_command.resolver_functions[0])
 		self.assertEqual(self.mock_handler_insert, insert_command.resolver_functions[1])
+		self.assertEqual(self.mock_resolve_event, insert_command.resolver_functions[2])
 		self.assertEqual(2, len(insert_command.arg_infos))
 		self.assertEqual([""], insert_command.arg_infos[0].linkers)
 		self.assertEqual(["into", "in"], insert_command.arg_infos[1].linkers)
@@ -371,10 +387,11 @@ class TestCommandCollection(unittest.TestCase):
 		collection = CommandCollection(command_inputs, self.resolvers)
 
 		look_command = collection.commands["look"]
-		self.assertEqual(3, len(look_command.resolver_functions))
+		self.assertEqual(4, len(look_command.resolver_functions))
 		self.assertEqual(self.mock_vision_light_and_dark, look_command.resolver_functions[0])
 		self.assertEqual(self.mock_argument_args, look_command.resolver_functions[1])
 		self.assertEqual(self.mock_handler_look, look_command.resolver_functions[2])
+		self.assertEqual(self.mock_resolve_event, look_command.resolver_functions[3])
 
 
 	def test_init_resolve_vision_dark(self):
@@ -400,10 +417,11 @@ class TestCommandCollection(unittest.TestCase):
 		collection = CommandCollection(command_inputs, self.resolvers)
 
 		read_command = collection.commands["read"]
-		self.assertEqual(3, len(read_command.resolver_functions))
+		self.assertEqual(4, len(read_command.resolver_functions))
 		self.assertEqual(self.mock_vision_dark, read_command.resolver_functions[0])
 		self.assertEqual(self.mock_argument_args, read_command.resolver_functions[1])
 		self.assertEqual(self.mock_handler_read, read_command.resolver_functions[2])
+		self.assertEqual(self.mock_resolve_event, read_command.resolver_functions[3])
 
 
 	def test_init_resolve_vision_none(self):
@@ -424,9 +442,10 @@ class TestCommandCollection(unittest.TestCase):
 		collection = CommandCollection(command_inputs, self.resolvers)
 
 		score_command = collection.commands["score"]
-		self.assertEqual(2, len(score_command.resolver_functions))
+		self.assertEqual(3, len(score_command.resolver_functions))
 		self.assertEqual(self.mock_argument_args, score_command.resolver_functions[0])
 		self.assertEqual(self.mock_handler_score, score_command.resolver_functions[1])
+		self.assertEqual(self.mock_resolve_event, score_command.resolver_functions[2])
 
 
 	def test_list_commands(self):

@@ -17,20 +17,23 @@ class CommandCollection:
 		self.argument_resolver = resolvers.argument_resolver
 		self.command_handler = resolvers.command_handler
 		self.puzzle_resolver = resolvers.puzzle_resolver
-		self.commands = self.parse_commands(command_inputs)
+		self.event_resolver = resolvers.event_resolver
+		self.commands, self.commands_by_id = self.parse_commands(command_inputs)
 		self.command_list = self.create_command_list()
 
 
 	def parse_commands(self, command_inputs):
 		commands = {}
+		commands_by_id = {}
 
 		for command_input in command_inputs:
 			command = self.parse_command(command_input)
 			if command:
 				for alias in command.aliases:
 					commands[alias] = command
+				commands_by_id[command.data_id] = command
 
-		return commands
+		return commands, commands_by_id
 
 
 	def parse_command(self, command_input):
@@ -39,6 +42,7 @@ class CommandCollection:
 		arg_infos = self.parse_arg_infos(command_input.get("argument_infos"))
 		resolver_functions = self.get_resolver_functions(attributes, arg_infos)
 		command_handler_function, puzzle_resolver_function = self.parse_handler_functions(command_input["handler"])
+		event_resolver_function = self.get_event_resolver_function()
 		aliases = command_input["aliases"]
 		switch_info = self.parse_switch_info(command_input.get("switch_info"))
 		teleport_info = self.parse_teleport_info(command_input.get("teleport_info"))
@@ -48,6 +52,7 @@ class CommandCollection:
 			resolver_functions.append(command_handler_function)
 			if puzzle_resolver_function:
 				resolver_functions.append(puzzle_resolver_function)
+			resolver_functions.append(event_resolver_function)
 			command = Command(
 				command_id=command_id,
 				attributes=attributes,
@@ -138,8 +143,16 @@ class CommandCollection:
 		return resolver_functions
 
 
+	def get_event_resolver_function(self):
+		return self.event_resolver.get_resolver_function("resolve_event")
+
+
 	def get(self, name):
 		return self.commands.get(name)
+
+
+	def get_by_id(self, command_id):
+		return self.commands_by_id.get(command_id)
 
 
 	def create_command_list(self):
