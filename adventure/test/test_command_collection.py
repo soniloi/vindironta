@@ -11,14 +11,12 @@ class TestCommandCollection(unittest.TestCase):
 		self.setup_vision_resolver()
 		self.setup_argument_resolver()
 		self.setup_command_handler()
-		self.setup_puzzle_resolver()
 		self.setup_event_resolver()
 
 		self.resolvers = Resolvers(
 			vision_resolver=self.vision_resolver,
 			argument_resolver=self.argument_resolver,
 			command_handler=self.command_handler,
-			puzzle_resolver=self.puzzle_resolver,
 			event_resolver=self.event_resolver,
 		)
 
@@ -80,17 +78,6 @@ class TestCommandCollection(unittest.TestCase):
 		}
 
 
-	def setup_puzzle_resolver(self):
-		self.puzzle_resolver = Mock()
-		self.puzzle_resolver.get_resolver_function.side_effect = self.puzzle_resolver_side_effect
-
-		self.mock_puzzle_take = Mock()
-
-		self.puzzle_resolver_map = {
-			"handle_take" : self.mock_puzzle_take,
-		}
-
-
 	def setup_event_resolver(self):
 		self.event_resolver = Mock()
 		self.mock_resolve_event = Mock()
@@ -107,10 +94,6 @@ class TestCommandCollection(unittest.TestCase):
 
 	def command_handler_side_effect(self, *args):
 		return self.command_handler_map.get(args[0])
-
-
-	def puzzle_resolver_side_effect(self, *args):
-		return self.puzzle_resolver_map.get(args[0])
 
 
 	def test_init_command_different_commands(self):
@@ -320,11 +303,10 @@ class TestCommandCollection(unittest.TestCase):
 
 		self.assertTrue("take" in collection.commands)
 		take_command = collection.commands["take"]
-		self.assertEqual(4, len(take_command.resolver_functions))
+		self.assertEqual(3, len(take_command.resolver_functions))
 		self.assertEqual(self.mock_argument_args, take_command.resolver_functions[0])
 		self.assertEqual(self.mock_handler_take, take_command.resolver_functions[1])
-		self.assertEqual(self.mock_puzzle_take, take_command.resolver_functions[2])
-		self.assertEqual(self.mock_resolve_event, take_command.resolver_functions[3])
+		self.assertEqual(self.mock_resolve_event, take_command.resolver_functions[2])
 
 
 	def test_init_multiple_arg_command(self):

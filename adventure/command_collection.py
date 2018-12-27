@@ -16,7 +16,6 @@ class CommandCollection:
 		self.vision_resolver = resolvers.vision_resolver
 		self.argument_resolver = resolvers.argument_resolver
 		self.command_handler = resolvers.command_handler
-		self.puzzle_resolver = resolvers.puzzle_resolver
 		self.event_resolver = resolvers.event_resolver
 		self.commands, self.commands_by_id = self.parse_commands(command_inputs)
 		self.command_list = self.create_command_list()
@@ -41,7 +40,7 @@ class CommandCollection:
 		attributes = int(command_input["attributes"], 16)
 		arg_infos = self.parse_arg_infos(command_input.get("argument_infos"))
 		resolver_functions = self.get_resolver_functions(attributes, arg_infos)
-		command_handler_function, puzzle_resolver_function = self.parse_handler_functions(command_input["handler"])
+		command_handler_function = self.parse_handler_function(command_input["handler"])
 		event_resolver_function = self.get_event_resolver_function()
 		aliases = command_input["aliases"]
 		switch_info = self.parse_switch_info(command_input.get("switch_info"))
@@ -50,8 +49,6 @@ class CommandCollection:
 		command = None
 		if command_handler_function:
 			resolver_functions.append(command_handler_function)
-			if puzzle_resolver_function:
-				resolver_functions.append(puzzle_resolver_function)
 			resolver_functions.append(event_resolver_function)
 			command = Command(
 				command_id=command_id,
@@ -123,11 +120,9 @@ class CommandCollection:
 		return self.argument_resolver.get_resolver_function(arg_function_name)
 
 
-	def parse_handler_functions(self, token):
+	def parse_handler_function(self, token):
 		function_name = "handle_" + token
-		command_handler_function = self.command_handler.get_resolver_function(function_name)
-		puzzle_resolver_function = self.puzzle_resolver.get_resolver_function(function_name)
-		return (command_handler_function, puzzle_resolver_function)
+		return self.command_handler.get_resolver_function(function_name)
 
 
 	def get_resolver_functions(self, attributes, arg_infos):

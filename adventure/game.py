@@ -6,7 +6,6 @@ from adventure.data_collection import DataCollection
 from adventure.event_resolver import EventResolver
 from adventure.file_reader import FileReader
 from adventure.player import Player
-from adventure.puzzle_resolver import PuzzleResolver
 from adventure.resolvers import Resolvers
 from adventure.token_processor import TokenProcessor
 from adventure.vision_resolver import VisionResolver
@@ -22,7 +21,6 @@ class Game:
 		self.argument_resolver = ArgumentResolver()
 		self.command_handler = CommandHandler()
 		self.vision_resolver = VisionResolver()
-		self.puzzle_resolver = PuzzleResolver()
 		self.event_resolver = EventResolver()
 
 		if filename:
@@ -40,14 +38,12 @@ class Game:
 			vision_resolver=self.vision_resolver,
 			argument_resolver=self.argument_resolver,
 			command_handler=self.command_handler,
-			puzzle_resolver=self.puzzle_resolver,
 			event_resolver=self.event_resolver,
 		)
 		self.data = DataCollection(content, resolvers)
 		self.argument_resolver.init_data(self.data)
 		self.command_handler.init_data(self.data)
 		self.vision_resolver.init_data(self.data)
-		self.puzzle_resolver.init_data(self.data)
 		self.event_resolver.init_data(self.data)
 
 
