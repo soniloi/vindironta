@@ -14,8 +14,8 @@ class Event(DataElement):
 
 class EventMatch:
 
-	def __init__(self, command_id, arguments):
-		self.command_id = command_id
+	def __init__(self, command, arguments):
+		self.command = command
 		self.arguments = arguments
 
 

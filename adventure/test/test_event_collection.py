@@ -1,5 +1,6 @@
 import json
 import unittest
+from unittest.mock import Mock
 
 from adventure.event import EventMatchArgumentType
 from adventure.event_collection import EventCollection
@@ -7,10 +8,16 @@ from adventure.event_collection import EventCollection
 class TestEventCollection(unittest.TestCase):
 
 	def setUp(self):
-		pass
+		self.commands = Mock()
+		self.command = Mock()
+		self.commands.get.return_value = self.command
+
+		self.items_by_id = Mock()
+		self.item = Mock()
+		self.items_by_id.get.return_value = self.item
 
 
-	def test_event_without_args(self):
+	def test_event_minimal(self):
 		event_inputs = json.loads(
 			"[ \
 				{ \
@@ -27,7 +34,7 @@ class TestEventCollection(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventCollection(event_inputs)
+		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id)
 
 		self.assertEqual(1, len(self.collection.events))
 		self.assertTrue(3001 in self.collection.events)
@@ -36,14 +43,14 @@ class TestEventCollection(unittest.TestCase):
 		self.assertEqual(0, event.attributes)
 
 		match = event.match
-		self.assertEqual(48, match.command_id)
+		self.assertEqual(self.command, match.command)
 		self.assertFalse(match.arguments)
 
 		outcome = event.outcome
 		self.assertEqual("A very confused-looking genie pops out of the lamp.", outcome.text)
 
 
-	def test_event_with_basic_arg(self):
+	def test_event_with_match_args(self):
 		event_inputs = json.loads(
 			"[ \
 				{ \
@@ -56,6 +63,10 @@ class TestEventCollection(unittest.TestCase):
 							{ \
 								\"type\": \"item\", \
 								\"value\": 1043 \
+							}, \
+							{ \
+								\"type\": \"text\", \
+								\"value\": \"hello\" \
 							} \
 						] \
 					}, \
@@ -66,16 +77,20 @@ class TestEventCollection(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventCollection(event_inputs)
+		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id)
 
 		self.assertEqual(1, len(self.collection.events))
 		event = self.collection.events[3001]
 		match = event.match
-		self.assertEqual(1, len(match.arguments))
+		self.assertEqual(2, len(match.arguments))
 
-		argument = match.arguments[0]
-		self.assertEqual(EventMatchArgumentType.ITEM, argument.type)
-		self.assertEqual(1043, argument.value)
+		item_argument = match.arguments[0]
+		self.assertEqual(EventMatchArgumentType.ITEM, item_argument.type)
+		self.assertEqual(self.item, item_argument.value)
+
+		text_argument = match.arguments[1]
+		self.assertEqual(EventMatchArgumentType.TEXT, text_argument.type)
+		self.assertEqual("hello", text_argument.value)
 
 if __name__ == "__main__":
 	unittest.main()

@@ -17,7 +17,7 @@ class DataCollection:
 		self.explanations = TextCollection(content_input["explanations"])
 		self.responses = TextCollection(content_input["responses"])
 		self.inputs = InputCollection(content_input["inputs"])
-		self.events = EventCollection(content_input["events"])
+		self.events = EventCollection(content_input["events"], self.commands.commands.copy(), self.items.items_by_id.copy())
 
 
 	def get_commands(self):
