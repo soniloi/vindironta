@@ -6,23 +6,23 @@ from adventure.element import DataElement
 
 class Event(DataElement):
 
-	def __init__(self, event_id, attributes, requirements, outcome):
+	def __init__(self, event_id, attributes, match, outcome):
 		DataElement.__init__(self, data_id=event_id, attributes=attributes)
-		self.requirements = requirements
+		self.match = match
 		self.outcome = outcome
 
 
-class EventRequirement:
+class EventMatch:
 
 	def __init__(self, command_id, arguments):
 		self.command_id = command_id
 		self.arguments = arguments
 
 
-EventRequirementArgument = namedtuple("EventRequirementArgument", "type value")
+EventMatchArgument = namedtuple("EventMatchArgument", "type value")
 
 
-class EventRequirementArgumentType(Enum):
+class EventMatchArgumentType(Enum):
 	TEXT = 0
 	ITEM = 1
 

@@ -1,7 +1,7 @@
 import json
 import unittest
 
-from adventure.event import EventRequirementArgumentType
+from adventure.event import EventMatchArgumentType
 from adventure.event_collection import EventCollection
 
 class TestEventCollection(unittest.TestCase):
@@ -16,7 +16,7 @@ class TestEventCollection(unittest.TestCase):
 				{ \
 					\"data_id\": 3001, \
 					\"attributes\": \"0\", \
-					\"requirements\": { \
+					\"match\": { \
 						\"command_id\": 48, \
 						\"arguments\": [] \
 					}, \
@@ -35,9 +35,9 @@ class TestEventCollection(unittest.TestCase):
 		event = self.collection.events[3001]
 		self.assertEqual(0, event.attributes)
 
-		requirements = event.requirements
-		self.assertEqual(48, requirements.command_id)
-		self.assertFalse(requirements.arguments)
+		match = event.match
+		self.assertEqual(48, match.command_id)
+		self.assertFalse(match.arguments)
 
 		outcome = event.outcome
 		self.assertEqual("A very confused-looking genie pops out of the lamp.", outcome.text)
@@ -50,7 +50,7 @@ class TestEventCollection(unittest.TestCase):
 					\"data_id\": 3001, \
 					\"attributes\": \"0\", \
 					\"puzzle\": false, \
-					\"requirements\": { \
+					\"match\": { \
 						\"command_id\": 48, \
 						\"arguments\": [ \
 							{ \
@@ -70,11 +70,11 @@ class TestEventCollection(unittest.TestCase):
 
 		self.assertEqual(1, len(self.collection.events))
 		event = self.collection.events[3001]
-		requirements = event.requirements
-		self.assertEqual(1, len(requirements.arguments))
+		match = event.match
+		self.assertEqual(1, len(match.arguments))
 
-		argument = requirements.arguments[0]
-		self.assertEqual(EventRequirementArgumentType.ITEM, argument.type)
+		argument = match.arguments[0]
+		self.assertEqual(EventMatchArgumentType.ITEM, argument.type)
 		self.assertEqual(1043, argument.value)
 
 if __name__ == "__main__":

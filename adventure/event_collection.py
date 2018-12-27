@@ -1,4 +1,4 @@
-from adventure.event import Event, EventRequirement, EventRequirementArgument, EventRequirementArgumentType, EventOutcome
+from adventure.event import Event, EventMatch, EventMatchArgument, EventMatchArgumentType, EventOutcome
 
 class EventCollection:
 
@@ -19,31 +19,31 @@ class EventCollection:
 	def parse_event(self, event_input):
 		event_id = event_input["data_id"]
 		attributes = int(event_input["attributes"], 16)
-		requirements = self.parse_event_requirements(event_input["requirements"])
+		match = self.parse_event_match(event_input["match"])
 		outcome = self.parse_event_outcome(event_input["outcome"])
 
-		event = Event(event_id, attributes, requirements, outcome)
+		event = Event(event_id, attributes, match, outcome)
 		return event
 
 
-	def parse_event_requirements(self, event_requirement_input):
-		command_id = event_requirement_input["command_id"]
-		arguments  = self.parse_event_requirement_arguments(event_requirement_input["arguments"])
-		return EventRequirement(command_id, arguments)
+	def parse_event_match(self, event_match_input):
+		command_id = event_match_input["command_id"]
+		arguments  = self.parse_event_match_arguments(event_match_input["arguments"])
+		return EventMatch(command_id, arguments)
 
 
-	def parse_event_requirement_arguments(self, event_requirement_argument_inputs):
-		event_requirement_arguments = []
+	def parse_event_match_arguments(self, event_match_argument_inputs):
+		event_match_arguments = []
 
-		for event_requirement_argument_input in event_requirement_argument_inputs:
-			arg_type_key = event_requirement_argument_input["type"].upper()
-			arg_type = EventRequirementArgumentType[arg_type_key]
-			arg_value = event_requirement_argument_input["value"]
+		for event_match_argument_input in event_match_argument_inputs:
+			arg_type_key = event_match_argument_input["type"].upper()
+			arg_type = EventMatchArgumentType[arg_type_key]
+			arg_value = event_match_argument_input["value"]
 
-			argument = EventRequirementArgument(type=arg_type, value=arg_value)
-			event_requirement_arguments.append(argument)
+			argument = EventMatchArgument(type=arg_type, value=arg_value)
+			event_match_arguments.append(argument)
 
-		return event_requirement_arguments
+		return event_match_arguments
 
 
 	def parse_event_outcome(self, event_outcome_input):
