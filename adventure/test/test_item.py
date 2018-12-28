@@ -35,6 +35,23 @@ class TestItem(unittest.TestCase):
 		self.assertTrue(water_copy in self.water.copied_to)
 
 
+	def test_get_original_not_copied(self):
+		self.assertEqual(self.book, self.book.get_original())
+
+
+	def test_get_original_copied_once(self):
+		water_copy = copy(self.water)
+
+		self.assertEqual(self.water, water_copy.get_original())
+
+
+	def test_get_original_copied_twice(self):
+		water_copy = copy(self.water)
+		water_copy_copy = copy(water_copy)
+
+		self.assertEqual(self.water, water_copy_copy.get_original())
+
+
 	def test_get_list_name_simple(self):
 		self.assertEqual("\n\ta book", self.book.get_list_name())
 

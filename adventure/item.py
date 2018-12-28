@@ -44,6 +44,12 @@ class Item(NamedDataElement):
 		return item_copy
 
 
+	def get_original(self):
+		if self.copied_from:
+			return self.copied_from.get_original()
+		return self
+
+
 	def destroy(self):
 		self.remove_from_containers()
 		self.containers.clear()
