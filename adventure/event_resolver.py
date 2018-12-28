@@ -1,3 +1,4 @@
+from adventure.event import EventOutcomeActionKind, ItemEventOutcomeActionDestinationKind
 from adventure.item import Item
 from adventure.resolver import Resolver
 
@@ -19,7 +20,8 @@ class EventResolver(Resolver):
 
 	def create_event_key(self, command, args):
 		event_args = self.create_event_args(args)
-		return tuple([command] + list(event_args))
+		# TODO: remove the list-size workaround in favour of something more robust...
+		return tuple([command] + list(event_args)[:2])
 
 
 	def create_event_args(self, args):
