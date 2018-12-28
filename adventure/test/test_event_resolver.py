@@ -41,11 +41,11 @@ class TestEventResolver(unittest.TestCase):
 		self.data.get_event.side_effect = self.events_side_effect
 
 		drink_potion_event_match = EventMatch(command=self.drink_command, arguments=[self.potion])
-		drink_potion_event_outcome = EventOutcome(text="You become invisible.")
+		drink_potion_event_outcome = EventOutcome(text="You become invisible.", actions=[])
 		self.drink_potion_event = Event(event_id=3002, attributes=0x0, match=drink_potion_event_match, outcome=drink_potion_event_outcome)
 
 		rub_lamp_event_match = EventMatch(command=self.rub_command, arguments=[self.lamp])
-		rub_lamp_event_outcome = EventOutcome(text="A genie pops out.")
+		rub_lamp_event_outcome = EventOutcome(text="A genie pops out.", actions=[])
 		self.rub_lamp_event = Event(event_id=3001, attributes=0x0, match=rub_lamp_event_match, outcome=rub_lamp_event_outcome)
 
 		self.event_map = {

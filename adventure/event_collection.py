@@ -1,4 +1,6 @@
-from adventure.event import Event, EventMatch, EventMatchArgument, EventMatchArgumentType, EventOutcome
+from adventure.event import Event, EventMatch, EventMatchArgument, EventMatchArgumentType
+from adventure.event import EventOutcome, EventOutcomeActionKind, ItemEventOutcomeAction
+from adventure.event import ItemEventOutcomeActionDestination, ItemEventOutcomeActionDestinationKind
 
 class EventCollection:
 
@@ -57,7 +59,36 @@ class EventCollection:
 
 	def parse_event_outcome(self, event_outcome_input):
 		text = event_outcome_input["text"]
-		return EventOutcome(text)
+		actions = self.parse_event_outcome_actions(event_outcome_input.get("actions"))
+		return EventOutcome(text, actions)
+
+
+	def parse_event_outcome_actions(self, event_outcome_action_inputs):
+		if not event_outcome_action_inputs:
+			return []
+
+		actions  = []
+
+		for event_outcome_action_input in event_outcome_action_inputs:
+			kind_key = event_outcome_action_input["kind"].upper()
+			kind = EventOutcomeActionKind[kind_key]
+
+			# TODO: handle other kinds
+			if kind == EventOutcomeActionKind.ITEM:
+				item_id = event_outcome_action_input["item_id"]
+				destination = self.parse_item_event_outcome_action_destination(event_outcome_action_input["destination"])
+
+				action = ItemEventOutcomeAction(kind=kind, item_id=item_id, destination=destination)
+				actions.append(action)
+
+		return actions
+
+
+	def parse_item_event_outcome_action_destination(self, item_event_outcome_action_destination_input):
+		kind_key = item_event_outcome_action_destination_input["kind"].upper()
+		kind = ItemEventOutcomeActionDestinationKind[kind_key]
+		data_id = item_event_outcome_action_destination_input.get("data_id")
+		return ItemEventOutcomeActionDestination(kind, data_id)
 
 
 	def get(self, event_key):
