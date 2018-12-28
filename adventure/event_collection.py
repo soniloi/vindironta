@@ -1,4 +1,4 @@
-from adventure.event import Event, EventMatch, EventMatchArgument, EventMatchArgumentType
+from adventure.event import Event, EventMatch, EventMatchArgument, EventMatchArgumentKind
 from adventure.event import EventOutcome, EventOutcomeActionKind, ItemEventOutcomeAction
 from adventure.event import ItemEventOutcomeActionDestination, ItemEventOutcomeActionDestinationKind
 
@@ -44,14 +44,14 @@ class EventCollection:
 		event_match_arguments = []
 
 		for event_match_argument_input in event_match_argument_inputs:
-			arg_type_key = event_match_argument_input["type"].upper()
-			arg_type = EventMatchArgumentType[arg_type_key]
+			arg_kind_key = event_match_argument_input["kind"].upper()
+			arg_kind = EventMatchArgumentKind[arg_kind_key]
 
 			arg_value = event_match_argument_input["value"]
-			if arg_type == EventMatchArgumentType.ITEM:
+			if arg_kind == EventMatchArgumentKind.ITEM:
 				arg_value = items_by_id.get(arg_value)
 
-			argument = EventMatchArgument(type=arg_type, value=arg_value)
+			argument = EventMatchArgument(kind=arg_kind, value=arg_value)
 			event_match_arguments.append(argument)
 
 		return event_match_arguments

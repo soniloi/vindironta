@@ -2,7 +2,7 @@ import json
 import unittest
 from unittest.mock import Mock
 
-from adventure.event import EventMatchArgumentType, EventOutcomeActionKind, ItemEventOutcomeActionDestinationKind
+from adventure.event import EventMatchArgumentKind, EventOutcomeActionKind, ItemEventOutcomeActionDestinationKind
 from adventure.event_collection import EventCollection
 
 class TestEventCollection(unittest.TestCase):
@@ -61,11 +61,11 @@ class TestEventCollection(unittest.TestCase):
 						\"command_id\": 48, \
 						\"arguments\": [ \
 							{ \
-								\"type\": \"item\", \
+								\"kind\": \"item\", \
 								\"value\": 1043 \
 							}, \
 							{ \
-								\"type\": \"text\", \
+								\"kind\": \"text\", \
 								\"value\": \"hello\" \
 							} \
 						] \
@@ -87,11 +87,11 @@ class TestEventCollection(unittest.TestCase):
 		self.assertEqual(2, len(match.arguments))
 
 		item_argument = match.arguments[0]
-		self.assertEqual(EventMatchArgumentType.ITEM, item_argument.type)
+		self.assertEqual(EventMatchArgumentKind.ITEM, item_argument.kind)
 		self.assertEqual(self.item, item_argument.value)
 
 		text_argument = match.arguments[1]
-		self.assertEqual(EventMatchArgumentType.TEXT, text_argument.type)
+		self.assertEqual(EventMatchArgumentKind.TEXT, text_argument.kind)
 		self.assertEqual("hello", text_argument.value)
 
 

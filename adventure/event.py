@@ -1,4 +1,3 @@
-from collections import namedtuple
 from enum import Enum
 
 from adventure.element import DataElement
@@ -19,10 +18,13 @@ class EventMatch:
 		self.arguments = arguments
 
 
-EventMatchArgument = namedtuple("EventMatchArgument", "type value")
+class EventMatchArgument:
+	def __init__(self, kind, value):
+		self.kind = kind
+		self.value = value
 
 
-class EventMatchArgumentType(Enum):
+class EventMatchArgumentKind(Enum):
 	TEXT = 0
 	ITEM = 1
 
