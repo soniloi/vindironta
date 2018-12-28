@@ -2,9 +2,10 @@ class TokenProcessor:
 
 	PLAYER_INITIAL_LOCATION_ID = 9
 
-	def __init__(self, data):
+	def __init__(self, data, command_runner):
 		self.data = data
 		self.commands = data.get_commands()
+		self.command_runner = command_runner
 
 
 	def process_tokens(self, player, tokens):
@@ -42,7 +43,7 @@ class TokenProcessor:
 			command = self.commands.get("switch")
 
 		if command:
-			return command.execute(player, command_args)
+			return self.command_runner.run(command, player, command_args)
 		return ""
 
 

@@ -12,7 +12,8 @@ class TestTokenProcessor(unittest.TestCase):
 	def setUp(self):
 		data = self.setup_data()
 		self.player = Mock()
-		self.processor = TokenProcessor(data)
+		self.command_runner = Mock()
+		self.processor = TokenProcessor(data, self.command_runner)
 		self.setup_responses()
 
 
@@ -56,23 +57,18 @@ class TestTokenProcessor(unittest.TestCase):
 
 		self.die_command = Mock()
 		self.die_command.verb_is_first_arg.return_value = False
-		self.die_command.execute.side_effect = self.die_side_effect
 
 		self.look_command = Mock()
 		self.look_command.verb_is_first_arg.return_value = False
-		self.look_command.execute.return_value = "You cannot see a thing."
 
 		self.take_command = Mock()
 		self.take_command.verb_is_first_arg.return_value = False
-		self.take_command.execute.return_value = "Taken."
 
 		self.pour_command = Mock()
 		self.pour_command.verb_is_first_arg.return_value = True
-		self.pour_command.execute.return_value = "Poured."
 
 		self.switch_command = Mock()
 		self.switch_command.verb_is_first_arg.return_value = False
-		self.switch_command.execute.return_value = "Switched."
 
 		self.command_map = {
 			"die" : self.die_command,
@@ -131,65 +127,78 @@ class TestTokenProcessor(unittest.TestCase):
 
 	def test_process_tokens_command_unknown(self):
 		self.player.get_current_command.return_value = None
+		self.command_runner.run.return_value = "Done."
 
 		response = self.processor.process_tokens(self.player, ["notacommand"])
 
-		self.assertEqual("Switched.", response)
+		self.assertEqual("Done.", response)
+		self.command_runner.run.assert_called_once_with(self.switch_command, self.player, ["notacommand"])
 		self.player.increment_instructions.assert_called_once()
 
 
 	def test_process_tokens_command_known_explicit_verb(self):
 		self.player.get_current_command.return_value = None
+		self.command_runner.run.return_value = "Done."
 
 		response = self.processor.process_tokens(self.player, ["look"])
 
-		self.assertEqual("You cannot see a thing.", response)
+		self.assertEqual("Done.", response)
+		self.command_runner.run.assert_called_once_with(self.look_command, self.player, [])
 		self.player.increment_instructions.assert_called_once()
 
 
 
 	def test_process_tokens_command_known_not_noun_as_verb(self):
 		self.player.get_current_command.return_value = None
+		self.command_runner.run.return_value = "Done."
 
 		response = self.processor.process_tokens(self.player, ["take", "lamp"])
 
-		self.assertEqual("Taken.", response)
+		self.assertEqual("Done.", response)
+		self.command_runner.run.assert_called_once_with(self.take_command, self.player, ["lamp"])
 
 
 	def test_process_tokens_command_known_noun_as_verb(self):
 		self.player.get_current_command.return_value = None
+		self.command_runner.run.return_value = "Done."
 
 		response = self.processor.process_tokens(self.player, ["water"])
 
-		self.assertEqual("Poured.", response)
-		self.pour_command.execute.assert_called_once_with(self.player, ["water"])
+		self.assertEqual("Done.", response)
+		self.command_runner.run.assert_called_once_with(self.pour_command, self.player, ["water"])
 		self.player.increment_instructions.assert_called_once()
 
 
 	def test_process_tokens_command_known_extra_arg(self):
 		self.player.get_current_command.return_value = None
+		self.command_runner.run.return_value = "Done."
 
 		response = self.processor.process_tokens(self.player, ["look", "here"])
 
-		self.assertEqual("You cannot see a thing.", response)
+		self.assertEqual("Done.", response)
+		self.command_runner.run.assert_called_once_with(self.look_command, self.player, ["here"])
 		self.player.increment_instructions.assert_called_once()
 
 
 	def test_process_tokens_command_current(self):
 		self.player.get_current_command.return_value = self.take_command
+		self.command_runner.run.return_value = "Done."
 
 		response = self.processor.process_tokens(self.player, ["lamp"])
 
-		self.assertEqual("Taken.", response)
+		self.assertEqual("Done.", response)
+		self.command_runner.run.assert_called_once_with(self.take_command, self.player, ["lamp"])
 
 
 	def test_process_tokens_command_causes_death(self):
 		self.player.is_alive.side_effect = [True, False, False]
 		self.player.get_current_command.return_value = None
+		self.command_runner.run.return_value = "You have died."
 
 		response = self.processor.process_tokens(self.player, ["die"])
 
 		self.assertEqual("You have died. You are dead. I may be able to reincarnate you. Do you want to be reincarnated?", response)
+		self.command_runner.run.assert_called_once_with(self.die_command, self.player, [])
 		self.player.set_playing.assert_not_called()
 
 

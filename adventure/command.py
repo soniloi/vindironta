@@ -29,34 +29,6 @@ class Command(DataElement):
 		return self.has_attribute(Command.ATTRIBUTE_SECRET)
 
 
-	def execute(self, player, args):
-		templates = []
-
-		for resolver_function in self.resolver_functions:
-			success, resolved_template, args = resolver_function(self, player, *args)
-
-			if resolved_template:
-				templates.append(resolved_template)
-
-			if not success:
-				return self.format_response(templates, args)
-
-		return self.format_response(templates, args)
-
-
-	def format_response(self, templates, tokens):
-		template = " ".join(templates)
-		contents = []
-
-		for token in tokens:
-			token_content = token
-			if isinstance(token, Item):
-				token_content = token.shortname
-			contents.append(token_content)
-
-		return template.format(*contents)
-
-
 class ArgInfo:
 
 	ATTRIBUTE_MANDATORY = 0x1

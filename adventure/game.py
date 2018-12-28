@@ -2,6 +2,7 @@ import json
 
 from adventure.argument_resolver import ArgumentResolver
 from adventure.command_handler import CommandHandler
+from adventure.command_runner import CommandRunner
 from adventure.data_collection import DataCollection
 from adventure.event_resolver import EventResolver
 from adventure.file_reader import FileReader
@@ -30,7 +31,9 @@ class Game:
 				json_content = json.loads(content)
 				self.init_data(json_content)
 				self.init_player()
-				self.init_token_processor(self.data)
+
+				command_runner = CommandRunner()
+				self.init_token_processor(self.data, command_runner)
 
 
 	def init_data(self, content):
@@ -54,8 +57,8 @@ class Game:
 		self.player = Player(initial_location, default_inventory_template, inventory_templates)
 
 
-	def init_token_processor(self, data):
-		self.token_processor = TokenProcessor(data)
+	def init_token_processor(self, data, command_runner):
+		self.token_processor = TokenProcessor(data, command_runner)
 
 
 	def process_input(self, line):
