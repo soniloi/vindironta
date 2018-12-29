@@ -44,6 +44,12 @@ class EventResolver(Resolver):
 			container = self.data.get_element_by_id(destination.data_id)
 			container.insert(item)
 
+		elif destination.kind == ItemEventOutcomeActionDestinationKind.REPLACE:
+			replacement =  self.data.get_item_by_id(destination.data_id)
+			container = item.get_first_container()
+			item.destroy()
+			container.insert(replacement)
+
 
 	def get_event(self, command, args):
 		event_key = self.create_event_key(command, args)

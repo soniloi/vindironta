@@ -201,5 +201,21 @@ class TestEventResolver(unittest.TestCase):
 		self.assertTrue(potion_copy.is_allow_copy(self.potion))
 
 
+	def test_resolve_event_with_item_outcome_action_replace(self):
+		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand])
+		wand_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.REPLACE, data_id=self.lamp.data_id)
+		wand_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item_id=self.bean.data_id, destination=wand_destination)
+		wave_wand_event_outcome = EventOutcome(text="The bean turns into a lamp.", actions=[wand_action])
+		wave_wand_event = Event(event_id=3005, attributes=0x0, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
+		self.data.get_event.side_effect = lambda x: {(self.wave_command, self.wand): wave_wand_event,}.get(x)
+		self.lighthouse_location.add(self.bean)
+
+		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
+
+		self.assertEqual((True, "The bean turns into a lamp.", [self.wand]), response)
+		self.assertFalse(self.lighthouse_location.contains(self.bean))
+		self.assertTrue(self.lighthouse_location.contains(self.lamp))
+
+
 if __name__ == "__main__":
 	unittest.main()
