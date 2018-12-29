@@ -11,23 +11,29 @@ class EventResolver(Resolver):
 			return False, "", list(args)
 
 		outcome = event.outcome
-		self.handle_outcome_actions(outcome.actions)
+		self.handle_outcome_actions(player, outcome.actions)
 
 		return True, event.outcome.text, list(args)
 
 
-	def handle_outcome_actions(self, actions):
+	def handle_outcome_actions(self, player, actions):
 		for action in actions:
 			if action.kind == EventOutcomeActionKind.ITEM:
-				self.handle_item_outcome_action(action)
+				self.handle_item_outcome_action(player, action)
 
 
-	def handle_item_outcome_action(self, action):
+	def handle_item_outcome_action(self, player, action):
 		item = self.data.get_item_by_id(action.item_id)
 		destination = action.destination
 
 		if destination.kind == ItemEventOutcomeActionDestinationKind.DESTROY:
 			item.destroy()
+
+		elif destination.kind == ItemEventOutcomeActionDestinationKind.CURRENT_LOCATION:
+			player.drop_item(item)
+
+		elif destination.kind == ItemEventOutcomeActionDestinationKind.CURRENT_INVENTORY:
+			player.take_item(item)
 
 
 	def get_event(self, command, args):
