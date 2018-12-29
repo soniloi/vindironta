@@ -4,9 +4,11 @@ from unittest.mock import Mock
 
 from adventure.command import Command
 from adventure.element import Labels
-from adventure.event import Event, EventMatch, EventOutcome
+from adventure.event import Event, EventMatch, EventOutcome, ItemEventOutcomeAction, EventOutcomeActionKind
+from adventure.event import ItemEventOutcomeActionDestination, ItemEventOutcomeActionDestinationKind
 from adventure.event_resolver import EventResolver
 from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo
+from adventure.location import Location
 
 class TestEventResolver(unittest.TestCase):
 
@@ -22,6 +24,7 @@ class TestEventResolver(unittest.TestCase):
 	def setup_data(self):
 		self.data = Mock()
 		self.setup_commands()
+		self.setup_locations()
 		self.setup_items()
 		self.setup_events()
 
@@ -32,12 +35,29 @@ class TestEventResolver(unittest.TestCase):
 		self.rub_command = Command(48, 0x10, [], [], ["rub"], {}, {})
 
 
+	def setup_locations(self):
+		self.lighthouse_location = Location(12, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
+
+
 	def setup_items(self):
 		self.bean = Item(1003, 0x2, Labels("bean", "a bean", "a magic bean"), 2, None)
 		self.bottle = ContainerItem(1108, 0x203, Labels("bottle", "a bottle", "a small bottle"), 3, None)
 		lamp_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "off", "on")
 		self.lamp = SwitchableItem(1043, 0x101A, Labels("lamp", "a lamp", "a small lamp"), 2, None, lamp_switching_info)
 		self.potion = Item(1058, 0x800, Labels("potion", "some potion", "some magical potion"), 1, None)
+
+		self.item_by_id_map = {
+			1003 : self.bean,
+			1108 : self.bottle,
+			1043 : self.lamp,
+			1058 : self.potion,
+		}
+
+		self.data.get_item_by_id.side_effect = self.item_by_id_side_effect
+
+
+	def item_by_id_side_effect(self, *args):
+		return self.item_by_id_map.get(args[0])
 
 
 	def setup_events(self):
@@ -48,7 +68,9 @@ class TestEventResolver(unittest.TestCase):
 		self.drink_potion_event = Event(event_id=3002, attributes=0x0, match=drink_potion_event_match, outcome=drink_potion_event_outcome)
 
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean])
-		pour_potion_bean_event_outcome = EventOutcome(text="The bean turns into a plant.", actions=[])
+		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
+		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item_id=1003, destination=destroy_bean_destination)
+		pour_potion_bean_event_outcome = EventOutcome(text="The bean turns into a plant.", actions=[destroy_bean_action])
 		self.pour_potion_bean_event = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_match, outcome=pour_potion_bean_event_outcome)
 
 		rub_lamp_event_match = EventMatch(command=self.rub_command, arguments=[self.lamp])
@@ -103,6 +125,15 @@ class TestEventResolver(unittest.TestCase):
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean, self.bottle)
 
 		self.assertEqual((True, "The bean turns into a plant.", [self.potion, self.bean, self.bottle]), response)
+
+
+	def test_resolve_event_with_outcome_action_destroy(self):
+		self.lighthouse_location.add(self.bean)
+
+		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
+
+		self.assertEqual((True, "The bean turns into a plant.", [self.potion, self.bean]), response)
+		self.assertFalse(self.lighthouse_location.contains(self.bean))
 
 
 if __name__ == "__main__":

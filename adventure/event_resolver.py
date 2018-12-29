@@ -10,7 +10,24 @@ class EventResolver(Resolver):
 		if not event:
 			return False, "", list(args)
 
+		outcome = event.outcome
+		self.handle_outcome_actions(outcome.actions)
+
 		return True, event.outcome.text, list(args)
+
+
+	def handle_outcome_actions(self, actions):
+		for action in actions:
+			if action.kind == EventOutcomeActionKind.ITEM:
+				self.handle_item_outcome_action(action)
+
+
+	def handle_item_outcome_action(self, action):
+		item = self.data.get_item_by_id(action.item_id)
+		destination = action.destination
+
+		if destination.kind == ItemEventOutcomeActionDestinationKind.DESTROY:
+			item.destroy()
 
 
 	def get_event(self, command, args):
