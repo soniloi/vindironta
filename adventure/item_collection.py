@@ -3,23 +3,23 @@ from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, Sw
 
 class ItemCollection:
 
-	def __init__(self, item_inputs, elements):
+	def __init__(self, item_inputs, elements_by_id):
 		container_ids_by_item = {}
 		switched_element_ids = {}
-		self.items, self.items_by_id = self.parse_items(item_inputs, container_ids_by_item, elements, switched_element_ids)
+		self.items, self.items_by_id = self.parse_items(item_inputs, container_ids_by_item, elements_by_id, switched_element_ids)
 
-		self.place_items(container_ids_by_item, elements)
-		self.resolve_switches(switched_element_ids, elements)
+		self.place_items(container_ids_by_item, elements_by_id)
+		self.resolve_switches(switched_element_ids, elements_by_id)
 
 
-	def parse_items(self, item_inputs, container_ids_by_item, elements, switched_element_ids):
+	def parse_items(self, item_inputs, container_ids_by_item, elements_by_id, switched_element_ids):
 		items = {}
 		items_by_id = {}
 
 		for item_input in item_inputs:
 			item, shortnames = self.parse_item(item_input, container_ids_by_item, switched_element_ids)
 			items_by_id[item.data_id] = item
-			elements[item.data_id] = item
+			elements_by_id[item.data_id] = item
 
 			for shortname in shortnames:
 				items[shortname] = item
@@ -107,9 +107,9 @@ class ItemCollection:
 					container.add(item)
 
 
-	def resolve_switches(self, switched_element_ids, elements):
+	def resolve_switches(self, switched_element_ids, elements_by_id):
 		for switching_item, switched_element_id in switched_element_ids.items():
-			element = elements.get(switched_element_id)
+			element = elements_by_id.get(switched_element_id)
 			switching_item.switched_element = element
 
 

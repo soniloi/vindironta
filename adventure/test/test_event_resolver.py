@@ -28,6 +28,11 @@ class TestEventResolver(unittest.TestCase):
 		self.setup_items()
 		self.setup_events()
 
+		self.element_by_id_map = self.item_by_id_map.copy()
+		self.element_by_id_map[self.lighthouse_location.data_id] = self.lighthouse_location
+
+		self.data.get_item_by_id.side_effect = self.item_by_id_side_effect
+		self.data.get_element_by_id.side_effect = self.element_by_id_side_effect
 
 	def setup_commands(self):
 		self.drink_command = Command(14, 0x0, [], [], "drink", {}, {})
@@ -56,15 +61,22 @@ class TestEventResolver(unittest.TestCase):
 			1203 : self.wand,
 		}
 
-		self.data.get_item_by_id.side_effect = self.item_by_id_side_effect
-
 
 	def item_by_id_side_effect(self, *args):
 		return self.item_by_id_map.get(args[0])
 
 
+	def element_by_id_side_effect(self, *args):
+		return self.element_by_id_map.get(args[0])
+
+
 	def setup_events(self):
 		self.data.get_event.side_effect = self.events_side_effect
+
+		# Rubbing lamp prints a message
+		rub_lamp_event_match = EventMatch(command=self.rub_command, arguments=[self.lamp])
+		rub_lamp_event_outcome = EventOutcome(text="A genie pops out.", actions=[])
+		self.rub_lamp_event = Event(event_id=3001, attributes=0x0, match=rub_lamp_event_match, outcome=rub_lamp_event_outcome)
 
 		# Drinking potion prints a message
 		drink_potion_event_match = EventMatch(command=self.drink_command, arguments=[self.potion])
@@ -78,10 +90,12 @@ class TestEventResolver(unittest.TestCase):
 		pour_potion_bean_event_outcome = EventOutcome(text="The bean turns into a plant.", actions=[destroy_bean_action])
 		self.pour_potion_bean_event = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_match, outcome=pour_potion_bean_event_outcome)
 
-		# Rubbing lamp prints a message
-		rub_lamp_event_match = EventMatch(command=self.rub_command, arguments=[self.lamp])
-		rub_lamp_event_outcome = EventOutcome(text="A genie pops out.", actions=[])
-		self.rub_lamp_event = Event(event_id=3001, attributes=0x0, match=rub_lamp_event_match, outcome=rub_lamp_event_outcome)
+		# Waving wand causes bean to appear at player's current location
+		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand])
+		wand_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.CURRENT_LOCATION, data_id=None)
+		wand_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item_id=self.bean.data_id, destination=wand_destination)
+		wave_wand_event_outcome = EventOutcome(text="The bean appears at your feet.", actions=[wand_action])
+		self.wave_wand_event = Event(event_id=3004, attributes=0x0, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
 
 		# Waving lamp causes bean to appear in player's possession
 		wave_lamp_event_match = EventMatch(command=self.wave_command, arguments=[self.lamp])
@@ -90,19 +104,28 @@ class TestEventResolver(unittest.TestCase):
 		wave_lamp_event_outcome = EventOutcome(text="The bean appears in your hand.", actions=[lamp_action])
 		self.wave_lamp_event = Event(event_id=3005, attributes=0x0, match=wave_lamp_event_match, outcome=wave_lamp_event_outcome)
 
-		# Waving wand causes bean to appear at player's current location
-		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand])
-		wand_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.CURRENT_LOCATION, data_id=None)
-		wand_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item_id=self.bean.data_id, destination=wand_destination)
-		wave_wand_event_outcome = EventOutcome(text="The bean appears at your feet.", actions=[wand_action])
-		self.wave_wand_event = Event(event_id=3004, attributes=0x0, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
+		# Waving bottle causes lamp to appear at location
+		wave_bottle_event_match = EventMatch(command=self.wave_command, arguments=[self.bottle])
+		bottle_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.ABSOLUTE_CONTAINER, data_id=self.lighthouse_location.data_id)
+		bottle_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item_id=self.lamp.data_id, destination=bottle_destination)
+		wave_bottle_event_outcome = EventOutcome(text="A lamp appears somewhere.", actions=[bottle_action])
+		self.wave_bottle_event = Event(event_id=3006, attributes=0x0, match=wave_bottle_event_match, outcome=wave_bottle_event_outcome)
+
+		# Waving bean causes potion to be copied to bottle
+		wave_bean_event_match = EventMatch(command=self.wave_command, arguments=[self.bean])
+		bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.ABSOLUTE_CONTAINER, data_id=self.bottle.data_id)
+		bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item_id=self.potion.data_id, destination=bean_destination)
+		wave_bean_event_outcome = EventOutcome(text="Potion appears in the bottle.", actions=[bean_action])
+		self.wave_bean_event = Event(event_id=3006, attributes=0x0, match=wave_bean_event_match, outcome=wave_bean_event_outcome)
 
 		self.event_map = {
+			(self.rub_command, self.lamp): self.rub_lamp_event,
 			(self.drink_command, self.potion): self.drink_potion_event,
 			(self.pour_command, self.potion, self.bean): self.pour_potion_bean_event,
-			(self.rub_command, self.lamp): self.rub_lamp_event,
 			(self.wave_command, self.wand): self.wave_wand_event,
 			(self.wave_command, self.lamp): self.wave_lamp_event,
+			(self.wave_command, self.bottle): self.wave_bottle_event,
+			(self.wave_command, self.bean): self.wave_bean_event,
 		}
 
 
@@ -170,6 +193,22 @@ class TestEventResolver(unittest.TestCase):
 
 		self.assertEqual((True, "The bean appears in your hand.", [self.lamp]), response)
 		self.player.take_item.assert_called_once_with(self.bean)
+
+
+	def test_resolve_event_with_item_outcome_action_absolute_container_non_copyable(self):
+		response = self.resolver.resolve_event(self.wave_command, self.player, self.bottle)
+
+		self.assertEqual((True, "A lamp appears somewhere.", [self.bottle]), response)
+		self.assertTrue(self.lighthouse_location.contains(self.lamp))
+
+
+	def test_resolve_event_with_item_outcome_action_absolute_container_copyable(self):
+		response = self.resolver.resolve_event(self.wave_command, self.player, self.bean)
+
+		self.assertEqual((True, "Potion appears in the bottle.", [self.bean]), response)
+		self.assertFalse(self.bottle.contains(self.potion))
+		potion_copy = self.bottle.get_allow_copy(self.potion)
+		self.assertTrue(potion_copy.is_allow_copy(self.potion))
 
 
 if __name__ == "__main__":

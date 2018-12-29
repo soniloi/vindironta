@@ -1,5 +1,6 @@
 from adventure.event import EventOutcomeActionKind, ItemEventOutcomeActionDestinationKind
 from adventure.item import Item
+from adventure.item_container import ItemContainer
 from adventure.resolver import Resolver
 
 class EventResolver(Resolver):
@@ -34,6 +35,14 @@ class EventResolver(Resolver):
 
 		elif destination.kind == ItemEventOutcomeActionDestinationKind.CURRENT_INVENTORY:
 			player.take_item(item)
+
+		elif destination.kind == ItemEventOutcomeActionDestinationKind.ABSOLUTE_CONTAINER:
+			if not item.is_copyable():
+				item.remove_from_containers()
+
+			# TODO: handle case where container is ContainerItem and already contains something
+			container = self.data.get_element_by_id(destination.data_id)
+			container.insert(item)
 
 
 	def get_event(self, command, args):

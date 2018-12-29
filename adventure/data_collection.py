@@ -12,7 +12,8 @@ class DataCollection:
 		self.commands = CommandCollection(content_input["commands"], resolvers)
 		self.inventories = InventoryCollection(content_input["inventories"])
 		self.locations = LocationCollection(content_input["locations"])
-		self.items = ItemCollection(content_input["items"], self.locations.locations.copy())
+		self.elements_by_id = self.locations.locations.copy()
+		self.items = ItemCollection(content_input["items"], self.elements_by_id)
 		self.hints = TextCollection(content_input["hints"])
 		self.explanations = TextCollection(content_input["explanations"])
 		self.responses = TextCollection(content_input["responses"])
@@ -26,6 +27,10 @@ class DataCollection:
 
 	def list_commands(self):
 		return self.commands.list_commands()
+
+
+	def get_element_by_id(self, data_id):
+		return self.elements_by_id.get(data_id)
 
 
 	def get_inventory_template(self, inventory_id):
