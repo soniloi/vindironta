@@ -7,18 +7,27 @@ from adventure.event import EventMatchArgumentKind, EventOutcomeActionKind, Item
 from adventure.event import EventMatchPrerequisiteKind, ItemEventMatchPrerequisiteContainerKind
 from adventure.event_collection import EventCollection
 from adventure.item import Item
+from adventure.location import Location
 
 class TestEventCollection(unittest.TestCase):
 
 	def setUp(self):
 		self.setup_commands()
+		self.setup_locations()
 		self.setup_items()
 
 
 	def setup_commands(self):
-		self.command = command = Command(48, 0x0, [], [], [""], {}, {})
+		self.command = Command(48, 0x0, [], [], [""], {}, {})
 		self.commands = {
 			48 : self.command,
+		}
+
+
+	def setup_locations(self):
+		self.lighthouse_location = Location(12, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
+		self.locations_by_id = {
+			12 : self.lighthouse_location
 		}
 
 
@@ -48,7 +57,7 @@ class TestEventCollection(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id)
+		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
 
 		self.assertEqual(1, len(self.collection.events))
 		self.assertTrue((self.command,) in self.collection.events)
@@ -90,7 +99,7 @@ class TestEventCollection(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id)
+		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
 
 		self.assertEqual(1, len(self.collection.events))
 		self.assertTrue((self.command, self.book, "hello") in self.collection.events)
@@ -108,7 +117,7 @@ class TestEventCollection(unittest.TestCase):
 		self.assertEqual("hello", text_argument.value)
 
 
-	def test_event_with_match_prerequisites(self):
+	def test_event_with_item_match_prerequisites(self):
 		event_inputs = json.loads(
 			"[ \
 				{ \
@@ -142,7 +151,7 @@ class TestEventCollection(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id)
+		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
 
 		self.assertEqual(1, len(self.collection.events))
 		self.assertTrue((self.command,) in self.collection.events)
@@ -166,6 +175,45 @@ class TestEventCollection(unittest.TestCase):
 
 		second_container = second_prerequisite.container
 		self.assertEqual(ItemEventMatchPrerequisiteContainerKind.ABSOLUTE_CONTAINER, second_container.kind)
+
+
+	def test_event_with_location_match_prerequisites(self):
+		event_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 3001, \
+					\"attributes\": \"0\", \
+					\"match\": { \
+						\"command_id\": 48, \
+						\"arguments\": [], \
+						\"prerequisites\": [ \
+							{ \
+								\"kind\": \"location\", \
+								\"data_id\": 12 \
+							} \
+						] \
+					}, \
+					\"outcome\": { \
+						\"text\" : \"A very confused-looking genie pops out of the lamp.\" \
+					} \
+				} \
+			]"
+		)
+
+		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+
+		self.assertEqual(1, len(self.collection.events))
+		self.assertTrue((self.command,) in self.collection.events)
+
+		event = self.collection.events[(self.command,)]
+		match = event.match
+
+		prerequisites = match.prerequisites
+		self.assertEqual(1, len(prerequisites))
+
+		prerequisite = prerequisites[0]
+		self.assertEqual(EventMatchPrerequisiteKind.LOCATION, prerequisite.kind)
+		self.assertEqual(self.lighthouse_location, prerequisite.location)
 
 
 	def test_event_with_outcome_actions(self):
@@ -202,7 +250,7 @@ class TestEventCollection(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id)
+		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
 
 		self.assertEqual(1, len(self.collection.events))
 		self.assertTrue((self.command,) in self.collection.events)

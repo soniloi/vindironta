@@ -34,6 +34,7 @@ class EventMatchArgumentKind(Enum):
 class EventMatchPrerequisiteKind(Enum):
 	OTHER = 0
 	ITEM = 1
+	LOCATION = 2
 
 
 class ItemEventMatchPrerequisite:
@@ -56,6 +57,14 @@ class ItemEventMatchPrerequisiteContainerKind(Enum):
 	CURRENT_LOCATION = 1
 	CURRENT_INVENTORY = 2
 	ABSOLUTE_CONTAINER = 3
+
+
+
+class LocationEventMatchPrerequisite:
+
+	def __init__(self, kind, location):
+		self.kind = kind
+		self.location = location
 
 
 class EventOutcome:

@@ -1,19 +1,20 @@
 from adventure.event import Event, EventMatch, EventMatchArgument, EventMatchArgumentKind
 from adventure.event import EventMatchPrerequisiteKind, ItemEventMatchPrerequisite, ItemEventMatchPrerequisiteContainer, ItemEventMatchPrerequisiteContainerKind
+from adventure.event import LocationEventMatchPrerequisite
 from adventure.event import EventOutcome, EventOutcomeActionKind, ItemEventOutcomeAction
 from adventure.event import ItemEventOutcomeActionDestination, ItemEventOutcomeActionDestinationKind
 
 class EventCollection:
 
-	def __init__(self, event_inputs, commands_by_id, items_by_id):
-		self.events = self.parse_events(event_inputs, commands_by_id, items_by_id)
+	def __init__(self, event_inputs, commands_by_id, items_by_id, locations_by_id):
+		self.events = self.parse_events(event_inputs, commands_by_id, items_by_id, locations_by_id)
 
 
-	def parse_events(self, event_inputs, commands_by_id, items_by_id):
+	def parse_events(self, event_inputs, commands_by_id, items_by_id, locations_by_id):
 		events = {}
 
 		for event_input in event_inputs:
-			event, match = self.parse_event(event_input, commands_by_id, items_by_id)
+			event, match = self.parse_event(event_input, commands_by_id, items_by_id, locations_by_id)
 			match_argument_values = [argument.value for argument in match.arguments]
 			match_key = (tuple([match.command] + match_argument_values))
 			events[match_key] = event
@@ -21,20 +22,20 @@ class EventCollection:
 		return events
 
 
-	def parse_event(self, event_input, commands_by_id, items_by_id):
+	def parse_event(self, event_input, commands_by_id, items_by_id, locations_by_id):
 		event_id = event_input["data_id"]
 		attributes = int(event_input["attributes"], 16)
-		match = self.parse_event_match(event_input["match"], commands_by_id, items_by_id)
+		match = self.parse_event_match(event_input["match"], commands_by_id, items_by_id, locations_by_id)
 		outcome = self.parse_event_outcome(event_input["outcome"], items_by_id)
 
 		event = Event(event_id, attributes, match, outcome)
 		return event, match
 
 
-	def parse_event_match(self, event_match_input, commands_by_id, items_by_id):
+	def parse_event_match(self, event_match_input, commands_by_id, items_by_id, locations_by_id):
 		command = self.get_event_match_command(event_match_input["command_id"], commands_by_id)
 		arguments  = self.parse_event_match_arguments(event_match_input["arguments"], items_by_id)
-		prerequisites = self.parse_event_match_prerequisites(event_match_input.get("prerequisites"), items_by_id)
+		prerequisites = self.parse_event_match_prerequisites(event_match_input.get("prerequisites"), items_by_id, locations_by_id)
 		return EventMatch(command, arguments, prerequisites)
 
 
@@ -59,7 +60,7 @@ class EventCollection:
 		return event_match_arguments
 
 
-	def parse_event_match_prerequisites(self, prerequisite_inputs, items_by_id):
+	def parse_event_match_prerequisites(self, prerequisite_inputs, items_by_id, locations_by_id):
 		if not prerequisite_inputs:
 			return []
 
@@ -72,9 +73,12 @@ class EventCollection:
 				data_id = prerequisite_input["data_id"]
 				item = items_by_id.get(data_id)
 				container = self.parse_item_event_match_prerequisite_container(prerequisite_input["container"])
+				prerequisites.append(ItemEventMatchPrerequisite(kind=prerequisite_kind, item=item, container=container))
 
-				prerequisite = ItemEventMatchPrerequisite(kind=prerequisite_kind, item=item, container=container)
-				prerequisites.append(prerequisite)
+			elif prerequisite_kind == EventMatchPrerequisiteKind.LOCATION:
+				data_id = prerequisite_input["data_id"]
+				location = locations_by_id.get(data_id)
+				prerequisites.append(LocationEventMatchPrerequisite(kind=prerequisite_kind, location=location))
 
 		return prerequisites
 
