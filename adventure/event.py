@@ -72,9 +72,9 @@ class EventOutcomeActionKind(Enum):
 
 class ItemEventOutcomeAction:
 
-	def __init__(self, kind, item_id, destination):
+	def __init__(self, kind, item, destination):
 		self.kind = kind
-		self.item_id = item_id
+		self.item = item
 		self.destination = destination
 
 

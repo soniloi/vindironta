@@ -75,7 +75,7 @@ class EventResolver(Resolver):
 
 
 	def handle_item_outcome_action(self, player, action):
-		item = self.data.get_item_by_id(action.item_id)
+		item = action.item
 		destination = action.destination
 
 		if destination.kind == ItemEventOutcomeActionDestinationKind.DESTROY:

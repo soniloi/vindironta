@@ -25,7 +25,7 @@ class EventCollection:
 		event_id = event_input["data_id"]
 		attributes = int(event_input["attributes"], 16)
 		match = self.parse_event_match(event_input["match"], commands_by_id, items_by_id)
-		outcome = self.parse_event_outcome(event_input["outcome"])
+		outcome = self.parse_event_outcome(event_input["outcome"], items_by_id)
 
 		event = Event(event_id, attributes, match, outcome)
 		return event, match
@@ -86,13 +86,13 @@ class EventCollection:
 		return ItemEventMatchPrerequisiteContainer(kind=container_kind, container_id=container_id)
 
 
-	def parse_event_outcome(self, event_outcome_input):
+	def parse_event_outcome(self, event_outcome_input, items_by_id):
 		text = event_outcome_input["text"]
-		actions = self.parse_event_outcome_actions(event_outcome_input.get("actions"))
+		actions = self.parse_event_outcome_actions(event_outcome_input.get("actions"), items_by_id)
 		return EventOutcome(text, actions)
 
 
-	def parse_event_outcome_actions(self, event_outcome_action_inputs):
+	def parse_event_outcome_actions(self, event_outcome_action_inputs, items_by_id):
 		if not event_outcome_action_inputs:
 			return []
 
@@ -105,9 +105,10 @@ class EventCollection:
 			# TODO: handle other kinds
 			if kind == EventOutcomeActionKind.ITEM:
 				item_id = event_outcome_action_input["item_id"]
+				item = items_by_id[item_id]
 				destination = self.parse_item_event_outcome_action_destination(event_outcome_action_input["destination"])
 
-				action = ItemEventOutcomeAction(kind=kind, item_id=item_id, destination=destination)
+				action = ItemEventOutcomeAction(kind=kind, item=item, destination=destination)
 				actions.append(action)
 
 		return actions

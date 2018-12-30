@@ -183,14 +183,14 @@ class TestEventCollection(unittest.TestCase):
 						\"actions\": [ \
 							{ \
 								\"kind\": \"item\", \
-								\"item_id\": 1058, \
+								\"item_id\": 1043, \
 								\"destination\": { \
 									\"kind\": \"destroy\" \
 								} \
 							}, \
 							{ \
 								\"kind\": \"item\", \
-								\"item_id\": 1003, \
+								\"item_id\": 1044, \
 								\"destination\": { \
 									\"kind\": \"replace\", \
 									\"data_id\": 1050 \
@@ -220,14 +220,14 @@ class TestEventCollection(unittest.TestCase):
 
 		first_action = outcome.actions[0]
 		self.assertEqual(EventOutcomeActionKind.ITEM, first_action.kind)
-		self.assertEqual(1058, first_action.item_id)
+		self.assertEqual(self.book, first_action.item)
 		first_action_destination = first_action.destination
 		self.assertEqual(ItemEventOutcomeActionDestinationKind.DESTROY, first_action_destination.kind)
 		self.assertIsNone(first_action_destination.data_id)
 
 		second_action = outcome.actions[1]
 		self.assertEqual(EventOutcomeActionKind.ITEM, second_action.kind)
-		self.assertEqual(1003, second_action.item_id)
+		self.assertEqual(self.bread, second_action.item)
 		second_action_destination = second_action.destination
 		self.assertEqual(ItemEventOutcomeActionDestinationKind.REPLACE, second_action_destination.kind)
 		self.assertEqual(1050, second_action_destination.data_id)
