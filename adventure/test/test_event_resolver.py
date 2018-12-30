@@ -79,7 +79,7 @@ class TestEventResolver(unittest.TestCase):
 
 
 	def test_resolve_event_with_match_to_non_copyable_item(self):
-		rub_lamp_event_match = EventMatch(command=self.rub_command, arguments=[self.lamp])
+		rub_lamp_event_match = EventMatch(command=self.rub_command, arguments=[self.lamp], prerequisites=[])
 		rub_lamp_event_outcome = EventOutcome(text="A genie pops out.", actions=[])
 		rub_lamp_event = Event(event_id=3001, attributes=0x0, match=rub_lamp_event_match, outcome=rub_lamp_event_outcome)
 		self.data.get_event.side_effect = lambda x: {(self.rub_command, self.lamp): rub_lamp_event,}.get(x)
@@ -90,7 +90,7 @@ class TestEventResolver(unittest.TestCase):
 
 
 	def test_resolve_event_with_match_to_copyable_item(self):
-		drink_potion_event_match = EventMatch(command=self.drink_command, arguments=[self.potion])
+		drink_potion_event_match = EventMatch(command=self.drink_command, arguments=[self.potion], prerequisites=[])
 		drink_potion_event_outcome = EventOutcome(text="You become invisible.", actions=[])
 		drink_potion_event = Event(event_id=3002, attributes=0x0, match=drink_potion_event_match, outcome=drink_potion_event_outcome)
 		self.data.get_event.side_effect = lambda x: {(self.drink_command, self.potion): drink_potion_event,}.get(x)
@@ -102,7 +102,7 @@ class TestEventResolver(unittest.TestCase):
 
 
 	def test_resolve_event_with_match_to_two_args(self):
-		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean])
+		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
 		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item_id=1003, destination=destroy_bean_destination)
 		pour_potion_bean_event_outcome = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action])
@@ -116,7 +116,7 @@ class TestEventResolver(unittest.TestCase):
 
 	# TODO: remove this test when arg list length workaround is removed
 	def test_resolve_event_with_match_to_more_than_two_args(self):
-		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean])
+		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
 		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item_id=1003, destination=destroy_bean_destination)
 		pour_potion_bean_event_outcome = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action])
@@ -129,7 +129,7 @@ class TestEventResolver(unittest.TestCase):
 
 
 	def test_resolve_event_with_item_outcome_action_destroy(self):
-		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean])
+		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
 		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item_id=1003, destination=destroy_bean_destination)
 		pour_potion_bean_event_outcome = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action])
@@ -144,7 +144,7 @@ class TestEventResolver(unittest.TestCase):
 
 
 	def test_resolve_event_with_item_outcome_action_current_location(self):
-		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand])
+		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		wand_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.CURRENT_LOCATION, data_id=None)
 		wand_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item_id=self.bean.data_id, destination=wand_destination)
 		wave_wand_event_outcome = EventOutcome(text="The bean appears at your feet.", actions=[wand_action])
@@ -158,7 +158,7 @@ class TestEventResolver(unittest.TestCase):
 
 
 	def test_resolve_event_with_item_outcome_action_current_inventory(self):
-		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand])
+		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		wand_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.CURRENT_INVENTORY, data_id=None)
 		wand_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item_id=self.bean.data_id, destination=wand_destination)
 		wave_wand_event_outcome = EventOutcome(text="The bean appears in your hand.", actions=[wand_action])
@@ -172,7 +172,7 @@ class TestEventResolver(unittest.TestCase):
 
 
 	def test_resolve_event_with_item_outcome_action_absolute_container_non_copyable(self):
-		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand])
+		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		wand_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.ABSOLUTE_CONTAINER, data_id=self.lighthouse_location.data_id)
 		wand_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item_id=self.bean.data_id, destination=wand_destination)
 		wave_wand_event_outcome = EventOutcome(text="The bean appears somewhere.", actions=[wand_action])
@@ -186,7 +186,7 @@ class TestEventResolver(unittest.TestCase):
 
 
 	def test_resolve_event_with_item_outcome_action_absolute_container_copyable(self):
-		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand])
+		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		wand_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.ABSOLUTE_CONTAINER, data_id=self.bottle.data_id)
 		wand_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item_id=self.potion.data_id, destination=wand_destination)
 		wave_wand_event_outcome = EventOutcome(text="Potion appears in the bottle.", actions=[wand_action])
@@ -202,7 +202,7 @@ class TestEventResolver(unittest.TestCase):
 
 
 	def test_resolve_event_with_item_outcome_action_replace(self):
-		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand])
+		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		wand_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.REPLACE, data_id=self.lamp.data_id)
 		wand_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item_id=self.bean.data_id, destination=wand_destination)
 		wave_wand_event_outcome = EventOutcome(text="The bean turns into a lamp.", actions=[wand_action])

@@ -1,4 +1,5 @@
 from adventure.event import Event, EventMatch, EventMatchArgument, EventMatchArgumentKind
+from adventure.event import EventMatchPrerequisiteKind, ItemEventMatchPrerequisite, ItemEventMatchPrerequisiteContainer, ItemEventMatchPrerequisiteContainerKind
 from adventure.event import EventOutcome, EventOutcomeActionKind, ItemEventOutcomeAction
 from adventure.event import ItemEventOutcomeActionDestination, ItemEventOutcomeActionDestinationKind
 
@@ -33,7 +34,8 @@ class EventCollection:
 	def parse_event_match(self, event_match_input, commands_by_id, items_by_id):
 		command = self.get_event_match_command(event_match_input["command_id"], commands_by_id)
 		arguments  = self.parse_event_match_arguments(event_match_input["arguments"], items_by_id)
-		return EventMatch(command, arguments)
+		prerequisites = self.parse_event_match_prerequisites(event_match_input.get("prerequisites"), items_by_id)
+		return EventMatch(command, arguments, prerequisites)
 
 
 	def get_event_match_command(self, command_id, commands_by_id):
@@ -55,6 +57,33 @@ class EventCollection:
 			event_match_arguments.append(argument)
 
 		return event_match_arguments
+
+
+	def parse_event_match_prerequisites(self, prerequisite_inputs, items_by_id):
+		if not prerequisite_inputs:
+			return []
+
+		prerequisites = []
+		for prerequisite_input in prerequisite_inputs:
+			prerequisite_kind_key = prerequisite_input["kind"].upper()
+			prerequisite_kind = EventMatchPrerequisiteKind[prerequisite_kind_key]
+
+			if prerequisite_kind == EventMatchPrerequisiteKind.ITEM:
+				data_id = prerequisite_input["data_id"]
+				item = items_by_id.get(data_id)
+				container = self.parse_item_event_match_prerequisite_container(prerequisite_input["container"])
+
+				prerequisite = ItemEventMatchPrerequisite(kind=prerequisite_kind, item=item, container=container)
+				prerequisites.append(prerequisite)
+
+		return prerequisites
+
+
+	def parse_item_event_match_prerequisite_container(self, container_input):
+		container_kind_key = container_input["kind"].upper()
+		container_kind = ItemEventMatchPrerequisiteContainerKind[container_kind_key]
+		container_id = container_input.get("container_id")
+		return ItemEventMatchPrerequisiteContainer(kind=container_kind, container_id=container_id)
 
 
 	def parse_event_outcome(self, event_outcome_input):

@@ -3,6 +3,7 @@ import unittest
 from unittest.mock import Mock
 
 from adventure.event import EventMatchArgumentKind, EventOutcomeActionKind, ItemEventOutcomeActionDestinationKind
+from adventure.event import EventMatchPrerequisiteKind, ItemEventMatchPrerequisiteContainerKind
 from adventure.event_collection import EventCollection
 
 class TestEventCollection(unittest.TestCase):
@@ -56,7 +57,6 @@ class TestEventCollection(unittest.TestCase):
 				{ \
 					\"data_id\": 3001, \
 					\"attributes\": \"0\", \
-					\"puzzle\": false, \
 					\"match\": { \
 						\"command_id\": 48, \
 						\"arguments\": [ \
@@ -93,6 +93,66 @@ class TestEventCollection(unittest.TestCase):
 		text_argument = match.arguments[1]
 		self.assertEqual(EventMatchArgumentKind.TEXT, text_argument.kind)
 		self.assertEqual("hello", text_argument.value)
+
+
+	def test_event_with_match_prerequisites(self):
+		event_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 3001, \
+					\"attributes\": \"0\", \
+					\"match\": { \
+						\"command_id\": 48, \
+						\"arguments\": [], \
+						\"prerequisites\": [ \
+							{ \
+								\"kind\": \"item\", \
+								\"data_id\": 1043, \
+								\"container\": { \
+									\"kind\": \"current_location\" \
+								} \
+							}, \
+							{ \
+								\"kind\": \"item\", \
+								\"data_id\": 1044, \
+								\"container\": { \
+									\"kind\": \"absolute_container\", \
+									\"container_id\": 1000 \
+								} \
+							} \
+						] \
+					}, \
+					\"outcome\": { \
+						\"text\" : \"A very confused-looking genie pops out of the lamp.\" \
+					} \
+				} \
+			]"
+		)
+
+		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id)
+
+		self.assertEqual(1, len(self.collection.events))
+		self.assertTrue((self.command,) in self.collection.events)
+
+		event = self.collection.events[(self.command,)]
+		match = event.match
+
+		prerequisites = match.prerequisites
+		self.assertEqual(2, len(prerequisites))
+
+		first_prerequisite = prerequisites[0]
+		self.assertEqual(EventMatchPrerequisiteKind.ITEM, first_prerequisite.kind)
+		self.assertEqual(self.item, first_prerequisite.item)
+
+		first_container = first_prerequisite.container
+		self.assertEqual(ItemEventMatchPrerequisiteContainerKind.CURRENT_LOCATION, first_container.kind)
+
+		second_prerequisite = prerequisites[1]
+		self.assertEqual(EventMatchPrerequisiteKind.ITEM, second_prerequisite.kind)
+		self.assertEqual(self.item, second_prerequisite.item)
+
+		second_container = second_prerequisite.container
+		self.assertEqual(ItemEventMatchPrerequisiteContainerKind.ABSOLUTE_CONTAINER, second_container.kind)
 
 
 	def test_event_with_outcome_actions(self):
