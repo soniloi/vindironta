@@ -1,21 +1,34 @@
 import json
 import unittest
-from unittest.mock import Mock
 
+from adventure.command import Command
+from adventure.element import Labels
 from adventure.event import EventMatchArgumentKind, EventOutcomeActionKind, ItemEventOutcomeActionDestinationKind
 from adventure.event import EventMatchPrerequisiteKind, ItemEventMatchPrerequisiteContainerKind
 from adventure.event_collection import EventCollection
+from adventure.item import Item
 
 class TestEventCollection(unittest.TestCase):
 
 	def setUp(self):
-		self.commands = Mock()
-		self.command = Mock()
-		self.commands.get.return_value = self.command
+		self.setup_commands()
+		self.setup_items()
 
-		self.items_by_id = Mock()
-		self.item = Mock()
-		self.items_by_id.get.return_value = self.item
+
+	def setup_commands(self):
+		self.command = command = Command(48, 0x0, [], [], [""], {}, {})
+		self.commands = {
+			48 : self.command,
+		}
+
+
+	def setup_items(self):
+		self.book = self.book = Item(1043, 0x2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
+		self.bread = Item(1109, 0x2, Labels("bread", "some bread", "a loaf of bread"), 2, None)
+		self.items_by_id = {
+			1043 : self.book,
+			1044 : self.bread,
+		}
 
 
 	def test_event_minimal(self):
@@ -80,15 +93,15 @@ class TestEventCollection(unittest.TestCase):
 		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id)
 
 		self.assertEqual(1, len(self.collection.events))
-		self.assertTrue((self.command, self.item, "hello") in self.collection.events)
+		self.assertTrue((self.command, self.book, "hello") in self.collection.events)
 
-		event = self.collection.events[(self.command, self.item, "hello")]
+		event = self.collection.events[(self.command, self.book, "hello")]
 		match = event.match
 		self.assertEqual(2, len(match.arguments))
 
 		item_argument = match.arguments[0]
 		self.assertEqual(EventMatchArgumentKind.ITEM, item_argument.kind)
-		self.assertEqual(self.item, item_argument.value)
+		self.assertEqual(self.book, item_argument.value)
 
 		text_argument = match.arguments[1]
 		self.assertEqual(EventMatchArgumentKind.TEXT, text_argument.kind)
@@ -142,14 +155,14 @@ class TestEventCollection(unittest.TestCase):
 
 		first_prerequisite = prerequisites[0]
 		self.assertEqual(EventMatchPrerequisiteKind.ITEM, first_prerequisite.kind)
-		self.assertEqual(self.item, first_prerequisite.item)
+		self.assertEqual(self.book, first_prerequisite.item)
 
 		first_container = first_prerequisite.container
 		self.assertEqual(ItemEventMatchPrerequisiteContainerKind.CURRENT_LOCATION, first_container.kind)
 
 		second_prerequisite = prerequisites[1]
 		self.assertEqual(EventMatchPrerequisiteKind.ITEM, second_prerequisite.kind)
-		self.assertEqual(self.item, second_prerequisite.item)
+		self.assertEqual(self.bread, second_prerequisite.item)
 
 		second_container = second_prerequisite.container
 		self.assertEqual(ItemEventMatchPrerequisiteContainerKind.ABSOLUTE_CONTAINER, second_container.kind)
