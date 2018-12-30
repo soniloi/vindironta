@@ -5,6 +5,7 @@ from unittest.mock import Mock
 from adventure.command import Command
 from adventure.element import Labels
 from adventure.event import Event, EventMatch, EventOutcome, ItemEventOutcomeAction, EventOutcomeActionKind
+from adventure.event import EventMatchPrerequisiteKind, ItemEventMatchPrerequisite, ItemEventMatchPrerequisiteContainer, ItemEventMatchPrerequisiteContainerKind
 from adventure.event import ItemEventOutcomeActionDestination, ItemEventOutcomeActionDestinationKind
 from adventure.event_resolver import EventResolver
 from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo
@@ -215,6 +216,73 @@ class TestEventResolver(unittest.TestCase):
 		self.assertEqual((True, "The bean turns into a lamp.", [self.wand]), response)
 		self.assertFalse(self.lighthouse_location.contains(self.bean))
 		self.assertTrue(self.lighthouse_location.contains(self.lamp))
+
+
+	def test_resolve_event_with_item_any_container_prerequisite_without_match(self):
+		prerequisite_kind = EventMatchPrerequisiteKind.ITEM
+		prerequisite_item = self.bean
+		prerequisite_container_kind = ItemEventMatchPrerequisiteContainerKind.ANY
+		prerequisite_container = ItemEventMatchPrerequisiteContainer(prerequisite_container_kind, None)
+		prerequisite = ItemEventMatchPrerequisite(prerequisite_kind, prerequisite_item, prerequisite_container)
+
+		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
+		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
+		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item_id=1003, destination=destroy_bean_destination)
+		pour_potion_bean_event_outcome = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action])
+		pour_potion_bean_event = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_match, outcome=pour_potion_bean_event_outcome)
+
+		self.data.get_event.side_effect = lambda x: {(self.pour_command, self.potion, self.bean): pour_potion_bean_event,}.get(x)
+		self.player.get_location.return_value = self.lighthouse_location
+
+		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
+
+		self.assertEqual((True, "The bean disappears.", [self.potion, self.bean]), response)
+		self.assertFalse(self.lighthouse_location.contains(self.bean))
+
+
+	def test_resolve_event_with_item_current_location_prerequisite_without_match(self):
+		prerequisite_kind = EventMatchPrerequisiteKind.ITEM
+		prerequisite_item = self.bean
+		prerequisite_container_kind = ItemEventMatchPrerequisiteContainerKind.CURRENT_LOCATION
+		prerequisite_container = ItemEventMatchPrerequisiteContainer(prerequisite_container_kind, None)
+		prerequisite = ItemEventMatchPrerequisite(prerequisite_kind, prerequisite_item, prerequisite_container)
+
+		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
+		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
+		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item_id=1003, destination=destroy_bean_destination)
+		pour_potion_bean_event_outcome = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action])
+		pour_potion_bean_event = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_match, outcome=pour_potion_bean_event_outcome)
+
+		self.data.get_event.side_effect = lambda x: {(self.pour_command, self.potion, self.bean): pour_potion_bean_event,}.get(x)
+		self.player.get_location.return_value = self.lighthouse_location
+
+		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
+
+		self.assertEqual((False, "", [self.potion, self.bean]), response)
+		self.assertFalse(self.lighthouse_location.contains(self.bean))
+
+
+	def test_resolve_event_with_item_current_location_prerequisite_with_match(self):
+		prerequisite_kind = EventMatchPrerequisiteKind.ITEM
+		prerequisite_item = self.bean
+		prerequisite_container_kind = ItemEventMatchPrerequisiteContainerKind.CURRENT_LOCATION
+		prerequisite_container = ItemEventMatchPrerequisiteContainer(prerequisite_container_kind, None)
+		prerequisite = ItemEventMatchPrerequisite(prerequisite_kind, prerequisite_item, prerequisite_container)
+
+		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
+		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
+		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item_id=1003, destination=destroy_bean_destination)
+		pour_potion_bean_event_outcome = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action])
+		pour_potion_bean_event = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_match, outcome=pour_potion_bean_event_outcome)
+
+		self.data.get_event.side_effect = lambda x: {(self.pour_command, self.potion, self.bean): pour_potion_bean_event,}.get(x)
+		self.player.get_location.return_value = self.lighthouse_location
+		self.lighthouse_location.add(self.bean)
+
+		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
+
+		self.assertEqual((True, "The bean disappears.", [self.potion, self.bean]), response)
+		self.assertFalse(self.lighthouse_location.contains(self.bean))
 
 
 if __name__ == "__main__":
