@@ -1,29 +1,17 @@
-from adventure.command_collection import CommandCollection
-from adventure.event_collection import EventCollection
-from adventure.input_collection import InputCollection
-from adventure.inventory_collection import InventoryCollection
-from adventure.item_collection import ItemCollection
-from adventure.location_collection import LocationCollection
-from adventure.text_collection import TextCollection
-
 class DataCollection:
 
-	def __init__(self, content_input, resolvers):
-		self.commands = CommandCollection(content_input["commands"], resolvers)
-		self.inventories = InventoryCollection(content_input["inventories"])
-		self.locations = LocationCollection(content_input["locations"])
-		self.elements_by_id = self.locations.locations.copy()
-		self.items = ItemCollection(content_input["items"], self.elements_by_id)
-		self.hints = TextCollection(content_input["hints"])
-		self.explanations = TextCollection(content_input["explanations"])
-		self.responses = TextCollection(content_input["responses"])
-		self.inputs = InputCollection(content_input["inputs"])
-		self.events = EventCollection(
-			content_input["events"],
-			self.commands.commands_by_id.copy(),
-			self.items.items_by_id.copy(),
-			self.locations.locations.copy(),
-		)
+	def __init__(self, commands, inventories, locations, elements_by_id, items, hints, explanations, responses,
+			inputs, events):
+		self.commands = commands
+		self.inventories = inventories
+		self.locations = locations
+		self.elements_by_id = elements_by_id
+		self.items = items
+		self.hints = hints
+		self.explanations = explanations
+		self.responses = responses
+		self.inputs = inputs
+		self.events = events
 
 
 	def get_commands(self):

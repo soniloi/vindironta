@@ -3,7 +3,7 @@ import json
 from adventure.argument_resolver import ArgumentResolver
 from adventure.command_handler import CommandHandler
 from adventure.command_runner import CommandRunner
-from adventure.data_collection import DataCollection
+from adventure.data_parser import DataParser
 from adventure.event_resolver import EventResolver
 from adventure.file_reader import FileReader
 from adventure.player import Player
@@ -42,7 +42,9 @@ class Game:
 			command_handler=self.command_handler,
 			event_resolver=self.event_resolver,
 		)
-		self.data = DataCollection(content, resolvers)
+		data_parser = DataParser()
+		self.data = data_parser.parse(content, resolvers)
+
 		self.argument_resolver.init_data(self.data)
 		self.command_handler.init_data(self.data)
 		self.vision_resolver.init_data(self.data)
