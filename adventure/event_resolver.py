@@ -24,6 +24,7 @@ class EventResolver(Resolver):
 
 		if not event or not self.event_matches(event.match, player):
 			return None
+
 		return event
 
 
@@ -47,6 +48,7 @@ class EventResolver(Resolver):
 
 	def event_matches(self, match, player):
 		for prerequisite in match.prerequisites:
+
 			if not self.event_meets_prerequisites(prerequisite, player):
 				return False
 
@@ -64,6 +66,9 @@ class EventResolver(Resolver):
 
 			if container_kind == ItemEventMatchPrerequisiteContainerKind.CURRENT_LOCATION:
 				return player.get_location().contains(item)
+
+		elif prerequisite.kind == EventMatchPrerequisiteKind.LOCATION:
+			return prerequisite.location == player.get_location()
 
 		return False
 
