@@ -42,6 +42,10 @@ class DataCollection:
 		return self.inventories.get(inventory_id)
 
 
+	def get_default_inventory_template(self):
+		return self.inventories.get_default()
+
+
 	def get_inventory_templates(self):
 		return self.inventories.get_all()
 

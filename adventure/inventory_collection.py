@@ -3,6 +3,8 @@ from adventure.inventory import Inventory
 
 class InventoryCollection:
 
+	DEFAULT_ID = 0
+
 	INDEX_ID = 0
 	INDEX_ATTRIBUTES = 1
 	INDEX_SHORTNAME = 2
@@ -53,6 +55,10 @@ class InventoryCollection:
 
 	def get(self, inventory_id):
 		return self.inventories.get(inventory_id)
+
+
+	def get_default(self):
+		return self.get(InventoryCollection.DEFAULT_ID)
 
 
 	def get_all(self):

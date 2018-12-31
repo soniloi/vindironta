@@ -15,7 +15,6 @@ class Game:
 
 	# TODO: decide where this should go
 	PLAYER_INITIAL_LOCATION_ID = 9
-	PLAYER_DEFAULT_INVENTORY_ID = 0
 
 	def __init__(self, filename=None):
 		self.on = True
@@ -52,7 +51,7 @@ class Game:
 
 	def init_player(self):
 		initial_location = self.data.get_location(Game.PLAYER_INITIAL_LOCATION_ID)
-		default_inventory_template = self.data.get_inventory_template(Game.PLAYER_DEFAULT_INVENTORY_ID)
+		default_inventory_template = self.data.get_default_inventory_template()
 		inventory_templates = self.data.get_inventory_templates()
 		self.player = Player(initial_location, default_inventory_template, inventory_templates)
 
