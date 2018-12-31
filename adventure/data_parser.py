@@ -2,18 +2,18 @@ from adventure.command_parser import CommandParser
 from adventure.data_collection import DataCollection
 from adventure.event_collection import EventCollection
 from adventure.input_collection import InputCollection
-from adventure.inventory_collection import InventoryCollection
+from adventure.inventory_parser import InventoryParser
 from adventure.item_collection import ItemCollection
-from adventure.location_collection import LocationCollection
+from adventure.location_parser import LocationParser
 from adventure.text_collection import TextCollection
 
 class DataParser:
 
 	def parse(self, content_input, resolvers):
 		commands = CommandParser().parse(content_input["commands"], resolvers)
+		inventories = InventoryParser().parse(content_input["inventories"])
+		locations = LocationParser().parse(content_input["locations"])
 
-		inventories = InventoryCollection(content_input["inventories"])
-		locations = LocationCollection(content_input["locations"])
 		elements_by_id = locations.locations.copy()
 		items = ItemCollection(content_input["items"], elements_by_id)
 		hints = TextCollection(content_input["hints"])

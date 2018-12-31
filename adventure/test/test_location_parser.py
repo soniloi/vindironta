@@ -1,9 +1,10 @@
 import json
 import unittest
 
-from adventure.location_collection import LocationCollection, Direction
+from adventure.direction import Direction
+from adventure.location_parser import LocationParser
 
-class TestLocationCollection(unittest.TestCase):
+class TestLocationParser(unittest.TestCase):
 
 	def setUp(self):
 		pass
@@ -42,19 +43,19 @@ class TestLocationCollection(unittest.TestCase):
 			]"
 		)
 
-		self.collection = LocationCollection(location_inputs)
+		collection = LocationParser().parse(location_inputs)
 
-		self.assertEqual(2, len(self.collection.locations))
-		self.assertTrue(7 in self.collection.locations)
-		self.assertTrue(9 in self.collection.locations)
+		self.assertEqual(2, len(collection.locations))
+		self.assertTrue(7 in collection.locations)
+		self.assertTrue(9 in collection.locations)
 
-		ward_location = self.collection.locations[9]
+		ward_location = collection.locations[9]
 		self.assertEqual(0x70F, ward_location.attributes)
 		self.assertEqual("Ward", ward_location.shortname)
 		self.assertEqual("in a medical ward", ward_location.longname)
 		self.assertEqual(". The faint electric light is flickering on and off", ward_location.description)
 
-		infirmary_location = self.collection.locations[7]
+		infirmary_location = collection.locations[7]
 		self.assertIsNot(ward_location, infirmary_location)
 
 		self.assertEqual(infirmary_location, ward_location.directions[Direction.SOUTH])

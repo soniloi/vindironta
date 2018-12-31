@@ -1,9 +1,9 @@
 import json
 import unittest
 
-from adventure.inventory_collection import InventoryCollection
+from adventure.inventory_parser import InventoryParser
 
-class TestInventoryCollection(unittest.TestCase):
+class TestInventoryParser(unittest.TestCase):
 
 	def setUp(self):
 		pass
@@ -25,7 +25,7 @@ class TestInventoryCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = InventoryCollection(inventory_inputs)
+		collection = InventoryParser().parse(inventory_inputs)
 
 		self.assertEqual(1, len(collection.inventories))
 		self.assertTrue(0 in collection.inventories)
@@ -55,7 +55,7 @@ class TestInventoryCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = InventoryCollection(inventory_inputs)
+		collection = InventoryParser().parse(inventory_inputs)
 
 		self.assertEqual(1, len(collection.inventories))
 		self.assertTrue(1 in collection.inventories)
