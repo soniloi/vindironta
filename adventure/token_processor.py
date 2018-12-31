@@ -40,7 +40,7 @@ class TokenProcessor:
 
 		# TODO: deprecate this in favour of nouns-as-verbs
 		if not command:
-			command = self.commands.get("switch")
+			command = self.commands.get_by_name("switch")
 
 		if command:
 			return self.command_runner.run(command, player, command_args)
@@ -48,7 +48,7 @@ class TokenProcessor:
 
 
 	def get_command_from_input(self, tokens):
-		return self.commands.get(tokens[0])
+		return self.commands.get_by_name(tokens[0])
 
 
 	def process_tokens_as_reincarnation_answer(self, player, tokens):

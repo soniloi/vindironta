@@ -53,7 +53,7 @@ class TestTokenProcessor(unittest.TestCase):
 
 	def setup_commands(self):
 		self.commands = Mock()
-		self.commands.get.side_effect = self.command_side_effect
+		self.commands.get_by_name.side_effect = self.command_side_effect
 
 		self.die_command = Mock()
 		self.die_command.verb_is_first_arg.return_value = False

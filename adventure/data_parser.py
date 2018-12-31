@@ -1,4 +1,4 @@
-from adventure.command_collection import CommandCollection
+from adventure.command_parser import CommandParser
 from adventure.data_collection import DataCollection
 from adventure.event_collection import EventCollection
 from adventure.input_collection import InputCollection
@@ -10,7 +10,8 @@ from adventure.text_collection import TextCollection
 class DataParser:
 
 	def parse(self, content_input, resolvers):
-		commands = CommandCollection(content_input["commands"], resolvers)
+		commands = CommandParser().parse(content_input["commands"], resolvers)
+
 		inventories = InventoryCollection(content_input["inventories"])
 		locations = LocationCollection(content_input["locations"])
 		elements_by_id = locations.locations.copy()

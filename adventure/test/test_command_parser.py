@@ -2,10 +2,10 @@ import json
 import unittest
 from unittest.mock import Mock
 
-from adventure.command_collection import CommandCollection
+from adventure.command_parser import CommandParser
 from adventure.resolvers import Resolvers
 
-class TestCommandCollection(unittest.TestCase):
+class TestCommandParser(unittest.TestCase):
 
 	def setUp(self):
 		self.setup_vision_resolver()
@@ -118,15 +118,15 @@ class TestCommandCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = CommandCollection(command_inputs, self.resolvers)
+		collection = CommandParser().parse(command_inputs, self.resolvers)
 
-		self.assertEqual(2, len(collection.commands))
+		self.assertEqual(2, len(collection.commands_by_name))
 		self.assertEqual(2, len(collection.commands_by_id))
-		self.assertTrue("score" in collection.commands)
-		self.assertTrue("look" in collection.commands)
+		self.assertTrue("score" in collection.commands_by_name)
+		self.assertTrue("look" in collection.commands_by_name)
 
-		score_command = collection.commands["score"]
-		look_command = collection.commands["look"]
+		score_command = collection.commands_by_name["score"]
+		look_command = collection.commands_by_name["look"]
 		self.assertIsNot(score_command, look_command)
 
 
@@ -145,15 +145,15 @@ class TestCommandCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = CommandCollection(command_inputs, self.resolvers)
+		collection = CommandParser().parse(command_inputs, self.resolvers)
 
-		self.assertEqual(2, len(collection.commands))
+		self.assertEqual(2, len(collection.commands_by_name))
 		self.assertEqual(1, len(collection.commands_by_id))
-		self.assertTrue("look" in collection.commands)
-		self.assertTrue("l" in collection.commands)
+		self.assertTrue("look" in collection.commands_by_name)
+		self.assertTrue("l" in collection.commands_by_name)
 
-		look_command = collection.commands["look"]
-		l_command = collection.commands["l"]
+		look_command = collection.commands_by_name["look"]
+		l_command = collection.commands_by_name["l"]
 		self.assertIs(look_command, l_command)
 
 
@@ -171,9 +171,9 @@ class TestCommandCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = CommandCollection(command_inputs, self.resolvers)
+		collection = CommandParser().parse(command_inputs, self.resolvers)
 
-		self.assertEqual(0, len(collection.commands))
+		self.assertEqual(0, len(collection.commands_by_name))
 		self.assertEqual(0, len(collection.commands_by_id))
 
 
@@ -191,10 +191,10 @@ class TestCommandCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = CommandCollection(command_inputs, self.resolvers)
+		collection = CommandParser().parse(command_inputs, self.resolvers)
 
-		self.assertTrue("east" in collection.commands)
-		east_command = collection.commands["east"]
+		self.assertTrue("east" in collection.commands_by_name)
+		east_command = collection.commands_by_name["east"]
 		self.assertEqual(3, len(east_command.resolver_functions))
 		self.assertEqual(self.mock_argument_movement, east_command.resolver_functions[0])
 		self.assertEqual(self.mock_handler_go, east_command.resolver_functions[1])
@@ -226,10 +226,10 @@ class TestCommandCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = CommandCollection(command_inputs, self.resolvers)
+		collection = CommandParser().parse(command_inputs, self.resolvers)
 
-		self.assertTrue("verbose" in collection.commands)
-		verbose_command = collection.commands["verbose"]
+		self.assertTrue("verbose" in collection.commands_by_name)
+		verbose_command = collection.commands_by_name["verbose"]
 		self.assertIn("no", verbose_command.switch_info)
 		self.assertIn("yes", verbose_command.switch_info)
 		self.assertFalse(verbose_command.switch_info["no"])
@@ -264,10 +264,10 @@ class TestCommandCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = CommandCollection(command_inputs, self.resolvers)
+		collection = CommandParser().parse(command_inputs, self.resolvers)
 
-		self.assertTrue("abrakadabra" in collection.commands)
-		teleport_command = collection.commands["abrakadabra"]
+		self.assertTrue("abrakadabra" in collection.commands_by_name)
+		teleport_command = collection.commands_by_name["abrakadabra"]
 		self.assertEqual(2, len(teleport_command.teleport_info))
 		self.assertEqual(24, teleport_command.teleport_info[23])
 		self.assertEqual(23, teleport_command.teleport_info[26])
@@ -299,10 +299,10 @@ class TestCommandCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = CommandCollection(command_inputs, self.resolvers)
+		collection = CommandParser().parse(command_inputs, self.resolvers)
 
-		self.assertTrue("take" in collection.commands)
-		take_command = collection.commands["take"]
+		self.assertTrue("take" in collection.commands_by_name)
+		take_command = collection.commands_by_name["take"]
 		self.assertEqual(3, len(take_command.resolver_functions))
 		self.assertEqual(self.mock_argument_args, take_command.resolver_functions[0])
 		self.assertEqual(self.mock_handler_take, take_command.resolver_functions[1])
@@ -338,10 +338,10 @@ class TestCommandCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = CommandCollection(command_inputs, self.resolvers)
+		collection = CommandParser().parse(command_inputs, self.resolvers)
 
-		self.assertTrue("insert" in collection.commands)
-		insert_command = collection.commands["insert"]
+		self.assertTrue("insert" in collection.commands_by_name)
+		insert_command = collection.commands_by_name["insert"]
 		self.assertEqual(3, len(insert_command.resolver_functions))
 		self.assertEqual(self.mock_argument_args, insert_command.resolver_functions[0])
 		self.assertEqual(self.mock_handler_insert, insert_command.resolver_functions[1])
@@ -366,9 +366,9 @@ class TestCommandCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = CommandCollection(command_inputs, self.resolvers)
+		collection = CommandParser().parse(command_inputs, self.resolvers)
 
-		look_command = collection.commands["look"]
+		look_command = collection.commands_by_name["look"]
 		self.assertEqual(4, len(look_command.resolver_functions))
 		self.assertEqual(self.mock_vision_light_and_dark, look_command.resolver_functions[0])
 		self.assertEqual(self.mock_argument_args, look_command.resolver_functions[1])
@@ -396,9 +396,9 @@ class TestCommandCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = CommandCollection(command_inputs, self.resolvers)
+		collection = CommandParser().parse(command_inputs, self.resolvers)
 
-		read_command = collection.commands["read"]
+		read_command = collection.commands_by_name["read"]
 		self.assertEqual(4, len(read_command.resolver_functions))
 		self.assertEqual(self.mock_vision_dark, read_command.resolver_functions[0])
 		self.assertEqual(self.mock_argument_args, read_command.resolver_functions[1])
@@ -421,9 +421,9 @@ class TestCommandCollection(unittest.TestCase):
 		)
 
 
-		collection = CommandCollection(command_inputs, self.resolvers)
+		collection = CommandParser().parse(command_inputs, self.resolvers)
 
-		score_command = collection.commands["score"]
+		score_command = collection.commands_by_name["score"]
 		self.assertEqual(3, len(score_command.resolver_functions))
 		self.assertEqual(self.mock_argument_args, score_command.resolver_functions[0])
 		self.assertEqual(self.mock_handler_score, score_command.resolver_functions[1])
@@ -486,7 +486,7 @@ class TestCommandCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = CommandCollection(command_inputs, self.resolvers)
+		collection = CommandParser().parse(command_inputs, self.resolvers)
 
 		self.assertEqual("e/east, l/look, score, take", collection.list_commands())
 
