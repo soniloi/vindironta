@@ -5,11 +5,11 @@ from adventure.command import Command
 from adventure.element import Labels
 from adventure.event import EventMatchArgumentKind, EventOutcomeActionKind, ItemEventOutcomeActionDestinationKind
 from adventure.event import EventMatchPrerequisiteKind, ItemEventMatchPrerequisiteContainerKind
-from adventure.event_collection import EventCollection
+from adventure.event_parser import EventParser
 from adventure.item import Item
 from adventure.location import Location
 
-class TestEventCollection(unittest.TestCase):
+class TestEventParser(unittest.TestCase):
 
 	def setUp(self):
 		self.setup_commands()
@@ -57,7 +57,7 @@ class TestEventCollection(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+		self.collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
 
 		self.assertEqual(1, len(self.collection.events))
 		self.assertTrue((self.command,) in self.collection.events)
@@ -99,7 +99,7 @@ class TestEventCollection(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+		self.collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
 
 		self.assertEqual(1, len(self.collection.events))
 		self.assertTrue((self.command, self.book, "hello") in self.collection.events)
@@ -151,7 +151,7 @@ class TestEventCollection(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+		self.collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
 
 		self.assertEqual(1, len(self.collection.events))
 		self.assertTrue((self.command,) in self.collection.events)
@@ -200,7 +200,7 @@ class TestEventCollection(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+		self.collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
 
 		self.assertEqual(1, len(self.collection.events))
 		self.assertTrue((self.command,) in self.collection.events)
@@ -250,7 +250,7 @@ class TestEventCollection(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventCollection(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+		self.collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
 
 		self.assertEqual(1, len(self.collection.events))
 		self.assertTrue((self.command,) in self.collection.events)

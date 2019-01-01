@@ -1,12 +1,15 @@
 import json
 import unittest
 
-from adventure.text_collection import TextCollection
+from adventure.text_parser import TextParser
 
-class TestTextCollection(unittest.TestCase):
+class TestTextParser(unittest.TestCase):
 
 	def setUp(self):
+		pass
 
+
+	def test_parse(self):
 		text_inputs = json.loads(
 			"{ \
 				\"inventory\": \"This command lists the items you are carrying.\", \
@@ -14,10 +17,9 @@ class TestTextCollection(unittest.TestCase):
 				\"confirm_insert\": \"You insert the $0 into the $1.\" \
 			}"
 		)
-		self.collection = TextCollection(text_inputs)
 
+		self.collection = TextParser().parse(text_inputs)
 
-	def test_init(self):
 		self.assertEqual(3, len(self.collection.texts))
 		self.assertTrue("inventory" in self.collection.texts)
 		self.assertTrue("reject_not_here" in self.collection.texts)
