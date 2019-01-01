@@ -188,7 +188,7 @@ class ArgumentResolver(Resolver):
 		if not arg_info.is_item:
 			return True, "", arg_input
 
-		item = self.data.get_item(arg_input)
+		item = self.data.get_item_by_name(arg_input)
 		if not item:
 			return False, self.get_response("reject_unknown"), [arg_input]
 

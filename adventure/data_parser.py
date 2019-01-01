@@ -3,7 +3,7 @@ from adventure.data_collection import DataCollection
 from adventure.event_collection import EventCollection
 from adventure.input_collection import InputCollection
 from adventure.inventory_parser import InventoryParser
-from adventure.item_collection import ItemCollection
+from adventure.item_parser import ItemParser
 from adventure.location_parser import LocationParser
 from adventure.text_collection import TextCollection
 
@@ -13,9 +13,9 @@ class DataParser:
 		commands = CommandParser().parse(content_input["commands"], resolvers)
 		inventories = InventoryParser().parse(content_input["inventories"])
 		locations = LocationParser().parse(content_input["locations"])
-
 		elements_by_id = locations.locations.copy()
-		items = ItemCollection(content_input["items"], elements_by_id)
+		items = ItemParser().parse(content_input["items"], elements_by_id)
+
 		hints = TextCollection(content_input["hints"])
 		explanations = TextCollection(content_input["explanations"])
 		responses = TextCollection(content_input["responses"])

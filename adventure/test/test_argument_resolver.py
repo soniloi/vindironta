@@ -14,7 +14,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		self.data = Mock()
 		self.data.get_response.side_effect = self.responses_side_effect
-		self.data.get_item.side_effect = self.items_side_effect
+		self.data.get_item_by_name.side_effect = self.items_side_effect
 
 		self.book = Item(1105, 0x2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
 		self.box = ContainerItem(1106, 0x3, Labels("box", "a box", "a small box"), 3, None)

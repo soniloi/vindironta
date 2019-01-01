@@ -3,10 +3,10 @@ import unittest
 
 from adventure.element import Labels
 from adventure.item import ContainerItem, SentientItem, SwitchableItem, WearableItem
-from adventure.item_collection import ItemCollection
+from adventure.item_parser import ItemParser
 from adventure.location import Location
 
-class TestItemCollection(unittest.TestCase):
+class TestItemParser(unittest.TestCase):
 
 	def setUp(self):
 		self.library_location = Location(80, 0x1, Labels("Library", "in the Library", ", a tall, bright room"))
@@ -41,11 +41,11 @@ class TestItemCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemCollection(item_inputs, self.elements)
+		collection = ItemParser().parse(item_inputs, self.elements)
 
-		self.assertEqual(1, len(collection.items))
-		self.assertTrue("book" in collection.items)
-		book = collection.items["book"]
+		self.assertEqual(1, len(collection.items_by_name))
+		self.assertTrue("book" in collection.items_by_name)
+		book = collection.items_by_name["book"]
 		self.assertEqual(0x2, book.attributes)
 		self.assertEqual(1, len(book.containers))
 		self.assertTrue(self.library_location in book.containers)
@@ -101,11 +101,11 @@ class TestItemCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemCollection(item_inputs, self.elements)
+		collection = ItemParser().parse(item_inputs, self.elements)
 
-		self.assertEqual(2, len(collection.items))
-		book = collection.items["book"]
-		lamp = collection.items["lamp"]
+		self.assertEqual(2, len(collection.items_by_name))
+		book = collection.items_by_name["book"]
+		lamp = collection.items_by_name["lamp"]
 		self.assertIsNot(book, lamp)
 
 
@@ -131,11 +131,11 @@ class TestItemCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemCollection(item_inputs, self.elements)
+		collection = ItemParser().parse(item_inputs, self.elements)
 
-		self.assertEqual(2, len(collection.items))
-		kohlrabi = collection.items["kohlrabi"]
-		cabbage = collection.items["cabbage"]
+		self.assertEqual(2, len(collection.items_by_name))
+		kohlrabi = collection.items_by_name["kohlrabi"]
+		cabbage = collection.items_by_name["cabbage"]
 		self.assertIs(kohlrabi, cabbage)
 
 
@@ -167,10 +167,10 @@ class TestItemCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemCollection(item_inputs, self.elements)
+		collection = ItemParser().parse(item_inputs, self.elements)
 
-		self.assertEqual(1, len(collection.items))
-		lamp = collection.items["lamp"]
+		self.assertEqual(1, len(collection.items_by_name))
+		lamp = collection.items_by_name["lamp"]
 		self.assertFalse(lamp.containers)
 
 
@@ -196,11 +196,11 @@ class TestItemCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemCollection(item_inputs, self.elements)
+		collection = ItemParser().parse(item_inputs, self.elements)
 
-		self.assertEqual(1, len(collection.items))
-		self.assertTrue("water" in collection.items)
-		water = collection.items["water"]
+		self.assertEqual(1, len(collection.items_by_name))
+		self.assertTrue("water" in collection.items_by_name)
+		water = collection.items_by_name["water"]
 		self.assertEqual(2, len(water.containers))
 		self.assertTrue(self.library_location in water.containers)
 		self.assertTrue(self.lighthouse_location in water.containers)
@@ -227,11 +227,11 @@ class TestItemCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemCollection(item_inputs, self.elements)
+		collection = ItemParser().parse(item_inputs, self.elements)
 
-		self.assertEqual(1, len(collection.items))
-		self.assertTrue("basket" in collection.items)
-		basket = collection.items["basket"]
+		self.assertEqual(1, len(collection.items_by_name))
+		self.assertTrue("basket" in collection.items_by_name)
+		basket = collection.items_by_name["basket"]
 		self.assertTrue(isinstance(basket, ContainerItem))
 
 
@@ -256,11 +256,11 @@ class TestItemCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemCollection(item_inputs, self.elements)
+		collection = ItemParser().parse(item_inputs, self.elements)
 
-		self.assertEqual(1, len(collection.items))
-		self.assertTrue("cat" in collection.items)
-		cat = collection.items["cat"]
+		self.assertEqual(1, len(collection.items_by_name))
+		self.assertTrue("cat" in collection.items_by_name)
+		cat = collection.items_by_name["cat"]
 		self.assertTrue(isinstance(cat, SentientItem))
 
 
@@ -286,9 +286,9 @@ class TestItemCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemCollection(item_inputs, self.elements)
+		collection = ItemParser().parse(item_inputs, self.elements)
 
-		book = collection.items["book"]
+		book = collection.items_by_name["book"]
 		self.assertEqual(1, len(book.containers))
 		self.assertTrue(self.box in book.containers)
 		self.assertEqual(book, self.box.get_by_id(book.data_id))
@@ -321,10 +321,10 @@ class TestItemCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemCollection(item_inputs, self.elements)
+		collection = ItemParser().parse(item_inputs, self.elements)
 
-		self.assertEqual(1, len(collection.items))
-		lamp = collection.items["lamp"]
+		self.assertEqual(1, len(collection.items_by_name))
+		lamp = collection.items_by_name["lamp"]
 		self.assertTrue(isinstance(lamp, SwitchableItem))
 		self.assertEqual(lamp, lamp.switched_element)
 		self.assertEqual(0x10, lamp.switched_attribute)
@@ -360,10 +360,10 @@ class TestItemCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemCollection(item_inputs, self.elements)
+		collection = ItemParser().parse(item_inputs, self.elements)
 
-		self.assertEqual(1, len(collection.items))
-		button = collection.items["button"]
+		self.assertEqual(1, len(collection.items_by_name))
+		button = collection.items_by_name["button"]
 		self.assertTrue(isinstance(button, SwitchableItem))
 		self.assertEqual(self.box, button.switched_element)
 		self.assertEqual(0x20, button.switched_attribute)
@@ -396,10 +396,10 @@ class TestItemCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemCollection(item_inputs, self.elements)
+		collection = ItemParser().parse(item_inputs, self.elements)
 
-		self.assertEqual(1, len(collection.items))
-		lever = collection.items["lever"]
+		self.assertEqual(1, len(collection.items_by_name))
+		lever = collection.items_by_name["lever"]
 		self.assertTrue(isinstance(lever, SwitchableItem))
 		self.assertEqual(self.library_location, lever.switched_element)
 		self.assertEqual(0x40, lever.switched_attribute)
@@ -427,10 +427,10 @@ class TestItemCollection(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemCollection(item_inputs, self.elements)
+		collection = ItemParser().parse(item_inputs, self.elements)
 
-		self.assertEqual(1, len(collection.items))
-		suit = collection.items["suit"]
+		self.assertEqual(1, len(collection.items_by_name))
+		suit = collection.items_by_name["suit"]
 		self.assertTrue(isinstance(suit, WearableItem))
 		self.assertEqual(0x20, suit.attribute_activated)
 
