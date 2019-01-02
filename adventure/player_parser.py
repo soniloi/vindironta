@@ -1,3 +1,5 @@
+from copy import copy
+
 from adventure.player import Player
 
 class PlayerParser:
@@ -15,11 +17,29 @@ class PlayerParser:
 		attributes = int(player_input["attributes"], 16)
 		location_id = player_input["location_id"]
 		location = locations[location_id]
+		default_inventory, inventories_by_location_id = self.create_player_inventories(default_inventory_template, inventory_templates)
 
 		return Player(
 			player_id=player_id,
 			attributes=attributes,
 			initial_location=location,
-			default_inventory_template=default_inventory_template,
-			inventory_templates=inventory_templates,
+			default_inventory=default_inventory,
+			inventories_by_location_id=inventories_by_location_id,
 		)
+
+
+	def create_player_inventories(self, default_inventory_template, inventory_templates):
+		default_inventory = copy(default_inventory_template)
+
+		inventories_by_location_id = {}
+		for inventory_template in inventory_templates:
+			self.add_non_default_inventory(inventories_by_location_id, inventory_template)
+
+		return default_inventory, inventories_by_location_id
+
+
+	def add_non_default_inventory(self, inventories_by_location_id, inventory_template):
+		if not inventory_template.is_default():
+			non_default_inventory = copy(inventory_template)
+			for location_id in inventory_template.location_ids:
+				inventories_by_location_id[location_id] = non_default_inventory

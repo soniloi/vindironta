@@ -1,5 +1,3 @@
-from copy import copy
-
 from adventure.element import DataElement
 from adventure.inventory import Inventory
 
@@ -10,26 +8,17 @@ class Player(DataElement):
 	ATTRIBUTE_IMMUNE = 0x4
 	ATTRIBUTE_VERBOSE = 0x8
 
-	def __init__(self, player_id, attributes, initial_location, default_inventory_template, inventory_templates=[]):
+	def __init__(self, player_id, attributes, initial_location, default_inventory, inventories_by_location_id={}):
 		DataElement.__init__(self, data_id=player_id, attributes=attributes)
 		self.location = initial_location
-		self.default_inventory = copy(default_inventory_template)
 		self.previous_location = None
 		self.score = 0
 		self.current_command = None
 		self.current_args = []
 		self.instructions = 0
 
-		self.inventories_by_location = {}
-		for inventory_template in inventory_templates:
-			self.add_non_default_inventory(inventory_template)
-
-
-	def add_non_default_inventory(self, inventory_template):
-		if not inventory_template.is_default():
-			non_default_inventory = copy(inventory_template)
-			for location_id in inventory_template.location_ids:
-				self.inventories_by_location[location_id] = non_default_inventory
+		self.default_inventory = default_inventory
+		self.inventories_by_location_id = inventories_by_location_id
 
 
 	def get_location_id(self):
@@ -66,7 +55,7 @@ class Player(DataElement):
 
 	def get_inventory(self):
 		location_id = self.get_location_id()
-		return self.inventories_by_location.get(location_id, self.default_inventory)
+		return self.inventories_by_location_id.get(location_id, self.default_inventory)
 
 
 	def holding_items(self):
