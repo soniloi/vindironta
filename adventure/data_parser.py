@@ -5,6 +5,7 @@ from adventure.input_parser import InputParser
 from adventure.inventory_parser import InventoryParser
 from adventure.item_parser import ItemParser
 from adventure.location_parser import LocationParser
+from adventure.player_parser import PlayerParser
 from adventure.text_parser import TextParser
 
 class DataParser:
@@ -26,7 +27,7 @@ class DataParser:
 			locations.locations.copy(),
 		)
 
-		return DataCollection(
+		data = DataCollection(
 			commands=commands,
 			inventories=inventories,
 			locations=locations,
@@ -38,3 +39,12 @@ class DataParser:
 			inputs=inputs,
 			events=events,
 		)
+
+		player = PlayerParser().parse(
+			content_input["players"],
+			locations.locations.copy(),
+			inventories.get_default(),
+			inventories.get_all(),
+		)
+
+		return data, player

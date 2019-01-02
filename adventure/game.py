@@ -13,9 +13,6 @@ from adventure.vision_resolver import VisionResolver
 
 class Game:
 
-	# TODO: decide where this should go
-	PLAYER_INITIAL_LOCATION_ID = 9
-
 	def __init__(self, filename=None):
 		self.on = True
 		self.argument_resolver = ArgumentResolver()
@@ -28,14 +25,13 @@ class Game:
 				reader = FileReader(input_file)
 				content = reader.get_content()
 				json_content = json.loads(content)
-				self.init_data(json_content)
-				self.init_player()
+				self.init_data_and_player(json_content)
 
 				command_runner = CommandRunner()
 				self.init_token_processor(self.data, command_runner)
 
 
-	def init_data(self, content):
+	def init_data_and_player(self, content):
 		resolvers = Resolvers(
 			vision_resolver=self.vision_resolver,
 			argument_resolver=self.argument_resolver,
@@ -43,19 +39,12 @@ class Game:
 			event_resolver=self.event_resolver,
 		)
 		data_parser = DataParser()
-		self.data = data_parser.parse(content, resolvers)
+		self.data, self.player = data_parser.parse(content, resolvers)
 
 		self.argument_resolver.init_data(self.data)
 		self.command_handler.init_data(self.data)
 		self.vision_resolver.init_data(self.data)
 		self.event_resolver.init_data(self.data)
-
-
-	def init_player(self):
-		initial_location = self.data.get_location(Game.PLAYER_INITIAL_LOCATION_ID)
-		default_inventory_template = self.data.get_default_inventory_template()
-		inventory_templates = self.data.get_inventory_templates()
-		self.player = Player(initial_location, default_inventory_template, inventory_templates)
 
 
 	def init_token_processor(self, data, command_runner):

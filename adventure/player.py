@@ -1,19 +1,17 @@
 from copy import copy
 
-from adventure.element import Element
+from adventure.element import DataElement
 from adventure.inventory import Inventory
 
-class Player(Element):
-
-	INVENTORY_CAPACITY = 16
+class Player(DataElement):
 
 	ATTRIBUTE_PLAYING = 0x1
 	ATTRIBUTE_ALIVE = 0x2
 	ATTRIBUTE_IMMUNE = 0x4
 	ATTRIBUTE_VERBOSE = 0x8
 
-	def __init__(self, initial_location, default_inventory_template, inventory_templates=[]):
-		Element.__init__(self, attributes=0x3)
+	def __init__(self, player_id, attributes, initial_location, default_inventory_template, inventory_templates=[]):
+		DataElement.__init__(self, data_id=player_id, attributes=attributes)
 		self.location = initial_location
 		self.default_inventory = copy(default_inventory_template)
 		self.previous_location = None

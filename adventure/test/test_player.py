@@ -17,7 +17,7 @@ class TestPlayer(unittest.TestCase):
 
 
 	def test_init(self):
-		player = Player(self.mine_location, self.default_inventory, [self.mine_inventory])
+		player = Player(9000, 0x0, self.mine_location, self.default_inventory, [self.mine_inventory])
 
 		self.assertIsNot(self.default_inventory, player.default_inventory)
 		self.assertEqual(self.default_inventory.data_id, player.default_inventory.data_id)
@@ -35,7 +35,7 @@ class TestPlayer(unittest.TestCase):
 
 
 	def test_get_inventory_default(self):
-		player = Player(self.lighthouse_location, self.default_inventory)
+		player = Player(9000, 0x0, self.lighthouse_location, self.default_inventory)
 
 		player_inventory = player.get_inventory()
 		self.assertEqual(self.default_inventory.data_id, player_inventory.data_id)
@@ -44,7 +44,7 @@ class TestPlayer(unittest.TestCase):
 
 
 	def test_get_inventory_non_default(self):
-		player = Player(self.mine_location, self.default_inventory, [self.mine_inventory])
+		player = Player(9000, 0x0, self.mine_location, self.default_inventory, [self.mine_inventory])
 
 		player_inventory = player.get_inventory()
 		self.assertEqual(self.mine_inventory.data_id, player_inventory.data_id)
