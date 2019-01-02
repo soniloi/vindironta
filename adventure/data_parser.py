@@ -1,7 +1,7 @@
 from adventure.command_parser import CommandParser
 from adventure.data_collection import DataCollection
 from adventure.event_parser import EventParser
-from adventure.input_collection import InputCollection
+from adventure.input_parser import InputParser
 from adventure.inventory_parser import InventoryParser
 from adventure.item_parser import ItemParser
 from adventure.location_parser import LocationParser
@@ -18,8 +18,7 @@ class DataParser:
 		hints = TextParser().parse(content_input["hints"])
 		explanations = TextParser().parse(content_input["explanations"])
 		responses = TextParser().parse(content_input["responses"])
-		inputs = InputCollection(content_input["inputs"])
-
+		inputs = InputParser().parse(content_input["inputs"])
 		events = EventParser().parse(
 			content_input["events"],
 			commands.commands_by_id.copy(),
