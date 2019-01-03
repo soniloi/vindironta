@@ -16,6 +16,7 @@ class Player(DataElement):
 		self.current_command = None
 		self.current_args = []
 		self.instructions = 0
+		self.solved_puzzles = set()
 
 		self.default_inventory = default_inventory
 		self.inventories_by_location_id = inventories_by_location_id
@@ -102,6 +103,10 @@ class Player(DataElement):
 
 	def decrement_instructions(self):
 		self.instructions -= 1
+
+
+	def solve_puzzle(self, event_id):
+		self.solved_puzzles.add(event_id)
 
 
 	def get_arrival_location_description(self):

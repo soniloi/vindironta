@@ -327,5 +327,17 @@ class TestEventResolver(unittest.TestCase):
 		self.assertFalse(self.lighthouse_location.contains(self.bean))
 
 
+	def test_resolve_event_with_item_outcome_action_current_location(self):
+		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
+		wave_wand_event_outcome = EventOutcome(text="Something happens.", actions=[])
+		wave_wand_event = Event(event_id=3004, attributes=0x1, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
+		self.data.get_event.side_effect = lambda x: {(self.wave_command, self.wand): wave_wand_event,}.get(x)
+
+		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
+
+		self.assertEqual((True, "Something happens.", [self.wand]), response)
+		self.player.solve_puzzle.assert_called_once_with(3004)
+
+
 if __name__ == "__main__":
 	unittest.main()

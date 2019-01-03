@@ -14,6 +14,7 @@ class EventResolver(Resolver):
 
 		outcome = event.outcome
 		self.handle_outcome_actions(player, outcome.actions)
+		self.handle_attribute_outcomes(player, event)
 
 		return True, event.outcome.text, list(args)
 
@@ -105,3 +106,8 @@ class EventResolver(Resolver):
 			container = item.get_first_container()
 			item.destroy()
 			container.insert(replacement)
+
+
+	def handle_attribute_outcomes(self, player, event):
+		if event.is_puzzle():
+			player.solve_puzzle(event.data_id)
