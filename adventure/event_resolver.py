@@ -113,5 +113,9 @@ class EventResolver(Resolver):
 
 	def update_player_outcomes(self, player, event):
 		player.complete_event(event.data_id)
+
+		if event.is_end_game():
+			player.set_playing(False)
+
 		if event.is_puzzle():
 			player.solve_puzzle(event.data_id)

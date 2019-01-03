@@ -369,10 +369,36 @@ class TestEventResolver(unittest.TestCase):
 		self.assertFalse(self.lighthouse_location.contains(self.bean))
 
 
-	def test_resolve_event_with_item_outcome_action_current_location(self):
+	def test_resolve_event_without_special_player_outcomes(self):
+		rub_lamp_event_match = EventMatch(command=self.rub_command, arguments=[self.lamp], prerequisites=[])
+		rub_lamp_event_outcome = EventOutcome(text="A genie pops out.", actions=[])
+		rub_lamp_event = Event(event_id=3001, attributes=0x0, match=rub_lamp_event_match, outcome=rub_lamp_event_outcome)
+		self.data.get_event.side_effect = lambda x: {(self.rub_command, self.lamp): rub_lamp_event,}.get(x)
+
+		response = self.resolver.resolve_event(self.rub_command, self.player, self.lamp)
+
+		self.assertEqual((True, "A genie pops out.", [self.lamp]), response)
+		self.player.complete_event.assert_called_once_with(3001)
+		self.player.solve_puzzle.assert_not_called()
+		self.player.set_playing.assert_not_called()
+
+
+	def test_resolve_event_end_game(self):
+		rub_lamp_event_match = EventMatch(command=self.rub_command, arguments=[self.lamp], prerequisites=[])
+		rub_lamp_event_outcome = EventOutcome(text="A genie pops out.", actions=[])
+		rub_lamp_event = Event(event_id=3001, attributes=0x1, match=rub_lamp_event_match, outcome=rub_lamp_event_outcome)
+		self.data.get_event.side_effect = lambda x: {(self.rub_command, self.lamp): rub_lamp_event,}.get(x)
+
+		response = self.resolver.resolve_event(self.rub_command, self.player, self.lamp)
+
+		self.assertEqual((True, "A genie pops out.", [self.lamp]), response)
+		self.player.set_playing.assert_called_once_with(False)
+
+
+	def test_resolve_event_puzzle(self):
 		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		wave_wand_event_outcome = EventOutcome(text="Something happens.", actions=[])
-		wave_wand_event = Event(event_id=3004, attributes=0x1, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
+		wave_wand_event = Event(event_id=3004, attributes=0x4, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
 		self.data.get_event.side_effect = lambda x: {(self.wave_command, self.wand): wave_wand_event,}.get(x)
 
 		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)

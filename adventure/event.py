@@ -5,12 +5,17 @@ from adventure.element import DataElement
 
 class Event(DataElement):
 
-	ATTRIBUTE_PUZZLE = 0x1
+	ATTRIBUTE_END_GAME = 0x1
+	ATTRIBUTE_PUZZLE = 0x4
 
 	def __init__(self, event_id, attributes, match, outcome):
 		DataElement.__init__(self, data_id=event_id, attributes=attributes)
 		self.match = match
 		self.outcome = outcome
+
+
+	def is_end_game(self):
+		return self.has_attribute(Event.ATTRIBUTE_END_GAME)
 
 
 	def is_puzzle(self):
