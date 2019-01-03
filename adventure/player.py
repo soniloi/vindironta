@@ -16,6 +16,7 @@ class Player(DataElement):
 		self.current_command = None
 		self.current_args = []
 		self.instructions = 0
+		self.completed_events = set()
 		self.solved_puzzles = set()
 
 		self.default_inventory = default_inventory
@@ -103,6 +104,14 @@ class Player(DataElement):
 
 	def decrement_instructions(self):
 		self.instructions -= 1
+
+
+	def has_completed_event(self, event_id):
+		return event_id in self.completed_events
+
+
+	def complete_event(self, event_id):
+		self.completed_events.add(event_id)
 
 
 	def solve_puzzle(self, event_id):

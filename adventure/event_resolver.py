@@ -14,7 +14,7 @@ class EventResolver(Resolver):
 
 		outcome = event.outcome
 		self.handle_outcome_actions(player, outcome.actions)
-		self.handle_attribute_outcomes(player, event)
+		self.update_player_outcomes(player, event)
 
 		return True, event.outcome.text, list(args)
 
@@ -71,6 +71,9 @@ class EventResolver(Resolver):
 		elif prerequisite.kind == EventMatchPrerequisiteKind.LOCATION:
 			return prerequisite.location == player.get_location()
 
+		elif prerequisite.kind == EventMatchPrerequisiteKind.EVENT:
+			return player.has_completed_event(prerequisite.event_id)
+
 		return False
 
 
@@ -108,6 +111,7 @@ class EventResolver(Resolver):
 			container.insert(replacement)
 
 
-	def handle_attribute_outcomes(self, player, event):
+	def update_player_outcomes(self, player, event):
+		player.complete_event(event.data_id)
 		if event.is_puzzle():
 			player.solve_puzzle(event.data_id)
