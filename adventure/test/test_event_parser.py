@@ -216,6 +216,45 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual(self.lighthouse_location, prerequisite.location)
 
 
+	def test_event_with_event_match_prerequisites(self):
+		event_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 3001, \
+					\"attributes\": \"0\", \
+					\"match\": { \
+						\"command_id\": 48, \
+						\"arguments\": [], \
+						\"prerequisites\": [ \
+							{ \
+								\"kind\": \"event\", \
+								\"data_id\": 3000 \
+							} \
+						] \
+					}, \
+					\"outcome\": { \
+						\"text\" : \"A very confused-looking genie pops out of the lamp.\" \
+					} \
+				} \
+			]"
+		)
+
+		self.collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+
+		self.assertEqual(1, len(self.collection.events))
+		self.assertTrue((self.command,) in self.collection.events)
+
+		event = self.collection.events[(self.command,)]
+		match = event.match
+
+		prerequisites = match.prerequisites
+		self.assertEqual(1, len(prerequisites))
+
+		prerequisite = prerequisites[0]
+		self.assertEqual(EventMatchPrerequisiteKind.EVENT, prerequisite.kind)
+		self.assertEqual(3000, prerequisite.event_id)
+
+
 	def test_event_with_outcome_actions(self):
 		event_inputs = json.loads(
 			"[ \

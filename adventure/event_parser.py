@@ -1,6 +1,6 @@
 from adventure.event import Event, EventMatch, EventMatchArgument, EventMatchArgumentKind
 from adventure.event import EventMatchPrerequisiteKind, ItemEventMatchPrerequisite, ItemEventMatchPrerequisiteContainer, ItemEventMatchPrerequisiteContainerKind
-from adventure.event import LocationEventMatchPrerequisite
+from adventure.event import LocationEventMatchPrerequisite, EventEventMatchPrerequisite
 from adventure.event import EventOutcome, EventOutcomeActionKind, ItemEventOutcomeAction
 from adventure.event import ItemEventOutcomeActionDestination, ItemEventOutcomeActionDestinationKind
 from adventure.event_collection import EventCollection
@@ -81,6 +81,10 @@ class EventParser:
 				data_id = prerequisite_input["data_id"]
 				location = locations_by_id.get(data_id)
 				prerequisites.append(LocationEventMatchPrerequisite(kind=prerequisite_kind, location=location))
+
+			elif prerequisite_kind == EventMatchPrerequisiteKind.EVENT:
+				data_id = prerequisite_input["data_id"]
+				prerequisites.append(EventEventMatchPrerequisite(kind=prerequisite_kind, event_id=data_id))
 
 		return prerequisites
 
