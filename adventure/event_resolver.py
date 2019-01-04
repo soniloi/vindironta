@@ -81,8 +81,17 @@ class EventResolver(Resolver):
 
 	def handle_outcome_actions(self, player, actions):
 		for action in actions:
-			if action.kind == EventOutcomeActionKind.ITEM:
+			if action.kind == EventOutcomeActionKind.PLAYER:
+				self.handle_player_outcome_action(player, action)
+			elif action.kind == EventOutcomeActionKind.ITEM:
 				self.handle_item_outcome_action(player, action)
+
+
+	def handle_player_outcome_action(self, player, action):
+		if action.on:
+			player.set_attribute(action.attribute)
+		else:
+			player.unset_attribute(action.attribute)
 
 
 	def handle_item_outcome_action(self, player, action):

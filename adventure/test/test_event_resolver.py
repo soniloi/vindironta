@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 from adventure.command import Command
 from adventure.element import Labels
-from adventure.event import Event, EventMatch, EventOutcome, ItemEventOutcomeAction, EventOutcomeActionKind
+from adventure.event import Event, EventMatch, EventOutcome, EventOutcomeActionKind, PlayerEventOutcomeAction, ItemEventOutcomeAction
 from adventure.event import EventMatchPrerequisiteKind, ItemEventMatchPrerequisite, ItemEventMatchPrerequisiteContainer, ItemEventMatchPrerequisiteContainerKind
 from adventure.event import LocationEventMatchPrerequisite, EventEventMatchPrerequisite
 from adventure.event import ItemEventOutcomeActionDestination, ItemEventOutcomeActionDestinationKind
@@ -426,6 +426,32 @@ class TestEventResolver(unittest.TestCase):
 
 		self.assertEqual((True, "Something happens.", [self.wand]), response)
 		self.player.solve_puzzle.assert_called_once_with(3004)
+
+
+	def test_resolve_event_with_player_outcome_action_set_attribute(self):
+		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
+		action = PlayerEventOutcomeAction(kind=EventOutcomeActionKind.PLAYER, attribute=0x8, on=True)
+		wave_wand_event_outcome = EventOutcome(text="Something happens.", actions=[action])
+		wave_wand_event = Event(event_id=3004, attributes=0x4, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
+		self.data.get_event.side_effect = lambda x: {(self.wave_command, self.wand): wave_wand_event,}.get(x)
+
+		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
+
+		self.assertEqual((True, "Something happens.", [self.wand]), response)
+		self.player.set_attribute.assert_called_once_with(0x8)
+
+
+	def test_resolve_event_with_player_outcome_action_unset_attribute(self):
+		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
+		action = PlayerEventOutcomeAction(kind=EventOutcomeActionKind.PLAYER, attribute=0x8, on=False)
+		wave_wand_event_outcome = EventOutcome(text="Something happens.", actions=[action])
+		wave_wand_event = Event(event_id=3004, attributes=0x4, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
+		self.data.get_event.side_effect = lambda x: {(self.wave_command, self.wand): wave_wand_event,}.get(x)
+
+		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
+
+		self.assertEqual((True, "Something happens.", [self.wand]), response)
+		self.player.unset_attribute.assert_called_once_with(0x8)
 
 
 if __name__ == "__main__":
