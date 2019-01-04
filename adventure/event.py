@@ -48,10 +48,17 @@ class EventMatchPrerequisiteKind(Enum):
 	LOCATION = 2
 
 
-class ItemEventMatchPrerequisite:
+class EventMatchPrerequisite:
 
-	def __init__(self, kind, item, container):
+	def __init__(self, kind, invert):
 		self.kind = kind
+		self.invert = invert
+
+
+class ItemEventMatchPrerequisite(EventMatchPrerequisite):
+
+	def __init__(self, kind, invert, item, container):
+		EventMatchPrerequisite.__init__(self, kind=kind, invert=invert)
 		self.item = item
 		self.container = container
 
@@ -73,15 +80,15 @@ class ItemEventMatchPrerequisiteContainerKind(Enum):
 
 class LocationEventMatchPrerequisite:
 
-	def __init__(self, kind, location):
-		self.kind = kind
+	def __init__(self, kind, invert, location):
+		EventMatchPrerequisite.__init__(self, kind=kind, invert=invert)
 		self.location = location
 
 
 class EventEventMatchPrerequisite:
 
-	def __init__(self, kind, event_id):
-		self.kind = kind
+	def __init__(self, kind, invert, event_id):
+		EventMatchPrerequisite.__init__(self, kind=kind, invert=invert)
 		self.event_id = event_id
 
 

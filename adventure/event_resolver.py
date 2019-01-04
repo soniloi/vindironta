@@ -57,24 +57,26 @@ class EventResolver(Resolver):
 
 
 	def event_meets_prerequisites(self, prerequisite, player):
+		condition_met = False
+
 		if prerequisite.kind == EventMatchPrerequisiteKind.ITEM:
 			item = prerequisite.item
 			container_requirements = prerequisite.container
 			container_kind = container_requirements.kind
 
 			if container_kind == ItemEventMatchPrerequisiteContainerKind.ANY:
-				return True
+				condition_met = True
 
 			if container_kind == ItemEventMatchPrerequisiteContainerKind.CURRENT_LOCATION:
-				return player.get_location().contains(item)
+				condition_met = player.get_location().contains(item)
 
 		elif prerequisite.kind == EventMatchPrerequisiteKind.LOCATION:
-			return prerequisite.location == player.get_location()
+			condition_met = prerequisite.location == player.get_location()
 
 		elif prerequisite.kind == EventMatchPrerequisiteKind.EVENT:
-			return player.has_completed_event(prerequisite.event_id)
+			condition_met = player.has_completed_event(prerequisite.event_id)
 
-		return False
+		return condition_met ^ prerequisite.invert
 
 
 	def handle_outcome_actions(self, player, actions):

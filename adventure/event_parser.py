@@ -70,21 +70,22 @@ class EventParser:
 		for prerequisite_input in prerequisite_inputs:
 			prerequisite_kind_key = prerequisite_input["kind"].upper()
 			prerequisite_kind = EventMatchPrerequisiteKind[prerequisite_kind_key]
+			invert = prerequisite_input.get("invert", False)
 
 			if prerequisite_kind == EventMatchPrerequisiteKind.ITEM:
 				data_id = prerequisite_input["data_id"]
 				item = items_by_id.get(data_id)
 				container = self.parse_item_event_match_prerequisite_container(prerequisite_input["container"])
-				prerequisites.append(ItemEventMatchPrerequisite(kind=prerequisite_kind, item=item, container=container))
+				prerequisites.append(ItemEventMatchPrerequisite(kind=prerequisite_kind, invert=invert, item=item, container=container))
 
 			elif prerequisite_kind == EventMatchPrerequisiteKind.LOCATION:
 				data_id = prerequisite_input["data_id"]
 				location = locations_by_id.get(data_id)
-				prerequisites.append(LocationEventMatchPrerequisite(kind=prerequisite_kind, location=location))
+				prerequisites.append(LocationEventMatchPrerequisite(kind=prerequisite_kind, invert=invert, location=location))
 
 			elif prerequisite_kind == EventMatchPrerequisiteKind.EVENT:
 				data_id = prerequisite_input["data_id"]
-				prerequisites.append(EventEventMatchPrerequisite(kind=prerequisite_kind, event_id=data_id))
+				prerequisites.append(EventEventMatchPrerequisite(kind=prerequisite_kind, invert=invert, event_id=data_id))
 
 		return prerequisites
 

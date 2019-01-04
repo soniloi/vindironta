@@ -224,7 +224,7 @@ class TestEventResolver(unittest.TestCase):
 		prerequisite_item = self.bean
 		prerequisite_container_kind = ItemEventMatchPrerequisiteContainerKind.ANY
 		prerequisite_container = ItemEventMatchPrerequisiteContainer(prerequisite_container_kind, None)
-		prerequisite = ItemEventMatchPrerequisite(prerequisite_kind, prerequisite_item, prerequisite_container)
+		prerequisite = ItemEventMatchPrerequisite(prerequisite_kind, False, prerequisite_item, prerequisite_container)
 
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
@@ -246,7 +246,7 @@ class TestEventResolver(unittest.TestCase):
 		prerequisite_item = self.bean
 		prerequisite_container_kind = ItemEventMatchPrerequisiteContainerKind.CURRENT_LOCATION
 		prerequisite_container = ItemEventMatchPrerequisiteContainer(prerequisite_container_kind, None)
-		prerequisite = ItemEventMatchPrerequisite(prerequisite_kind, prerequisite_item, prerequisite_container)
+		prerequisite = ItemEventMatchPrerequisite(prerequisite_kind, False, prerequisite_item, prerequisite_container)
 
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
@@ -268,7 +268,7 @@ class TestEventResolver(unittest.TestCase):
 		prerequisite_item = self.bean
 		prerequisite_container_kind = ItemEventMatchPrerequisiteContainerKind.CURRENT_LOCATION
 		prerequisite_container = ItemEventMatchPrerequisiteContainer(prerequisite_container_kind, None)
-		prerequisite = ItemEventMatchPrerequisite(prerequisite_kind, prerequisite_item, prerequisite_container)
+		prerequisite = ItemEventMatchPrerequisite(prerequisite_kind, False, prerequisite_item, prerequisite_container)
 
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
@@ -289,7 +289,7 @@ class TestEventResolver(unittest.TestCase):
 	def test_resolve_event_with_location_prerequisite_without_match(self):
 		prerequisite_kind = EventMatchPrerequisiteKind.LOCATION
 		prerequisite_location = self.lighthouse_location
-		prerequisite = LocationEventMatchPrerequisite(prerequisite_kind, prerequisite_location)
+		prerequisite = LocationEventMatchPrerequisite(prerequisite_kind, False, prerequisite_location)
 
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
@@ -309,7 +309,7 @@ class TestEventResolver(unittest.TestCase):
 	def test_resolve_event_with_location_prerequisite_with_match(self):
 		prerequisite_kind = EventMatchPrerequisiteKind.LOCATION
 		prerequisite_location = self.lighthouse_location
-		prerequisite = LocationEventMatchPrerequisite(prerequisite_kind, prerequisite_location)
+		prerequisite = LocationEventMatchPrerequisite(prerequisite_kind, False, prerequisite_location)
 
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
@@ -330,7 +330,7 @@ class TestEventResolver(unittest.TestCase):
 	def test_resolve_event_with_event_prerequisite_without_match(self):
 		prerequisite_kind = EventMatchPrerequisiteKind.EVENT
 		prerequisite_location = 3002
-		prerequisite = EventEventMatchPrerequisite(prerequisite_kind, prerequisite_location)
+		prerequisite = EventEventMatchPrerequisite(prerequisite_kind, False, prerequisite_location)
 
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
@@ -351,7 +351,7 @@ class TestEventResolver(unittest.TestCase):
 	def test_resolve_event_with_event_prerequisite_with_match(self):
 		prerequisite_kind = EventMatchPrerequisiteKind.EVENT
 		prerequisite_location = 3002
-		prerequisite = EventEventMatchPrerequisite(prerequisite_kind, prerequisite_location)
+		prerequisite = EventEventMatchPrerequisite(prerequisite_kind, False, prerequisite_location)
 
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
@@ -367,6 +367,27 @@ class TestEventResolver(unittest.TestCase):
 
 		self.assertEqual((True, "The bean disappears.", [self.potion, self.bean]), response)
 		self.assertFalse(self.lighthouse_location.contains(self.bean))
+
+
+	def test_resolve_event_with_event_prerequisite_with_match_invert(self):
+		prerequisite_kind = EventMatchPrerequisiteKind.EVENT
+		prerequisite_location = 3002
+		prerequisite = EventEventMatchPrerequisite(prerequisite_kind, True, prerequisite_location)
+
+		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
+		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
+		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item=self.bean, destination=destroy_bean_destination)
+		pour_potion_bean_event_outcome = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action])
+		pour_potion_bean_event = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_match, outcome=pour_potion_bean_event_outcome)
+
+		self.data.get_event.side_effect = lambda x: {(self.pour_command, self.potion, self.bean): pour_potion_bean_event,}.get(x)
+		self.player.has_completed_event.return_value = True
+		self.lighthouse_location.add(self.bean)
+
+		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
+
+		self.assertEqual((False, "", [self.potion, self.bean]), response)
+		self.assertTrue(self.lighthouse_location.contains(self.bean))
 
 
 	def test_resolve_event_without_special_player_outcomes(self):
