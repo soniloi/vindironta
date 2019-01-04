@@ -255,7 +255,7 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual(3000, prerequisite.event_id)
 
 
-	def test_event_with_outcome_actions(self):
+	def test_event_with_item_outcome_actions(self):
 		event_inputs = json.loads(
 			"[ \
 				{ \
@@ -318,6 +318,52 @@ class TestEventParser(unittest.TestCase):
 		second_action_destination = second_action.destination
 		self.assertEqual(ItemEventOutcomeActionDestinationKind.REPLACE, second_action_destination.kind)
 		self.assertEqual(1050, second_action_destination.data_id)
+
+
+	def test_event_with_player_outcome_actions(self):
+		event_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 300, \
+					\"attributes\": \"0\", \
+					\"match\": { \
+						\"command_id\": 48, \
+						\"arguments\": [] \
+					}, \
+					\"outcome\": { \
+						\"text\" : \"A very confused-looking genie pops out of the lamp.\", \
+						\"actions\": [ \
+							{ \
+								\"kind\": \"player\", \
+								\"attribute\": \"2\", \
+								\"on\": true \
+							} \
+						] \
+					} \
+				} \
+			]"
+		)
+
+		self.collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+
+		self.assertEqual(1, len(self.collection.events))
+		self.assertTrue((self.command,) in self.collection.events)
+
+		event = self.collection.events[(self.command,)]
+		self.assertEqual(0, event.attributes)
+
+		match = event.match
+		self.assertEqual(self.command, match.command)
+		self.assertFalse(match.arguments)
+
+		outcome = event.outcome
+		self.assertEqual("A very confused-looking genie pops out of the lamp.", outcome.text)
+		self.assertEqual(1, len(outcome.actions))
+
+		action = outcome.actions[0]
+		self.assertEqual(EventOutcomeActionKind.PLAYER, action.kind)
+		self.assertEqual(2, action.attribute)
+		self.assertTrue(action.on)
 
 
 if __name__ == "__main__":

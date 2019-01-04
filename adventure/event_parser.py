@@ -1,7 +1,7 @@
 from adventure.event import Event, EventMatch, EventMatchArgument, EventMatchArgumentKind
 from adventure.event import EventMatchPrerequisiteKind, ItemEventMatchPrerequisite, ItemEventMatchPrerequisiteContainer, ItemEventMatchPrerequisiteContainerKind
 from adventure.event import LocationEventMatchPrerequisite, EventEventMatchPrerequisite
-from adventure.event import EventOutcome, EventOutcomeActionKind, ItemEventOutcomeAction
+from adventure.event import EventOutcome, EventOutcomeActionKind, PlayerEventOutcomeAction, ItemEventOutcomeAction
 from adventure.event import ItemEventOutcomeActionDestination, ItemEventOutcomeActionDestinationKind
 from adventure.event_collection import EventCollection
 
@@ -113,8 +113,14 @@ class EventParser:
 			kind_key = event_outcome_action_input["kind"].upper()
 			kind = EventOutcomeActionKind[kind_key]
 
-			# TODO: handle other kinds
-			if kind == EventOutcomeActionKind.ITEM:
+			if kind == EventOutcomeActionKind.PLAYER:
+				attribute = int(event_outcome_action_input["attribute"], 16)
+				on = event_outcome_action_input["on"]
+
+				action = PlayerEventOutcomeAction(kind=kind, attribute=attribute, on=on)
+				actions.append(action)
+
+			elif kind == EventOutcomeActionKind.ITEM:
 				item_id = event_outcome_action_input["item_id"]
 				item = items_by_id[item_id]
 				destination = self.parse_item_event_outcome_action_destination(event_outcome_action_input["destination"])

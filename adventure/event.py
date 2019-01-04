@@ -100,8 +100,16 @@ class EventOutcome:
 
 
 class EventOutcomeActionKind(Enum):
-	NONE = 0
+	PLAYER = 0
 	ITEM = 1
+
+
+class PlayerEventOutcomeAction:
+
+	def __init__(self, kind, attribute, on):
+		self.kind = kind
+		self.attribute = attribute
+		self.on = on
 
 
 class ItemEventOutcomeAction:
