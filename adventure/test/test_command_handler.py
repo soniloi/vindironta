@@ -94,7 +94,9 @@ class TestCommandHandler(unittest.TestCase):
 			"confirm_poured_no_destination" : "You pour the liquid away.",
 			"confirm_poured_with_destination" : "You pour the liquid onto the {1}.",
 			"confirm_quit" : "OK.",
-			"confirm_say" : "You say {0}.",
+			"confirm_say_audience" : "You say {0} to the {1}.",
+			"confirm_say_no_audience" : "You say {0}.",
+			"confirm_say_no_sentient_audience" : "You say {0} at the {1}.",
 			"confirm_taken" : "Taken.",
 			"confirm_immune_off" : "Immune off.",
 			"confirm_immune_on" : "Immune on.",
@@ -1088,13 +1090,31 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual([self.book], next_args)
 
 
-	def test_handle_say(self):
+	def test_handle_say_no_audience(self):
 		success, template, content_args, next_args = self.handler.handle_say(self.command, self.player, "hello")
 
 		self.assertTrue(success)
 		self.assertEqual("You say {0}.", template)
 		self.assertEqual(["hello"], content_args)
-		self.assertEqual(["hello"], next_args)
+		self.assertEqual(["hello", None], next_args)
+
+
+	def test_handle_say_no_sentient_audience(self):
+		success, template, content_args, next_args = self.handler.handle_say(self.command, self.player, "hello", self.book)
+
+		self.assertTrue(success)
+		self.assertEqual("You say {0} at the {1}.", template)
+		self.assertEqual(["hello", self.book], content_args)
+		self.assertEqual(["hello", self.book], next_args)
+
+
+	def test_handle_say_with_sentient_audience(self):
+		success, template, content_args, next_args = self.handler.handle_say(self.command, self.player, "hello", self.cat)
+
+		self.assertTrue(success)
+		self.assertEqual("You say {0} to the {1}.", template)
+		self.assertEqual(["hello", self.cat], content_args)
+		self.assertEqual(["hello", self.cat], next_args)
 
 
 	def test_handle_score(self):
