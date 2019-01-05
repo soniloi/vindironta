@@ -7,16 +7,19 @@ from adventure.resolver import Resolver
 class EventResolver(Resolver):
 
 	def resolve_event(self, command, player, *args):
+		content_args = list(args)
+		next_args = list(args)
+
 		event = self.get_event(command, player, args)
 
 		if not event:
-			return False, "", list(args)
+			return False, "", content_args, []
 
 		outcome = event.outcome
 		self.handle_outcome_actions(player, outcome.actions)
 		self.update_player_outcomes(player, event)
 
-		return True, event.outcome.text, list(args)
+		return True, event.outcome.text, content_args, next_args
 
 
 	def get_event(self, command, player, args):
@@ -31,8 +34,7 @@ class EventResolver(Resolver):
 
 	def create_event_key(self, command, args):
 		event_args = self.create_event_args(args)
-		# TODO: remove the list-size workaround in favour of something more robust...
-		return tuple([command] + list(event_args)[:2])
+		return tuple([command] + list(event_args))
 
 
 	def create_event_args(self, args):

@@ -12,23 +12,23 @@ class TestCommandRunner(unittest.TestCase):
 
 
 	def arg_function_movement(self, command, player, *args):
-		return True, "", [command.data_id]
+		return True, "", [], [command.data_id]
 
 
 	def arg_function_non_movement(self, command, player, *args):
-		return True, "", args
+		return True, "", [], args
 
 
 	def arg_function_unsuccessful(self, command, player, *args):
-		return False, "reason template", args
+		return False, "reason template", args, []
 
 
 	def handler_function(self, command, player, *arg):
-		return True, "{0} success!", list(arg)
+		return True, "{0} success!", list(arg), list(arg)
 
 
 	def vision_function(self, command, player, *arg):
-		return True, "", list(arg)
+		return True, "", [], list(arg)
 
 
 	def test_run_movement(self):

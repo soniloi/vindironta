@@ -4,17 +4,20 @@ class CommandRunner():
 
 	def run(self, command, player, args):
 		templates = []
+		content_args = []
+		next_args = args
 
 		for resolver_function in command.resolver_functions:
-			success, resolved_template, args = resolver_function(command, player, *args)
+			success, resolved_template, current_content_args, next_args = resolver_function(command, player, *next_args)
 
 			if resolved_template:
 				templates.append(resolved_template)
+				content_args += current_content_args
 
 			if not success:
-				return self.format_response(templates, args)
+				break
 
-		return self.format_response(templates, args)
+		return self.format_response(templates, content_args)
 
 
 	def format_response(self, templates, tokens):
