@@ -415,10 +415,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_explain_default(self):
 		success, template, content_args, next_args = self.handler.handle_explain(self.command, self.player, "dreams")
 
-		self.assertTrue(success)
+		self.assertFalse(success)
 		self.assertEqual("I have no explanation.", template)
 		self.assertEqual(["dreams"], content_args)
-		self.assertEqual(["dreams"], next_args)
+		self.assertEqual([], next_args)
 
 
 	def test_handle_explain_non_default(self):
@@ -731,10 +731,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_hint_default(self):
 		success, template, content_args, next_args = self.handler.handle_hint(self.command, self.player, "cat")
 
-		self.assertTrue(success)
+		self.assertFalse(success)
 		self.assertEqual("I have no hint.", template)
 		self.assertEqual(["cat"], content_args)
-		self.assertEqual(["cat"], next_args)
+		self.assertEqual([], next_args)
 
 
 	def test_handle_hint_non_default(self):

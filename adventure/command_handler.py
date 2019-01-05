@@ -81,12 +81,12 @@ class CommandHandler(Resolver):
 
 
 	def handle_explain(self, command, player, arg):
-		template = self.data.get_explanation(arg)
+		explanation = self.data.get_explanation(arg)
 
-		if not template:
-			template = self.data.get_explanation("default")
+		if not explanation:
+			return False, self.data.get_explanation("default"), [arg], []
 
-		return True, template, [arg], [arg]
+		return True, explanation, [arg], [arg]
 
 
 	def handle_feed(self, command, player, proposed_gift, proposed_recipient):
@@ -178,12 +178,12 @@ class CommandHandler(Resolver):
 
 
 	def handle_hint(self, command, player, arg):
-		template = self.data.get_hint(arg)
+		hint = self.data.get_hint(arg)
 
-		if not template:
-			template = self.data.get_hint("default")
+		if not hint:
+			return False, self.data.get_hint("default"), [arg], []
 
-		return True, template, [arg], [arg]
+		return True, hint, [arg], [arg]
 
 
 	def handle_ignore(self, command, player, arg):
