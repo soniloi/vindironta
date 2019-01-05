@@ -172,7 +172,7 @@ class CommandHandler(Resolver):
 		return False, self.get_response("reject_go"), [], []
 
 
-	def handle_help(self, command, player, arg):
+	def handle_help(self, command, player):
 		player.decrement_instructions()
 		return True, self.get_response("describe_help"), [], []
 

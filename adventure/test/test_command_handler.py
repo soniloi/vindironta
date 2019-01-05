@@ -717,7 +717,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_help(self):
-		success, template, content_args, next_args = self.handler.handle_help(self.command, self.player, "")
+		success, template, content_args, next_args = self.handler.handle_help(self.command, self.player)
 
 		self.assertTrue(success)
 		self.assertEqual("Welcome and good luck.", template)
