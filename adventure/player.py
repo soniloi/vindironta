@@ -90,8 +90,8 @@ class Player(DataElement):
 		self.location.insert(item)
 
 
-	def drop_all_items(self):
-		self.get_inventory().drop_all_items(self.location)
+	def drop_all_items(self, drop_location):
+		self.get_inventory().drop_all_items(drop_location)
 
 
 	def describe_inventory(self):

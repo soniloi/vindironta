@@ -46,6 +46,7 @@ class CommandParser:
 		resolver_functions = self.get_resolver_functions(attributes, arg_infos)
 		command_handler_function = self.parse_handler_function(command_input["handler"])
 		event_resolver_function = self.get_event_resolver_function()
+		post_vision_function = self.get_post_vision_function(attributes)
 		aliases = command_input["aliases"]
 		switch_info = self.parse_switch_info(command_input.get("switch_info"))
 		teleport_info = self.parse_teleport_info(command_input.get("teleport_info"))
@@ -53,7 +54,12 @@ class CommandParser:
 		command = None
 		if command_handler_function:
 			resolver_functions.append(command_handler_function)
+
+			if post_vision_function:
+				resolver_functions.append(post_vision_function)
+
 			resolver_functions.append(event_resolver_function)
+
 			command = Command(
 				command_id=command_id,
 				attributes=attributes,
@@ -96,16 +102,22 @@ class CommandParser:
 		return teleport_infos
 
 
-	def get_vision_function(self, attributes, arg_infos):
+	def get_pre_vision_function(self, attributes, arg_infos):
 		if not bool(attributes & Command.ATTRIBUTE_REQUIRES_VISION):
 			return None
 
 		vision_function_name = "resolve_"
 		if arg_infos:
-			vision_function_name += "dark"
+			vision_function_name += "pre_dark"
 		else:
-			vision_function_name += "light_and_dark"
+			vision_function_name += "pre_light_and_dark"
 		return self.vision_resolver.get_resolver_function(vision_function_name)
+
+
+	def get_post_vision_function(self, attributes):
+		if not bool(attributes & Command.ATTRIBUTE_POST_VISION):
+			return None
+		return self.vision_resolver.get_resolver_function("resolve_post_light_and_dark")
 
 
 	def get_arg_function(self, attributes):
@@ -130,7 +142,7 @@ class CommandParser:
 
 
 	def get_resolver_functions(self, attributes, arg_infos):
-		vision_function = self.get_vision_function(attributes, arg_infos)
+		vision_function = self.get_pre_vision_function(attributes, arg_infos)
 		arg_function = self.get_arg_function(attributes)
 
 		resolver_functions = []

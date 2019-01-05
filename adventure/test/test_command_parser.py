@@ -25,12 +25,14 @@ class TestCommandParser(unittest.TestCase):
 		self.vision_resolver = Mock()
 		self.vision_resolver.get_resolver_function.side_effect = self.vision_resolver_side_effect
 
-		self.mock_vision_dark = Mock()
-		self.mock_vision_light_and_dark = Mock()
+		self.mock_vision_pre_dark = Mock()
+		self.mock_vision_pre_light_and_dark = Mock()
+		self.mock_vision_post_light_and_dark = Mock()
 
 		self.vision_resolver_map = {
-			"resolve_dark" : self.mock_vision_dark,
-			"resolve_light_and_dark" : self.mock_vision_light_and_dark,
+			"resolve_pre_dark" : self.mock_vision_pre_dark,
+			"resolve_pre_light_and_dark" : self.mock_vision_pre_light_and_dark,
+			"resolve_post_light_and_dark" : self.mock_vision_post_light_and_dark,
 		}
 
 
@@ -182,7 +184,7 @@ class TestCommandParser(unittest.TestCase):
 			"[ \
 				{ \
 					\"data_id\": 16, \
-					\"attributes\": \"40\", \
+					\"attributes\": \"48\", \
 					\"handler\": \"go\", \
 					\"aliases\": [ \
 						\"east\" \
@@ -195,10 +197,11 @@ class TestCommandParser(unittest.TestCase):
 
 		self.assertTrue("east" in collection.commands_by_name)
 		east_command = collection.commands_by_name["east"]
-		self.assertEqual(3, len(east_command.resolver_functions))
+		self.assertEqual(4, len(east_command.resolver_functions))
 		self.assertEqual(self.mock_argument_movement, east_command.resolver_functions[0])
 		self.assertEqual(self.mock_handler_go, east_command.resolver_functions[1])
-		self.assertEqual(self.mock_resolve_event, east_command.resolver_functions[2])
+		self.assertEqual(self.mock_vision_post_light_and_dark, east_command.resolver_functions[2])
+		self.assertEqual(self.mock_resolve_event, east_command.resolver_functions[3])
 
 
 	def test_init_switchable_command(self):
@@ -245,7 +248,7 @@ class TestCommandParser(unittest.TestCase):
 			"[ \
 				{ \
 					\"data_id\": 119, \
-					\"attributes\": \"12\", \
+					\"attributes\": \"1A\", \
 					\"handler\": \"teleport\", \
 					\"aliases\": [ \
 						\"abrakadabra\" \
@@ -271,10 +274,11 @@ class TestCommandParser(unittest.TestCase):
 		self.assertEqual(2, len(teleport_command.teleport_info))
 		self.assertEqual(24, teleport_command.teleport_info[23])
 		self.assertEqual(23, teleport_command.teleport_info[26])
-		self.assertEqual(3, len(teleport_command.resolver_functions))
+		self.assertEqual(4, len(teleport_command.resolver_functions))
 		self.assertEqual(self.mock_argument_teleport, teleport_command.resolver_functions[0])
 		self.assertEqual(self.mock_handler_teleport, teleport_command.resolver_functions[1])
-		self.assertEqual(self.mock_resolve_event, teleport_command.resolver_functions[2])
+		self.assertEqual(self.mock_vision_post_light_and_dark, teleport_command.resolver_functions[2])
+		self.assertEqual(self.mock_resolve_event, teleport_command.resolver_functions[3])
 
 
 	def test_init_single_arg_command(self):
@@ -282,7 +286,7 @@ class TestCommandParser(unittest.TestCase):
 			"[ \
 				{ \
 				\"data_id\": 56, \
-					\"attributes\": \"C\", \
+					\"attributes\": \"0\", \
 					\"argument_infos\": [ \
 						{ \
 							\"attributes\": \"7\", \
@@ -314,7 +318,7 @@ class TestCommandParser(unittest.TestCase):
 			"[ \
 				{ \
 					\"data_id\": 57, \
-					\"attributes\": \"C\", \
+					\"attributes\": \"0\", \
 					\"argument_infos\": [ \
 						{ \
 							\"attributes\": \"B\", \
@@ -352,7 +356,7 @@ class TestCommandParser(unittest.TestCase):
 
 
 
-	def test_init_resolve_vision_light_and_dark(self):
+	def test_init_resolve_vision_pre_light_and_dark(self):
 		command_inputs = json.loads(
 			"[ \
 				{ \
@@ -370,13 +374,13 @@ class TestCommandParser(unittest.TestCase):
 
 		look_command = collection.commands_by_name["look"]
 		self.assertEqual(4, len(look_command.resolver_functions))
-		self.assertEqual(self.mock_vision_light_and_dark, look_command.resolver_functions[0])
+		self.assertEqual(self.mock_vision_pre_light_and_dark, look_command.resolver_functions[0])
 		self.assertEqual(self.mock_argument_args, look_command.resolver_functions[1])
 		self.assertEqual(self.mock_handler_look, look_command.resolver_functions[2])
 		self.assertEqual(self.mock_resolve_event, look_command.resolver_functions[3])
 
 
-	def test_init_resolve_vision_dark(self):
+	def test_init_resolve_vision_pre_dark(self):
 		command_inputs = json.loads(
 			"[ \
 				{ \
@@ -400,7 +404,7 @@ class TestCommandParser(unittest.TestCase):
 
 		read_command = collection.commands_by_name["read"]
 		self.assertEqual(4, len(read_command.resolver_functions))
-		self.assertEqual(self.mock_vision_dark, read_command.resolver_functions[0])
+		self.assertEqual(self.mock_vision_pre_dark, read_command.resolver_functions[0])
 		self.assertEqual(self.mock_argument_args, read_command.resolver_functions[1])
 		self.assertEqual(self.mock_handler_read, read_command.resolver_functions[2])
 		self.assertEqual(self.mock_resolve_event, read_command.resolver_functions[3])
@@ -461,7 +465,7 @@ class TestCommandParser(unittest.TestCase):
 				}, \
 				{ \
 					\"data_id\": 56, \
-					\"attributes\": \"C\", \
+					\"attributes\": \"0\", \
 					\"argument_infos\": [ \
 						{ \
 							\"attributes\": \"7\", \

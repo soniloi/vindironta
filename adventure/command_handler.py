@@ -122,23 +122,15 @@ class CommandHandler(Resolver):
 			template_key, content = self.reject_go_obstructed(player, obstructions)
 			return False, self.get_response(template_key), content, []
 
-		if not player.has_light() and not proposed_location.gives_light() and not player.is_immune():
-			self.kill_player(player)
-			template = self.get_response("death_darkness")
-			return True, template, [], [proposed_location]
-
+		current_location = player.get_location()
 		self.update_previous_location(player, proposed_location)
-		template, content = self.execute_go(player, proposed_location)
-		self.interact_vision(player, None, self.execute_see_location)
-		return True, template, content, [proposed_location]
+		player.location = proposed_location
 
-
-	def kill_player(self, player):
-		player.set_alive(False)
-		player.drop_all_items()
+		return True, "", [], [proposed_location, current_location]
 
 
 	def reject_go_obstructed(self, player, obstructions):
+		# TODO: move into vision resolver
 		if player.has_light():
 			return "reject_obstruction_known", [obstructions[0].longname]
 		return "reject_obstruction_unknown", []
@@ -149,23 +141,6 @@ class CommandHandler(Resolver):
 			player.set_previous_location(player.location)
 		else:
 			player.set_previous_location(None)
-
-
-	def execute_go(self, player, proposed_location):
-		player.location = proposed_location
-		return self.interact_vision(player, None, self.complete_go)
-
-
-	def complete_go(self, player, arg):
-		template = self.get_response("confirm_look")
-		if player.has_non_silent_items_nearby():
-			template += self.get_response("list_location")
-
-		return template, player.get_arrival_location_description()
-
-
-	def execute_see_location(self, player, arg):
-		player.see_location()
 
 
 	def handle_go_disambiguate(self, command, player, arg):
@@ -274,15 +249,16 @@ class CommandHandler(Resolver):
 
 	def handle_node(self, command, player, arg=None):
 		if not arg:
-			return True, self.get_response("describe_node"), [player.location.data_id], []
+			return False, self.get_response("describe_node"), [player.location.data_id], []
 
 		location_id = player.location.data_id
 		try:
 			location_id = int(arg)
 			proposed_location = self.data.get_location(location_id)
 			if proposed_location:
-				template, content = self.execute_go(player, proposed_location)
-				return True, template, content, [location_id]
+				current_location = player.location
+				player.location = proposed_location
+				return True, "", [], [proposed_location, current_location]
 		except:
 			pass
 
@@ -394,9 +370,9 @@ class CommandHandler(Resolver):
 
 
 	def handle_teleport(self, command, player, destination):
-		template, content = self.execute_go(player, destination)
-		self.interact_vision(player, None, self.execute_see_location)
-		return True, template, content, [destination]
+		source = player.location
+		player.location = destination
+		return True, "", [], [destination, source]
 
 
 	def handle_toggle(self, command, player, item):
@@ -427,14 +403,3 @@ class CommandHandler(Resolver):
 		player.take_item(item)
 		item.being_worn = True
 		return True, self.get_response("confirm_wearing"), [item], [item]
-
-
-	def interact_vision(self, player, arg, interaction):
-
-		if player.has_light_and_needs_no_light():
-			return self.get_response("reject_excess_light"), []
-
-		elif not player.has_light():
-			return self.get_response("reject_no_light"), []
-
-		return interaction(player, arg)

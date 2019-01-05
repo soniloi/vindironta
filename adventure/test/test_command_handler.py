@@ -103,7 +103,6 @@ class TestCommandHandler(unittest.TestCase):
 			"confirm_verbose_off" : "Verbose off.",
 			"confirm_verbose_on" : "Verbose on.",
 			"confirm_wearing" : "You are wearing the {0}.",
-			"death_darkness" : "You fall to your death in the darkness.",
 			"describe_commands" : "I know these commands: {0}.",
 			"describe_help" : "Welcome and good luck.",
 			"describe_item" : "It is {0}.",
@@ -127,7 +126,6 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_container_size" : "The {1} is not big enough.",
 			"reject_drink_solid" : "You cannot drink a solid.",
 			"reject_eat_liquid" : "You cannot eat a liquid.",
-			"reject_excess_light" : "It is too bright.",
 			"reject_give_inanimate" : "You cannot give to an inanimate object.",
 			"reject_give_liquid" : "You cannot give a liquid.",
 			"reject_go" : "Use a compass point.",
@@ -493,98 +491,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertFalse(self.player.get_inventory() in self.book.containers)
 
 
-	def test_handle_go_with_destination(self):
-		self.player.location.directions[Direction.SOUTH] = self.beach_location
-		self.beach_location.directions[Direction.NORTH] = self.player.location
-
-		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.beach_location)
-
-		self.assertTrue(success)
-		self.assertEqual("You are {0}.", template)
-		self.assertEqual(["on a beach of black sand", ""], content_args)
-		self.assertEqual([self.beach_location], next_args)
-		self.assertIs(self.beach_location, self.player.location)
-		self.assertIs(self.lighthouse_location, self.player.previous_location)
-		self.assertTrue(self.beach_location.seen)
-
-
-	def test_handle_go_with_destination_one_way(self):
-		self.player.location.directions[Direction.SOUTH] = self.beach_location
-
-		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.beach_location)
-
-		self.assertTrue(success)
-		self.assertEqual("You are {0}.", template)
-		self.assertEqual(["on a beach of black sand", ""], content_args)
-		self.assertEqual([self.beach_location], next_args)
-		self.assertIs(self.beach_location, self.player.location)
-		self.assertIs(None, self.player.previous_location)
-		self.assertTrue(self.beach_location.seen)
-
-
-	def test_handle_go_with_destination_again(self):
-		self.player.location.directions[Direction.SOUTH] = self.beach_location
-		self.beach_location.directions[Direction.NORTH] = self.lighthouse_location
-
-		self.handler.handle_go(self.command, self.player, self.beach_location)
-		self.handler.handle_go(self.command, self.player, self.lighthouse_location)
-		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.beach_location)
-
-		self.assertTrue(success)
-		self.assertEqual("You are {0}.", template)
-		self.assertEqual(["on a beach", ""], content_args)
-		self.assertEqual([self.beach_location], next_args)
-		self.assertIs(self.beach_location, self.player.location)
-		self.assertIs(self.lighthouse_location, self.player.previous_location)
-		self.assertTrue(self.beach_location.seen)
-		self.assertTrue(self.lighthouse_location.seen)
-
-
-	def test_handle_go_with_destination_no_light(self):
-		self.player.location.directions[Direction.DOWN] = self.mine_location
-		self.mine_location.directions[Direction.UP] = self.player.location
-
-		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.mine_location)
-
-		self.assertTrue(success)
-		self.assertEqual("It is too dark.", template)
-		self.assertEqual([], content_args)
-		self.assertEqual([self.mine_location], next_args)
-		self.assertIs(self.mine_location, self.player.location)
-		self.assertIs(self.lighthouse_location, self.player.previous_location)
-		self.assertFalse(self.mine_location.seen)
-
-
-	def test_handle_go_with_destination_excess_light_carrying_light(self):
-		self.player.location.directions[Direction.UP] = self.sun_location
-		self.sun_location.directions[Direction.DOWN] = self.player.location
-		self.player.get_inventory().add(self.lamp)
-
-		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.sun_location)
-
-		self.assertTrue(success)
-		self.assertEqual("It is too bright.", template)
-		self.assertEqual([], content_args)
-		self.assertEqual([self.sun_location], next_args)
-		self.assertIs(self.sun_location, self.player.location)
-		self.assertIs(self.lighthouse_location, self.player.previous_location)
-
-
-	def test_handle_go_with_destination_excess_light_not_carrying_light(self):
-		self.player.location.directions[Direction.UP] = self.sun_location
-		self.sun_location.directions[Direction.DOWN] = self.player.location
-
-		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.sun_location)
-
-		self.assertTrue(success)
-		self.assertEqual("You are {0}.", template)
-		self.assertEqual(["in the sun. It is hot.", ""], content_args)
-		self.assertEqual([self.sun_location], next_args)
-		self.assertIs(self.sun_location, self.player.location)
-		self.assertIs(self.lighthouse_location, self.player.previous_location)
-
-
-	def test_handle_go_with_destination_with_obstruction(self):
+	def test_handle_go_with_obstruction(self):
 		self.player.location.add(self.obstruction)
 		self.player.location.directions[Direction.SOUTH] = self.beach_location
 
@@ -596,7 +503,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual([], next_args)
 
 
-	def test_handle_go_with_destination_with_obstruction_no_light(self):
+	def test_handle_go_with_obstruction_no_light(self):
 		self.player.location = self.mine_location
 		self.player.location.add(self.obstruction)
 		self.player.location.directions[Direction.EAST] = self.beach_location
@@ -618,95 +525,38 @@ class TestCommandHandler(unittest.TestCase):
 		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.lighthouse_location)
 
 		self.assertTrue(success)
-		self.assertEqual("You are {0}.", template)
-		self.assertEqual(["at a lighthouse by the sea.", ""], content_args)
-		self.assertEqual([self.lighthouse_location], next_args)
+		self.assertEqual("", template)
+		self.assertEqual([], content_args)
+		self.assertEqual([self.lighthouse_location, self.beach_location], next_args)
 		self.assertIs(self.lighthouse_location, self.player.location)
 		self.assertIs(self.beach_location, self.player.previous_location)
 
 
-	def test_handle_go_from_light_to_light(self):
-		self.player.location = self.beach_location
-		self.player.location.directions[Direction.EAST] = self.lighthouse_location
-
-		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.lighthouse_location)
-
-		self.assertTrue(success)
-		self.assertEqual("You are {0}.", template)
-		self.assertEqual(["at a lighthouse by the sea.", ""], content_args)
-		self.assertEqual([self.lighthouse_location], next_args)
-		self.assertTrue(self.player.is_playing())
-
-
-	def test_handle_go_from_dark_to_light(self):
-		self.player.location = self.beach_location
-		self.player.location.directions[Direction.EAST] = self.mine_location
-
-		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.mine_location)
-
-		self.assertTrue(success)
-		self.assertEqual("It is too dark.", template)
-		self.assertEqual([], content_args)
-		self.assertEqual([self.mine_location], next_args)
-		self.assertTrue(self.player.is_playing())
-
-
-	def test_handle_go_from_dark_to_light(self):
-		self.player.location = self.mine_location
-		self.player.location.directions[Direction.EAST] = self.beach_location
+	def test_handle_go_without_obstruction_two_way(self):
+		self.player.location.directions[Direction.SOUTH] = self.beach_location
+		self.beach_location.directions[Direction.NORTH] = self.player.location
 
 		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.beach_location)
 
 		self.assertTrue(success)
-		self.assertEqual("You are {0}.", template)
-		self.assertEqual(["on a beach of black sand", ""], content_args)
-		self.assertEqual([self.beach_location], next_args)
-		self.assertTrue(self.player.is_playing())
-
-
-	def test_handle_go_from_dark_to_dark_not_carrying_light_immune_off(self):
-		self.player.location = self.mine_location
-		self.player.location.directions[Direction.EAST] = self.cave_location
-		self.player.get_inventory().add(self.book)
-
-		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.cave_location)
-
-		self.assertTrue(success)
-		self.assertEqual("You fall to your death in the darkness.", template)
+		self.assertEqual("", template)
 		self.assertEqual([], content_args)
-		self.assertEqual([self.cave_location], next_args)
-		self.assertFalse(self.player.is_alive())
-		self.assertFalse(self.player.holding_items())
-		self.assertEqual(1, len(self.book.containers))
-		self.assertTrue(self.mine_location in self.book.containers)
+		self.assertEqual([self.beach_location, self.lighthouse_location], next_args)
+		self.assertIs(self.beach_location, self.player.location)
+		self.assertIs(self.lighthouse_location, self.player.previous_location)
 
 
-	def test_handle_go_from_dark_to_dark_not_carrying_light_immune_on(self):
-		self.player.location = self.mine_location
-		self.player.location.directions[Direction.EAST] = self.cave_location
-		self.player.set_immune(True)
+	def test_handle_go_without_obstruction_one_way(self):
+		self.player.location.directions[Direction.SOUTH] = self.beach_location
 
-		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.cave_location)
+		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.beach_location)
 
 		self.assertTrue(success)
-		self.assertEqual("It is too dark.", template)
+		self.assertEqual("", template)
 		self.assertEqual([], content_args)
-		self.assertEqual([self.cave_location], next_args)
-		self.assertTrue(self.player.is_alive())
-
-
-	def test_handle_go_from_dark_to_dark_carrying_light(self):
-		self.player.location = self.mine_location
-		self.player.location.directions[Direction.EAST] = self.cave_location
-		self.player.get_inventory().add(self.lamp)
-
-		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.cave_location)
-
-		self.assertTrue(success)
-		self.assertEqual("You are {0}.", template)
-		self.assertEqual(["in a cave. It is dark", ""], content_args)
-		self.assertEqual([self.cave_location], next_args)
-		self.assertTrue(self.player.is_playing())
+		self.assertEqual([self.beach_location, self.lighthouse_location], next_args)
+		self.assertIs(self.beach_location, self.player.location)
+		self.assertIs(None, self.player.previous_location)
 
 
 	def test_handle_go_disambiguate(self):
@@ -972,7 +822,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_node_no_arg(self):
 		success, template, content_args, next_args = self.handler.handle_node(self.command, self.player)
 
-		self.assertTrue(success)
+		self.assertFalse(success)
 		self.assertEqual("You are at node {0}.", template)
 		self.assertEqual([12], content_args)
 		self.assertEqual([], next_args)
@@ -1000,23 +850,13 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_node_arg_valid(self):
-		success, template, content_args, next_args = self.handler.handle_node(self.command, self.player, "12")
+		success, template, content_args, next_args = self.handler.handle_node(self.command, self.player, "13")
 
 		self.assertTrue(success)
-		self.assertEqual("You are {0}.", template)
-		self.assertEqual(["at a lighthouse by the sea.", ""], content_args)
-		self.assertEqual([12], next_args)
-		self.assertIs(self.lighthouse_location, self.player.location)
-
-
-	def test_handle_node_arg_valid_no_light(self):
-		success, template, content_args, next_args = self.handler.handle_node(self.command, self.player, "11")
-
-		self.assertTrue(success)
-		self.assertEqual("It is too dark.", template)
+		self.assertEqual("", template)
 		self.assertEqual([], content_args)
-		self.assertEqual([11], next_args)
-		self.assertIs(self.mine_location, self.player.location)
+		self.assertEqual([self.beach_location, self.lighthouse_location], next_args)
+		self.assertIs(self.beach_location, self.player.location)
 
 
 	def test_handle_pick(self):
@@ -1299,12 +1139,11 @@ class TestCommandHandler(unittest.TestCase):
 		success, template, content_args, next_args = self.handler.handle_teleport(self.command, self.player, self.beach_location)
 
 		self.assertTrue(success)
-		self.assertEqual("You are {0}.", template)
-		self.assertEqual(["on a beach of black sand", ""], content_args)
-		self.assertEqual([self.beach_location], next_args)
+		self.assertEqual("", template)
+		self.assertEqual([], content_args)
+		self.assertEqual([self.beach_location, self.lighthouse_location], next_args)
 		self.assertIs(self.beach_location, self.player.location)
 		self.assertIs(None, self.player.previous_location)
-		self.assertTrue(self.beach_location.seen)
 
 
 	def test_handle_toggle_non_switchable_item(self):
