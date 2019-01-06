@@ -301,16 +301,18 @@ class CommandHandler(Resolver):
 
 	def handle_say(self, command, player, word, audience=None):
 		content_args = [word]
+		next_args = [word]
 
 		if not audience:
-			return True, self.get_response("confirm_say_no_audience"), content_args, [word, audience]
+			return True, self.get_response("confirm_say_no_audience"), content_args, next_args
 
 		content_args.append(audience)
+		next_args.append(audience)
 
 		if not audience.is_sentient():
-			return True, self.get_response("confirm_say_no_sentient_audience"), content_args, [word, audience]
+			return True, self.get_response("confirm_say_no_sentient_audience"), content_args, next_args
 
-		return True, self.get_response("confirm_say_audience"), content_args, [word, audience]
+		return True, self.get_response("confirm_say_audience"), content_args, next_args
 
 
 	def handle_score(self, command, player):

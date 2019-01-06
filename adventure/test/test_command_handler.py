@@ -936,7 +936,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(success)
 		self.assertEqual("You say {0}.", template)
 		self.assertEqual(["hello"], content_args)
-		self.assertEqual(["hello", None], next_args)
+		self.assertEqual(["hello"], next_args)
 
 
 	def test_handle_say_no_sentient_audience(self):
