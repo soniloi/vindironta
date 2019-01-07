@@ -13,10 +13,7 @@ class TestCommandHandler(unittest.TestCase):
 
 	def setUp(self):
 		self.setup_data()
-		self.setup_inventories()
-		self.setup_locations()
-		self.setup_items()
-		self.setup_texts()
+
 		self.setup_player()
 
 		self.command = Mock()
@@ -26,11 +23,15 @@ class TestCommandHandler(unittest.TestCase):
 
 	def setup_data(self):
 		self.data = Mock()
-		self.data.list_commands.side_effect = self.list_commands_side_effect
-		self.data.get_location.side_effect = self.locations_side_effect
-		self.data.get_hint.side_effect = self.hints_side_effect
-		self.data.get_explanation.side_effect = self.explanations_side_effect
-		self.data.get_response.side_effect = self.responses_side_effect
+		self.setup_commands()
+		self.setup_inventories()
+		self.setup_locations()
+		self.setup_items()
+		self.setup_texts()
+
+
+	def setup_commands(self):
+		self.data.list_commands.return_value = "look, ne"
 
 
 	def setup_inventories(self):
@@ -45,11 +46,11 @@ class TestCommandHandler(unittest.TestCase):
 		self.cave_location = Location(9, 0x0, Labels("Cave", "in a cave", ". It is dark"))
 		self.item_start_location = Location(0, 0x0, Labels("Start", "at the start", ", where items start out."))
 
-		self.location_map = {
+		self.data.get_location.side_effect = lambda x: {
 			11 : self.mine_location,
 			12 : self.lighthouse_location,
 			13 : self.beach_location,
-		}
+		}.get(x)
 
 
 	def setup_items(self):
@@ -71,17 +72,17 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def setup_texts(self):
-		self.hint_map = {
+		self.data.get_hint.side_effect = lambda x: {
 			"default" : "I have no hint.",
 			"magic" : "abrakadabra",
-		}
+		}.get(x)
 
-		self.explanation_map = {
+		self.data.get_explanation.side_effect = lambda x: {
 			"default" : "I have no explanation.",
 			"spaize" : "Spaize is space-maize.",
-		}
+		}.get(x)
 
-		self.response_map = {
+		self.data.get_response.side_effect = lambda x: {
 			"confirm_consume" : "You consume the {0}.",
 			"confirm_dropped" : "Dropped.",
 			"confirm_emptied_liquid" : "You pour the {1} out of the {0}.",
@@ -146,32 +147,12 @@ class TestCommandHandler(unittest.TestCase):
 			"reject_take_animate" : "You cannot take anything from the {1}.",
 			"reject_take_liquid" : "You cannot take a liquid.",
 			"reject_too_full" : "That is too large to carry.",
-		}
+		}.get(x)
 
 
 	def setup_player(self):
 		self.player = Player(9000, 0x3, self.lighthouse_location, self.default_inventory)
 		self.player.instructions = 7
-
-
-	def list_commands_side_effect(self, *args):
-		return "look, ne"
-
-
-	def locations_side_effect(self, *args):
-		return self.location_map.get(args[0])
-
-
-	def hints_side_effect(self, *args):
-		return self.hint_map.get(args[0])
-
-
-	def explanations_side_effect(self, *args):
-		return self.explanation_map.get(args[0])
-
-
-	def responses_side_effect(self, *args):
-		return self.response_map.get(args[0])
 
 
 	def test_handle_climb(self):

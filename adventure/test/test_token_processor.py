@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import Mock
 
-from adventure.data_collection import DataCollection
 from adventure.element import Labels
 from adventure.token_processor import TokenProcessor
 from adventure.inventory import Inventory
@@ -10,51 +9,22 @@ from adventure.location import Location
 class TestTokenProcessor(unittest.TestCase):
 
 	def setUp(self):
-		data = self.setup_data()
+		self.setup_data()
 		self.player = Mock()
 		self.command_runner = Mock()
-		self.processor = TokenProcessor(data, self.command_runner)
+		self.processor = TokenProcessor(self.data, self.command_runner)
 		self.setup_responses()
 
 
 	def setup_data(self):
-
+		self.data = Mock()
 		self.setup_commands()
 		self.setup_inventories()
-
-		data = Mock()
-		data.get_commands.return_value = self.commands
-		data.get_inventory_template.side_effect = self.inventory_side_effect
-		data.get_inventory_templates.return_value = self.inventory_map.values()
-		data.get_location.side_effect = self.location_side_effect
-		data.get_response.side_effect = self.response_side_effect
-		data.matches_input.side_effect = self.matches_input_side_effect
-
-		self.initial_location = Location(9, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
-		self.beach_location = Location(13, 0x1, Labels("Beach", "on a beach", " of black sand"))
-		self.location_map = {
-			9 : self.initial_location,
-			13 : self.beach_location,
-		}
-
-		return data
-
-
-	def setup_inventories(self):
-		default_labels = Labels("Main Inventory", "in the main inventory", ", where items live usually.")
-		self.default_inventory_template = Inventory(0, 0x1, default_labels, 13)
-		non_default_labels = Labels("Special Inventory", "in the special inventory", ", where items live sometimes.")
-		self.non_default_inventory_template = Inventory(1, 0x0, non_default_labels, 8, [37, 38, 39])
-		self.inventory_map = {
-			0 : self.default_inventory_template,
-			1 : self.non_default_inventory_template,
-		}
+		self.setup_locations()
+		self.data.matches_input.side_effect = self.matches_input_side_effect
 
 
 	def setup_commands(self):
-		self.commands = Mock()
-		self.commands.get_by_name.side_effect = self.command_side_effect
-
 		self.die_command = Mock()
 		self.die_command.verb_is_first_arg.return_value = False
 
@@ -70,49 +40,50 @@ class TestTokenProcessor(unittest.TestCase):
 		self.switch_command = Mock()
 		self.switch_command.verb_is_first_arg.return_value = False
 
-		self.command_map = {
+		self.commands = Mock()
+		self.commands.get_by_name.side_effect = lambda x: {
 			"die" : self.die_command,
 			"look" : self.look_command,
 			"switch" : self.switch_command,
 			"take" : self.take_command,
 			"water" : self.pour_command,
-		}
+		}.get(x)
+
+		self.data.get_commands.return_value = self.commands
+
+
+	def setup_inventories(self):
+		default_labels = Labels("Main Inventory", "in the main inventory", ", where items live usually.")
+		self.default_inventory_template = Inventory(0, 0x1, default_labels, 13)
+		non_default_labels = Labels("Special Inventory", "in the special inventory", ", where items live sometimes.")
+		self.non_default_inventory_template = Inventory(1, 0x0, non_default_labels, 8, [37, 38, 39])
+
+		self.data.get_inventory_template.side_effect = lambda x: {
+			0 : self.default_inventory_template,
+			1 : self.non_default_inventory_template,
+		}.get(x)
+
+		self.data.get_inventory_templates.return_value = [self.default_inventory_template, self.non_default_inventory_template]
+
+
+	def setup_locations(self):
+		self.initial_location = Location(9, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
+		self.beach_location = Location(13, 0x1, Labels("Beach", "on a beach", " of black sand"))
+		self.data.get_location.side_effect = lambda x: {
+			9 : self.initial_location,
+			13 : self.beach_location,
+		}.get(x)
 
 
 	def setup_responses(self):
-		self.response_map = {
+		self.data.get_response.side_effect = lambda x: {
 			"confirm_reincarnation" : "You have been reincarnated.",
 			"confirm_quit" : "OK.",
 			"describe_dead" : "You are dead.",
 			"describe_reincarnation" : "I may be able to reincarnate you.",
 			"reject_no_understand_selection" : "I do not understand.",
 			"request_reincarnation" : "Do you want to be reincarnated?",
-		}
-
-
-	def die_side_effect(self, *args):
-		return "You have died."
-
-
-	def command_side_effect(self, *args):
-		command_name = args[0]
-		if command_name in self.command_map:
-			return self.command_map[command_name]
-		return None
-
-
-	def inventory_side_effect(self, *args):
-		inventory_id = int(args[0])
-		return self.inventory_map.get(inventory_id, None)
-
-
-	def location_side_effect(self, *args):
-		location_id = int(args[0])
-		return self.location_map.get(location_id, None)
-
-
-	def response_side_effect(self, *args):
-		return self.response_map.get(args[0])
+		}.get(x)
 
 
 	def matches_input_side_effect(self, *args):

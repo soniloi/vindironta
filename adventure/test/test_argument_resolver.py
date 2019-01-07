@@ -11,24 +11,35 @@ from adventure.item import Item, ContainerItem, SwitchableItem, SwitchInfo, Swit
 class TestArgumentResolver(unittest.TestCase):
 
 	def setUp(self):
+		self.setup_data()
+		self.setup_player()
+		self.resolver = ArgumentResolver()
+		self.resolver.init_data(self.data)
 
+
+	def setup_data(self):
 		self.data = Mock()
-		self.data.get_response.side_effect = self.responses_side_effect
-		self.data.get_item_by_name.side_effect = self.items_side_effect
+		self.setup_items()
+		self.setup_responses()
 
+
+	def setup_items(self):
 		self.book = Item(1105, 0x2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
 		self.box = ContainerItem(1106, 0x3, Labels("box", "a box", "a small box"), 3, None)
 		lamp_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "off", "on")
 		self.lamp = SwitchableItem(1043, 0x101A, Labels("lamp", "a lamp", "a small lamp"), 2, None, lamp_switching_info)
 		self.salt = Item(1110, 0x102, Labels("salt", "some salt", "some salt"), 1, None)
-		self.item_map = {
+
+		self.data.get_item_by_name.side_effect = lambda x: {
 			"book" : self.book,
 			"box" : self.box,
 			"lamp" : self.lamp,
 			"salt" : self.salt,
-		}
+		}.get(x)
 
-		self.response_map = {
+
+	def setup_responses(self):
+		self.data.get_response.side_effect = lambda x: {
 			"reject_carrying" : "You are carrying it.",
 			"reject_no_back" : "I do not remember how you got here.",
 			"reject_no_direction" : "You cannot go that way.",
@@ -42,21 +53,12 @@ class TestArgumentResolver(unittest.TestCase):
 			"request_addinfo" : "What do you want to {0}{1}?",
 			"request_argless" : "Do not give an argument for this command.",
 			"request_switch_command" : "Use the command \"{0}\" with either \"{1}\" or \"{2}\".",
-		}
+		}.get(x)
 
-		self.resolver = ArgumentResolver()
-		self.resolver.init_data(self.data)
 
+	def setup_player(self):
 		self.player = Mock()
 		self.player.get_current_args.return_value = []
-
-
-	def items_side_effect(self, *args):
-		return self.item_map.get(args[0])
-
-
-	def responses_side_effect(self, *args):
-		return self.response_map.get(args[0])
 
 
 	def test_resolve_teleport_with_arg(self):
