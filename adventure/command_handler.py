@@ -3,6 +3,9 @@ from adventure.resolver import Resolver
 
 class CommandHandler(Resolver):
 
+	# TODO: find a place for this
+	POINTS_PER_PUZZLE = 7
+
 	def handle_climb(self, command, player, arg=None):
 		return False, self.get_response("reject_climb"), [], []
 
@@ -317,7 +320,10 @@ class CommandHandler(Resolver):
 
 	def handle_score(self, command, player):
 		player.decrement_instructions()
-		return True, self.get_response("describe_score"), [player.score, player.instructions], []
+		current_score = player.count_solved_puzzles() * CommandHandler.POINTS_PER_PUZZLE
+		maximum_score = self.data.get_puzzle_count() * CommandHandler.POINTS_PER_PUZZLE
+		current_instructions = player.instructions
+		return True, self.get_response("describe_score"), [current_score, maximum_score, current_instructions], []
 
 
 	def handle_set(self, command, player, item):

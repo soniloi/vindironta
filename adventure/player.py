@@ -114,6 +114,10 @@ class Player(DataElement):
 		self.completed_events.add(event_id)
 
 
+	def count_solved_puzzles(self):
+		return len(self.solved_puzzles)
+
+
 	def solve_puzzle(self, event_id):
 		self.solved_puzzles.add(event_id)
 

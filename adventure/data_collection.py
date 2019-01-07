@@ -56,3 +56,7 @@ class DataCollection:
 
 	def get_event(self, event_key):
 		return self.events.get(event_key)
+
+
+	def get_puzzle_count(self):
+		return self.events.puzzle_count

@@ -111,7 +111,7 @@ class TestCommandHandler(unittest.TestCase):
 			"describe_locate_primary" : "The {0} is at {1}. ",
 			"describe_location" : "You are {0}.",
 			"describe_node" : "You are at node {0}.",
-			"describe_score" : "Current score: {0} point(s). Instructions entered: {1}.",
+			"describe_score" : "Current score: {0} points. Maximum score: {1} points. Instructions entered: {2}.",
 			"describe_switch_item" : "The {0} is now {1}.",
 			"describe_writing" : "It reads {0}.",
 			"list_inventory_nonempty" : "You have: {0}.",
@@ -957,12 +957,28 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["hello", self.cat], next_args)
 
 
-	def test_handle_score(self):
+	def test_handle_score_zero(self):
+		self.data.get_puzzle_count.return_value = 17
+
 		success, template, content_args, next_args = self.handler.handle_score(self.command, self.player)
 
 		self.assertTrue(success)
-		self.assertEqual("Current score: {0} point(s). Instructions entered: {1}.", template)
-		self.assertEqual([0, 6], content_args)
+		self.assertEqual("Current score: {0} points. Maximum score: {1} points. Instructions entered: {2}.", template)
+		self.assertEqual([0, 119, 6], content_args)
+		self.assertEqual([], next_args)
+		self.assertEqual(6, self.player.instructions)
+
+
+	def test_handle_score_with_puzzles_solved(self):
+		self.data.get_puzzle_count.return_value = 17
+		self.player.solve_puzzle(Mock())
+		self.player.solve_puzzle(Mock())
+
+		success, template, content_args, next_args = self.handler.handle_score(self.command, self.player)
+
+		self.assertTrue(success)
+		self.assertEqual("Current score: {0} points. Maximum score: {1} points. Instructions entered: {2}.", template)
+		self.assertEqual([14, 119, 6], content_args)
 		self.assertEqual([], next_args)
 		self.assertEqual(6, self.player.instructions)
 
