@@ -22,43 +22,36 @@ class TestCommandParser(unittest.TestCase):
 
 
 	def setup_vision_resolver(self):
-		self.vision_resolver = Mock()
-		self.vision_resolver.get_resolver_function.side_effect = self.vision_resolver_side_effect
-
 		self.mock_vision_pre_dark = Mock()
 		self.mock_vision_pre_light_and_dark = Mock()
 		self.mock_vision_post_light_and_dark = Mock()
 
-		self.vision_resolver_map = {
+		self.vision_resolver = Mock()
+		self.vision_resolver.get_resolver_function.side_effect = lambda x: {
 			"resolve_pre_dark" : self.mock_vision_pre_dark,
 			"resolve_pre_light_and_dark" : self.mock_vision_pre_light_and_dark,
 			"resolve_post_light_and_dark" : self.mock_vision_post_light_and_dark,
-		}
+		}.get(x)
 
 
 	def setup_argument_resolver(self):
-		self.argument_resolver = Mock()
-		self.argument_resolver.get_resolver_function.side_effect = self.argument_resolver_side_effect
-
 		self.mock_argument_teleport = Mock()
 		self.mock_argument_movement = Mock()
 		self.mock_argument_switchable = Mock()
 		self.mock_argument_switching = Mock()
 		self.mock_argument_args = Mock()
 
-		self.argument_resolver_map = {
+		self.argument_resolver = Mock()
+		self.argument_resolver.get_resolver_function.side_effect = lambda x: {
 			"resolve_teleport" : self.mock_argument_teleport,
 			"resolve_movement" : self.mock_argument_movement,
 			"resolve_switchable" : self.mock_argument_switchable,
 			"resolve_switching" : self.mock_argument_switching,
 			"resolve_args" : self.mock_argument_args,
-		}
+		}.get(x)
 
 
 	def setup_command_handler(self):
-		self.command_handler = Mock()
-		self.command_handler.get_resolver_function.side_effect = self.command_handler_side_effect
-
 		self.mock_handler_go = Mock()
 		self.mock_handler_insert = Mock()
 		self.mock_handler_look = Mock()
@@ -68,7 +61,8 @@ class TestCommandParser(unittest.TestCase):
 		self.mock_handler_teleport = Mock()
 		self.mock_handler_verbose = Mock()
 
-		self.command_handler_map = {
+		self.command_handler = Mock()
+		self.command_handler.get_resolver_function.side_effect = lambda x: {
 			"handle_go" : self.mock_handler_go,
 			"handle_insert" : self.mock_handler_insert,
 			"handle_look" : self.mock_handler_look,
@@ -77,25 +71,13 @@ class TestCommandParser(unittest.TestCase):
 			"handle_take" : self.mock_handler_take,
 			"handle_teleport" : self.mock_handler_teleport,
 			"handle_verbose" : self.mock_handler_verbose,
-		}
+		}.get(x)
 
 
 	def setup_event_resolver(self):
 		self.event_resolver = Mock()
 		self.mock_resolve_event = Mock()
 		self.event_resolver.get_resolver_function.return_value = self.mock_resolve_event
-
-
-	def vision_resolver_side_effect(self, *args):
-		return self.vision_resolver_map.get(args[0])
-
-
-	def argument_resolver_side_effect(self, *args):
-		return self.argument_resolver_map.get(args[0])
-
-
-	def command_handler_side_effect(self, *args):
-		return self.command_handler_map.get(args[0])
 
 
 	def test_init_command_different_commands(self):

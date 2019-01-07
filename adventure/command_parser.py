@@ -3,16 +3,6 @@ from adventure.command_collection import CommandCollection
 
 class CommandParser:
 
-	INDEX_ID = 0
-	INDEX_ATTRIBUTES = 1
-	INDEX_ARG_INFO = 2
-	INDEX_LINK_INFO = 3
-	INDEX_HANDLER = 4
-	INDEX_NAMES = 5
-	INDEX_SWITCHES = 6
-	INDEX_TELEPORTS = 7
-
-
 	def parse(self, command_inputs, resolvers):
 		self.vision_resolver = resolvers.vision_resolver
 		self.argument_resolver = resolvers.argument_resolver
@@ -43,33 +33,23 @@ class CommandParser:
 		command_id = command_input["data_id"]
 		attributes = int(command_input["attributes"], 16)
 		arg_infos = self.parse_arg_infos(command_input.get("argument_infos"))
-		resolver_functions = self.get_resolver_functions(attributes, arg_infos)
-		command_handler_function = self.parse_handler_function(command_input["handler"])
-		event_resolver_function = self.get_event_resolver_function()
-		post_vision_function = self.get_post_vision_function(attributes)
 		aliases = command_input["aliases"]
 		switch_info = self.parse_switch_info(command_input.get("switch_info"))
 		teleport_info = self.parse_teleport_info(command_input.get("teleport_info"))
 
-		command = None
-		if command_handler_function:
-			resolver_functions.append(command_handler_function)
+		proceed, resolver_functions = self.get_resolver_functions(attributes, arg_infos, command_input["handler"])
+		if not proceed:
+			return None
 
-			if post_vision_function:
-				resolver_functions.append(post_vision_function)
-
-			resolver_functions.append(event_resolver_function)
-
-			command = Command(
-				command_id=command_id,
-				attributes=attributes,
-				arg_infos=arg_infos,
-				resolver_functions=resolver_functions,
-				aliases=aliases,
-				switch_info=switch_info,
-				teleport_info=teleport_info,
-			)
-		return command
+		return Command(
+			command_id=command_id,
+			attributes=attributes,
+			arg_infos=arg_infos,
+			resolver_functions=resolver_functions,
+			aliases=aliases,
+			switch_info=switch_info,
+			teleport_info=teleport_info,
+		)
 
 
 	def parse_arg_infos(self, arg_info_inputs):
@@ -102,6 +82,20 @@ class CommandParser:
 		return teleport_infos
 
 
+	def get_resolver_functions(self, attributes, arg_infos, handler_input):
+		handler_function = self.get_handler_function(handler_input)
+		if not handler_function:
+			return False, ()
+
+		pre_vision_function = self.get_pre_vision_function(attributes, arg_infos)
+		arg_function = self.get_arg_function(attributes)
+		post_vision_function = self.get_post_vision_function(attributes)
+		event_function = self.get_event_resolver_function()
+
+		possible_functions = [pre_vision_function, arg_function, handler_function, post_vision_function, event_function]
+		return True, [x for x in possible_functions if x]
+
+
 	def get_pre_vision_function(self, attributes, arg_infos):
 		if not bool(attributes & Command.ATTRIBUTE_REQUIRES_VISION):
 			return None
@@ -112,12 +106,6 @@ class CommandParser:
 		else:
 			vision_function_name += "pre_light_and_dark"
 		return self.vision_resolver.get_resolver_function(vision_function_name)
-
-
-	def get_post_vision_function(self, attributes):
-		if not bool(attributes & Command.ATTRIBUTE_POST_VISION):
-			return None
-		return self.vision_resolver.get_resolver_function("resolve_post_light_and_dark")
 
 
 	def get_arg_function(self, attributes):
@@ -136,22 +124,15 @@ class CommandParser:
 		return self.argument_resolver.get_resolver_function(arg_function_name)
 
 
-	def parse_handler_function(self, token):
+	def get_handler_function(self, token):
 		function_name = "handle_" + token
 		return self.command_handler.get_resolver_function(function_name)
 
 
-	def get_resolver_functions(self, attributes, arg_infos):
-		vision_function = self.get_pre_vision_function(attributes, arg_infos)
-		arg_function = self.get_arg_function(attributes)
-
-		resolver_functions = []
-		if vision_function:
-			resolver_functions.append(vision_function)
-		if arg_function:
-			resolver_functions.append(arg_function)
-
-		return resolver_functions
+	def get_post_vision_function(self, attributes):
+		if not bool(attributes & Command.ATTRIBUTE_POST_VISION):
+			return None
+		return self.vision_resolver.get_resolver_function("resolve_post_light_and_dark")
 
 
 	def get_event_resolver_function(self):
