@@ -191,6 +191,13 @@ class ContainerItem(Item, ItemContainer):
 		ItemContainer.__init__(self)
 
 
+	def gives_air(self):
+		if self.has_attribute(Item.ATTRIBUTE_GIVES_AIR):
+			return True
+
+		return ItemContainer.gives_air(self)
+
+
 	def get_list_name(self, indentation=1):
 
 		result = Item.get_list_name(self, indentation)
@@ -244,6 +251,13 @@ class SentientItem(ItemContainer, Item):
 	def __init__(self, item_id, attributes, labels, size, writing, copied_from=None):
 		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing, copied_from=copied_from)
 		ItemContainer.__init__(self)
+
+
+	def gives_air(self):
+		if self.has_attribute(Item.ATTRIBUTE_GIVES_AIR):
+			return True
+
+		return ItemContainer.gives_air(self)
 
 
 	def get_list_name(self, indentation=1):

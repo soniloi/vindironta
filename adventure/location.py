@@ -4,6 +4,7 @@ from adventure.item_container import ItemContainer
 class Location(NamedDataElement, ItemContainer):
 
 	ATTRIBUTE_GIVES_LIGHT = 0x1
+	ATTRIBUTE_GIVES_AIR = 0x2
 	ATTRIBUTE_NEEDS_NO_LIGHT = 0x10
 
 	def __init__(self, location_id, attributes, labels):
@@ -52,6 +53,13 @@ class Location(NamedDataElement, ItemContainer):
 			return True
 
 		return ItemContainer.gives_light(self)
+
+
+	def gives_air(self):
+		if self.has_attribute(Location.ATTRIBUTE_GIVES_AIR):
+			return True
+
+		return ItemContainer.gives_air(self)
 
 
 	def get_obstructions(self):

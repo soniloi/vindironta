@@ -42,10 +42,16 @@ class TokenProcessor:
 		if not command:
 			command = self.commands.get_by_name("switch")
 
-		if command:
-			return self.command_runner.run(command, player, command_args)
-		return ""
+		if not command:
+			return ""
 
+		response = self.command_runner.run(command, player, command_args)
+
+		if not player.has_air():
+			player.set_alive(False)
+			response += " " + self.data.get_response("death_no_air")
+
+		return response
 
 	def get_command_from_input(self, tokens):
 		return self.commands.get_by_name(tokens[0])

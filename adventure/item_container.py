@@ -52,6 +52,10 @@ class ItemContainer:
 		return any(item.gives_light() for item in self.items.values())
 
 
+	def gives_air(self):
+		return any(item.gives_air() for item in self.items.values())
+
+
 	def get_outermost_container(self):
 		return self
 

@@ -138,6 +138,10 @@ class Player(DataElement):
 		return self.location.gives_light() or self.get_inventory().gives_light()
 
 
+	def has_air(self):
+		return self.location.gives_air() or self.get_inventory().gives_air()
+
+
 	def get_current_command(self):
 		return self.current_command
 
