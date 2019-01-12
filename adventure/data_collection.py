@@ -54,7 +54,7 @@ class DataCollection:
 		return self.inputs.matches(internal_key, input_key)
 
 
-	def get_event(self, event_key):
+	def get_events(self, event_key):
 		return self.events.get(event_key)
 
 

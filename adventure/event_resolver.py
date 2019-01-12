@@ -24,12 +24,14 @@ class EventResolver(Resolver):
 
 	def get_event(self, command, player, args):
 		event_key = self.create_event_key(command, args)
-		event = self.data.get_event(event_key)
+		events = self.data.get_events(event_key)
 
-		if not event or not self.event_matches(event.match, player):
-			return None
+		if events:
+			for event in events:
+				if self.event_matches(event.match, player):
+					return event
 
-		return event
+		return None
 
 
 	def create_event_key(self, command, args):

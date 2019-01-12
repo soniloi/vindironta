@@ -18,9 +18,11 @@ class TestEventParser(unittest.TestCase):
 
 
 	def setup_commands(self):
-		self.command = Command(48, 0x0, [], [], [""], {}, {})
+		self.command_48 = Command(48, 0x0, [], [], [""], {}, {})
+		self.command_49 = Command(49, 0x0, [], [], [""], {}, {})
 		self.commands = {
-			48 : self.command,
+			48 : self.command_48,
+			49 : self.command_49,
 		}
 
 
@@ -40,7 +42,7 @@ class TestEventParser(unittest.TestCase):
 		}
 
 
-	def test_event_minimal(self):
+	def test_parse_minimal(self):
 		event_inputs = json.loads(
 			"[ \
 				{ \
@@ -57,23 +59,26 @@ class TestEventParser(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+		collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
 
-		self.assertEqual(1, len(self.collection.events))
-		self.assertTrue((self.command,) in self.collection.events)
+		self.assertEqual(1, len(collection.events))
+		self.assertTrue((self.command_48,) in collection.events)
 
-		event = self.collection.events[(self.command,)]
+		events = collection.events[(self.command_48,)]
+		self.assertEqual(1, len(events))
+
+		event = events[0]
 		self.assertEqual(0, event.attributes)
 
 		match = event.match
-		self.assertEqual(self.command, match.command)
+		self.assertEqual(self.command_48, match.command)
 		self.assertFalse(match.arguments)
 
 		outcome = event.outcome
 		self.assertEqual("A very confused-looking genie pops out of the lamp.", outcome.text)
 
 
-	def test_event_with_match_args(self):
+	def test_parse_with_match_args(self):
 		event_inputs = json.loads(
 			"[ \
 				{ \
@@ -99,12 +104,15 @@ class TestEventParser(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+		collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
 
-		self.assertEqual(1, len(self.collection.events))
-		self.assertTrue((self.command, self.book, "hello") in self.collection.events)
+		self.assertEqual(1, len(collection.events))
+		self.assertTrue((self.command_48, self.book, "hello") in collection.events)
 
-		event = self.collection.events[(self.command, self.book, "hello")]
+		events = collection.events[(self.command_48, self.book, "hello")]
+		self.assertEqual(1, len(events))
+
+		event = events[0]
 		match = event.match
 		self.assertEqual(2, len(match.arguments))
 
@@ -117,7 +125,7 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual("hello", text_argument.value)
 
 
-	def test_event_with_item_match_prerequisites(self):
+	def test_parse_with_item_match_prerequisites(self):
 		event_inputs = json.loads(
 			"[ \
 				{ \
@@ -151,12 +159,15 @@ class TestEventParser(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+		collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
 
-		self.assertEqual(1, len(self.collection.events))
-		self.assertTrue((self.command,) in self.collection.events)
+		self.assertEqual(1, len(collection.events))
+		self.assertTrue((self.command_48,) in collection.events)
 
-		event = self.collection.events[(self.command,)]
+		events = collection.events[(self.command_48,)]
+		self.assertEqual(1, len(events))
+
+		event = events[0]
 		match = event.match
 
 		prerequisites = match.prerequisites
@@ -177,7 +188,7 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual(ItemEventMatchPrerequisiteContainerKind.ABSOLUTE_CONTAINER, second_container.kind)
 
 
-	def test_event_with_location_match_prerequisites(self):
+	def test_parse_with_location_match_prerequisites(self):
 		event_inputs = json.loads(
 			"[ \
 				{ \
@@ -200,12 +211,15 @@ class TestEventParser(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+		collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
 
-		self.assertEqual(1, len(self.collection.events))
-		self.assertTrue((self.command,) in self.collection.events)
+		self.assertEqual(1, len(collection.events))
+		self.assertTrue((self.command_48,) in collection.events)
 
-		event = self.collection.events[(self.command,)]
+		events = collection.events[(self.command_48,)]
+		self.assertEqual(1, len(events))
+
+		event = events[0]
 		match = event.match
 
 		prerequisites = match.prerequisites
@@ -216,7 +230,7 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual(self.lighthouse_location, prerequisite.location)
 
 
-	def test_event_with_event_match_prerequisites(self):
+	def test_parse_with_event_match_prerequisites(self):
 		event_inputs = json.loads(
 			"[ \
 				{ \
@@ -239,12 +253,15 @@ class TestEventParser(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+		collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
 
-		self.assertEqual(1, len(self.collection.events))
-		self.assertTrue((self.command,) in self.collection.events)
+		self.assertEqual(1, len(collection.events))
+		self.assertTrue((self.command_48,) in collection.events)
 
-		event = self.collection.events[(self.command,)]
+		events = collection.events[(self.command_48,)]
+		self.assertEqual(1, len(events))
+
+		event = events[0]
 		match = event.match
 
 		prerequisites = match.prerequisites
@@ -255,7 +272,89 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual(3000, prerequisite.event_id)
 
 
-	def test_event_with_item_outcome_actions(self):
+	def test_parse_multi_event_with_different_prerequisites(self):
+		event_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 3001, \
+					\"attributes\": \"1\", \
+					\"match\": { \
+						\"command_id\": 48, \
+						\"arguments\": [], \
+						\"prerequisites\": [ \
+							{ \
+								\"kind\": \"event\", \
+								\"data_id\": 3000 \
+							} \
+						] \
+					}, \
+					\"outcome\": { \
+						\"text\" : \"A very confused-looking genie pops out of the lamp.\" \
+					} \
+				}, \
+				{ \
+					\"data_id\": 3002, \
+					\"attributes\": \"0\", \
+					\"match\": { \
+						\"command_id\": 48, \
+						\"arguments\": [] \
+					}, \
+					\"outcome\": { \
+						\"text\" : \"The lamp disappears.\" \
+					} \
+				}, \
+				{ \
+					\"data_id\": 3003, \
+					\"attributes\": \"0\", \
+					\"match\": { \
+						\"command_id\": 49, \
+						\"arguments\": [] \
+					}, \
+					\"outcome\": { \
+						\"text\" : \"Nothing happens.\" \
+					} \
+				} \
+			]"
+		)
+
+		collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+
+		self.assertEqual(2, len(collection.events))
+		self.assertTrue((self.command_48,) in collection.events)
+		self.assertTrue((self.command_49,) in collection.events)
+
+		events_48 = collection.events[(self.command_48,)]
+		self.assertEqual(2, len(events_48))
+
+		event_48_0 = events_48[0]
+		self.assertEqual(1, event_48_0.attributes)
+		match = event_48_0.match
+		self.assertEqual(self.command_48, match.command)
+		self.assertFalse(match.arguments)
+		outcome = event_48_0.outcome
+		self.assertEqual("A very confused-looking genie pops out of the lamp.", outcome.text)
+
+		event_48_1 = events_48[1]
+		self.assertEqual(0, event_48_1.attributes)
+		match = event_48_1.match
+		self.assertEqual(self.command_48, match.command)
+		self.assertFalse(match.arguments)
+		outcome = event_48_1.outcome
+		self.assertEqual("The lamp disappears.", outcome.text)
+
+		events_49 = collection.events[(self.command_49,)]
+		self.assertEqual(1, len(events_49))
+
+		event_49_0 = events_49[0]
+		self.assertEqual(0, event_49_0.attributes)
+		match = event_49_0.match
+		self.assertEqual(self.command_49, match.command)
+		self.assertFalse(match.arguments)
+		outcome = event_49_0.outcome
+		self.assertEqual("Nothing happens.", outcome.text)
+
+
+	def test_parse_with_item_outcome_actions(self):
 		event_inputs = json.loads(
 			"[ \
 				{ \
@@ -289,16 +388,19 @@ class TestEventParser(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+		collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
 
-		self.assertEqual(1, len(self.collection.events))
-		self.assertTrue((self.command,) in self.collection.events)
+		self.assertEqual(1, len(collection.events))
+		self.assertTrue((self.command_48,) in collection.events)
 
-		event = self.collection.events[(self.command,)]
+		events = collection.events[(self.command_48,)]
+		self.assertEqual(1, len(events))
+
+		event = events[0]
 		self.assertEqual(0, event.attributes)
 
 		match = event.match
-		self.assertEqual(self.command, match.command)
+		self.assertEqual(self.command_48, match.command)
 		self.assertFalse(match.arguments)
 
 		outcome = event.outcome
@@ -320,7 +422,7 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual(1050, second_action_destination.data_id)
 
 
-	def test_event_with_player_outcome_actions(self):
+	def test_parse_with_player_outcome_actions(self):
 		event_inputs = json.loads(
 			"[ \
 				{ \
@@ -344,16 +446,19 @@ class TestEventParser(unittest.TestCase):
 			]"
 		)
 
-		self.collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+		collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
 
-		self.assertEqual(1, len(self.collection.events))
-		self.assertTrue((self.command,) in self.collection.events)
+		self.assertEqual(1, len(collection.events))
+		self.assertTrue((self.command_48,) in collection.events)
 
-		event = self.collection.events[(self.command,)]
+		events = collection.events[(self.command_48,)]
+		self.assertEqual(1, len(events))
+
+		event = events[0]
 		self.assertEqual(0, event.attributes)
 
 		match = event.match
-		self.assertEqual(self.command, match.command)
+		self.assertEqual(self.command_48, match.command)
 		self.assertFalse(match.arguments)
 
 		outcome = event.outcome

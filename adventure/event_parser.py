@@ -19,7 +19,10 @@ class EventParser:
 			event, match = self.parse_event(event_input, commands_by_id, items_by_id, locations_by_id)
 			match_argument_values = [argument.value for argument in match.arguments]
 			match_key = (tuple([match.command] + match_argument_values))
-			events[match_key] = event
+
+			if not match_key in events:
+				events[match_key] = []
+			events[match_key].append(event)
 
 		return events
 

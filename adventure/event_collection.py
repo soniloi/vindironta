@@ -6,7 +6,10 @@ class EventCollection:
 
 
 	def count_puzzles(self):
-		return len([event for event in self.events.values() if event.is_puzzle()])
+		result = 0
+		for multi_event in self.events.values():
+			result += len([event for event in multi_event if event.is_puzzle()])
+		return result
 
 
 	def get(self, event_key):
