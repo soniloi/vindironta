@@ -79,9 +79,6 @@ class TestTokenProcessor(unittest.TestCase):
 		self.data.get_response.side_effect = lambda x: {
 			"confirm_reincarnation" : "You have been reincarnated.",
 			"confirm_quit" : "OK.",
-			"death_no_air" : "You have no air to breathe.",
-			"describe_dead" : "You are dead.",
-			"describe_reincarnation" : "I may be able to reincarnate you.",
 			"reject_no_understand_selection" : "I do not understand.",
 			"request_reincarnation" : "Do you want to be reincarnated?",
 		}.get(x)
@@ -169,21 +166,9 @@ class TestTokenProcessor(unittest.TestCase):
 
 		response = self.processor.process_tokens(self.player, ["die"])
 
-		self.assertEqual("You have died. You are dead. I may be able to reincarnate you. Do you want to be reincarnated?", response)
+		self.assertEqual("You have died. Do you want to be reincarnated?", response)
 		self.command_runner.run.assert_called_once_with(self.die_command, self.player, [])
 		self.player.set_playing.assert_not_called()
-
-
-	def test_process_tokens_command_causes_no_air(self):
-		self.player.is_alive.side_effect = [True, False, False]
-		self.player.get_current_command.return_value = None
-		self.command_runner.run.return_value = "Done."
-		self.player.has_air.return_value = False
-
-		response = self.processor.process_tokens(self.player, ["take", "lamp"])
-
-		self.assertEqual("Done. You have no air to breathe. You are dead. I may be able to reincarnate you. Do you want to be reincarnated?", response)
-		self.player.set_alive.assert_called_once_with(False)
 
 
 	def test_process_tokens_reincarnation_true(self):

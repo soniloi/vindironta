@@ -14,10 +14,6 @@ class TokenProcessor:
 		if player.is_alive():
 			response = self.process_tokens_as_command(player, tokens)
 
-			if not player.is_alive():
-				response += " " + self.data.get_response("describe_dead") + \
-					" " + self.data.get_response("describe_reincarnation")
-
 		else:
 			response = self.process_tokens_as_reincarnation_answer(player, tokens)
 
@@ -44,14 +40,7 @@ class TokenProcessor:
 
 		if not command:
 			return ""
-
-		response = self.command_runner.run(command, player, command_args)
-
-		if not player.has_air():
-			player.set_alive(False)
-			response += " " + self.data.get_response("death_no_air")
-
-		return response
+		return self.command_runner.run(command, player, command_args)
 
 	def get_command_from_input(self, tokens):
 		return self.commands.get_by_name(tokens[0])

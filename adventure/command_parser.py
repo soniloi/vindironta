@@ -8,6 +8,7 @@ class CommandParser:
 		self.argument_resolver = resolvers.argument_resolver
 		self.command_handler = resolvers.command_handler
 		self.event_resolver = resolvers.event_resolver
+		self.life_resolver = resolvers.life_resolver
 
 		commands_by_name, commands_by_id = self.parse_commands(command_inputs)
 		command_list = self.create_command_list(commands_by_name)
@@ -91,8 +92,9 @@ class CommandParser:
 		arg_function = self.get_arg_function(attributes)
 		post_vision_function = self.get_post_vision_function(attributes)
 		event_function = self.get_event_resolver_function()
+		life_function = self.get_life_resolver_function()
 
-		possible_functions = [pre_vision_function, arg_function, handler_function, post_vision_function, event_function]
+		possible_functions = [pre_vision_function, arg_function, handler_function, post_vision_function, event_function, life_function]
 		return True, [x for x in possible_functions if x]
 
 
@@ -137,6 +139,10 @@ class CommandParser:
 
 	def get_event_resolver_function(self):
 		return self.event_resolver.get_resolver_function("resolve_event")
+
+
+	def get_life_resolver_function(self):
+		return self.life_resolver.get_resolver_function("resolve_life")
 
 
 	def create_command_list(self, commands_by_name):

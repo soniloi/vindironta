@@ -6,6 +6,7 @@ from adventure.command_runner import CommandRunner
 from adventure.data_parser import DataParser
 from adventure.event_resolver import EventResolver
 from adventure.file_reader import FileReader
+from adventure.life_resolver import LifeResolver
 from adventure.player import Player
 from adventure.resolvers import Resolvers
 from adventure.token_processor import TokenProcessor
@@ -19,6 +20,7 @@ class Game:
 		self.command_handler = CommandHandler()
 		self.vision_resolver = VisionResolver()
 		self.event_resolver = EventResolver()
+		self.life_resolver = LifeResolver()
 
 		if filename:
 			with open(filename, "rb") as input_file:
@@ -37,6 +39,7 @@ class Game:
 			argument_resolver=self.argument_resolver,
 			command_handler=self.command_handler,
 			event_resolver=self.event_resolver,
+			life_resolver=self.life_resolver,
 		)
 		data_parser = DataParser()
 		self.data, self.player = data_parser.parse(content, resolvers)
@@ -45,6 +48,7 @@ class Game:
 		self.command_handler.init_data(self.data)
 		self.vision_resolver.init_data(self.data)
 		self.event_resolver.init_data(self.data)
+		self.life_resolver.init_data(self.data)
 
 
 	def init_token_processor(self, data, command_runner):
