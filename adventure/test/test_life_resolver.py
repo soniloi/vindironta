@@ -18,8 +18,9 @@ class TestLifeResolver(unittest.TestCase):
 	def setup_data(self):
 		self.data = Mock()
 		self.command = Command(150, 0x0, [], [], ["do"], {}, {})
-		self.location = Mock()
 		self.inventory = Mock()
+		self.location = Mock()
+		self.book = Mock()
 		self.setup_responses()
 
 
@@ -36,6 +37,7 @@ class TestLifeResolver(unittest.TestCase):
 
 
 	def test_resolve_life_player_has_no_air(self):
+		self.player.take_item(self.book)
 		self.location.gives_air.return_value = False
 		self.inventory.gives_air.return_value = False
 
@@ -43,6 +45,7 @@ class TestLifeResolver(unittest.TestCase):
 
 		self.assertEqual((False, ["You have no air to breathe.", "You are dead.", "I may be able to reincarnate you."], [], []), response)
 		self.assertFalse(self.player.is_alive())
+		self.inventory.drop_all_items.assert_called_once_with(self.location)
 
 
 	def test_resolve_life_player_was_not_alive(self):

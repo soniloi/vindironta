@@ -10,6 +10,7 @@ class LifeResolver(Resolver):
 			templates.append(self.data.get_response("death_no_air"))
 
 		if not player.is_alive():
+			player.drop_all_items(player.location)
 			templates.append(self.data.get_response("describe_dead"))
 			templates.append(self.data.get_response("describe_reincarnation"))
 
