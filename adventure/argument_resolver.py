@@ -21,35 +21,35 @@ class ArgumentResolver(Resolver):
 
 	def resolve_teleport(self, command, player, *args):
 		if args:
-			return False, self.get_response("request_argless"), [self.get_arg(0, args)], []
+			return False, [self.get_response("request_argless")], [self.get_arg(0, args)], []
 
 		source_location_id = player.get_location_id()
 		if not source_location_id in command.teleport_info:
-			return False, self.get_response("reject_nothing"), [None], []
+			return False, [self.get_response("reject_nothing")], [None], []
 
 		destination_location_id = command.teleport_info[source_location_id]
 		destination_location = self.data.get_location(destination_location_id)
 
-		return True, "", [], [destination_location]
+		return True, [], [], [destination_location]
 
 
 	def resolve_movement(self, command, player, *args):
 		if args:
-			return False, self.get_response("request_argless"), [self.get_arg(0, args)], []
+			return False, [self.get_response("request_argless")], [self.get_arg(0, args)], []
 
 		direction = ArgumentResolver.DIRECTIONS[command.data_id]
 
 		if direction == Direction.BACK:
 			proposed_location = player.get_previous_location()
 			if not proposed_location:
-				return False, self.get_response("reject_no_back"), [direction], []
+				return False, [self.get_response("reject_no_back")], [direction], []
 
 		else:
 			proposed_location = player.get_adjacent_location(direction)
 			if not proposed_location:
-				return False, self.get_reject_movement_template(direction), [direction], []
+				return False, [self.get_reject_movement_template(direction)], [direction], []
 
-		return True, "", [], [proposed_location]
+		return True, [], [], [proposed_location]
 
 
 	def get_reject_movement_template(self, direction):
@@ -63,10 +63,10 @@ class ArgumentResolver(Resolver):
 		arg = self.get_arg(0, args)
 		if arg not in command.switch_info:
 			content = [command.primary] + sorted(list(command.switch_info.keys()))
-			return False, self.get_response("request_switch_command"), content, []
+			return False, [self.get_response("request_switch_command")], content, []
 
 		transition = command.switch_info[arg]
-		return True, "", [], [transition]
+		return True, [], [], [transition]
 
 
 	def resolve_switching(self, command, player, *args):
@@ -78,29 +78,29 @@ class ArgumentResolver(Resolver):
 			player.current_command = command
 			player.current_args = []
 			template, content = self.get_addinfo_response(command, [], None)
-			return False, template, content, []
+			return False, [template], content, []
 
 		success, template, content = self.resolve_arg_for_command(command, player, arg_info, arg_input)
 
 		if not success:
 			player.reset_current_command()
-			return False, template, content, []
+			return False, [template], content, []
 
 		item = content
 		switch_args = args[1:]
 
 		if not item.is_switchable():
-			return False, self.get_response("reject_no_understand_instruction"), [item.shortname], []
+			return False, [self.get_response("reject_no_understand_instruction")], [item.shortname], []
 
 		transition_text = self.get_arg(0, switch_args)
 
 		if not transition_text in item.text_to_transition:
 			content = [item.shortname] + sorted(list(item.text_to_transition.keys()))
-			return False, self.get_response("request_switch_item"), content, []
+			return False, [self.get_response("request_switch_item")], content, []
 
 		transition = item.text_to_transition.get(transition_text)
 		player.reset_current_command()
-		return True, "", [], [item, transition]
+		return True, [], [], [item, transition]
 
 
 	def resolve_args(self, command, player, *args):
@@ -130,18 +130,18 @@ class ArgumentResolver(Resolver):
 					player.current_args = resolved_args
 					# TODO: improve this to request non-direct args properly also
 					template, content = self.get_addinfo_response(command, resolved_args, current_linker)
-					return False, template, content, []
+					return False, [template], content, []
 
 			else:
 				success, template, content = self.resolve_arg_for_command(command, player, arg_info, arg_input)
 
 				if not success:
 					player.reset_current_command()
-					return False, template, content, []
+					return False, [template], content, []
 				resolved_args.append(content)
 
 		player.reset_current_command()
-		return True, "", [], resolved_args
+		return True, [], [], resolved_args
 
 
 	def get_arg(self, index, args):

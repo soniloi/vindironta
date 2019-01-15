@@ -76,7 +76,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
 
-		self.assertEqual((True, "", [self.wand], []), response)
+		self.assertEqual((True, [], [self.wand], []), response)
 
 
 	def test_resolve_event_with_match_to_non_copyable_item(self):
@@ -87,7 +87,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.rub_command, self.player, self.lamp)
 
-		self.assertEqual((True, "A genie pops out.", [self.lamp], [self.lamp]), response)
+		self.assertEqual((True, ["A genie pops out."], [self.lamp], [self.lamp]), response)
 
 
 	def test_resolve_event_with_match_to_copyable_item(self):
@@ -99,7 +99,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.drink_command, self.player, potion_copy)
 
-		self.assertEqual((True, "You become invisible.", [potion_copy], [potion_copy]), response)
+		self.assertEqual((True, ["You become invisible."], [potion_copy], [potion_copy]), response)
 
 
 	def test_resolve_event_with_match_to_two_args(self):
@@ -112,7 +112,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, "The bean disappears.", [self.potion, self.bean], [self.potion, self.bean]), response)
+		self.assertEqual((True, ["The bean disappears."], [self.potion, self.bean], [self.potion, self.bean]), response)
 
 
 	def test_resolve_event_with_item_outcome_action_destroy(self):
@@ -126,7 +126,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, "The bean disappears.", [self.potion, self.bean], [self.potion, self.bean]), response)
+		self.assertEqual((True, ["The bean disappears."], [self.potion, self.bean], [self.potion, self.bean]), response)
 		self.assertFalse(self.lighthouse_location.contains(self.bean))
 
 
@@ -140,7 +140,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
 
-		self.assertEqual((True, "The bean appears at your feet.", [self.wand], [self.wand]), response)
+		self.assertEqual((True, ["The bean appears at your feet."], [self.wand], [self.wand]), response)
 		self.player.drop_item.assert_called_once_with(self.bean)
 
 
@@ -154,7 +154,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
 
-		self.assertEqual((True, "The bean appears in your hand.", [self.wand], [self.wand]), response)
+		self.assertEqual((True, ["The bean appears in your hand."], [self.wand], [self.wand]), response)
 		self.player.take_item.assert_called_once_with(self.bean)
 
 
@@ -168,7 +168,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
 
-		self.assertEqual((True, "The bean appears somewhere.", [self.wand], [self.wand]), response)
+		self.assertEqual((True, ["The bean appears somewhere."], [self.wand], [self.wand]), response)
 		self.assertTrue(self.lighthouse_location.contains(self.bean))
 
 
@@ -182,7 +182,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
 
-		self.assertEqual((True, "Potion appears in the bottle.", [self.wand], [self.wand]), response)
+		self.assertEqual((True, ["Potion appears in the bottle."], [self.wand], [self.wand]), response)
 		self.assertFalse(self.bottle.contains(self.potion))
 		potion_copy = self.bottle.get_allow_copy(self.potion)
 		self.assertTrue(potion_copy.is_allow_copy(self.potion))
@@ -199,7 +199,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
 
-		self.assertEqual((True, "The bean turns into a lamp.", [self.wand], [self.wand]), response)
+		self.assertEqual((True, ["The bean turns into a lamp."], [self.wand], [self.wand]), response)
 		self.assertFalse(self.lighthouse_location.contains(self.bean))
 		self.assertTrue(self.lighthouse_location.contains(self.lamp))
 
@@ -222,7 +222,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, "The bean disappears.", [self.potion, self.bean], [self.potion, self.bean]), response)
+		self.assertEqual((True, ["The bean disappears."], [self.potion, self.bean], [self.potion, self.bean]), response)
 		self.assertFalse(self.lighthouse_location.contains(self.bean))
 
 
@@ -244,7 +244,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, "", [self.potion, self.bean], []), response)
+		self.assertEqual((True, [], [self.potion, self.bean], []), response)
 		self.assertFalse(self.lighthouse_location.contains(self.bean))
 
 
@@ -267,7 +267,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, "The bean disappears.", [self.potion, self.bean], [self.potion, self.bean]), response)
+		self.assertEqual((True, ["The bean disappears."], [self.potion, self.bean], [self.potion, self.bean]), response)
 		self.assertFalse(self.lighthouse_location.contains(self.bean))
 
 
@@ -287,7 +287,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, "", [self.potion, self.bean], []), response)
+		self.assertEqual((True, [], [self.potion, self.bean], []), response)
 		self.assertTrue(self.lighthouse_location.contains(self.bean))
 
 
@@ -308,7 +308,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, "The bean disappears.", [self.potion, self.bean], [self.potion, self.bean]), response)
+		self.assertEqual((True, ["The bean disappears."], [self.potion, self.bean], [self.potion, self.bean]), response)
 		self.assertFalse(self.lighthouse_location.contains(self.bean))
 
 
@@ -329,7 +329,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, "", [self.potion, self.bean], []), response)
+		self.assertEqual((True, [], [self.potion, self.bean], []), response)
 		self.assertTrue(self.lighthouse_location.contains(self.bean))
 
 
@@ -350,7 +350,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, "The bean disappears.", [self.potion, self.bean], [self.potion, self.bean]), response)
+		self.assertEqual((True, ["The bean disappears."], [self.potion, self.bean], [self.potion, self.bean]), response)
 		self.assertFalse(self.lighthouse_location.contains(self.bean))
 
 
@@ -371,7 +371,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, "", [self.potion, self.bean], []), response)
+		self.assertEqual((True, [], [self.potion, self.bean], []), response)
 		self.assertTrue(self.lighthouse_location.contains(self.bean))
 
 
@@ -395,7 +395,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, "The bean turns purple.", [self.potion, self.bean], [self.potion, self.bean]), response)
+		self.assertEqual((True, ["The bean turns purple."], [self.potion, self.bean], [self.potion, self.bean]), response)
 		self.assertTrue(self.lighthouse_location.contains(self.bean))
 
 
@@ -407,7 +407,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.rub_command, self.player, self.lamp)
 
-		self.assertEqual((True, "A genie pops out.", [self.lamp], [self.lamp]), response)
+		self.assertEqual((True, ["A genie pops out."], [self.lamp], [self.lamp]), response)
 		self.player.complete_event.assert_called_once_with(3001)
 		self.player.solve_puzzle.assert_not_called()
 		self.player.set_playing.assert_not_called()
@@ -421,7 +421,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.rub_command, self.player, self.lamp)
 
-		self.assertEqual((True, "A genie pops out.", [self.lamp], [self.lamp]), response)
+		self.assertEqual((True, ["A genie pops out."], [self.lamp], [self.lamp]), response)
 		self.player.set_playing.assert_called_once_with(False)
 
 
@@ -433,7 +433,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
 
-		self.assertEqual((True, "Something happens.", [self.wand], [self.wand]), response)
+		self.assertEqual((True, ["Something happens."], [self.wand], [self.wand]), response)
 		self.player.solve_puzzle.assert_called_once_with(3004)
 
 
@@ -446,7 +446,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
 
-		self.assertEqual((True, "Something happens.", [self.wand], [self.wand]), response)
+		self.assertEqual((True, ["Something happens."], [self.wand], [self.wand]), response)
 		self.player.set_attribute.assert_called_once_with(0x8)
 
 
@@ -459,7 +459,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
 
-		self.assertEqual((True, "Something happens.", [self.wand], [self.wand]), response)
+		self.assertEqual((True, ["Something happens."], [self.wand], [self.wand]), response)
 		self.player.unset_attribute.assert_called_once_with(0x8)
 
 

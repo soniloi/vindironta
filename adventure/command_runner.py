@@ -8,10 +8,10 @@ class CommandRunner():
 		next_args = args
 
 		for resolver_function in command.resolver_functions:
-			success, resolved_template, current_content_args, next_args = resolver_function(command, player, *next_args)
+			success, resolved_templates, current_content_args, next_args = resolver_function(command, player, *next_args)
 
-			if resolved_template:
-				templates.append(resolved_template)
+			if resolved_templates:
+				templates += resolved_templates
 				content_args += current_content_args
 
 			if not success:

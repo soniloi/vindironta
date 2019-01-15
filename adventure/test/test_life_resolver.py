@@ -41,7 +41,7 @@ class TestLifeResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_life(self.command, self.player)
 
-		self.assertEqual((False, "You have no air to breathe. You are dead. I may be able to reincarnate you.", [], []), response)
+		self.assertEqual((False, ["You have no air to breathe.", "You are dead.", "I may be able to reincarnate you."], [], []), response)
 		self.assertFalse(self.player.is_alive())
 
 
@@ -52,7 +52,7 @@ class TestLifeResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_life(self.command, self.player)
 
-		self.assertEqual((False, "You are dead. I may be able to reincarnate you.", [], []), response)
+		self.assertEqual((False, ["You are dead.", "I may be able to reincarnate you."], [], []), response)
 		self.assertFalse(self.player.is_alive())
 
 
@@ -62,7 +62,7 @@ class TestLifeResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_life(self.command, self.player)
 
-		self.assertEqual((True, "", [], []), response)
+		self.assertEqual((True, [], [], []), response)
 		self.assertTrue(self.player.is_alive())
 
 

@@ -40,7 +40,7 @@ class TestVisionResolver(unittest.TestCase):
 		self.data.get_response.side_effect = lambda x: {
 			"confirm_look" : "You are {0}.",
 			"death_darkness" : "You fall to your death in the darkness.",
-			"list_location" : " Nearby: {1}.",
+			"list_location" : "Nearby: {1}.",
 			"reject_excess_light" : "It is too bright.",
 			"reject_no_light" : "It is too dark.",
 		}.get(x)
@@ -55,7 +55,7 @@ class TestVisionResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_pre_light_and_dark(self.command, self.player, "test")
 
-		self.assertEqual((False, "It is too bright.", [], []), response)
+		self.assertEqual((False, ["It is too bright."], [], []), response)
 
 
 	def test_resolve_pre_light_and_dark_player_has_no_light_and_needs_light(self):
@@ -64,7 +64,7 @@ class TestVisionResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_pre_light_and_dark(self.command, self.player, "test")
 
-		self.assertEqual((False, "It is too dark.", [], []), response)
+		self.assertEqual((False, ["It is too dark."], [], []), response)
 
 
 	def test_resolve_pre_light_and_dark_player_has_suitable_light(self):
@@ -73,7 +73,7 @@ class TestVisionResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_pre_light_and_dark(self.command, self.player, "test")
 
-		self.assertEqual((True, "", [], ["test"]), response)
+		self.assertEqual((True, [], [], ["test"]), response)
 
 
 	def test_resolve_pre_dark_player_has_no_light_and_needs_light(self):
@@ -82,7 +82,7 @@ class TestVisionResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_pre_dark(self.command, self.player, "test")
 
-		self.assertEqual((False, "It is too dark.", [], []), response)
+		self.assertEqual((False, ["It is too dark."], [], []), response)
 
 
 	def test_resolve_pre_dark_player_has_suitable_light(self):
@@ -91,17 +91,17 @@ class TestVisionResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_pre_dark(self.command, self.player, "test")
 
-		self.assertEqual((True, "", [], ["test"]), response)
+		self.assertEqual((True, [], [], ["test"]), response)
 
 
 	def test_resolve_post_light_and_dark_dark_to_dark_immune_off(self):
 		self.player.is_immune.return_value = False
 		self.player.has_light.return_value = False
 
-		success, template, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.mine_location, self.cave_location)
+		success, templates, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.mine_location, self.cave_location)
 
 		self.assertFalse(success)
-		self.assertEqual("You fall to your death in the darkness.", template)
+		self.assertEqual(["You fall to your death in the darkness."], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([], next_args)
 		self.player.set_alive.assert_called_once_with(False)
@@ -113,10 +113,10 @@ class TestVisionResolver(unittest.TestCase):
 		self.player.has_light.return_value = False
 		self.player.has_light_and_needs_no_light.return_value = False
 
-		success, template, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.mine_location, self.lighthouse_location)
+		success, templates, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.mine_location, self.lighthouse_location)
 
 		self.assertFalse(success)
-		self.assertEqual("It is too dark.", template)
+		self.assertEqual(["It is too dark."], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([], next_args)
 		self.player.set_alive.assert_not_called()
@@ -128,10 +128,10 @@ class TestVisionResolver(unittest.TestCase):
 		self.player.has_light.return_value = False
 		self.player.has_light_and_needs_no_light.return_value = False
 
-		success, template, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.mine_location, self.cave_location)
+		success, templates, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.mine_location, self.cave_location)
 
 		self.assertFalse(success)
-		self.assertEqual("It is too dark.", template)
+		self.assertEqual(["It is too dark."], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([], next_args)
 		self.player.set_alive.assert_not_called()
@@ -143,10 +143,10 @@ class TestVisionResolver(unittest.TestCase):
 		self.player.has_light.return_value = False
 		self.player.has_light_and_needs_no_light.return_value = True
 
-		success, template, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.sun_location, self.lighthouse_location)
+		success, templates, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.sun_location, self.lighthouse_location)
 
 		self.assertFalse(success)
-		self.assertEqual("It is too bright.", template)
+		self.assertEqual(["It is too bright."], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([], next_args)
 		self.player.see_location.assert_not_called()
@@ -157,10 +157,10 @@ class TestVisionResolver(unittest.TestCase):
 		self.player.has_light.return_value = False
 		self.player.has_light_and_needs_no_light.return_value = False
 
-		success, template, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.mine_location, self.lighthouse_location)
+		success, templates, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.mine_location, self.lighthouse_location)
 
 		self.assertFalse(success)
-		self.assertEqual("It is too dark.", template)
+		self.assertEqual(["It is too dark."], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([], next_args)
 		self.player.see_location.assert_not_called()
@@ -173,10 +173,10 @@ class TestVisionResolver(unittest.TestCase):
 		self.player.has_non_silent_items_nearby.return_value = False
 		self.player.get_arrival_location_description.return_value = ["Here."]
 
-		success, template, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.beach_location, self.lighthouse_location)
+		success, templates, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.beach_location, self.lighthouse_location)
 
 		self.assertTrue(success)
-		self.assertEqual("You are {0}.", template)
+		self.assertEqual(["You are {0}."], templates)
 		self.assertEqual(["Here."], content_args)
 		self.assertEqual([self.beach_location, self.lighthouse_location], next_args)
 		self.player.see_location.assert_called_once()
@@ -189,10 +189,10 @@ class TestVisionResolver(unittest.TestCase):
 		self.player.has_non_silent_items_nearby.return_value = True
 		self.player.get_arrival_location_description.return_value = ["Here."]
 
-		success, template, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.beach_location, self.lighthouse_location)
+		success, templates, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.beach_location, self.lighthouse_location)
 
 		self.assertTrue(success)
-		self.assertEqual("You are {0}. Nearby: {1}.", template)
+		self.assertEqual(["You are {0}.", "Nearby: {1}."], templates)
 		self.assertEqual(["Here."], content_args)
 		self.assertEqual([self.beach_location, self.lighthouse_location], next_args)
 		self.player.see_location.assert_called_once()

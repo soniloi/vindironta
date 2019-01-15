@@ -107,9 +107,9 @@ class TestCommandHandler(unittest.TestCase):
 			"describe_commands" : "I know these commands: {0}.",
 			"describe_help" : "Welcome and good luck.",
 			"describe_item" : "It is {0}.",
-			"describe_item_switch" : " It is {1}.",
+			"describe_item_switch" : "It is {1}.",
 			"describe_locate_copies" : "Copies at {2}.",
-			"describe_locate_primary" : "The {0} is at {1}. ",
+			"describe_locate_primary" : "The {0} is at {1}.",
 			"describe_location" : "You are {0}.",
 			"describe_node" : "You are at node {0}.",
 			"describe_score" : "Current score: {0} points. Maximum score: {1} points. Instructions entered: {2}.",
@@ -117,7 +117,7 @@ class TestCommandHandler(unittest.TestCase):
 			"describe_writing" : "It reads {0}.",
 			"list_inventory_nonempty" : "You have: {0}.",
 			"list_inventory_empty" : "You have nothing.",
-			"list_location" : " Nearby: {1}.",
+			"list_location" : "Nearby: {1}.",
 			"reject_already_contained" : "The {0} is already in the {1}.",
 			"reject_already_empty" : "It is already empty.",
 			"reject_already_switched" : "The {0} is already {1}.",
@@ -156,19 +156,19 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_climb(self):
-		success, template, content_args, next_args = self.handler.handle_climb(self.command, self.player, "tree")
+		success, templates, content_args, next_args = self.handler.handle_climb(self.command, self.player, "tree")
 
 		self.assertFalse(success)
-		self.assertEqual("Use \"up\" or \"down\".", template)
+		self.assertEqual(["Use \"up\" or \"down\"."], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([], next_args)
 
 
 	def test_handle_commands(self):
-		success, template, content_args, next_args = self.handler.handle_commands(self.command, self.player)
+		success, templates, content_args, next_args = self.handler.handle_commands(self.command, self.player)
 
 		self.assertTrue(success)
-		self.assertEqual("I know these commands: {0}.", template)
+		self.assertEqual(["I know these commands: {0}."], templates)
 		self.assertEqual(["look, ne"], content_args)
 		self.assertEqual([], next_args)
 
@@ -176,10 +176,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_consume_non_edible(self):
 		self.item_start_location.add(self.book)
 
-		success, template, content_args, next_args = self.handler.handle_consume(self.command, self.player, self.book)
+		success, templates, content_args, next_args = self.handler.handle_consume(self.command, self.player, self.book)
 
 		self.assertFalse(success)
-		self.assertEqual("You cannot consume that.", template)
+		self.assertEqual(["You cannot consume that."], templates)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([], next_args)
 		self.assertTrue(self.book in self.item_start_location.items.values())
@@ -188,10 +188,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_consume_edible(self):
 		self.item_start_location.add(self.bread)
 
-		success, template, content_args, next_args = self.handler.handle_consume(self.command, self.player, self.bread)
+		success, templates, content_args, next_args = self.handler.handle_consume(self.command, self.player, self.bread)
 
 		self.assertTrue(success)
-		self.assertEqual("You consume the {0}.", template)
+		self.assertEqual(["You consume the {0}."], templates)
 		self.assertEqual([self.bread], content_args)
 		self.assertEqual([self.bread], next_args)
 		self.assertFalse(self.bread in self.item_start_location.items.values())
@@ -201,10 +201,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_describe_in_inventory(self):
 		self.player.get_inventory().add(self.book)
 
-		success, template, content_args, next_args = self.handler.handle_describe(self.command, self.player, self.book)
+		success, templates, content_args, next_args = self.handler.handle_describe(self.command, self.player, self.book)
 
 		self.assertTrue(success)
-		self.assertEqual("It is {0}.", template)
+		self.assertEqual(["It is {0}."], templates)
 		self.assertEqual(["a book of fairytales"], content_args)
 		self.assertEqual([self.book], next_args)
 
@@ -212,10 +212,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_describe_at_location(self):
 		self.player.location.add(self.book)
 
-		success, template, content_args, next_args = self.handler.handle_describe(self.command, self.player, self.lamp)
+		success, templates, content_args, next_args = self.handler.handle_describe(self.command, self.player, self.lamp)
 
 		self.assertTrue(success)
-		self.assertEqual("It is {0}. It is {1}.", template)
+		self.assertEqual(["It is {0}.", "It is {1}."], templates)
 		self.assertEqual(["a small lamp", "on"], content_args)
 		self.assertEqual([self.lamp], next_args)
 
@@ -223,10 +223,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_drink_solid(self):
 		self.item_start_location.add(self.bread)
 
-		success, template, content_args, next_args = self.handler.handle_drink(self.command, self.player, self.bread)
+		success, templates, content_args, next_args = self.handler.handle_drink(self.command, self.player, self.bread)
 
 		self.assertFalse(success)
-		self.assertEqual("You cannot drink a solid.", template)
+		self.assertEqual(["You cannot drink a solid."], templates)
 		self.assertEqual([self.bread], content_args)
 		self.assertEqual([], next_args)
 		self.assertTrue(self.bread in self.item_start_location.items.values())
@@ -235,10 +235,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_drink_liquid(self):
 		self.bottle.add(self.water)
 
-		success, template, content_args, next_args = self.handler.handle_drink(self.command, self.player, self.water)
+		success, templates, content_args, next_args = self.handler.handle_drink(self.command, self.player, self.water)
 
 		self.assertTrue(success)
-		self.assertEqual("You consume the {0}.", template)
+		self.assertEqual(["You consume the {0}."], templates)
 		self.assertEqual([self.water], content_args)
 		self.assertEqual([self.water], next_args)
 		self.assertFalse(self.water in self.bottle.items.values())
@@ -247,10 +247,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_drop_non_wearable(self):
 		self.player.get_inventory().add(self.lamp)
 
-		success, template, content_args, next_args = self.handler.handle_drop(self.command, self.player, self.lamp)
+		success, templates, content_args, next_args = self.handler.handle_drop(self.command, self.player, self.lamp)
 
 		self.assertTrue(success)
-		self.assertEqual("Dropped.", template)
+		self.assertEqual(["Dropped."], templates)
 		self.assertEqual([self.lamp], content_args)
 		self.assertEqual([self.lamp], next_args)
 		self.assertFalse(self.lamp in self.default_inventory.items.values())
@@ -261,10 +261,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.get_inventory().add(self.suit)
 		self.suit.being_worn = True
 
-		success, template, content_args, next_args = self.handler.handle_drop(self.command, self.player, self.suit)
+		success, templates, content_args, next_args = self.handler.handle_drop(self.command, self.player, self.suit)
 
 		self.assertTrue(success)
-		self.assertEqual("Dropped.", template)
+		self.assertEqual(["Dropped."], templates)
 		self.assertEqual([self.suit], content_args)
 		self.assertEqual([self.suit], next_args)
 		self.assertFalse(self.suit in self.player.get_inventory().items.values())
@@ -276,10 +276,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.basket.add(self.book)
 		self.player.get_inventory().add(self.basket)
 
-		success, template, content_args, next_args = self.handler.handle_drop(self.command, self.player, self.book)
+		success, templates, content_args, next_args = self.handler.handle_drop(self.command, self.player, self.book)
 
 		self.assertTrue(success)
-		self.assertEqual("Dropped.", template)
+		self.assertEqual(["Dropped."], templates)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([self.book], next_args)
 		self.assertFalse(self.book in self.player.get_inventory().items.values())
@@ -290,10 +290,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.bottle.add(self.water)
 		self.player.get_inventory().add(self.bottle)
 
-		success, template, content_args, next_args = self.handler.handle_drop(self.command, self.player, self.water)
+		success, templates, content_args, next_args = self.handler.handle_drop(self.command, self.player, self.water)
 
 		self.assertTrue(success)
-		self.assertEqual("You pour the liquid away.", template)
+		self.assertEqual(["You pour the liquid away."], templates)
 		self.assertEqual([self.water, self.bottle], content_args)
 		self.assertEqual([self.water], next_args)
 		self.assertFalse(self.water in self.bottle.items.values())
@@ -304,20 +304,20 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_eat_liquid(self):
 		self.item_start_location.add(self.water)
 
-		success, template, content_args, next_args = self.handler.handle_eat(self.command, self.player, self.water)
+		success, templates, content_args, next_args = self.handler.handle_eat(self.command, self.player, self.water)
 
 		self.assertFalse(success)
-		self.assertEqual("You cannot eat a liquid.", template)
+		self.assertEqual(["You cannot eat a liquid."], templates)
 		self.assertEqual([self.water], content_args)
 		self.assertEqual([], next_args)
 		self.assertTrue(self.water in self.item_start_location.items.values())
 
 
 	def test_handle_eat_solid(self):
-		success, template, content_args, next_args = self.handler.handle_eat(self.command, self.player, self.bread)
+		success, templates, content_args, next_args = self.handler.handle_eat(self.command, self.player, self.bread)
 
 		self.assertTrue(success)
-		self.assertEqual("You consume the {0}.", template)
+		self.assertEqual(["You consume the {0}."], templates)
 		self.assertEqual([self.bread], content_args)
 		self.assertEqual([self.bread], next_args)
 		self.assertFalse(self.bread in self.item_start_location.items.values())
@@ -326,10 +326,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_empty_non_container(self):
 		self.player.get_inventory().add(self.book)
 
-		success, template, content_args, next_args = self.handler.handle_empty(self.command, self.player, self.book)
+		success, templates, content_args, next_args = self.handler.handle_empty(self.command, self.player, self.book)
 
 		self.assertFalse(success)
-		self.assertEqual("That is not a container.", template)
+		self.assertEqual(["That is not a container."], templates)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([], next_args)
 
@@ -337,10 +337,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_empty_already_empty(self):
 		self.player.get_inventory().add(self.basket)
 
-		success, template, content_args, next_args = self.handler.handle_empty(self.command, self.player, self.basket)
+		success, templates, content_args, next_args = self.handler.handle_empty(self.command, self.player, self.basket)
 
 		self.assertFalse(success)
-		self.assertEqual("It is already empty.", template)
+		self.assertEqual(["It is already empty."], templates)
 		self.assertEqual([self.basket], content_args)
 		self.assertEqual([], next_args)
 		self.assertFalse(self.basket.has_items())
@@ -350,10 +350,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.bottle.add(self.water)
 		self.player.get_inventory().add(self.bottle)
 
-		success, template, content_args, next_args = self.handler.handle_empty(self.command, self.player, self.bottle)
+		success, templates, content_args, next_args = self.handler.handle_empty(self.command, self.player, self.bottle)
 
 		self.assertTrue(success)
-		self.assertEqual("You pour the {1} out of the {0}.", template)
+		self.assertEqual(["You pour the {1} out of the {0}."], templates)
 		self.assertEqual([self.bottle, self.water], content_args)
 		self.assertEqual([self.bottle], next_args)
 		self.assertFalse(self.water in self.bottle.items.values())
@@ -365,10 +365,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.basket.add(self.book)
 		self.player.get_inventory().add(self.basket)
 
-		success, template, content_args, next_args = self.handler.handle_empty(self.command, self.player, self.basket)
+		success, templates, content_args, next_args = self.handler.handle_empty(self.command, self.player, self.basket)
 
 		self.assertTrue(success)
-		self.assertEqual("You take the {1} out of the {0}.", template)
+		self.assertEqual(["You take the {1} out of the {0}."], templates)
 		self.assertEqual([self.basket, self.book], content_args)
 		self.assertEqual([self.basket], next_args)
 		self.assertFalse(self.book in self.basket.items.values())
@@ -380,10 +380,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.basket.add(self.book)
 		self.player.location.add(self.basket)
 
-		success, template, content_args, next_args = self.handler.handle_empty(self.command, self.player, self.basket)
+		success, templates, content_args, next_args = self.handler.handle_empty(self.command, self.player, self.basket)
 
 		self.assertTrue(success)
-		self.assertEqual("You take the {1} out of the {0}.", template)
+		self.assertEqual(["You take the {1} out of the {0}."], templates)
 		self.assertEqual([self.basket, self.book], content_args)
 		self.assertEqual([self.basket], next_args)
 		self.assertFalse(self.book in self.basket.items.values())
@@ -392,46 +392,46 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_explain_default(self):
-		success, template, content_args, next_args = self.handler.handle_explain(self.command, self.player, "dreams")
+		success, templates, content_args, next_args = self.handler.handle_explain(self.command, self.player, "dreams")
 
 		self.assertFalse(success)
-		self.assertEqual("I have no explanation.", template)
+		self.assertEqual(["I have no explanation."], templates)
 		self.assertEqual(["dreams"], content_args)
 		self.assertEqual([], next_args)
 
 
 	def test_handle_explain_non_default(self):
-		success, template, content_args, next_args = self.handler.handle_explain(self.command, self.player, "spaize")
+		success, templates, content_args, next_args = self.handler.handle_explain(self.command, self.player, "spaize")
 
 		self.assertTrue(success)
-		self.assertEqual("Spaize is space-maize.", template)
+		self.assertEqual(["Spaize is space-maize."], templates)
 		self.assertEqual(["spaize"], content_args)
 		self.assertEqual(["spaize"], next_args)
 
 
 	def test_feed_non_sentient(self):
-		success, template, content_args, next_args = self.handler.handle_feed(self.command, self.player, self.bread, self.book)
+		success, templates, content_args, next_args = self.handler.handle_feed(self.command, self.player, self.bread, self.book)
 
 		self.assertFalse(success)
-		self.assertEqual("You cannot give to an inanimate object.", template)
+		self.assertEqual(["You cannot give to an inanimate object."], templates)
 		self.assertEqual([self.bread, self.book], content_args)
 		self.assertEqual([], next_args)
 
 
 	def test_feed_non_edible(self):
-		success, template, content_args, next_args = self.handler.handle_feed(self.command, self.player, self.book, self.cat)
+		success, templates, content_args, next_args = self.handler.handle_feed(self.command, self.player, self.book, self.cat)
 
 		self.assertFalse(success)
-		self.assertEqual("You cannot consume that.", template)
+		self.assertEqual(["You cannot consume that."], templates)
 		self.assertEqual([self.book, self.cat], content_args)
 		self.assertEqual([], next_args)
 
 
 	def test_feed_valid(self):
-		success, template, content_args, next_args = self.handler.handle_feed(self.command, self.player, self.bread, self.cat)
+		success, templates, content_args, next_args = self.handler.handle_feed(self.command, self.player, self.bread, self.cat)
 
 		self.assertTrue(success)
-		self.assertEqual("You feed the {0} to the {1}.", template)
+		self.assertEqual(["You feed the {0} to the {1}."], templates)
 		self.assertEqual([self.bread, self.cat], content_args)
 		self.assertEqual([self.bread, self.cat], next_args)
 
@@ -439,10 +439,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_give_non_sentient_recipient(self):
 		self.player.get_inventory().add(self.book)
 
-		success, template, content_args, next_args = self.handler.handle_give(self.command, self.player, self.book, self.lamp)
+		success, templates, content_args, next_args = self.handler.handle_give(self.command, self.player, self.book, self.lamp)
 
 		self.assertFalse(success)
-		self.assertEqual("You cannot give to an inanimate object.", template)
+		self.assertEqual(["You cannot give to an inanimate object."], templates)
 		self.assertEqual([self.book, self.lamp], content_args)
 		self.assertEqual([], next_args)
 
@@ -451,10 +451,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.bottle.add(self.water)
 		self.player.get_inventory().add(self.bottle)
 
-		success, template, content_args, next_args = self.handler.handle_give(self.command, self.player, self.water, self.cat)
+		success, templates, content_args, next_args = self.handler.handle_give(self.command, self.player, self.water, self.cat)
 
 		self.assertFalse(success)
-		self.assertEqual("You cannot give a liquid.", template)
+		self.assertEqual(["You cannot give a liquid."], templates)
 		self.assertEqual([self.water, self.cat], content_args)
 		self.assertEqual([], next_args)
 
@@ -462,10 +462,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_give_valid(self):
 		self.player.get_inventory().add(self.book)
 
-		success, template, content_args, next_args = self.handler.handle_give(self.command, self.player, self.book, self.cat)
+		success, templates, content_args, next_args = self.handler.handle_give(self.command, self.player, self.book, self.cat)
 
 		self.assertTrue(success)
-		self.assertEqual("Given.", template)
+		self.assertEqual(["Given."], templates)
 		self.assertEqual([self.book, self.cat], content_args)
 		self.assertEqual([self.book, self.cat], next_args)
 		self.assertFalse(self.book in self.player.get_inventory().items.values())
@@ -476,10 +476,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.add(self.obstruction)
 		self.player.location.directions[Direction.SOUTH] = self.beach_location
 
-		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.beach_location)
+		success, templates, content_args, next_args = self.handler.handle_go(self.command, self.player, self.beach_location)
 
 		self.assertFalse(success)
-		self.assertEqual("You are blocked by {0}.", template)
+		self.assertEqual(["You are blocked by {0}."], templates)
 		self.assertEqual(["an obstruction"], content_args)
 		self.assertEqual([], next_args)
 
@@ -489,10 +489,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.add(self.obstruction)
 		self.player.location.directions[Direction.EAST] = self.beach_location
 
-		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.beach_location)
+		success, templates, content_args, next_args = self.handler.handle_go(self.command, self.player, self.beach_location)
 
 		self.assertFalse(success)
-		self.assertEqual("You are blocked by something here.", template)
+		self.assertEqual(["You are blocked by something here."], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([], next_args)
 
@@ -503,10 +503,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.beach_location.directions[Direction.NORTH] = self.lighthouse_location
 
 		self.handler.handle_go(self.command, self.player, self.beach_location)
-		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.lighthouse_location)
+		success, templates, content_args, next_args = self.handler.handle_go(self.command, self.player, self.lighthouse_location)
 
 		self.assertTrue(success)
-		self.assertEqual("", template)
+		self.assertEqual([], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([self.lighthouse_location, self.beach_location], next_args)
 		self.assertIs(self.lighthouse_location, self.player.location)
@@ -517,10 +517,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.directions[Direction.SOUTH] = self.beach_location
 		self.beach_location.directions[Direction.NORTH] = self.player.location
 
-		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.beach_location)
+		success, templates, content_args, next_args = self.handler.handle_go(self.command, self.player, self.beach_location)
 
 		self.assertTrue(success)
-		self.assertEqual("", template)
+		self.assertEqual([], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([self.beach_location, self.lighthouse_location], next_args)
 		self.assertIs(self.beach_location, self.player.location)
@@ -530,10 +530,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_go_without_obstruction_one_way(self):
 		self.player.location.directions[Direction.SOUTH] = self.beach_location
 
-		success, template, content_args, next_args = self.handler.handle_go(self.command, self.player, self.beach_location)
+		success, templates, content_args, next_args = self.handler.handle_go(self.command, self.player, self.beach_location)
 
 		self.assertTrue(success)
-		self.assertEqual("", template)
+		self.assertEqual([], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([self.beach_location, self.lighthouse_location], next_args)
 		self.assertIs(self.beach_location, self.player.location)
@@ -541,38 +541,38 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_go_disambiguate(self):
-		success, template, content_args, next_args = self.handler.handle_go_disambiguate(self.command, self.player, "east")
+		success, templates, content_args, next_args = self.handler.handle_go_disambiguate(self.command, self.player, "east")
 
 		self.assertFalse(success)
-		self.assertEqual("Use a compass point.", template)
+		self.assertEqual(["Use a compass point."], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([], next_args)
 
 
 	def test_handle_help(self):
-		success, template, content_args, next_args = self.handler.handle_help(self.command, self.player)
+		success, templates, content_args, next_args = self.handler.handle_help(self.command, self.player)
 
 		self.assertTrue(success)
-		self.assertEqual("Welcome and good luck.", template)
+		self.assertEqual(["Welcome and good luck."], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([], next_args)
 		self.assertEqual(6, self.player.instructions)
 
 
 	def test_handle_hint_default(self):
-		success, template, content_args, next_args = self.handler.handle_hint(self.command, self.player, "cat")
+		success, templates, content_args, next_args = self.handler.handle_hint(self.command, self.player, "cat")
 
 		self.assertFalse(success)
-		self.assertEqual("I have no hint.", template)
+		self.assertEqual(["I have no hint."], templates)
 		self.assertEqual(["cat"], content_args)
 		self.assertEqual([], next_args)
 
 
 	def test_handle_hint_non_default(self):
-		success, template, content_args, next_args = self.handler.handle_hint(self.command, self.player, "magic")
+		success, templates, content_args, next_args = self.handler.handle_hint(self.command, self.player, "magic")
 
 		self.assertTrue(success)
-		self.assertEqual("abrakadabra", template)
+		self.assertEqual(["abrakadabra"], templates)
 		self.assertEqual(["magic"], content_args)
 		self.assertEqual(["magic"], next_args)
 
@@ -580,39 +580,39 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_immune_off(self):
 		self.player.set_immune(True)
 
-		success, template, content_args, next_args = self.handler.handle_immune(self.command, self.player, False)
+		success, templates, content_args, next_args = self.handler.handle_immune(self.command, self.player, False)
 
 		self.assertTrue(success)
-		self.assertEqual("Immune off.", template)
+		self.assertEqual(["Immune off."], templates)
 		self.assertEqual([False], content_args)
 		self.assertEqual([False], next_args)
 		self.assertFalse(self.player.is_immune())
 
 
 	def test_handle_immune_on(self):
-		success, template, content_args, next_args = self.handler.handle_immune(self.command, self.player, True)
+		success, templates, content_args, next_args = self.handler.handle_immune(self.command, self.player, True)
 
 		self.assertTrue(success)
-		self.assertEqual("Immune on.", template)
+		self.assertEqual(["Immune on."], templates)
 		self.assertEqual([True], content_args)
 		self.assertEqual([True], next_args)
 		self.assertTrue(self.player.is_immune())
 
 
 	def test_handle_insert_into_non_container(self):
-		success, template, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.book, self.lamp)
+		success, templates, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.book, self.lamp)
 
 		self.assertFalse(success)
-		self.assertEqual("That is not a container.", template)
+		self.assertEqual(["That is not a container."], templates)
 		self.assertEqual([self.book, self.lamp], content_args)
 		self.assertEqual([], next_args)
 
 
 	def test_handle_insert_container_into_self(self):
-		success, template, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.basket, self.basket)
+		success, templates, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.basket, self.basket)
 
 		self.assertFalse(success)
-		self.assertEqual("You cannot insert the {0} into itself.", template)
+		self.assertEqual(["You cannot insert the {0} into itself."], templates)
 		self.assertEqual([self.basket, self.basket], content_args)
 		self.assertEqual([], next_args)
 
@@ -620,19 +620,19 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_insert_already_inserted(self):
 		self.basket.add(self.book)
 
-		success, template, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.book, self.basket)
+		success, templates, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.book, self.basket)
 
 		self.assertFalse(success)
-		self.assertEqual("The {0} is already in the {1}.", template)
+		self.assertEqual(["The {0} is already in the {1}."], templates)
 		self.assertEqual([self.book, self.basket], content_args)
 		self.assertEqual([], next_args)
 
 
 	def test_handle_insert_non_portable(self):
-		success, template, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.desk, self.basket)
+		success, templates, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.desk, self.basket)
 
 		self.assertFalse(success)
-		self.assertEqual("You cannot move that.", template)
+		self.assertEqual(["You cannot move that."], templates)
 		self.assertEqual([self.desk, self.basket], content_args)
 		self.assertEqual([], next_args)
 
@@ -640,19 +640,19 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_insert_liquid_into_solid_container(self):
 		self.item_start_location.add(self.water)
 
-		success, template, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.water, self.basket)
+		success, templates, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.water, self.basket)
 
 		self.assertFalse(success)
-		self.assertEqual("The {1} cannot hold liquids.", template)
+		self.assertEqual(["The {1} cannot hold liquids."], templates)
 		self.assertEqual([self.water, self.basket], content_args)
 		self.assertEqual([], next_args)
 
 
 	def test_handle_insert_solid_into_liquid_container(self):
-		success, template, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.book, self.bottle)
+		success, templates, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.book, self.bottle)
 
 		self.assertFalse(success)
-		self.assertEqual("The {1} cannot hold solids.", template)
+		self.assertEqual(["The {1} cannot hold solids."], templates)
 		self.assertEqual([self.book, self.bottle], content_args)
 		self.assertEqual([], next_args)
 
@@ -660,28 +660,28 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_insert_container_not_empty(self):
 		self.basket.add(self.lamp)
 
-		success, template, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.book, self.basket)
+		success, templates, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.book, self.basket)
 
 		self.assertFalse(success)
-		self.assertEqual("There is already something in that container.", template)
+		self.assertEqual(["There is already something in that container."], templates)
 		self.assertEqual([self.book, self.basket], content_args)
 		self.assertEqual([], next_args)
 
 
 	def test_handle_insert_container_too_small(self):
-		success, template, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.heavy_item, self.basket)
+		success, templates, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.heavy_item, self.basket)
 
 		self.assertFalse(success)
-		self.assertEqual("The {1} is not big enough.", template)
+		self.assertEqual(["The {1} is not big enough."], templates)
 		self.assertEqual([self.heavy_item, self.basket], content_args)
 		self.assertEqual([], next_args)
 
 
 	def test_handle_insert_valid_non_copyable(self):
-		success, template, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.book, self.basket)
+		success, templates, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.book, self.basket)
 
 		self.assertTrue(success)
-		self.assertEqual("Inserted.", template)
+		self.assertEqual(["Inserted."], templates)
 		self.assertEqual([self.book, self.basket], content_args)
 		self.assertFalse(self.book.data_id in self.item_start_location.items)
 		self.assertTrue(self.book.data_id in self.basket.items)
@@ -692,10 +692,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_insert_valid_copyable(self):
 		self.item_start_location.add(self.water)
 
-		success, template, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.water, self.bottle)
+		success, templates, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.water, self.bottle)
 
 		self.assertTrue(success)
-		self.assertEqual("Inserted.", template)
+		self.assertEqual(["Inserted."], templates)
 		self.assertEqual([self.water, self.bottle], content_args)
 		self.assertEqual([self.water, self.bottle], next_args)
 		self.assertTrue(self.water.data_id in self.item_start_location.items)
@@ -705,21 +705,21 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_inventory_empty(self):
-		success, template, content_args, next_args = self.handler.handle_inventory(self.command, self.player)
+		success, templates, content_args, next_args = self.handler.handle_inventory(self.command, self.player)
 
 		self.assertTrue(success)
-		self.assertEqual("You have nothing.", template)
-		self.assertEqual([""], content_args)
+		self.assertEqual(["You have nothing."], templates)
+		self.assertEqual([], content_args)
 		self.assertEqual([], next_args)
 
 
 	def test_handle_inventory_nonempty(self):
 		self.player.get_inventory().add(self.book)
 
-		success, template, content_args, next_args = self.handler.handle_inventory(self.command, self.player)
+		success, templates, content_args, next_args = self.handler.handle_inventory(self.command, self.player)
 
 		self.assertTrue(success)
-		self.assertEqual("You have: {0}.", template)
+		self.assertEqual(["You have: {0}."], templates)
 		self.assertEqual(["\n\ta book"], content_args)
 		self.assertEqual([], next_args)
 
@@ -727,10 +727,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_locate_at_location(self):
 		self.player.location.add(self.book)
 
-		success, template, content_args, next_args = self.handler.handle_locate(self.command, self.player, self.book)
+		success, templates, content_args, next_args = self.handler.handle_locate(self.command, self.player, self.book)
 
 		self.assertTrue(success)
-		self.assertEqual("The {0} is at {1}. ", template)
+		self.assertEqual(["The {0} is at {1}."], templates)
 		self.assertEqual(["book", "['12:at a lighthouse']"], content_args)
 		self.assertEqual([self.book], next_args)
 
@@ -738,10 +738,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_locate_in_item(self):
 		self.basket.add(self.book)
 
-		success, template, content_args, next_args = self.handler.handle_locate(self.command, self.player, self.book)
+		success, templates, content_args, next_args = self.handler.handle_locate(self.command, self.player, self.book)
 
 		self.assertTrue(success)
-		self.assertEqual("The {0} is at {1}. ", template)
+		self.assertEqual(["The {0} is at {1}."], templates)
 		self.assertEqual(["book", "['1107:a basket']"], content_args)
 		self.assertEqual([self.book], next_args)
 
@@ -749,10 +749,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_locate_in_inventory(self):
 		self.player.get_inventory().add(self.book)
 
-		success, template, content_args, next_args = self.handler.handle_locate(self.command, self.player, self.book)
+		success, templates, content_args, next_args = self.handler.handle_locate(self.command, self.player, self.book)
 
 		self.assertTrue(success)
-		self.assertEqual("The {0} is at {1}. ", template)
+		self.assertEqual(["The {0} is at {1}."], templates)
 		self.assertEqual(["book", "['0:in the main inventory']"], content_args)
 		self.assertEqual([self.book], next_args)
 
@@ -761,19 +761,19 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.add(self.water)
 		self.bottle.insert(self.water)
 
-		success, template, content_args, next_args = self.handler.handle_locate(self.command, self.player, self.water)
+		success, templates, content_args, next_args = self.handler.handle_locate(self.command, self.player, self.water)
 
 		self.assertTrue(success)
-		self.assertEqual("The {0} is at {1}. Copies at {2}.", template)
+		self.assertEqual(["The {0} is at {1}.", "Copies at {2}."], templates)
 		self.assertEqual(["water", "['12:at a lighthouse']", "['1108:a bottle']"], content_args)
 		self.assertEqual([self.water], next_args)
 
 
 	def test_handle_look_no_items(self):
-		success, template, content_args, next_args = self.handler.handle_look(self.command, self.player)
+		success, templates, content_args, next_args = self.handler.handle_look(self.command, self.player)
 
 		self.assertTrue(success)
-		self.assertEqual("You are {0}.", template)
+		self.assertEqual(["You are {0}."], templates)
 		self.assertEqual(["at a lighthouse by the sea.", ""], content_args)
 		self.assertEqual([], next_args)
 
@@ -781,10 +781,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_look_with_item(self):
 		self.player.location.add(self.book)
 
-		success, template, content_args, next_args = self.handler.handle_look(self.command, self.player)
+		success, templates, content_args, next_args = self.handler.handle_look(self.command, self.player)
 
 		self.assertTrue(success)
-		self.assertEqual("You are {0}. Nearby: {1}.", template)
+		self.assertEqual(["You are {0}.", "Nearby: {1}."], templates)
 		self.assertEqual(["at a lighthouse by the sea.", "\n\ta book"], content_args)
 		self.assertEqual([], next_args)
 
@@ -792,49 +792,49 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_look_with_silent_item(self):
 		self.player.location.add(self.desk)
 
-		success, template, content_args, next_args = self.handler.handle_look(self.command, self.player)
+		success, templates, content_args, next_args = self.handler.handle_look(self.command, self.player)
 
 		self.assertTrue(success)
-		self.assertEqual("You are {0}.", template)
+		self.assertEqual(["You are {0}."], templates)
 		self.assertEqual(["at a lighthouse by the sea.", ""], content_args)
 		self.assertEqual([], next_args)
 
 
 	def test_handle_node_no_arg(self):
-		success, template, content_args, next_args = self.handler.handle_node(self.command, self.player)
+		success, templates, content_args, next_args = self.handler.handle_node(self.command, self.player)
 
 		self.assertFalse(success)
-		self.assertEqual("You are at node {0}.", template)
+		self.assertEqual(["You are at node {0}."], templates)
 		self.assertEqual([12], content_args)
 		self.assertEqual([], next_args)
 		self.assertIs(self.lighthouse_location, self.player.location)
 
 
 	def test_handle_node_arg_invalid(self):
-		success, template, content_args, next_args = self.handler.handle_node(self.command, self.player, "abc")
+		success, templates, content_args, next_args = self.handler.handle_node(self.command, self.player, "abc")
 
 		self.assertFalse(success)
-		self.assertEqual("There is no such node id.", template)
+		self.assertEqual(["There is no such node id."], templates)
 		self.assertEqual(["abc"], content_args)
 		self.assertEqual([], next_args)
 		self.assertIs(self.lighthouse_location, self.player.location)
 
 
 	def test_handle_node_arg_out_of_range(self):
-		success, template, content_args, next_args = self.handler.handle_node(self.command, self.player, "61")
+		success, templates, content_args, next_args = self.handler.handle_node(self.command, self.player, "61")
 
 		self.assertFalse(success)
-		self.assertEqual("There is no such node id.", template)
+		self.assertEqual(["There is no such node id."], templates)
 		self.assertEqual(["61"], content_args)
 		self.assertEqual([], next_args)
 		self.assertIs(self.lighthouse_location, self.player.location)
 
 
 	def test_handle_node_arg_valid(self):
-		success, template, content_args, next_args = self.handler.handle_node(self.command, self.player, "13")
+		success, templates, content_args, next_args = self.handler.handle_node(self.command, self.player, "13")
 
 		self.assertTrue(success)
-		self.assertEqual("", template)
+		self.assertEqual([], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([self.beach_location, self.lighthouse_location], next_args)
 		self.assertIs(self.beach_location, self.player.location)
@@ -843,10 +843,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_pick(self):
 		self.player.location.add(self.book)
 
-		success, template, content_args, next_args = self.handler.handle_pick(self.command, self.player, self.book)
+		success, templates, content_args, next_args = self.handler.handle_pick(self.command, self.player, self.book)
 
 		self.assertTrue(success)
-		self.assertEqual("Taken.", template)
+		self.assertEqual(["Taken."], templates)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([self.book], next_args)
 		self.assertTrue(self.book in self.player.get_inventory().items.values())
@@ -856,10 +856,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_pour_non_liquid(self):
 		self.player.get_inventory().add(self.book)
 
-		success, template, content_args, next_args = self.handler.handle_pour(self.command, self.player, self.book, self.lamp)
+		success, templates, content_args, next_args = self.handler.handle_pour(self.command, self.player, self.book, self.lamp)
 
 		self.assertFalse(success)
-		self.assertEqual("That is not a liquid.", template)
+		self.assertEqual(["That is not a liquid."], templates)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([], next_args)
 
@@ -868,10 +868,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.bottle.add(self.water)
 		self.player.get_inventory().add(self.bottle)
 
-		success, template, content_args, next_args = self.handler.handle_pour(self.command, self.player, self.water, self.lamp)
+		success, templates, content_args, next_args = self.handler.handle_pour(self.command, self.player, self.water, self.lamp)
 
 		self.assertTrue(success)
-		self.assertEqual("You pour the liquid onto the {1}.", template)
+		self.assertEqual(["You pour the liquid onto the {1}."], templates)
 		self.assertEqual([self.water, self.lamp, self.bottle], content_args)
 		self.assertEqual([self.water, self.lamp], next_args)
 		self.assertFalse(self.water in self.bottle.items.values())
@@ -879,10 +879,10 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_quit(self):
-		success, template, content_args, next_args = self.handler.handle_quit(self.command, self.player)
+		success, templates, content_args, next_args = self.handler.handle_quit(self.command, self.player)
 
 		self.assertTrue(success)
-		self.assertEqual("OK.", template)
+		self.assertEqual(["OK."], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([], next_args)
 		self.assertEqual(6, self.player.instructions)
@@ -892,10 +892,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_read_no_writing(self):
 		self.player.get_inventory().add(self.lamp)
 
-		success, template, content_args, next_args = self.handler.handle_read(self.command, self.player, self.lamp)
+		success, templates, content_args, next_args = self.handler.handle_read(self.command, self.player, self.lamp)
 
 		self.assertFalse(success)
-		self.assertEqual("There is no writing.", template)
+		self.assertEqual(["There is no writing."], templates)
 		self.assertEqual([self.lamp], content_args)
 		self.assertEqual([], next_args)
 
@@ -903,37 +903,37 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_read_with_writing(self):
 		self.player.get_inventory().add(self.book)
 
-		success, template, content_args, next_args = self.handler.handle_read(self.command, self.player, self.book)
+		success, templates, content_args, next_args = self.handler.handle_read(self.command, self.player, self.book)
 
 		self.assertTrue(success)
-		self.assertEqual("It reads {0}.", template)
+		self.assertEqual(["It reads {0}."], templates)
 		self.assertEqual(["The Pied Piper"], content_args)
 		self.assertEqual([self.book], next_args)
 
 
 	def test_handle_say_no_audience(self):
-		success, template, content_args, next_args = self.handler.handle_say(self.command, self.player, "hello")
+		success, templates, content_args, next_args = self.handler.handle_say(self.command, self.player, "hello")
 
 		self.assertTrue(success)
-		self.assertEqual("You say {0}.", template)
+		self.assertEqual(["You say {0}."], templates)
 		self.assertEqual(["hello"], content_args)
 		self.assertEqual(["hello"], next_args)
 
 
 	def test_handle_say_no_sentient_audience(self):
-		success, template, content_args, next_args = self.handler.handle_say(self.command, self.player, "hello", self.book)
+		success, templates, content_args, next_args = self.handler.handle_say(self.command, self.player, "hello", self.book)
 
 		self.assertTrue(success)
-		self.assertEqual("You say {0} at the {1}.", template)
+		self.assertEqual(["You say {0} at the {1}."], templates)
 		self.assertEqual(["hello", self.book], content_args)
 		self.assertEqual(["hello", self.book], next_args)
 
 
 	def test_handle_say_with_sentient_audience(self):
-		success, template, content_args, next_args = self.handler.handle_say(self.command, self.player, "hello", self.cat)
+		success, templates, content_args, next_args = self.handler.handle_say(self.command, self.player, "hello", self.cat)
 
 		self.assertTrue(success)
-		self.assertEqual("You say {0} to the {1}.", template)
+		self.assertEqual(["You say {0} to the {1}."], templates)
 		self.assertEqual(["hello", self.cat], content_args)
 		self.assertEqual(["hello", self.cat], next_args)
 
@@ -941,10 +941,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_score_zero(self):
 		self.data.get_puzzle_count.return_value = 17
 
-		success, template, content_args, next_args = self.handler.handle_score(self.command, self.player)
+		success, templates, content_args, next_args = self.handler.handle_score(self.command, self.player)
 
 		self.assertTrue(success)
-		self.assertEqual("Current score: {0} points. Maximum score: {1} points. Instructions entered: {2}.", template)
+		self.assertEqual(["Current score: {0} points. Maximum score: {1} points. Instructions entered: {2}."], templates)
 		self.assertEqual([0, 119, 6], content_args)
 		self.assertEqual([], next_args)
 		self.assertEqual(6, self.player.instructions)
@@ -955,10 +955,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.solve_puzzle(Mock())
 		self.player.solve_puzzle(Mock())
 
-		success, template, content_args, next_args = self.handler.handle_score(self.command, self.player)
+		success, templates, content_args, next_args = self.handler.handle_score(self.command, self.player)
 
 		self.assertTrue(success)
-		self.assertEqual("Current score: {0} points. Maximum score: {1} points. Instructions entered: {2}.", template)
+		self.assertEqual(["Current score: {0} points. Maximum score: {1} points. Instructions entered: {2}."], templates)
 		self.assertEqual([14, 119, 6], content_args)
 		self.assertEqual([], next_args)
 		self.assertEqual(6, self.player.instructions)
@@ -967,10 +967,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_set(self):
 		self.player.get_inventory().add(self.lamp)
 
-		success, template, content_args, next_args = self.handler.handle_set(self.command, self.player, self.lamp)
+		success, templates, content_args, next_args = self.handler.handle_set(self.command, self.player, self.lamp)
 
 		self.assertTrue(success)
-		self.assertEqual("Dropped.", template)
+		self.assertEqual(["Dropped."], templates)
 		self.assertEqual([self.lamp], content_args)
 		self.assertEqual([self.lamp], next_args)
 		self.assertFalse(self.lamp in self.player.get_inventory().items.values())
@@ -980,10 +980,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_switch_off_to_off(self):
 		self.lamp.switch_off()
 
-		success, template, content_args, next_args = self.handler.handle_switch(self.command, self.player, self.lamp, SwitchTransition.OFF)
+		success, templates, content_args, next_args = self.handler.handle_switch(self.command, self.player, self.lamp, SwitchTransition.OFF)
 
 		self.assertFalse(success)
-		self.assertEqual("The {0} is already {1}.", template)
+		self.assertEqual(["The {0} is already {1}."], templates)
 		self.assertEqual([self.lamp, "off"], content_args)
 		self.assertEqual([], next_args)
 		self.assertFalse(self.lamp.is_on())
@@ -992,10 +992,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_switch_off_to_on(self):
 		self.lamp.switch_off()
 
-		success, template, content_args, next_args = self.handler.handle_switch(self.command, self.player, self.lamp, SwitchTransition.ON)
+		success, templates, content_args, next_args = self.handler.handle_switch(self.command, self.player, self.lamp, SwitchTransition.ON)
 
 		self.assertTrue(success)
-		self.assertEqual("The {0} is now {1}.", template)
+		self.assertEqual(["The {0} is now {1}."], templates)
 		self.assertEqual([self.lamp, "on"], content_args)
 		self.assertEqual([self.lamp, SwitchTransition.ON], next_args)
 		self.assertTrue(self.lamp.is_on())
@@ -1004,10 +1004,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_switch_on_to_off(self):
 		self.lamp.switch_on()
 
-		success, template, content_args, next_args = self.handler.handle_switch(self.command, self.player, self.lamp, SwitchTransition.OFF)
+		success, templates, content_args, next_args = self.handler.handle_switch(self.command, self.player, self.lamp, SwitchTransition.OFF)
 
 		self.assertTrue(success)
-		self.assertEqual("The {0} is now {1}.", template)
+		self.assertEqual(["The {0} is now {1}."], templates)
 		self.assertEqual([self.lamp, "off"], content_args)
 		self.assertEqual([self.lamp, SwitchTransition.OFF], next_args)
 		self.assertFalse(self.lamp.is_on())
@@ -1016,10 +1016,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_switch_on_to_on(self):
 		self.lamp.switch_on()
 
-		success, template, content_args, next_args = self.handler.handle_switch(self.command, self.player, self.lamp, SwitchTransition.ON)
+		success, templates, content_args, next_args = self.handler.handle_switch(self.command, self.player, self.lamp, SwitchTransition.ON)
 
 		self.assertFalse(success)
-		self.assertEqual("The {0} is already {1}.", template)
+		self.assertEqual(["The {0} is already {1}."], templates)
 		self.assertEqual([self.lamp, "on"], content_args)
 		self.assertEqual([], next_args)
 		self.assertTrue(self.lamp.is_on())
@@ -1028,10 +1028,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_take_from_sentient_simple(self):
 		self.cat.add(self.book)
 
-		success, template, content_args, next_args = self.handler.handle_take(self.command, self.player, self.book)
+		success, templates, content_args, next_args = self.handler.handle_take(self.command, self.player, self.book)
 
 		self.assertFalse(success)
-		self.assertEqual("You cannot take anything from the {1}.", template)
+		self.assertEqual(["You cannot take anything from the {1}."], templates)
 		self.assertEqual([self.book, self.cat], content_args)
 		self.assertEqual([], next_args)
 		self.assertFalse(self.book in self.player.get_inventory().items.values())
@@ -1042,10 +1042,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.basket.add(self.book)
 		self.cat.add(self.basket)
 
-		success, template, content_args, next_args = self.handler.handle_take(self.command, self.player, self.book)
+		success, templates, content_args, next_args = self.handler.handle_take(self.command, self.player, self.book)
 
 		self.assertFalse(success)
-		self.assertEqual("You cannot take anything from the {1}.", template)
+		self.assertEqual(["You cannot take anything from the {1}."], templates)
 		self.assertEqual([self.book, self.cat], content_args)
 		self.assertEqual([], next_args)
 		self.assertFalse(self.book in self.player.get_inventory().items.values())
@@ -1056,10 +1056,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_take_not_portable(self):
 		self.player.location.add(self.desk)
 
-		success, template, content_args, next_args = self.handler.handle_take(self.command, self.player, self.desk)
+		success, templates, content_args, next_args = self.handler.handle_take(self.command, self.player, self.desk)
 
 		self.assertFalse(success)
-		self.assertEqual("You cannot move that.", template)
+		self.assertEqual(["You cannot move that."], templates)
 		self.assertEqual([self.desk], content_args)
 		self.assertEqual([], next_args)
 		self.assertFalse(self.desk in self.player.get_inventory().items.values())
@@ -1069,10 +1069,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_take_obstruction(self):
 		self.player.location.add(self.mobile_obstruction)
 
-		success, template, content_args, next_args = self.handler.handle_take(self.command, self.player, self.mobile_obstruction)
+		success, templates, content_args, next_args = self.handler.handle_take(self.command, self.player, self.mobile_obstruction)
 
 		self.assertFalse(success)
-		self.assertEqual("You cannot move that.", template)
+		self.assertEqual(["You cannot move that."], templates)
 		self.assertEqual([self.mobile_obstruction], content_args)
 		self.assertEqual([], next_args)
 		self.assertFalse(self.mobile_obstruction in self.player.get_inventory().items.values())
@@ -1083,10 +1083,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.add(self.book)
 		self.player.get_inventory().add(self.heavy_item)
 
-		success, template, content_args, next_args = self.handler.handle_take(self.command, self.player, self.book)
+		success, templates, content_args, next_args = self.handler.handle_take(self.command, self.player, self.book)
 
 		self.assertFalse(success)
-		self.assertEqual("That is too large to carry.", template)
+		self.assertEqual(["That is too large to carry."], templates)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([], next_args)
 		self.assertFalse(self.book in self.player.get_inventory().items.values())
@@ -1096,10 +1096,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_take_at_location(self):
 		self.player.location.add(self.book)
 
-		success, template, content_args, next_args = self.handler.handle_take(self.command, self.player, self.book)
+		success, templates, content_args, next_args = self.handler.handle_take(self.command, self.player, self.book)
 
 		self.assertTrue(success)
-		self.assertEqual("Taken.", template)
+		self.assertEqual(["Taken."], templates)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([self.book], next_args)
 		self.assertTrue(self.book in self.player.get_inventory().items.values())
@@ -1109,10 +1109,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_take_liquid(self):
 		self.player.location.add(self.water)
 
-		success, template, content_args, next_args = self.handler.handle_take(self.command, self.player, self.water)
+		success, templates, content_args, next_args = self.handler.handle_take(self.command, self.player, self.water)
 
 		self.assertFalse(success)
-		self.assertEqual("You cannot take a liquid.", template)
+		self.assertEqual(["You cannot take a liquid."], templates)
 		self.assertEqual([self.water], content_args)
 		self.assertEqual([], next_args)
 		self.assertFalse(self.water in self.player.get_inventory().items.values())
@@ -1123,20 +1123,20 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.add(self.book)
 		self.player.get_inventory().add(self.basket)
 
-		success, template, content_args, next_args = self.handler.handle_take(self.command, self.player, self.book, self.basket)
+		success, templates, content_args, next_args = self.handler.handle_take(self.command, self.player, self.book, self.basket)
 
 		self.assertTrue(success)
-		self.assertEqual("Inserted.", template)
+		self.assertEqual(["Inserted."], templates)
 		self.assertEqual([self.book, self.basket], content_args)
 		self.assertEqual([self.book, self.basket], next_args)
 		self.assertTrue(self.book in self.basket.items.values())
 
 
 	def test_handle_teleport(self):
-		success, template, content_args, next_args = self.handler.handle_teleport(self.command, self.player, self.beach_location)
+		success, templates, content_args, next_args = self.handler.handle_teleport(self.command, self.player, self.beach_location)
 
 		self.assertTrue(success)
-		self.assertEqual("", template)
+		self.assertEqual([], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([self.beach_location, self.lighthouse_location], next_args)
 		self.assertIs(self.beach_location, self.player.location)
@@ -1144,10 +1144,10 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_toggle_non_switchable_item(self):
-		success, template, content_args, next_args = self.handler.handle_toggle(self.command, self.player, self.book)
+		success, templates, content_args, next_args = self.handler.handle_toggle(self.command, self.player, self.book)
 
 		self.assertFalse(success)
-		self.assertEqual("I do not know how.", template)
+		self.assertEqual(["I do not know how."], templates)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([], next_args)
 
@@ -1155,10 +1155,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_toggle_off_to_on(self):
 		self.lamp.attributes &= ~0x10
 
-		success, template, content_args, next_args = self.handler.handle_toggle(self.command, self.player, self.lamp)
+		success, templates, content_args, next_args = self.handler.handle_toggle(self.command, self.player, self.lamp)
 
 		self.assertTrue(success)
-		self.assertEqual("The {0} is now {1}.", template)
+		self.assertEqual(["The {0} is now {1}."], templates)
 		self.assertEqual([self.lamp, "on"], content_args)
 		self.assertEqual([self.lamp, SwitchTransition.TOGGLE], next_args)
 		self.assertTrue(self.lamp.is_on())
@@ -1167,10 +1167,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_toggle_on_to_off(self):
 		self.lamp.attributes |= 0x10
 
-		success, template, content_args, next_args = self.handler.handle_toggle(self.command, self.player, self.lamp)
+		success, templates, content_args, next_args = self.handler.handle_toggle(self.command, self.player, self.lamp)
 
 		self.assertTrue(success)
-		self.assertEqual("The {0} is now {1}.", template)
+		self.assertEqual(["The {0} is now {1}."], templates)
 		self.assertEqual([self.lamp, "off"], content_args)
 		self.assertEqual([self.lamp, SwitchTransition.TOGGLE], next_args)
 		self.assertFalse(self.lamp.is_on())
@@ -1179,10 +1179,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_verbose_off(self):
 		self.player.set_verbose(True)
 
-		success, template, content_args, next_args = self.handler.handle_verbose(self.command, self.player, False)
+		success, templates, content_args, next_args = self.handler.handle_verbose(self.command, self.player, False)
 
 		self.assertTrue(success)
-		self.assertEqual("Verbose off.", template)
+		self.assertEqual(["Verbose off."], templates)
 		self.assertEqual([False], content_args)
 		self.assertEqual([False], next_args)
 		self.assertFalse(self.player.is_verbose())
@@ -1191,20 +1191,20 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_verbose_on(self):
 		self.player.set_verbose(False)
 
-		success, template, content_args, next_args = self.handler.handle_verbose(self.command, self.player, True)
+		success, templates, content_args, next_args = self.handler.handle_verbose(self.command, self.player, True)
 
 		self.assertTrue(success)
-		self.assertEqual("Verbose on.", template)
+		self.assertEqual(["Verbose on."], templates)
 		self.assertEqual([True], content_args)
 		self.assertEqual([True], next_args)
 		self.assertTrue(self.player.is_verbose())
 
 
 	def test_handle_wear_not_wearable(self):
-		success, template, content_args, next_args = self.handler.handle_wear(self.command, self.player, self.lamp)
+		success, templates, content_args, next_args = self.handler.handle_wear(self.command, self.player, self.lamp)
 
 		self.assertFalse(success)
-		self.assertEqual("You cannot wear the {0}.", template)
+		self.assertEqual(["You cannot wear the {0}."], templates)
 		self.assertEqual([self.lamp], content_args)
 		self.assertEqual([], next_args)
 
@@ -1212,10 +1212,10 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_wear_wearable_already_wearing(self):
 		self.suit.being_worn = True
 
-		success, template, content_args, next_args = self.handler.handle_wear(self.command, self.player, self.suit)
+		success, templates, content_args, next_args = self.handler.handle_wear(self.command, self.player, self.suit)
 
 		self.assertFalse(success)
-		self.assertEqual("You are already wearing the {0}.", template)
+		self.assertEqual(["You are already wearing the {0}."], templates)
 		self.assertEqual([self.suit], content_args)
 		self.assertEqual([], next_args)
 
@@ -1224,10 +1224,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.add(self.suit)
 		self.suit.being_worn = False
 
-		success, template, content_args, next_args = self.handler.handle_wear(self.command, self.player, self.suit)
+		success, templates, content_args, next_args = self.handler.handle_wear(self.command, self.player, self.suit)
 
 		self.assertTrue(success)
-		self.assertEqual("You are wearing the {0}.", template)
+		self.assertEqual(["You are wearing the {0}."], templates)
 		self.assertEqual([self.suit], content_args)
 		self.assertEqual([self.suit], next_args)
 

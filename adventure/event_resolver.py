@@ -13,13 +13,13 @@ class EventResolver(Resolver):
 		event = self.get_event(command, player, args)
 
 		if not event:
-			return True, "", content_args, []
+			return True, [], content_args, []
 
 		outcome = event.outcome
 		self.handle_outcome_actions(player, outcome.actions)
 		self.update_player_outcomes(player, event)
 
-		return True, event.outcome.text, content_args, next_args
+		return True, [event.outcome.text], content_args, next_args
 
 
 	def get_event(self, command, player, args):
