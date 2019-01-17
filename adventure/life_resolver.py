@@ -12,7 +12,7 @@ class LifeResolver(Resolver):
 		if player.is_alive():
 			player.update_drop_location()
 		else:
-			player.drop_all_items(player.drop_location)
+			player.drop_all_items()
 			templates.append(self.data.get_response("describe_dead"))
 			templates.append(self.data.get_response("describe_reincarnation"))
 

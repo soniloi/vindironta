@@ -24,7 +24,7 @@ class VisionResolver(Resolver):
 	def resolve_post_light_and_dark(self, command, player, new_location, previous_location):
 
 		if not player.is_immune() and not player.has_light() and not previous_location.gives_light():
-			self.kill_player(player, previous_location)
+			player.set_alive(False)
 			return False, [self.get_response("death_darkness")], [], []
 
 		if player.has_light_and_needs_no_light():
@@ -41,8 +41,3 @@ class VisionResolver(Resolver):
 		player.see_location()
 
 		return True, templates, content_args, [new_location, previous_location]
-
-
-	def kill_player(self, player, previous_location):
-		player.set_alive(False)
-		player.drop_all_items(previous_location)
