@@ -25,13 +25,13 @@ class VisionResolver(Resolver):
 
 		if not player.is_immune() and not player.has_light() and not previous_location.gives_light():
 			player.set_alive(False)
-			return False, [self.get_response("death_darkness")], [], []
+			return True, [self.get_response("death_darkness")], [], []
 
 		if player.has_light_and_needs_no_light():
-			return False, [self.get_response("reject_excess_light")], [], []
+			return True, [self.get_response("reject_excess_light")], [], []
 
 		if not player.has_light():
-			return False, [self.get_response("reject_no_light")], [], []
+			return True, [self.get_response("reject_no_light")], [], []
 
 		templates = [self.get_response("confirm_look")]
 		if player.has_non_silent_items_nearby():

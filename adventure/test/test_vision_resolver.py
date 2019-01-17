@@ -100,7 +100,7 @@ class TestVisionResolver(unittest.TestCase):
 
 		success, templates, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.mine_location, self.cave_location)
 
-		self.assertFalse(success)
+		self.assertTrue(success)
 		self.assertEqual(["You fall to your death in the darkness."], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([], next_args)
@@ -115,7 +115,7 @@ class TestVisionResolver(unittest.TestCase):
 
 		success, templates, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.mine_location, self.lighthouse_location)
 
-		self.assertFalse(success)
+		self.assertTrue(success)
 		self.assertEqual(["It is too dark."], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([], next_args)
@@ -130,7 +130,7 @@ class TestVisionResolver(unittest.TestCase):
 
 		success, templates, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.mine_location, self.cave_location)
 
-		self.assertFalse(success)
+		self.assertTrue(success)
 		self.assertEqual(["It is too dark."], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([], next_args)
@@ -145,7 +145,7 @@ class TestVisionResolver(unittest.TestCase):
 
 		success, templates, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.sun_location, self.lighthouse_location)
 
-		self.assertFalse(success)
+		self.assertTrue(success)
 		self.assertEqual(["It is too bright."], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([], next_args)
@@ -159,7 +159,7 @@ class TestVisionResolver(unittest.TestCase):
 
 		success, templates, content_args, next_args = self.resolver.resolve_post_light_and_dark(self.command, self.player, self.mine_location, self.lighthouse_location)
 
-		self.assertFalse(success)
+		self.assertTrue(success)
 		self.assertEqual(["It is too dark."], templates)
 		self.assertEqual([], content_args)
 		self.assertEqual([], next_args)
