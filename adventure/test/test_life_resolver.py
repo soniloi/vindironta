@@ -20,6 +20,7 @@ class TestLifeResolver(unittest.TestCase):
 		self.command = Command(150, 0x0, [], [], ["do"], {}, {})
 		self.inventory = Mock()
 		self.location = Mock()
+		self.drop_location = Mock()
 		self.book = Mock()
 		self.setup_responses()
 
@@ -34,6 +35,7 @@ class TestLifeResolver(unittest.TestCase):
 
 	def setup_player(self):
 		self.player = Player(1, 0x3, self.location, self.inventory)
+		self.player.drop_location = self.drop_location
 
 
 	def test_resolve_life_player_has_no_air(self):
@@ -45,7 +47,8 @@ class TestLifeResolver(unittest.TestCase):
 
 		self.assertEqual((False, ["You have no air to breathe.", "You are dead.", "I may be able to reincarnate you."], [], []), response)
 		self.assertFalse(self.player.is_alive())
-		self.inventory.drop_all_items.assert_called_once_with(self.location)
+		self.inventory.drop_all_items.assert_called_once_with(self.drop_location)
+		self.assertIs(self.drop_location, self.player.drop_location)
 
 
 	def test_resolve_life_player_was_not_alive(self):
@@ -57,6 +60,7 @@ class TestLifeResolver(unittest.TestCase):
 
 		self.assertEqual((False, ["You are dead.", "I may be able to reincarnate you."], [], []), response)
 		self.assertFalse(self.player.is_alive())
+		self.assertIs(self.drop_location, self.player.drop_location)
 
 
 	def test_resolve_life_player_does_not_die(self):
@@ -67,6 +71,7 @@ class TestLifeResolver(unittest.TestCase):
 
 		self.assertEqual((True, [], [], []), response)
 		self.assertTrue(self.player.is_alive())
+		self.assertIs(self.location, self.player.drop_location)
 
 
 

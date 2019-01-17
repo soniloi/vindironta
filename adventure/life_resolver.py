@@ -9,8 +9,10 @@ class LifeResolver(Resolver):
 			player.set_alive(False)
 			templates.append(self.data.get_response("death_no_air"))
 
-		if not player.is_alive():
-			player.drop_all_items(player.location)
+		if player.is_alive():
+			player.update_drop_location()
+		else:
+			player.drop_all_items(player.drop_location)
 			templates.append(self.data.get_response("describe_dead"))
 			templates.append(self.data.get_response("describe_reincarnation"))
 

@@ -12,6 +12,7 @@ class Player(DataElement):
 		DataElement.__init__(self, data_id=player_id, attributes=attributes)
 		self.location = initial_location
 		self.previous_location = None
+		self.drop_location = initial_location
 		self.score = 0
 		self.current_command = None
 		self.current_args = []
@@ -41,6 +42,10 @@ class Player(DataElement):
 
 	def set_previous_location(self, previous_location):
 		self.previous_location = previous_location
+
+
+	def update_drop_location(self):
+		self.drop_location = self.location
 
 
 	def get_adjacent_location(self, direction):
