@@ -102,6 +102,7 @@ class EventOutcome:
 class EventOutcomeActionKind(Enum):
 	PLAYER = 0
 	ITEM = 1
+	LOCATION = 2
 
 
 class PlayerEventOutcomeAction:
@@ -133,3 +134,12 @@ class ItemEventOutcomeActionDestinationKind(Enum):
 	CURRENT_INVENTORY = 2
 	ABSOLUTE_CONTAINER = 3
 	REPLACE = 4
+
+
+class LocationEventOutcomeAction:
+
+	def __init__(self, kind, location, attribute, on):
+		self.kind = kind
+		self.location = location
+		self.attribute = attribute
+		self.on = on

@@ -471,5 +471,56 @@ class TestEventParser(unittest.TestCase):
 		self.assertTrue(action.on)
 
 
+	def test_parse_with_location_outcome_actions(self):
+		event_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 300, \
+					\"attributes\": \"0\", \
+					\"match\": { \
+						\"command_id\": 48, \
+						\"arguments\": [] \
+					}, \
+					\"outcome\": { \
+						\"text\" : \"Everything goes dark.\", \
+						\"actions\": [ \
+							{ \
+								\"kind\": \"location\", \
+								\"location_id\": 12, \
+								\"attribute\": \"1\", \
+								\"on\": false \
+							} \
+						] \
+					} \
+				} \
+			]"
+		)
+
+		collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+
+		self.assertEqual(1, len(collection.events))
+		self.assertTrue((self.command_48,) in collection.events)
+
+		events = collection.events[(self.command_48,)]
+		self.assertEqual(1, len(events))
+
+		event = events[0]
+		self.assertEqual(0, event.attributes)
+
+		match = event.match
+		self.assertEqual(self.command_48, match.command)
+		self.assertFalse(match.arguments)
+
+		outcome = event.outcome
+		self.assertEqual("Everything goes dark.", outcome.text)
+		self.assertEqual(1, len(outcome.actions))
+
+		action = outcome.actions[0]
+		self.assertEqual(EventOutcomeActionKind.LOCATION, action.kind)
+		self.assertEqual(self.lighthouse_location, action.location)
+		self.assertEqual(1, action.attribute)
+		self.assertFalse(action.on)
+
+
 if __name__ == "__main__":
 	unittest.main()

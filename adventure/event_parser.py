@@ -1,7 +1,7 @@
 from adventure.event import Event, EventMatch, EventMatchArgument, EventMatchArgumentKind
 from adventure.event import EventMatchPrerequisiteKind, ItemEventMatchPrerequisite, ItemEventMatchPrerequisiteContainer, ItemEventMatchPrerequisiteContainerKind
 from adventure.event import LocationEventMatchPrerequisite, EventEventMatchPrerequisite
-from adventure.event import EventOutcome, EventOutcomeActionKind, PlayerEventOutcomeAction, ItemEventOutcomeAction
+from adventure.event import EventOutcome, EventOutcomeActionKind, PlayerEventOutcomeAction, ItemEventOutcomeAction, LocationEventOutcomeAction
 from adventure.event import ItemEventOutcomeActionDestination, ItemEventOutcomeActionDestinationKind
 from adventure.event_collection import EventCollection
 
@@ -31,7 +31,7 @@ class EventParser:
 		event_id = event_input["data_id"]
 		attributes = int(event_input["attributes"], 16)
 		match = self.parse_event_match(event_input["match"], commands_by_id, items_by_id, locations_by_id)
-		outcome = self.parse_event_outcome(event_input["outcome"], items_by_id)
+		outcome = self.parse_event_outcome(event_input["outcome"], items_by_id, locations_by_id)
 
 		event = Event(event_id, attributes, match, outcome)
 		return event, match
@@ -100,13 +100,13 @@ class EventParser:
 		return ItemEventMatchPrerequisiteContainer(kind=container_kind, container_id=container_id)
 
 
-	def parse_event_outcome(self, event_outcome_input, items_by_id):
+	def parse_event_outcome(self, event_outcome_input, items_by_id, locations_by_id):
 		text = event_outcome_input["text"]
-		actions = self.parse_event_outcome_actions(event_outcome_input.get("actions"), items_by_id)
+		actions = self.parse_event_outcome_actions(event_outcome_input.get("actions"), items_by_id, locations_by_id)
 		return EventOutcome(text, actions)
 
 
-	def parse_event_outcome_actions(self, event_outcome_action_inputs, items_by_id):
+	def parse_event_outcome_actions(self, event_outcome_action_inputs, items_by_id, locations_by_id):
 		if not event_outcome_action_inputs:
 			return []
 
@@ -130,6 +130,16 @@ class EventParser:
 
 				action = ItemEventOutcomeAction(kind=kind, item=item, destination=destination)
 				actions.append(action)
+
+			elif kind == EventOutcomeActionKind.LOCATION:
+				location_id = event_outcome_action_input["location_id"]
+				location = locations_by_id[location_id]
+				attribute = int(event_outcome_action_input["attribute"], 16)
+				on = event_outcome_action_input["on"]
+
+				action = LocationEventOutcomeAction(kind=kind, location=location, attribute=attribute, on=on)
+				actions.append(action)
+
 
 		return actions
 
