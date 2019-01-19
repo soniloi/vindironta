@@ -103,6 +103,7 @@ class EventOutcomeActionKind(Enum):
 	PLAYER = 0
 	ITEM = 1
 	LOCATION = 2
+	LINK = 3
 
 
 class PlayerEventOutcomeAction:
@@ -143,3 +144,12 @@ class LocationEventOutcomeAction:
 		self.location = location
 		self.attribute = attribute
 		self.on = on
+
+
+class LinkEventOutcomeAction:
+
+	def __init__(self, kind, source, direction, destination):
+		self.kind = kind
+		self.source = source
+		self.direction = direction
+		self.destination = destination

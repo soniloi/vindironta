@@ -2,6 +2,7 @@ import json
 import unittest
 
 from adventure.command import Command
+from adventure.direction import Direction
 from adventure.element import Labels
 from adventure.event import EventMatchArgumentKind, EventOutcomeActionKind, ItemEventOutcomeActionDestinationKind
 from adventure.event import EventMatchPrerequisiteKind, ItemEventMatchPrerequisiteContainerKind
@@ -28,8 +29,10 @@ class TestEventParser(unittest.TestCase):
 
 	def setup_locations(self):
 		self.lighthouse_location = Location(12, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
+		self.beach_location = Location(13, 0x1, Labels("Beach", "on a beach", " of black sand"))
 		self.locations_by_id = {
-			12 : self.lighthouse_location
+			12 : self.lighthouse_location,
+			13 : self.beach_location,
 		}
 
 
@@ -520,6 +523,68 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual(self.lighthouse_location, action.location)
 		self.assertEqual(1, action.attribute)
 		self.assertFalse(action.on)
+
+
+	def test_parse_with_link_outcome_actions(self):
+		event_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 300, \
+					\"attributes\": \"0\", \
+					\"match\": { \
+						\"command_id\": 48, \
+						\"arguments\": [] \
+					}, \
+					\"outcome\": { \
+						\"text\" : \"The door moves.\", \
+						\"actions\": [ \
+							{ \
+								\"kind\": \"link\", \
+								\"source_id\": 12, \
+								\"direction\": \"north\", \
+								\"destination_id\": 13 \
+							}, \
+							{ \
+								\"kind\": \"link\", \
+								\"source_id\": 12, \
+								\"direction\": \"east\" \
+							} \
+						] \
+					} \
+				} \
+			]"
+		)
+
+		collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+
+		self.assertEqual(1, len(collection.events))
+		self.assertTrue((self.command_48,) in collection.events)
+
+		events = collection.events[(self.command_48,)]
+		self.assertEqual(1, len(events))
+
+		event = events[0]
+		self.assertEqual(0, event.attributes)
+
+		match = event.match
+		self.assertEqual(self.command_48, match.command)
+		self.assertFalse(match.arguments)
+
+		outcome = event.outcome
+		self.assertEqual("The door moves.", outcome.text)
+		self.assertEqual(2, len(outcome.actions))
+
+		action0 = outcome.actions[0]
+		self.assertEqual(EventOutcomeActionKind.LINK, action0.kind)
+		self.assertEqual(self.lighthouse_location, action0.source)
+		self.assertEqual(Direction.NORTH, action0.direction)
+		self.assertEqual(self.beach_location, action0.destination)
+
+		action1 = outcome.actions[1]
+		self.assertEqual(EventOutcomeActionKind.LINK, action1.kind)
+		self.assertEqual(self.lighthouse_location, action1.source)
+		self.assertEqual(Direction.EAST, action1.direction)
+		self.assertIsNone(action1.destination)
 
 
 if __name__ == "__main__":

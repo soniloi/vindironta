@@ -1,7 +1,9 @@
+from adventure.direction import Direction
 from adventure.event import Event, EventMatch, EventMatchArgument, EventMatchArgumentKind
 from adventure.event import EventMatchPrerequisiteKind, ItemEventMatchPrerequisite, ItemEventMatchPrerequisiteContainer, ItemEventMatchPrerequisiteContainerKind
 from adventure.event import LocationEventMatchPrerequisite, EventEventMatchPrerequisite
-from adventure.event import EventOutcome, EventOutcomeActionKind, PlayerEventOutcomeAction, ItemEventOutcomeAction, LocationEventOutcomeAction
+from adventure.event import EventOutcome, EventOutcomeActionKind, PlayerEventOutcomeAction, ItemEventOutcomeAction
+from adventure.event import LocationEventOutcomeAction, LinkEventOutcomeAction
 from adventure.event import ItemEventOutcomeActionDestination, ItemEventOutcomeActionDestinationKind
 from adventure.event_collection import EventCollection
 
@@ -140,6 +142,20 @@ class EventParser:
 				action = LocationEventOutcomeAction(kind=kind, location=location, attribute=attribute, on=on)
 				actions.append(action)
 
+			elif kind == EventOutcomeActionKind.LINK:
+				source_id = event_outcome_action_input["source_id"]
+				source = locations_by_id[source_id]
+
+				direction_key = event_outcome_action_input["direction"].upper()
+				direction = Direction[direction_key]
+
+				destination = None
+				destination_id = event_outcome_action_input.get("destination_id")
+				if destination_id:
+					destination = locations_by_id[destination_id]
+
+				action = LinkEventOutcomeAction(kind=kind, source=source, direction=direction, destination=destination)
+				actions.append(action)
 
 		return actions
 
