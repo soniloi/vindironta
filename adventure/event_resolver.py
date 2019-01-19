@@ -89,6 +89,8 @@ class EventResolver(Resolver):
 				self.handle_player_outcome_action(player, action)
 			elif action.kind == EventOutcomeActionKind.ITEM:
 				self.handle_item_outcome_action(player, action)
+			elif action.kind == EventOutcomeActionKind.LOCATION:
+				self.handle_location_outcome_action(player, action)
 
 
 	def handle_player_outcome_action(self, player, action):
@@ -124,6 +126,14 @@ class EventResolver(Resolver):
 			container = item.get_first_container()
 			item.destroy()
 			container.insert(replacement)
+
+
+	def handle_location_outcome_action(self, player, action):
+		location = action.location
+		if action.on:
+			location.set_attribute(action.attribute)
+		else:
+			location.unset_attribute(action.attribute)
 
 
 	def update_player_outcomes(self, player, event):
