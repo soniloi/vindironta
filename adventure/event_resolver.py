@@ -19,7 +19,7 @@ class EventResolver(Resolver):
 		self.handle_outcome_actions(player, outcome.actions)
 		self.update_player_outcomes(player, event)
 
-		return True, [event.outcome.text], content_args, next_args
+		return True, [self.get_response(event.outcome.text_key)], content_args, next_args
 
 
 	def get_event(self, command, player, args):

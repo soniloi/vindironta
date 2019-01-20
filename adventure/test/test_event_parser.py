@@ -56,7 +56,7 @@ class TestEventParser(unittest.TestCase):
 						\"arguments\": [] \
 					}, \
 					\"outcome\": { \
-						\"text\" : \"A very confused-looking genie pops out of the lamp.\" \
+						\"text_key\" : \"event_genie_lamp\" \
 					} \
 				} \
 			]"
@@ -78,7 +78,7 @@ class TestEventParser(unittest.TestCase):
 		self.assertFalse(match.arguments)
 
 		outcome = event.outcome
-		self.assertEqual("A very confused-looking genie pops out of the lamp.", outcome.text)
+		self.assertEqual("event_genie_lamp", outcome.text_key)
 
 
 	def test_parse_with_match_args(self):
@@ -101,7 +101,7 @@ class TestEventParser(unittest.TestCase):
 						] \
 					}, \
 					\"outcome\": { \
-						\"text\" : \"A very confused-looking genie pops out of the lamp.\" \
+						\"text_key\" : \"event_genie_lamp\" \
 					} \
 				} \
 			]"
@@ -156,7 +156,7 @@ class TestEventParser(unittest.TestCase):
 						] \
 					}, \
 					\"outcome\": { \
-						\"text\" : \"A very confused-looking genie pops out of the lamp.\" \
+						\"text_key\" : \"event_genie_lamp\" \
 					} \
 				} \
 			]"
@@ -208,7 +208,7 @@ class TestEventParser(unittest.TestCase):
 						] \
 					}, \
 					\"outcome\": { \
-						\"text\" : \"A very confused-looking genie pops out of the lamp.\" \
+						\"text_key\" : \"event_genie_lamp\" \
 					} \
 				} \
 			]"
@@ -250,7 +250,7 @@ class TestEventParser(unittest.TestCase):
 						] \
 					}, \
 					\"outcome\": { \
-						\"text\" : \"A very confused-looking genie pops out of the lamp.\" \
+						\"text_key\" : \"event_genie_lamp\" \
 					} \
 				} \
 			]"
@@ -292,7 +292,7 @@ class TestEventParser(unittest.TestCase):
 						] \
 					}, \
 					\"outcome\": { \
-						\"text\" : \"A very confused-looking genie pops out of the lamp.\" \
+						\"text_key\" : \"event_genie_lamp\" \
 					} \
 				}, \
 				{ \
@@ -303,7 +303,7 @@ class TestEventParser(unittest.TestCase):
 						\"arguments\": [] \
 					}, \
 					\"outcome\": { \
-						\"text\" : \"The lamp disappears.\" \
+						\"text_key\" : \"event_lamp_disappear\" \
 					} \
 				}, \
 				{ \
@@ -314,7 +314,7 @@ class TestEventParser(unittest.TestCase):
 						\"arguments\": [] \
 					}, \
 					\"outcome\": { \
-						\"text\" : \"Nothing happens.\" \
+						\"text_key\" : \"event_nothing\" \
 					} \
 				} \
 			]"
@@ -335,7 +335,7 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual(self.command_48, match.command)
 		self.assertFalse(match.arguments)
 		outcome = event_48_0.outcome
-		self.assertEqual("A very confused-looking genie pops out of the lamp.", outcome.text)
+		self.assertEqual("event_genie_lamp", outcome.text_key)
 
 		event_48_1 = events_48[1]
 		self.assertEqual(0, event_48_1.attributes)
@@ -343,7 +343,7 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual(self.command_48, match.command)
 		self.assertFalse(match.arguments)
 		outcome = event_48_1.outcome
-		self.assertEqual("The lamp disappears.", outcome.text)
+		self.assertEqual("event_lamp_disappear", outcome.text_key)
 
 		events_49 = collection.events[(self.command_49,)]
 		self.assertEqual(1, len(events_49))
@@ -354,7 +354,7 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual(self.command_49, match.command)
 		self.assertFalse(match.arguments)
 		outcome = event_49_0.outcome
-		self.assertEqual("Nothing happens.", outcome.text)
+		self.assertEqual("event_nothing", outcome.text_key)
 
 
 	def test_parse_with_item_outcome_actions(self):
@@ -368,7 +368,7 @@ class TestEventParser(unittest.TestCase):
 						\"arguments\": [] \
 					}, \
 					\"outcome\": { \
-						\"text\" : \"A very confused-looking genie pops out of the lamp.\", \
+						\"text_key\" : \"event_genie_lamp\", \
 						\"actions\": [ \
 							{ \
 								\"kind\": \"item\", \
@@ -407,7 +407,7 @@ class TestEventParser(unittest.TestCase):
 		self.assertFalse(match.arguments)
 
 		outcome = event.outcome
-		self.assertEqual("A very confused-looking genie pops out of the lamp.", outcome.text)
+		self.assertEqual("event_genie_lamp", outcome.text_key)
 		self.assertEqual(2, len(outcome.actions))
 
 		first_action = outcome.actions[0]
@@ -436,7 +436,7 @@ class TestEventParser(unittest.TestCase):
 						\"arguments\": [] \
 					}, \
 					\"outcome\": { \
-						\"text\" : \"A very confused-looking genie pops out of the lamp.\", \
+						\"text_key\" : \"event_genie_lamp\", \
 						\"actions\": [ \
 							{ \
 								\"kind\": \"player\", \
@@ -465,7 +465,7 @@ class TestEventParser(unittest.TestCase):
 		self.assertFalse(match.arguments)
 
 		outcome = event.outcome
-		self.assertEqual("A very confused-looking genie pops out of the lamp.", outcome.text)
+		self.assertEqual("event_genie_lamp", outcome.text_key)
 		self.assertEqual(1, len(outcome.actions))
 
 		action = outcome.actions[0]
@@ -485,7 +485,7 @@ class TestEventParser(unittest.TestCase):
 						\"arguments\": [] \
 					}, \
 					\"outcome\": { \
-						\"text\" : \"Everything goes dark.\", \
+						\"text_key\" : \"event_dark\", \
 						\"actions\": [ \
 							{ \
 								\"kind\": \"location\", \
@@ -515,7 +515,7 @@ class TestEventParser(unittest.TestCase):
 		self.assertFalse(match.arguments)
 
 		outcome = event.outcome
-		self.assertEqual("Everything goes dark.", outcome.text)
+		self.assertEqual("event_dark", outcome.text_key)
 		self.assertEqual(1, len(outcome.actions))
 
 		action = outcome.actions[0]
@@ -536,7 +536,7 @@ class TestEventParser(unittest.TestCase):
 						\"arguments\": [] \
 					}, \
 					\"outcome\": { \
-						\"text\" : \"The door moves.\", \
+						\"text_key\" : \"event_door_move\", \
 						\"actions\": [ \
 							{ \
 								\"kind\": \"link\", \
@@ -571,7 +571,7 @@ class TestEventParser(unittest.TestCase):
 		self.assertFalse(match.arguments)
 
 		outcome = event.outcome
-		self.assertEqual("The door moves.", outcome.text)
+		self.assertEqual("event_door_move", outcome.text_key)
 		self.assertEqual(2, len(outcome.actions))
 
 		action0 = outcome.actions[0]

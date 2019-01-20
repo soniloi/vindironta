@@ -103,9 +103,9 @@ class EventParser:
 
 
 	def parse_event_outcome(self, event_outcome_input, items_by_id, locations_by_id):
-		text = event_outcome_input["text"]
+		text_key = event_outcome_input["text_key"]
 		actions = self.parse_event_outcome_actions(event_outcome_input.get("actions"), items_by_id, locations_by_id)
-		return EventOutcome(text, actions)
+		return EventOutcome(text_key, actions)
 
 
 	def parse_event_outcome_actions(self, event_outcome_action_inputs, items_by_id, locations_by_id):

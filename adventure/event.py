@@ -94,8 +94,8 @@ class EventEventMatchPrerequisite:
 
 class EventOutcome:
 
-	def __init__(self, text, actions):
-		self.text = text
+	def __init__(self, text_key, actions):
+		self.text_key = text_key
 		self.actions = actions
 
 

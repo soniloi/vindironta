@@ -30,6 +30,7 @@ class TestEventResolver(unittest.TestCase):
 		self.setup_commands()
 		self.setup_locations()
 		self.setup_items()
+		self.setup_responses()
 
 		self.data.get_item_by_id.side_effect = lambda x: {
 			1003 : self.bean,
@@ -70,6 +71,12 @@ class TestEventResolver(unittest.TestCase):
 		self.wand = Item(1203, 0x2, Labels("wand", "a wand", "a magical wand"), 2, None)
 
 
+	def setup_responses(self):
+		self.data.get_response.side_effect = lambda x: {
+			"event_response_key" : "Something happens.",
+		}.get(x)
+
+
 	def setup_player(self):
 		self.player = Mock()
 
@@ -84,52 +91,52 @@ class TestEventResolver(unittest.TestCase):
 
 	def test_resolve_event_with_match_to_non_copyable_item(self):
 		rub_lamp_event_match = EventMatch(command=self.rub_command, arguments=[self.lamp], prerequisites=[])
-		rub_lamp_event_outcome = EventOutcome(text="A genie pops out.", actions=[])
+		rub_lamp_event_outcome = EventOutcome(text_key="event_response_key", actions=[])
 		rub_lamp_event = Event(event_id=3001, attributes=0x0, match=rub_lamp_event_match, outcome=rub_lamp_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.rub_command, self.lamp): [rub_lamp_event],}.get(x)
 
 		response = self.resolver.resolve_event(self.rub_command, self.player, self.lamp)
 
-		self.assertEqual((True, ["A genie pops out."], [self.lamp], [self.lamp]), response)
+		self.assertEqual((True, ["Something happens."], [self.lamp], [self.lamp]), response)
 
 
 	def test_resolve_event_with_match_to_copyable_item(self):
 		drink_potion_event_match = EventMatch(command=self.drink_command, arguments=[self.potion], prerequisites=[])
-		drink_potion_event_outcome = EventOutcome(text="You become invisible.", actions=[])
+		drink_potion_event_outcome = EventOutcome(text_key="event_response_key", actions=[])
 		drink_potion_event = Event(event_id=3002, attributes=0x0, match=drink_potion_event_match, outcome=drink_potion_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.drink_command, self.potion): [drink_potion_event],}.get(x)
 		potion_copy = copy(self.potion)
 
 		response = self.resolver.resolve_event(self.drink_command, self.player, potion_copy)
 
-		self.assertEqual((True, ["You become invisible."], [potion_copy], [potion_copy]), response)
+		self.assertEqual((True, ["Something happens."], [potion_copy], [potion_copy]), response)
 
 
 	def test_resolve_event_with_match_to_two_args(self):
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
 		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item=self.bean, destination=destroy_bean_destination)
-		pour_potion_bean_event_outcome = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action])
+		pour_potion_bean_event_outcome = EventOutcome(text_key="event_response_key", actions=[destroy_bean_action])
 		pour_potion_bean_event = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_match, outcome=pour_potion_bean_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.pour_command, self.potion, self.bean): [pour_potion_bean_event],}.get(x)
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, ["The bean disappears."], [self.potion, self.bean], [self.potion, self.bean]), response)
+		self.assertEqual((True, ["Something happens."], [self.potion, self.bean], [self.potion, self.bean]), response)
 
 
 	def test_resolve_event_with_item_outcome_action_destroy(self):
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
 		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item=self.bean, destination=destroy_bean_destination)
-		pour_potion_bean_event_outcome = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action])
+		pour_potion_bean_event_outcome = EventOutcome(text_key="event_response_key", actions=[destroy_bean_action])
 		pour_potion_bean_event = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_match, outcome=pour_potion_bean_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.pour_command, self.potion, self.bean): [pour_potion_bean_event],}.get(x)
 		self.lighthouse_location.add(self.bean)
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, ["The bean disappears."], [self.potion, self.bean], [self.potion, self.bean]), response)
+		self.assertEqual((True, ["Something happens."], [self.potion, self.bean], [self.potion, self.bean]), response)
 		self.assertFalse(self.lighthouse_location.contains(self.bean))
 
 
@@ -137,13 +144,13 @@ class TestEventResolver(unittest.TestCase):
 		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		wand_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.CURRENT_LOCATION, data_id=None)
 		wand_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item=self.bean, destination=wand_destination)
-		wave_wand_event_outcome = EventOutcome(text="The bean appears at your feet.", actions=[wand_action])
+		wave_wand_event_outcome = EventOutcome(text_key="event_response_key", actions=[wand_action])
 		wave_wand_event = Event(event_id=3004, attributes=0x0, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.wave_command, self.wand): [wave_wand_event],}.get(x)
 
 		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
 
-		self.assertEqual((True, ["The bean appears at your feet."], [self.wand], [self.wand]), response)
+		self.assertEqual((True, ["Something happens."], [self.wand], [self.wand]), response)
 		self.player.drop_item.assert_called_once_with(self.bean)
 
 
@@ -151,13 +158,13 @@ class TestEventResolver(unittest.TestCase):
 		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		wand_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.CURRENT_INVENTORY, data_id=None)
 		wand_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item=self.bean, destination=wand_destination)
-		wave_wand_event_outcome = EventOutcome(text="The bean appears in your hand.", actions=[wand_action])
+		wave_wand_event_outcome = EventOutcome(text_key="event_response_key", actions=[wand_action])
 		wave_wand_event = Event(event_id=3005, attributes=0x0, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.wave_command, self.wand): [wave_wand_event],}.get(x)
 
 		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
 
-		self.assertEqual((True, ["The bean appears in your hand."], [self.wand], [self.wand]), response)
+		self.assertEqual((True, ["Something happens."], [self.wand], [self.wand]), response)
 		self.player.take_item.assert_called_once_with(self.bean)
 
 
@@ -165,13 +172,13 @@ class TestEventResolver(unittest.TestCase):
 		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		wand_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.ABSOLUTE_CONTAINER, data_id=self.lighthouse_location.data_id)
 		wand_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item=self.bean, destination=wand_destination)
-		wave_wand_event_outcome = EventOutcome(text="The bean appears somewhere.", actions=[wand_action])
+		wave_wand_event_outcome = EventOutcome(text_key="event_response_key", actions=[wand_action])
 		wave_wand_event = Event(event_id=3006, attributes=0x0, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.wave_command, self.wand): [wave_wand_event],}.get(x)
 
 		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
 
-		self.assertEqual((True, ["The bean appears somewhere."], [self.wand], [self.wand]), response)
+		self.assertEqual((True, ["Something happens."], [self.wand], [self.wand]), response)
 		self.assertTrue(self.lighthouse_location.contains(self.bean))
 
 
@@ -179,13 +186,13 @@ class TestEventResolver(unittest.TestCase):
 		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		wand_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.ABSOLUTE_CONTAINER, data_id=self.bottle.data_id)
 		wand_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item=self.potion, destination=wand_destination)
-		wave_wand_event_outcome = EventOutcome(text="Potion appears in the bottle.", actions=[wand_action])
+		wave_wand_event_outcome = EventOutcome(text_key="event_response_key", actions=[wand_action])
 		wave_wand_event = Event(event_id=3006, attributes=0x0, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.wave_command, self.wand): [wave_wand_event]}.get(x)
 
 		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
 
-		self.assertEqual((True, ["Potion appears in the bottle."], [self.wand], [self.wand]), response)
+		self.assertEqual((True, ["Something happens."], [self.wand], [self.wand]), response)
 		self.assertFalse(self.bottle.contains(self.potion))
 		potion_copy = self.bottle.get_allow_copy(self.potion)
 		self.assertTrue(potion_copy.is_allow_copy(self.potion))
@@ -195,14 +202,14 @@ class TestEventResolver(unittest.TestCase):
 		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		wand_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.REPLACE, data_id=self.lamp.data_id)
 		wand_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item=self.bean, destination=wand_destination)
-		wave_wand_event_outcome = EventOutcome(text="The bean turns into a lamp.", actions=[wand_action])
+		wave_wand_event_outcome = EventOutcome(text_key="event_response_key", actions=[wand_action])
 		wave_wand_event = Event(event_id=3005, attributes=0x0, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.wave_command, self.wand): [wave_wand_event],}.get(x)
 		self.lighthouse_location.add(self.bean)
 
 		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
 
-		self.assertEqual((True, ["The bean turns into a lamp."], [self.wand], [self.wand]), response)
+		self.assertEqual((True, ["Something happens."], [self.wand], [self.wand]), response)
 		self.assertFalse(self.lighthouse_location.contains(self.bean))
 		self.assertTrue(self.lighthouse_location.contains(self.lamp))
 
@@ -217,7 +224,7 @@ class TestEventResolver(unittest.TestCase):
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
 		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item=self.bean, destination=destroy_bean_destination)
-		pour_potion_bean_event_outcome = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action])
+		pour_potion_bean_event_outcome = EventOutcome(text_key="event_response_key", actions=[destroy_bean_action])
 		pour_potion_bean_event = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_match, outcome=pour_potion_bean_event_outcome)
 
 		self.data.get_events.side_effect = lambda x: {(self.pour_command, self.potion, self.bean): [pour_potion_bean_event],}.get(x)
@@ -225,7 +232,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, ["The bean disappears."], [self.potion, self.bean], [self.potion, self.bean]), response)
+		self.assertEqual((True, ["Something happens."], [self.potion, self.bean], [self.potion, self.bean]), response)
 		self.assertFalse(self.lighthouse_location.contains(self.bean))
 
 
@@ -239,7 +246,7 @@ class TestEventResolver(unittest.TestCase):
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
 		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item=self.bean, destination=destroy_bean_destination)
-		pour_potion_bean_event_outcome = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action])
+		pour_potion_bean_event_outcome = EventOutcome(text_key="event_response_key", actions=[destroy_bean_action])
 		pour_potion_bean_event = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_match, outcome=pour_potion_bean_event_outcome)
 
 		self.data.get_events.side_effect = lambda x: {(self.pour_command, self.potion, self.bean): [pour_potion_bean_event],}.get(x)
@@ -261,7 +268,7 @@ class TestEventResolver(unittest.TestCase):
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
 		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item=self.bean, destination=destroy_bean_destination)
-		pour_potion_bean_event_outcome = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action])
+		pour_potion_bean_event_outcome = EventOutcome(text_key="event_response_key", actions=[destroy_bean_action])
 		pour_potion_bean_event = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_match, outcome=pour_potion_bean_event_outcome)
 
 		self.data.get_events.side_effect = lambda x: {(self.pour_command, self.potion, self.bean): [pour_potion_bean_event],}.get(x)
@@ -270,7 +277,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, ["The bean disappears."], [self.potion, self.bean], [self.potion, self.bean]), response)
+		self.assertEqual((True, ["Something happens."], [self.potion, self.bean], [self.potion, self.bean]), response)
 		self.assertFalse(self.lighthouse_location.contains(self.bean))
 
 
@@ -282,7 +289,7 @@ class TestEventResolver(unittest.TestCase):
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
 		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item=self.bean, destination=destroy_bean_destination)
-		pour_potion_bean_event_outcome = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action])
+		pour_potion_bean_event_outcome = EventOutcome(text_key="event_response_key", actions=[destroy_bean_action])
 		pour_potion_bean_event = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_match, outcome=pour_potion_bean_event_outcome)
 
 		self.data.get_events.side_effect = lambda x: {(self.pour_command, self.potion, self.bean): [pour_potion_bean_event],}.get(x)
@@ -302,7 +309,7 @@ class TestEventResolver(unittest.TestCase):
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
 		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item=self.bean, destination=destroy_bean_destination)
-		pour_potion_bean_event_outcome = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action])
+		pour_potion_bean_event_outcome = EventOutcome(text_key="event_response_key", actions=[destroy_bean_action])
 		pour_potion_bean_event = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_match, outcome=pour_potion_bean_event_outcome)
 
 		self.data.get_events.side_effect = lambda x: {(self.pour_command, self.potion, self.bean): [pour_potion_bean_event],}.get(x)
@@ -311,7 +318,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, ["The bean disappears."], [self.potion, self.bean], [self.potion, self.bean]), response)
+		self.assertEqual((True, ["Something happens."], [self.potion, self.bean], [self.potion, self.bean]), response)
 		self.assertFalse(self.lighthouse_location.contains(self.bean))
 
 
@@ -323,7 +330,7 @@ class TestEventResolver(unittest.TestCase):
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
 		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item=self.bean, destination=destroy_bean_destination)
-		pour_potion_bean_event_outcome = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action])
+		pour_potion_bean_event_outcome = EventOutcome(text_key="event_response_key", actions=[destroy_bean_action])
 		pour_potion_bean_event = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_match, outcome=pour_potion_bean_event_outcome)
 
 		self.data.get_events.side_effect = lambda x: {(self.pour_command, self.potion, self.bean): [pour_potion_bean_event],}.get(x)
@@ -344,7 +351,7 @@ class TestEventResolver(unittest.TestCase):
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
 		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item=self.bean, destination=destroy_bean_destination)
-		pour_potion_bean_event_outcome = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action])
+		pour_potion_bean_event_outcome = EventOutcome(text_key="event_response_key", actions=[destroy_bean_action])
 		pour_potion_bean_event = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_match, outcome=pour_potion_bean_event_outcome)
 
 		self.data.get_events.side_effect = lambda x: {(self.pour_command, self.potion, self.bean): [pour_potion_bean_event],}.get(x)
@@ -353,7 +360,7 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, ["The bean disappears."], [self.potion, self.bean], [self.potion, self.bean]), response)
+		self.assertEqual((True, ["Something happens."], [self.potion, self.bean], [self.potion, self.bean]), response)
 		self.assertFalse(self.lighthouse_location.contains(self.bean))
 
 
@@ -365,7 +372,7 @@ class TestEventResolver(unittest.TestCase):
 		pour_potion_bean_event_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite])
 		destroy_bean_destination = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
 		destroy_bean_action = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item=self.bean, destination=destroy_bean_destination)
-		pour_potion_bean_event_outcome = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action])
+		pour_potion_bean_event_outcome = EventOutcome(text_key="event_response_key", actions=[destroy_bean_action])
 		pour_potion_bean_event = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_match, outcome=pour_potion_bean_event_outcome)
 
 		self.data.get_events.side_effect = lambda x: {(self.pour_command, self.potion, self.bean): [pour_potion_bean_event],}.get(x)
@@ -386,11 +393,11 @@ class TestEventResolver(unittest.TestCase):
 		pour_potion_bean_event_0_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[prerequisite_0])
 		destroy_bean_destination_0 = ItemEventOutcomeActionDestination(kind=ItemEventOutcomeActionDestinationKind.DESTROY, data_id=None)
 		destroy_bean_action_0 = ItemEventOutcomeAction(kind=EventOutcomeActionKind.ITEM, item=self.bean, destination=destroy_bean_destination_0)
-		pour_potion_bean_event_outcome_0 = EventOutcome(text="The bean disappears.", actions=[destroy_bean_action_0])
+		pour_potion_bean_event_outcome_0 = EventOutcome(text_key="event_response_key", actions=[destroy_bean_action_0])
 		pour_potion_bean_event_0 = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_0_match, outcome=pour_potion_bean_event_outcome_0)
 
 		pour_potion_bean_event_1_match = EventMatch(command=self.pour_command, arguments=[self.potion, self.bean], prerequisites=[])
-		pour_potion_bean_event_outcome_1 = EventOutcome(text="The bean turns purple.", actions=[])
+		pour_potion_bean_event_outcome_1 = EventOutcome(text_key="event_response_key", actions=[])
 		pour_potion_bean_event_1 = Event(event_id=3003, attributes=0x0, match=pour_potion_bean_event_1_match, outcome=pour_potion_bean_event_outcome_1)
 
 		self.data.get_events.side_effect = lambda x: {(self.pour_command, self.potion, self.bean): [pour_potion_bean_event_0, pour_potion_bean_event_1],}.get(x)
@@ -398,19 +405,19 @@ class TestEventResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_event(self.pour_command, self.player, self.potion, self.bean)
 
-		self.assertEqual((True, ["The bean turns purple."], [self.potion, self.bean], [self.potion, self.bean]), response)
+		self.assertEqual((True, ["Something happens."], [self.potion, self.bean], [self.potion, self.bean]), response)
 		self.assertTrue(self.lighthouse_location.contains(self.bean))
 
 
 	def test_resolve_event_without_special_player_outcomes(self):
 		rub_lamp_event_match = EventMatch(command=self.rub_command, arguments=[self.lamp], prerequisites=[])
-		rub_lamp_event_outcome = EventOutcome(text="A genie pops out.", actions=[])
+		rub_lamp_event_outcome = EventOutcome(text_key="event_response_key", actions=[])
 		rub_lamp_event = Event(event_id=3001, attributes=0x0, match=rub_lamp_event_match, outcome=rub_lamp_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.rub_command, self.lamp): [rub_lamp_event],}.get(x)
 
 		response = self.resolver.resolve_event(self.rub_command, self.player, self.lamp)
 
-		self.assertEqual((True, ["A genie pops out."], [self.lamp], [self.lamp]), response)
+		self.assertEqual((True, ["Something happens."], [self.lamp], [self.lamp]), response)
 		self.player.complete_event.assert_called_once_with(3001)
 		self.player.solve_puzzle.assert_not_called()
 		self.player.set_playing.assert_not_called()
@@ -418,19 +425,19 @@ class TestEventResolver(unittest.TestCase):
 
 	def test_resolve_event_end_game(self):
 		rub_lamp_event_match = EventMatch(command=self.rub_command, arguments=[self.lamp], prerequisites=[])
-		rub_lamp_event_outcome = EventOutcome(text="A genie pops out.", actions=[])
+		rub_lamp_event_outcome = EventOutcome(text_key="event_response_key", actions=[])
 		rub_lamp_event = Event(event_id=3001, attributes=0x1, match=rub_lamp_event_match, outcome=rub_lamp_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.rub_command, self.lamp): [rub_lamp_event],}.get(x)
 
 		response = self.resolver.resolve_event(self.rub_command, self.player, self.lamp)
 
-		self.assertEqual((True, ["A genie pops out."], [self.lamp], [self.lamp]), response)
+		self.assertEqual((True, ["Something happens."], [self.lamp], [self.lamp]), response)
 		self.player.set_playing.assert_called_once_with(False)
 
 
 	def test_resolve_event_puzzle(self):
 		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
-		wave_wand_event_outcome = EventOutcome(text="Something happens.", actions=[])
+		wave_wand_event_outcome = EventOutcome(text_key="event_response_key", actions=[])
 		wave_wand_event = Event(event_id=3004, attributes=0x4, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.wave_command, self.wand): [wave_wand_event],}.get(x)
 
@@ -443,7 +450,7 @@ class TestEventResolver(unittest.TestCase):
 	def test_resolve_event_with_player_outcome_action_set_attribute(self):
 		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		action = PlayerEventOutcomeAction(kind=EventOutcomeActionKind.PLAYER, attribute=0x8, on=True)
-		wave_wand_event_outcome = EventOutcome(text="Something happens.", actions=[action])
+		wave_wand_event_outcome = EventOutcome(text_key="event_response_key", actions=[action])
 		wave_wand_event = Event(event_id=3004, attributes=0x4, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.wave_command, self.wand): [wave_wand_event],}.get(x)
 
@@ -456,7 +463,7 @@ class TestEventResolver(unittest.TestCase):
 	def test_resolve_event_with_player_outcome_action_unset_attribute(self):
 		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		action = PlayerEventOutcomeAction(kind=EventOutcomeActionKind.PLAYER, attribute=0x8, on=False)
-		wave_wand_event_outcome = EventOutcome(text="Something happens.", actions=[action])
+		wave_wand_event_outcome = EventOutcome(text_key="event_response_key", actions=[action])
 		wave_wand_event = Event(event_id=3004, attributes=0x4, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.wave_command, self.wand): [wave_wand_event],}.get(x)
 
@@ -469,7 +476,7 @@ class TestEventResolver(unittest.TestCase):
 	def test_resolve_event_with_location_outcome_action_set_attribute(self):
 		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		action = LocationEventOutcomeAction(kind=EventOutcomeActionKind.LOCATION, location=self.lighthouse_location, attribute=0x2, on=True)
-		wave_wand_event_outcome = EventOutcome(text="Something happens.", actions=[action])
+		wave_wand_event_outcome = EventOutcome(text_key="event_response_key", actions=[action])
 		wave_wand_event = Event(event_id=3004, attributes=0x4, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.wave_command, self.wand): [wave_wand_event],}.get(x)
 
@@ -482,7 +489,7 @@ class TestEventResolver(unittest.TestCase):
 	def test_resolve_event_with_location_outcome_action_unset_attribute(self):
 		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		action = LocationEventOutcomeAction(kind=EventOutcomeActionKind.LOCATION, location=self.lighthouse_location, attribute=0x1, on=False)
-		wave_wand_event_outcome = EventOutcome(text="Something happens.", actions=[action])
+		wave_wand_event_outcome = EventOutcome(text_key="event_response_key", actions=[action])
 		wave_wand_event = Event(event_id=3004, attributes=0x4, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.wave_command, self.wand): [wave_wand_event],}.get(x)
 
@@ -495,13 +502,13 @@ class TestEventResolver(unittest.TestCase):
 	def test_resolve_event_with_link_outcome_action_add_link(self):
 		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		action = LinkEventOutcomeAction(kind=EventOutcomeActionKind.LINK, source=self.lighthouse_location, direction=Direction.NORTH, destination=self.beach_location)
-		wave_wand_event_outcome = EventOutcome(text="The door moves.", actions=[action])
+		wave_wand_event_outcome = EventOutcome(text_key="event_response_key", actions=[action])
 		wave_wand_event = Event(event_id=3004, attributes=0x4, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.wave_command, self.wand): [wave_wand_event],}.get(x)
 
 		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
 
-		self.assertEqual((True, ["The door moves."], [self.wand], [self.wand]), response)
+		self.assertEqual((True, ["Something happens."], [self.wand], [self.wand]), response)
 		self.assertEqual(self.beach_location, self.lighthouse_location.directions[Direction.NORTH])
 
 
@@ -510,13 +517,13 @@ class TestEventResolver(unittest.TestCase):
 
 		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		action = LinkEventOutcomeAction(kind=EventOutcomeActionKind.LINK, source=self.lighthouse_location, direction=Direction.EAST, destination=None)
-		wave_wand_event_outcome = EventOutcome(text="The door moves.", actions=[action])
+		wave_wand_event_outcome = EventOutcome(text_key="event_response_key", actions=[action])
 		wave_wand_event = Event(event_id=3004, attributes=0x4, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
 		self.data.get_events.side_effect = lambda x: {(self.wave_command, self.wand): [wave_wand_event],}.get(x)
 
 		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
 
-		self.assertEqual((True, ["The door moves."], [self.wand], [self.wand]), response)
+		self.assertEqual((True, ["Something happens."], [self.wand], [self.wand]), response)
 		self.assertFalse(Direction.EAST in self.lighthouse_location.directions)
 
 
