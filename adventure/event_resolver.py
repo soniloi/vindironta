@@ -146,7 +146,7 @@ class EventResolver(Resolver):
 		if destination:
 			source.directions[direction] = destination
 		else:
-			del source.directions[direction]
+			source.directions.pop(direction, None)
 
 
 	def update_player_outcomes(self, player, event):

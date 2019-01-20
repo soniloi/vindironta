@@ -512,9 +512,22 @@ class TestEventResolver(unittest.TestCase):
 		self.assertEqual(self.beach_location, self.lighthouse_location.directions[Direction.NORTH])
 
 
-	def test_resolve_event_with_link_outcome_action_remove_link(self):
+	def test_resolve_event_with_link_outcome_action_remove_link_already_exists(self):
 		self.lighthouse_location.directions[Direction.EAST] = self.beach_location
 
+		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
+		action = LinkEventOutcomeAction(kind=EventOutcomeActionKind.LINK, source=self.lighthouse_location, direction=Direction.EAST, destination=None)
+		wave_wand_event_outcome = EventOutcome(text_key="event_response_key", actions=[action])
+		wave_wand_event = Event(event_id=3004, attributes=0x4, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
+		self.data.get_events.side_effect = lambda x: {(self.wave_command, self.wand): [wave_wand_event],}.get(x)
+
+		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
+
+		self.assertEqual((True, ["Something happens."], [self.wand], [self.wand]), response)
+		self.assertFalse(Direction.EAST in self.lighthouse_location.directions)
+
+
+	def test_resolve_event_with_link_outcome_action_remove_link_does_not_already_exist(self):
 		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
 		action = LinkEventOutcomeAction(kind=EventOutcomeActionKind.LINK, source=self.lighthouse_location, direction=Direction.EAST, destination=None)
 		wave_wand_event_outcome = EventOutcome(text_key="event_response_key", actions=[action])
