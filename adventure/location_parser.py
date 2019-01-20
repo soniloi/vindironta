@@ -40,16 +40,10 @@ class LocationParser:
 
 	def parse_links(self, direction_inputs):
 		links = {}
-		self.parse_link(links, Direction.NORTH, direction_inputs.get("north"))
-		self.parse_link(links, Direction.SOUTH, direction_inputs.get("south"))
-		self.parse_link(links, Direction.EAST, direction_inputs.get("east"))
-		self.parse_link(links, Direction.WEST, direction_inputs.get("west"))
-		self.parse_link(links, Direction.NORTHEAST, direction_inputs.get("northeast"))
-		self.parse_link(links, Direction.SOUTHWEST, direction_inputs.get("southwest"))
-		self.parse_link(links, Direction.SOUTHEAST, direction_inputs.get("southeast"))
-		self.parse_link(links, Direction.NORTHWEST, direction_inputs.get("northwest"))
-		self.parse_link(links, Direction.UP, direction_inputs.get("up"))
-		self.parse_link(links, Direction.DOWN, direction_inputs.get("down"))
+		for direction_key_input, direction_value_input in direction_inputs.items():
+			direction_key = direction_key_input.upper()
+			direction = Direction[direction_key]
+			self.parse_link(links, direction, direction_value_input)
 		self.calculate_out(links)
 		return links
 
