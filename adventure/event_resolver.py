@@ -91,6 +91,8 @@ class EventResolver(Resolver):
 				self.handle_item_outcome_action(player, action)
 			elif action.kind == EventOutcomeActionKind.LOCATION:
 				self.handle_location_outcome_action(player, action)
+			elif action.kind == EventOutcomeActionKind.LINK:
+				self.handle_link_outcome_action(player, action)
 
 
 	def handle_player_outcome_action(self, player, action):
@@ -134,6 +136,17 @@ class EventResolver(Resolver):
 			location.set_attribute(action.attribute)
 		else:
 			location.unset_attribute(action.attribute)
+
+
+	def handle_link_outcome_action(self, player, action):
+		source = action.source
+		destination = action.destination
+		direction = action.direction
+
+		if destination:
+			source.directions[direction] = destination
+		else:
+			del source.directions[direction]
 
 
 	def update_player_outcomes(self, player, event):

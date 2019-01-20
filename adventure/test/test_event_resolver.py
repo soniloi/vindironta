@@ -3,8 +3,10 @@ import unittest
 from unittest.mock import Mock
 
 from adventure.command import Command
+from adventure.direction import Direction
 from adventure.element import Labels
-from adventure.event import Event, EventMatch, EventOutcome, EventOutcomeActionKind, PlayerEventOutcomeAction, ItemEventOutcomeAction, LocationEventOutcomeAction
+from adventure.event import Event, EventMatch, EventOutcome, EventOutcomeActionKind, PlayerEventOutcomeAction, ItemEventOutcomeAction
+from adventure.event import LocationEventOutcomeAction, LinkEventOutcomeAction
 from adventure.event import EventMatchPrerequisiteKind, ItemEventMatchPrerequisite, ItemEventMatchPrerequisiteContainer, ItemEventMatchPrerequisiteContainerKind
 from adventure.event import LocationEventMatchPrerequisite, EventEventMatchPrerequisite
 from adventure.event import ItemEventOutcomeActionDestination, ItemEventOutcomeActionDestinationKind
@@ -56,6 +58,7 @@ class TestEventResolver(unittest.TestCase):
 
 	def setup_locations(self):
 		self.lighthouse_location = Location(12, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
+		self.beach_location = Location(13, 0x1, Labels("Beach", "on a beach", " of black sand"))
 
 
 	def setup_items(self):
@@ -487,6 +490,34 @@ class TestEventResolver(unittest.TestCase):
 
 		self.assertEqual((True, ["Something happens."], [self.wand], [self.wand]), response)
 		self.assertFalse(self.lighthouse_location.gives_light())
+
+
+	def test_resolve_event_with_link_outcome_action_add_link(self):
+		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
+		action = LinkEventOutcomeAction(kind=EventOutcomeActionKind.LINK, source=self.lighthouse_location, direction=Direction.NORTH, destination=self.beach_location)
+		wave_wand_event_outcome = EventOutcome(text="The door moves.", actions=[action])
+		wave_wand_event = Event(event_id=3004, attributes=0x4, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
+		self.data.get_events.side_effect = lambda x: {(self.wave_command, self.wand): [wave_wand_event],}.get(x)
+
+		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
+
+		self.assertEqual((True, ["The door moves."], [self.wand], [self.wand]), response)
+		self.assertEqual(self.beach_location, self.lighthouse_location.directions[Direction.NORTH])
+
+
+	def test_resolve_event_with_link_outcome_action_remove_link(self):
+		self.lighthouse_location.directions[Direction.EAST] = self.beach_location
+
+		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
+		action = LinkEventOutcomeAction(kind=EventOutcomeActionKind.LINK, source=self.lighthouse_location, direction=Direction.EAST, destination=None)
+		wave_wand_event_outcome = EventOutcome(text="The door moves.", actions=[action])
+		wave_wand_event = Event(event_id=3004, attributes=0x4, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
+		self.data.get_events.side_effect = lambda x: {(self.wave_command, self.wand): [wave_wand_event],}.get(x)
+
+		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
+
+		self.assertEqual((True, ["The door moves."], [self.wand], [self.wand]), response)
+		self.assertFalse(Direction.EAST in self.lighthouse_location.directions)
 
 
 if __name__ == "__main__":
