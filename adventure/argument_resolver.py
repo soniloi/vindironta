@@ -21,11 +21,11 @@ class ArgumentResolver(Resolver):
 
 	def resolve_teleport(self, command, player, *args):
 		if args:
-			return False, [self.get_response("request_argless")], [self.get_arg(0, args)], []
+			return False, ["request_argless"], [self.get_arg(0, args)], []
 
 		source_location_id = player.get_location_id()
 		if not source_location_id in command.teleport_info:
-			return False, [self.get_response("reject_nothing")], [None], []
+			return False, ["reject_nothing"], [None], []
 
 		destination_location_id = command.teleport_info[source_location_id]
 		destination_location = self.data.get_location(destination_location_id)
@@ -35,35 +35,35 @@ class ArgumentResolver(Resolver):
 
 	def resolve_movement(self, command, player, *args):
 		if args:
-			return False, [self.get_response("request_argless")], [self.get_arg(0, args)], []
+			return False, ["request_argless"], [self.get_arg(0, args)], []
 
 		direction = ArgumentResolver.DIRECTIONS[command.data_id]
 
 		if direction == Direction.BACK:
 			proposed_location = player.get_previous_location()
 			if not proposed_location:
-				return False, [self.get_response("reject_no_back")], [direction], []
+				return False, ["reject_no_back"], [direction], []
 
 		else:
 			proposed_location = player.get_adjacent_location(direction)
 			if not proposed_location:
-				return False, [self.get_reject_movement_template(direction)], [direction], []
+				return False, [self.get_reject_movement_template_key(direction)], [direction], []
 
 		return True, [], [], [proposed_location]
 
 
-	def get_reject_movement_template(self, direction):
+	def get_reject_movement_template_key(self, direction):
 		if direction == Direction.OUT:
-			return self.get_response("reject_no_out")
+			return "reject_no_out"
 		else:
-			return self.get_response("reject_no_direction")
+			return "reject_no_direction"
 
 
 	def resolve_switchable(self, command, player, *args):
 		arg = self.get_arg(0, args)
 		if arg not in command.switch_info:
 			content = [command.primary] + sorted(list(command.switch_info.keys()))
-			return False, [self.get_response("request_switch_command")], content, []
+			return False, ["request_switch_command"], content, []
 
 		transition = command.switch_info[arg]
 		return True, [], [], [transition]
@@ -77,26 +77,26 @@ class ArgumentResolver(Resolver):
 		if not arg_input:
 			player.current_command = command
 			player.current_args = []
-			template, content = self.get_addinfo_response(command, [], None)
-			return False, [template], content, []
+			template_key, content = self.get_addinfo_response(command, [], None)
+			return False, [template_key], content, []
 
-		success, template, content = self.resolve_arg_for_command(command, player, arg_info, arg_input)
+		success, template_key, content = self.resolve_arg_for_command(command, player, arg_info, arg_input)
 
 		if not success:
 			player.reset_current_command()
-			return False, [template], content, []
+			return False, [template_key], content, []
 
 		item = content
 		switch_args = args[1:]
 
 		if not item.is_switchable():
-			return False, [self.get_response("reject_no_understand_instruction")], [item.shortname], []
+			return False, ["reject_no_understand_instruction"], [item.shortname], []
 
 		transition_text = self.get_arg(0, switch_args)
 
 		if not transition_text in item.text_to_transition:
 			content = [item.shortname] + sorted(list(item.text_to_transition.keys()))
-			return False, [self.get_response("request_switch_item")], content, []
+			return False, ["request_switch_item"], content, []
 
 		transition = item.text_to_transition.get(transition_text)
 		player.reset_current_command()
@@ -129,15 +129,15 @@ class ArgumentResolver(Resolver):
 					player.current_command = command
 					player.current_args = resolved_args
 					# TODO: improve this to request non-direct args properly also
-					template, content = self.get_addinfo_response(command, resolved_args, current_linker)
-					return False, [template], content, []
+					template_key, content = self.get_addinfo_response(command, resolved_args, current_linker)
+					return False, [template_key], content, []
 
 			else:
-				success, template, content = self.resolve_arg_for_command(command, player, arg_info, arg_input)
+				success, template_key, content = self.resolve_arg_for_command(command, player, arg_info, arg_input)
 
 				if not success:
 					player.reset_current_command()
-					return False, [template], content, []
+					return False, [template_key], content, []
 				resolved_args.append(content)
 
 		player.reset_current_command()
@@ -151,7 +151,7 @@ class ArgumentResolver(Resolver):
 
 
 	def get_addinfo_response(self, command, resolved_args, given_linker):
-		template = self.get_response("request_addinfo")
+		template_key = "request_addinfo"
 		verb = command.primary
 		arg_infos = command.arg_infos
 
@@ -160,7 +160,7 @@ class ArgumentResolver(Resolver):
 			noun_content = self.get_addinfo_noun_content(resolved_args, arg_infos, given_linker)
 
 		content = [verb, noun_content]
-		return template, content
+		return template_key, content
 
 
 	def get_addinfo_noun_content(self, resolved_args, arg_infos, given_linker):
@@ -190,26 +190,26 @@ class ArgumentResolver(Resolver):
 
 		item = self.data.get_item_by_name(arg_input)
 		if not item:
-			return False, self.get_response("reject_unknown"), [arg_input]
+			return False, "reject_unknown", [arg_input]
 
 		carried_item = player.get_carried_item(item)
 		nearby_item = player.get_nearby_item(item)
 
 		if arg_info.takes_item_arg_from_inventory_only():
 			if not carried_item:
-				return False, self.get_response("reject_not_holding"), [item.shortname]
+				return False, "reject_not_holding", [item.shortname]
 			item = carried_item
 
 		if arg_info.takes_item_arg_from_location_only():
 			if carried_item:
-				return False, self.get_response("reject_carrying"), [item.shortname]
+				return False, "reject_carrying", [item.shortname]
 			if not nearby_item:
-				return False, self.get_response("reject_not_here"), [item.shortname]
+				return False, "reject_not_here", [item.shortname]
 			item = nearby_item
 
 		if arg_info.takes_item_arg_from_inventory_or_location():
 			if not carried_item and not nearby_item:
-				return False, self.get_response("reject_not_here"), [item.shortname]
+				return False, "reject_not_here", [item.shortname]
 			# TODO: determine the ordering here
 			item = carried_item
 			if not item:

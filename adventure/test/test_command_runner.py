@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import Mock
 
 from adventure.command import Command
 from adventure.command_runner import CommandRunner
@@ -8,7 +9,16 @@ from adventure.item import Item
 class TestCommandRunner(unittest.TestCase):
 
 	def setUp(self):
-		self.runner = CommandRunner()
+		self.setup_data()
+		self.runner = CommandRunner(self.data)
+
+
+	def setup_data(self):
+		self.data = Mock()
+		self.data.get_response.side_effect = lambda x: {
+			"confirm" : "Action \"{0}\" successful.",
+			"reject" : "Action unsuccessful.",
+		}.get(x)
 
 
 	def arg_function_movement(self, command, player, *args):
@@ -20,11 +30,11 @@ class TestCommandRunner(unittest.TestCase):
 
 
 	def arg_function_unsuccessful(self, command, player, *args):
-		return False, ["reason template"], args, []
+		return False, ["reject"], args, []
 
 
 	def handler_function(self, command, player, *arg):
-		return True, ["{0} success!"], list(arg), list(arg)
+		return True, ["confirm"], list(arg), list(arg)
 
 
 	def vision_function(self, command, player, *arg):
@@ -37,7 +47,7 @@ class TestCommandRunner(unittest.TestCase):
 
 		result = self.runner.run(command_movement, None, ["test"])
 
-		self.assertEqual("1 success!", result)
+		self.assertEqual("Action \"1\" successful.", result)
 
 
 	def test_run_non_movement(self):
@@ -46,7 +56,7 @@ class TestCommandRunner(unittest.TestCase):
 
 		result = self.runner.run(command_non_movement, None, ["test"])
 
-		self.assertEqual("test success!", result)
+		self.assertEqual("Action \"test\" successful.", result)
 
 
 	def test_run_item_args(self):
@@ -56,7 +66,7 @@ class TestCommandRunner(unittest.TestCase):
 
 		result = self.runner.run(command_non_movement, None, [book])
 
-		self.assertEqual("book success!", result)
+		self.assertEqual("Action \"book\" successful.", result)
 
 
 	def test_run_unsuccessful(self):
@@ -65,7 +75,7 @@ class TestCommandRunner(unittest.TestCase):
 
 		result = self.runner.run(command_unsuccessful, None, ["test"])
 
-		self.assertEqual("reason template", result)
+		self.assertEqual("Action unsuccessful.", result)
 
 
 if __name__ == "__main__":

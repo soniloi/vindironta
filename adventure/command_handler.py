@@ -7,33 +7,33 @@ class CommandHandler(Resolver):
 	POINTS_PER_PUZZLE = 7
 
 	def handle_climb(self, command, player, arg=None):
-		return False, [self.get_response("reject_climb")], [], []
+		return False, ["reject_climb"], [], []
 
 
 	def handle_commands(self, command, player):
-		return True, [self.get_response("describe_commands")], [self.data.list_commands()], []
+		return True, ["describe_commands"], [self.data.list_commands()], []
 
 
 	def handle_consume(self, command, player, item):
 		content_args = [item]
 
 		if not item.is_edible():
-			return False, [self.get_response("reject_not_consumable")], content_args, []
+			return False, ["reject_not_consumable"], content_args, []
 
 		item.destroy()
-		return True, [self.get_response("confirm_consume")], content_args, [item]
+		return True, ["confirm_consume"], content_args, [item]
 
 
 	def handle_describe(self, command, player, item):
-		templates = [self.get_response("describe_item")]
+		template_keys = ["describe_item"]
 		if item.is_switchable():
-			templates.append(self.get_response("describe_item_switch"))
-		return True, templates, item.get_full_description(), [item]
+			template_keys.append("describe_item_switch")
+		return True, template_keys, item.get_full_description(), [item]
 
 
 	def handle_drink(self, command, player, item):
 		if not item.is_liquid():
-			return False, [self.get_response("reject_drink_solid")], [item], []
+			return False, ["reject_drink_solid"], [item], []
 
 		return self.handle_consume(command, player, item)
 
@@ -45,15 +45,15 @@ class CommandHandler(Resolver):
 		if item.is_liquid():
 			content_args.append(item.get_first_container())
 			item.destroy()
-			return True, [self.get_response("confirm_poured_no_destination")], content_args, next_args
+			return True, ["confirm_poured_no_destination"], content_args, next_args
 
 		player.drop_item(item)
-		return True, [self.get_response("confirm_dropped")], content_args, next_args
+		return True, ["confirm_dropped"], content_args, next_args
 
 
 	def handle_eat(self, command, player, item):
 		if item.is_liquid():
-			return False, [self.get_response("reject_eat_liquid")], [item], []
+			return False, ["reject_eat_liquid"], [item], []
 
 		return self.handle_consume(command, player, item)
 
@@ -63,10 +63,10 @@ class CommandHandler(Resolver):
 		next_args = [item]
 
 		if not item.is_container():
-			return False, [self.get_response("reject_not_container")], content_args, []
+			return False, ["reject_not_container"], content_args, []
 
 		if not item.has_items():
-			return False, [self.get_response("reject_already_empty")], content_args, []
+			return False, ["reject_already_empty"], content_args, []
 
 		contained_item = item.get_contained_item()
 		content_args.append(contained_item)
@@ -74,11 +74,11 @@ class CommandHandler(Resolver):
 
 		if item.is_liquid_container():
 			contained_item.destroy()
-			return True, [self.get_response("confirm_emptied_liquid")], content_args, next_args
+			return True, ["confirm_emptied_liquid"], content_args, next_args
 
 		outermost_item = item.get_outermost_container()
 		outermost_item.insert(contained_item)
-		return True, [self.get_response("confirm_emptied_solid")], content_args, next_args
+		return True, ["confirm_emptied_solid"], content_args, next_args
 
 
 	def handle_explain(self, command, player, arg):
@@ -94,34 +94,34 @@ class CommandHandler(Resolver):
 		content_args = [proposed_gift, proposed_recipient]
 
 		if not proposed_recipient.is_sentient():
-			return False, [self.get_response("reject_give_inanimate")], content_args, []
+			return False, ["reject_give_inanimate"], content_args, []
 
 		if not proposed_gift.is_edible():
-			return False, [self.get_response("reject_not_consumable")], content_args, []
+			return False, ["reject_not_consumable"], content_args, []
 
 		proposed_gift.destroy()
-		return True, [self.get_response("confirm_feed")], content_args, [proposed_gift, proposed_recipient]
+		return True, ["confirm_feed"], content_args, [proposed_gift, proposed_recipient]
 
 
 	def handle_give(self, command, player, proposed_gift, proposed_recipient):
 		content_args = [proposed_gift, proposed_recipient]
 
 		if not proposed_recipient.is_sentient():
-			return False, [self.get_response("reject_give_inanimate")], content_args, []
+			return False, ["reject_give_inanimate"], content_args, []
 
 		if proposed_gift.is_liquid():
-			return False, [self.get_response("reject_give_liquid")], content_args, []
+			return False, ["reject_give_liquid"], content_args, []
 
 		proposed_gift.remove_from_containers()
 		proposed_recipient.insert(proposed_gift)
-		return True, [self.get_response("confirm_given")], content_args, [proposed_gift, proposed_recipient]
+		return True, ["confirm_given"], content_args, [proposed_gift, proposed_recipient]
 
 
 	def handle_go(self, command, player, proposed_location):
 		obstructions = player.get_obstructions()
 		if obstructions and proposed_location is not player.get_previous_location():
 			template_key, content = self.reject_go_obstructed(player, obstructions)
-			return False, [self.get_response(template_key)], content, []
+			return False, [template_key], content, []
 
 		current_location = player.get_location()
 		self.update_previous_location(player, proposed_location)
@@ -145,12 +145,12 @@ class CommandHandler(Resolver):
 
 
 	def handle_go_disambiguate(self, command, player, arg):
-		return False, [self.get_response("reject_go")], [], []
+		return False, ["reject_go"], [], []
 
 
 	def handle_help(self, command, player):
 		player.decrement_instructions()
-		return True, [self.get_response("describe_help")], [], []
+		return True, ["describe_help"], [], []
 
 
 	def handle_hint(self, command, player, arg):
@@ -163,59 +163,59 @@ class CommandHandler(Resolver):
 
 
 	def handle_immune(self, command, player, arg):
-		template = ""
+		template_key = ""
 
 		player.set_immune(arg)
 		if arg:
-			template = self.get_response("confirm_immune_on")
+			template_key = "confirm_immune_on"
 		else:
-			template = self.get_response("confirm_immune_off")
+			template_key = "confirm_immune_off"
 
-		return True, [template], [arg], [arg]
+		return True, [template_key], [arg], [arg]
 
 
 	def handle_insert(self, command, player, item, proposed_container):
 		content_args = [item, proposed_container]
 
 		if not proposed_container.is_container():
-			return False, [self.get_response("reject_not_container")], content_args, []
+			return False, ["reject_not_container"], content_args, []
 
 		if item is proposed_container:
-			return False, [self.get_response("reject_container_self")], content_args, []
+			return False, ["reject_container_self"], content_args, []
 
 		if proposed_container in item.containers:
-			return False, [self.get_response("reject_already_contained")], content_args, []
+			return False, ["reject_already_contained"], content_args, []
 
 		if not item.is_portable():
-			return False, [self.get_response("reject_not_portable")], content_args, []
+			return False, ["reject_not_portable"], content_args, []
 
 		if item.is_liquid() and not proposed_container.is_liquid_container():
-			return False, [self.get_response("reject_insert_liquid")], content_args, []
+			return False, ["reject_insert_liquid"], content_args, []
 
 		if not item.is_liquid() and proposed_container.is_liquid_container():
-			return False, [self.get_response("reject_insert_solid")], content_args, []
+			return False, ["reject_insert_solid"], content_args, []
 
 		if proposed_container.has_items():
-			return False, [self.get_response("reject_not_empty")], content_args, []
+			return False, ["reject_not_empty"], content_args, []
 
 		if not proposed_container.can_accommodate(item):
-			return False, [self.get_response("reject_container_size")], content_args, []
+			return False, ["reject_container_size"], content_args, []
 
 		if not item.is_copyable():
 			item.remove_from_containers()
 		proposed_container.insert(item)
 
-		return True, [self.get_response("confirm_inserted")], content_args, [item, proposed_container]
+		return True, ["confirm_inserted"], content_args, [item, proposed_container]
 
 
 	def handle_inventory(self, command, player):
 		if not player.holding_items():
-			return True, [self.get_response("list_inventory_empty")], [], []
-		return True, [self.get_response("list_inventory_nonempty")], [player.describe_inventory()], []
+			return True, ["list_inventory_empty"], [], []
+		return True, ["list_inventory_nonempty"], [player.describe_inventory()], []
 
 
 	def handle_locate(self, command, player, item):
-		templates = [self.get_response("describe_locate_primary")]
+		template_keys = ["describe_locate_primary"]
 		primary_containers = item.containers
 		primary_container_descriptions = [str(container.data_id) + ":" + container.longname for container in primary_containers]
 		content_args = [item.shortname, str(primary_container_descriptions)]
@@ -228,24 +228,24 @@ class CommandHandler(Resolver):
 			copy_container_descriptions.append(str(copy_container.data_id) + ":" + copy_container.longname)
 
 		if copy_container_descriptions:
-			templates.append(self.get_response("describe_locate_copies"))
+			template_keys.append("describe_locate_copies")
 			content_args.append(str(copy_container_descriptions))
 
-		return True, templates, content_args, next_args
+		return True, template_keys, content_args, next_args
 
 
 	def handle_look(self, command, player):
-		templates = [self.get_response("describe_location")]
+		template_keys = ["describe_location"]
 
 		if player.has_non_silent_items_nearby():
-			templates.append(self.get_response("list_location"))
+			template_keys.append("list_location")
 
-		return True, templates, player.get_full_location_description(), []
+		return True, template_keys, player.get_full_location_description(), []
 
 
 	def handle_node(self, command, player, arg=None):
 		if not arg:
-			return False, [self.get_response("describe_node")], [player.location.data_id], []
+			return False, ["describe_node"], [player.location.data_id], []
 
 		location_id = player.location.data_id
 		try:
@@ -258,7 +258,7 @@ class CommandHandler(Resolver):
 		except:
 			pass
 
-		return False, [self.get_response("reject_no_node")], [arg], []
+		return False, ["reject_no_node"], [arg], []
 
 
 	def handle_pick(self, command, player, item):
@@ -270,25 +270,25 @@ class CommandHandler(Resolver):
 		next_args = [item, destination]
 
 		if not item.is_liquid():
-			return False, [self.get_response("reject_not_liquid")], content_args, []
+			return False, ["reject_not_liquid"], content_args, []
 
 		source = item.get_first_container()
 		item.destroy()
 		content_args.extend([destination, source])
 
-		return True, [self.get_response("confirm_poured_with_destination")], content_args, next_args
+		return True, ["confirm_poured_with_destination"], content_args, next_args
 
 
 	def handle_quit(self, command, player):
 		player.decrement_instructions()
 		player.set_playing(False)
-		return True, [self.get_response("confirm_quit")], [], []
+		return True, ["confirm_quit"], [], []
 
 
 	def handle_read(self, command, player, item):
 		if not item.writing:
-			return False, [self.get_response("reject_no_writing")], [item], []
-		return True, [self.get_response("describe_writing")], [item.writing], [item]
+			return False, ["reject_no_writing"], [item], []
+		return True, ["describe_writing"], [item.writing], [item]
 
 
 	def handle_rub(self, command, player, item):
@@ -300,15 +300,15 @@ class CommandHandler(Resolver):
 		next_args = [word]
 
 		if not audience:
-			return True, [self.get_response("confirm_say_no_audience")], content_args, next_args
+			return True, ["confirm_say_no_audience"], content_args, next_args
 
 		content_args.append(audience)
 		next_args.append(audience)
 
 		if not audience.is_sentient():
-			return True, [self.get_response("confirm_say_no_sentient_audience")], content_args, next_args
+			return True, ["confirm_say_no_sentient_audience"], content_args, next_args
 
-		return True, [self.get_response("confirm_say_audience")], content_args, next_args
+		return True, ["confirm_say_audience"], content_args, next_args
 
 
 	def handle_score(self, command, player):
@@ -316,7 +316,7 @@ class CommandHandler(Resolver):
 		current_score = player.count_solved_puzzles() * CommandHandler.POINTS_PER_PUZZLE
 		maximum_score = self.data.get_puzzle_count() * CommandHandler.POINTS_PER_PUZZLE
 		current_instructions = player.instructions
-		return True, [self.get_response("describe_score")], [current_score, maximum_score, current_instructions], []
+		return True, ["describe_score"], [current_score, maximum_score, current_instructions], []
 
 
 	def handle_set(self, command, player, item):
@@ -326,18 +326,18 @@ class CommandHandler(Resolver):
 	def handle_switch(self, command, player, item, transition):
 		if transition == SwitchTransition.OFF:
 			if not item.is_on():
-				return False, [self.get_response("reject_already_switched")], [item, item.get_state_text()], []
+				return False, ["reject_already_switched"], [item, item.get_state_text()], []
 			item.switch_off()
 
 		elif transition == SwitchTransition.ON:
 			if item.is_on():
-				return False, [self.get_response("reject_already_switched")], [item, item.get_state_text()], []
+				return False, ["reject_already_switched"], [item, item.get_state_text()], []
 			item.switch_on()
 
 		elif transition == SwitchTransition.TOGGLE:
 			item.switch_toggle()
 
-		return True, [self.get_response("describe_switch_item")], [item, item.get_state_text()], [item, transition]
+		return True, ["describe_switch_item"], [item, item.get_state_text()], [item, transition]
 
 
 	def handle_take(self, command, player, item, proposed_container=None):
@@ -346,26 +346,26 @@ class CommandHandler(Resolver):
 		owner = item.get_sentient_owner()
 		if owner:
 			content_args.append(owner)
-			return False, [self.get_response("reject_take_animate")], content_args, []
+			return False, ["reject_take_animate"], content_args, []
 
 		if proposed_container:
 			return self.handle_insert(command, player, item, proposed_container)
 
 		if not item.is_portable():
-			return False, [self.get_response("reject_not_portable")], content_args, []
+			return False, ["reject_not_portable"], content_args, []
 
 		if item.is_liquid():
-			return False, [self.get_response("reject_take_liquid")], content_args, []
+			return False, ["reject_take_liquid"], content_args, []
 
 		if not player.can_carry(item):
-			return False, [self.get_response("reject_too_full")], content_args, []
+			return False, ["reject_too_full"], content_args, []
 
 		player.take_item(item)
 		next_args = [item]
 		if proposed_container:
 			next_args.append(proposed_container)
 
-		return True, [self.get_response("confirm_taken")], content_args, next_args
+		return True, ["confirm_taken"], content_args, next_args
 
 
 	def handle_teleport(self, command, player, destination):
@@ -376,29 +376,29 @@ class CommandHandler(Resolver):
 
 	def handle_toggle(self, command, player, item):
 		if not item.is_switchable():
-			return False, [self.get_response("reject_no_know_how")], [item], []
+			return False, ["reject_no_know_how"], [item], []
 		return self.handle_switch(command, player, item, SwitchTransition.TOGGLE)
 
 
 	def handle_verbose(self, command, player, arg):
-		template = []
+		template_key = []
 
 		player.set_verbose(arg)
 		if arg:
-			template = self.get_response("confirm_verbose_on")
+			template_key = "confirm_verbose_on"
 		else:
-			template = self.get_response("confirm_verbose_off")
+			template_key = "confirm_verbose_off"
 
-		return True, [template], [arg], [arg]
+		return True, [template_key], [arg], [arg]
 
 
 	def handle_wear(self, command, player, item):
 		if not item.is_wearable():
-			return False, [self.get_response("reject_not_wearable")], [item], []
+			return False, ["reject_not_wearable"], [item], []
 
 		if item.being_worn:
-			return False, [self.get_response("reject_already_wearing")], [item], []
+			return False, ["reject_already_wearing"], [item], []
 
 		player.take_item(item)
 		item.being_worn = True
-		return True, [self.get_response("confirm_wearing")], [item], [item]
+		return True, ["confirm_wearing"], [item], [item]

@@ -20,7 +20,6 @@ class TestArgumentResolver(unittest.TestCase):
 	def setup_data(self):
 		self.data = Mock()
 		self.setup_items()
-		self.setup_responses()
 
 
 	def setup_items(self):
@@ -38,24 +37,6 @@ class TestArgumentResolver(unittest.TestCase):
 		}.get(x)
 
 
-	def setup_responses(self):
-		self.data.get_response.side_effect = lambda x: {
-			"reject_carrying" : "You are carrying it.",
-			"reject_no_back" : "I do not remember how you got here.",
-			"reject_no_direction" : "You cannot go that way.",
-			"reject_no_out" : "I cannot tell in from out here.",
-			"reject_no_understand_instruction" : "I do not understand.",
-			"reject_not_here" : "It is not here.",
-			"reject_not_holding" : "You are not holding it.",
-			"reject_nothing" : "Nothing happens.",
-			"request_switch_item" : "Use \"{0} <{1}|{2}>\".",
-			"reject_unknown" : "I do not know what that is.",
-			"request_addinfo" : "What do you want to {0}{1}?",
-			"request_argless" : "Do not give an argument for this command.",
-			"request_switch_command" : "Use the command \"{0}\" with either \"{1}\" or \"{2}\".",
-		}.get(x)
-
-
 	def setup_player(self):
 		self.player = Mock()
 		self.player.get_current_args.return_value = []
@@ -67,7 +48,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_teleport(command, self.player, "test")
 
-		self.assertEqual((False, ["Do not give an argument for this command."], ["test"], []), response)
+		self.assertEqual((False, ["request_argless"], ["test"], []), response)
 
 
 	def test_resolve_teleport_without_matching_source(self):
@@ -77,7 +58,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_teleport(command, self.player)
 
-		self.assertEqual((False, ["Nothing happens."], [None], []), response)
+		self.assertEqual((False, ["reject_nothing"], [None], []), response)
 
 
 	def test_resolve_teleport_with_matching_source(self):
@@ -97,7 +78,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_movement(command, self.player, "test")
 
-		self.assertEqual((False, ["Do not give an argument for this command."], ["test"], []), response)
+		self.assertEqual((False, ["request_argless"], ["test"], []), response)
 
 
 	def test_resolve_movement_back_without_destination(self):
@@ -106,7 +87,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_movement(command, self.player)
 
-		self.assertEqual((False, ["I do not remember how you got here."], [Direction.BACK], []), response)
+		self.assertEqual((False, ["reject_no_back"], [Direction.BACK], []), response)
 
 
 	def test_resolve_movement_back_with_destination(self):
@@ -125,7 +106,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_movement(command, self.player)
 
-		self.assertEqual((False, ["I cannot tell in from out here."], [Direction.OUT], []), response)
+		self.assertEqual((False, ["reject_no_out"], [Direction.OUT], []), response)
 
 
 	def test_resolve_movement_out_with_destination(self):
@@ -144,7 +125,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_movement(command, self.player)
 
-		self.assertEqual((False, ["You cannot go that way."], [Direction.NORTH], []), response)
+		self.assertEqual((False, ["reject_no_direction"], [Direction.NORTH], []), response)
 
 
 	def test_resolve_movement_non_back_non_out_with_destination(self):
@@ -163,7 +144,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_switchable(command, self.player)
 
-		self.assertEqual((False, ["Use the command \"{0}\" with either \"{1}\" or \"{2}\"."], ["verbose", "no", "yes"], []), response)
+		self.assertEqual((False, ["request_switch_command"], ["verbose", "no", "yes"], []), response)
 
 
 	def test_resolve_switchable_with_invalid_arg(self):
@@ -172,7 +153,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_switchable(command, self.player, "off")
 
-		self.assertEqual((False, ["Use the command \"{0}\" with either \"{1}\" or \"{2}\"."], ["verbose", "no", "yes"], []), response)
+		self.assertEqual((False, ["request_switch_command"], ["verbose", "no", "yes"], []), response)
 
 
 	def test_resolve_switchable_with_switch_arg(self):
@@ -189,7 +170,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player)
 
-		self.assertEqual((False, ["What do you want to {0}{1}?"], ["take", ""], []), response)
+		self.assertEqual((False, ["request_addinfo"], ["take", ""], []), response)
 
 
 	def test_resolve_args_without_arg_permissive(self):
@@ -213,7 +194,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "test")
 
-		self.assertEqual((False, ["I do not know what that is."], ["test"], []), response)
+		self.assertEqual((False, ["reject_unknown"], ["test"], []), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_inventory_only_and_player_not_carrying(self):
@@ -223,7 +204,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "book")
 
-		self.assertEqual((False, ["You are not holding it."], ["book"], []), response)
+		self.assertEqual((False, ["reject_not_holding"], ["book"], []), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_inventory_only_and_player_is_carrying(self):
@@ -243,7 +224,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "book")
 
-		self.assertEqual((False, ["You are carrying it."], ["book"], []), response)
+		self.assertEqual((False, ["reject_carrying"], ["book"], []), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_location_only_and_player_not_near(self):
@@ -253,7 +234,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "book")
 
-		self.assertEqual((False, ["It is not here."], ["book"], []), response)
+		self.assertEqual((False, ["reject_not_here"], ["book"], []), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_location_only_and_player_is_near(self):
@@ -273,7 +254,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "book")
 
-		self.assertEqual((False, ["It is not here."], ["book"], []), response)
+		self.assertEqual((False, ["reject_not_here"], ["book"], []), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_inventory_or_location_and_player_is_carrying(self):
@@ -314,7 +295,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "book", "blah")
 
-		self.assertEqual((False, ["I do not know what that is."], ["blah"], []), response)
+		self.assertEqual((False, ["reject_unknown"], ["blah"], []), response)
 		self.player.reset_current_command.assert_called_once()
 
 
@@ -325,7 +306,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "book")
 
-		self.assertEqual((False, ["What do you want to {0}{1}?"], ["insert", " book"], []), response)
+		self.assertEqual((False, ["request_addinfo"], ["insert", " book"], []), response)
 		self.player.reset_current_command.assert_not_called()
 
 
@@ -337,7 +318,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "book")
 
-		self.assertEqual((False, ["What do you want to {0}{1}?"], ["insert", " book into"], []), response)
+		self.assertEqual((False, ["request_addinfo"], ["insert", " book into"], []), response)
 		self.player.reset_current_command.assert_not_called()
 
 
@@ -349,7 +330,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "book", "to")
 
-		self.assertEqual((False, ["What do you want to {0}{1}?"], ["insert", " book to"], []), response)
+		self.assertEqual((False, ["request_addinfo"], ["insert", " book to"], []), response)
 		self.player.reset_current_command.assert_not_called()
 
 
@@ -360,7 +341,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "book", "in")
 
-		self.assertEqual((False, ["What do you want to {0}{1}?"], ["take", " book in"], []), response)
+		self.assertEqual((False, ["request_addinfo"], ["take", " book in"], []), response)
 
 
 	def test_resolve_args_multiple_missing_arg_with_link_info_three_args(self):
@@ -371,7 +352,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "salt", "box")
 
-		self.assertEqual((False, ["What do you want to {0}{1}?"], ["scoop", " salt into box using"], []), response)
+		self.assertEqual((False, ["request_addinfo"], ["scoop", " salt into box using"], []), response)
 		self.player.reset_current_command.assert_not_called()
 
 
@@ -393,7 +374,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "book", "the", "box")
 
-		self.assertEqual((False, ["I do not know what that is."], ["the"], []), response)
+		self.assertEqual((False, ["reject_unknown"], ["the"], []), response)
 		self.player.reset_current_command.assert_called_once()
 
 
@@ -415,7 +396,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_switching(command, self.player, "book")
 
-		self.assertEqual((False, ["I do not understand."], ["book"], []), response)
+		self.assertEqual((False, ["reject_no_understand_instruction"], ["book"], []), response)
 
 
 	def test_resolve_args_switching_command_switchable_item_no_next_state(self):
@@ -425,7 +406,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_switching(command, self.player, "lamp")
 
-		self.assertEqual((False, ["Use \"{0} <{1}|{2}>\"."], ["lamp", "off", "on"], []), response)
+		self.assertEqual((False, ["request_switch_item"], ["lamp", "off", "on"], []), response)
 
 
 	def test_resolve_args_switching_command_switchable_item_invalid_next_state(self):
@@ -435,7 +416,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_switching(command, self.player, "lamp", "cinnamon")
 
-		self.assertEqual((False, ["Use \"{0} <{1}|{2}>\"."], ["lamp", "off", "on"], []), response)
+		self.assertEqual((False, ["request_switch_item"], ["lamp", "off", "on"], []), response)
 
 
 	def test_resolve_args_switching_command_switchable_item_valid_next_state(self):

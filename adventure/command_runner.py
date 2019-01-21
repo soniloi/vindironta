@@ -2,25 +2,30 @@ from adventure.item import Item
 
 class CommandRunner():
 
+	def __init__(self, data):
+		self.data = data
+
+
 	def run(self, command, player, args):
-		templates = []
+		template_keys = []
 		content_args = []
 		next_args = args
 
 		for resolver_function in command.resolver_functions:
-			success, resolved_templates, current_content_args, next_args = resolver_function(command, player, *next_args)
+			success, resolved_template_keys, current_content_args, next_args = resolver_function(command, player, *next_args)
 
-			if resolved_templates:
-				templates += resolved_templates
+			if resolved_template_keys:
+				template_keys += resolved_template_keys
 				content_args += current_content_args
 
 			if not success:
 				break
 
-		return self.format_response(templates, content_args)
+		return self.format_response(template_keys, content_args)
 
 
-	def format_response(self, templates, tokens):
+	def format_response(self, template_keys, tokens):
+		templates = [self.data.get_response(template_key) for template_key in template_keys]
 		template = " ".join(templates)
 		contents = []
 

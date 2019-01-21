@@ -22,15 +22,6 @@ class TestLifeResolver(unittest.TestCase):
 		self.location = Mock()
 		self.drop_location = Mock()
 		self.book = Mock()
-		self.setup_responses()
-
-
-	def setup_responses(self):
-		self.data.get_response.side_effect = lambda x: {
-			"death_no_air" : "You have no air to breathe.",
-			"describe_dead" : "You are dead.",
-			"describe_reincarnation" : "I may be able to reincarnate you.",
-		}.get(x)
 
 
 	def setup_player(self):
@@ -45,7 +36,7 @@ class TestLifeResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_life(self.command, self.player)
 
-		self.assertEqual((False, ["You have no air to breathe.", "You are dead.", "I may be able to reincarnate you."], [], []), response)
+		self.assertEqual((False, ["death_no_air", "describe_dead", "describe_reincarnation"], [], []), response)
 		self.assertFalse(self.player.is_alive())
 		self.inventory.drop_all_items.assert_called_once_with(self.drop_location)
 		self.assertIs(self.drop_location, self.player.drop_location)
@@ -58,7 +49,7 @@ class TestLifeResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_life(self.command, self.player)
 
-		self.assertEqual((False, ["You are dead.", "I may be able to reincarnate you."], [], []), response)
+		self.assertEqual((False, ["describe_dead", "describe_reincarnation"], [], []), response)
 		self.assertFalse(self.player.is_alive())
 		self.assertIs(self.drop_location, self.player.drop_location)
 

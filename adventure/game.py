@@ -29,7 +29,7 @@ class Game:
 				json_content = json.loads(content)
 				self.init_data_and_player(json_content)
 
-				command_runner = CommandRunner()
+				command_runner = CommandRunner(self.data)
 				self.init_token_processor(self.data, command_runner)
 
 

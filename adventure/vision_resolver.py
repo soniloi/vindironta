@@ -5,10 +5,10 @@ class VisionResolver(Resolver):
 	def resolve_pre_light_and_dark(self, command, player, *args):
 
 		if player.has_light_and_needs_no_light():
-			return False, [self.get_response("reject_excess_light")], [], []
+			return False, ["reject_excess_light"], [], []
 
 		elif not player.has_light():
-			return False, [self.get_response("reject_no_light")], [], []
+			return False, ["reject_no_light"], [], []
 
 		return True, [], [], list(args)
 
@@ -16,7 +16,7 @@ class VisionResolver(Resolver):
 	def resolve_pre_dark(self, command, player, *args):
 
 		if not player.has_light():
-			return False, [self.get_response("reject_no_light")], [], []
+			return False, ["reject_no_light"], [], []
 
 		return True, [], [], list(args)
 
@@ -25,19 +25,19 @@ class VisionResolver(Resolver):
 
 		if not player.is_immune() and not player.has_light() and not previous_location.gives_light():
 			player.set_alive(False)
-			return True, [self.get_response("death_darkness")], [], []
+			return True, ["death_darkness"], [], []
 
 		if player.has_light_and_needs_no_light():
-			return True, [self.get_response("reject_excess_light")], [], []
+			return True, ["reject_excess_light"], [], []
 
 		if not player.has_light():
-			return True, [self.get_response("reject_no_light")], [], []
+			return True, ["reject_no_light"], [], []
 
-		templates = [self.get_response("confirm_look")]
+		template_keys = ["confirm_look"]
 		if player.has_non_silent_items_nearby():
-			templates.append(self.get_response("list_location"))
+			template_keys.append("list_location")
 
 		content_args = player.get_arrival_location_description()
 		player.see_location()
 
-		return True, templates, content_args, [new_location, previous_location]
+		return True, template_keys, content_args, [new_location, previous_location]
