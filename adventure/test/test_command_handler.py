@@ -69,6 +69,9 @@ class TestCommandHandler(unittest.TestCase):
 		self.cat = SentientItem(1047, 0x80003, Labels("cat", "a cat", "a black cat"), 3, None)
 		self.bread = Item(1109, 0x2002, Labels("bread", "some bread", "a loaf of bread"), 2, None)
 		self.water = Item(1110, 0x22902, Labels("water", "some water", "some water"), 1, None)
+		self.ash = Item(1112, 0x0, Labels("ash", "some ash", "some black ash"), 1, None)
+		self.paper = Item(1111, 0x100000, Labels("paper", "some paper", "some old paper"), 1, None)
+		self.paper.replacement = self.ash
 
 
 	def setup_texts(self):
@@ -86,6 +89,31 @@ class TestCommandHandler(unittest.TestCase):
 	def setup_player(self):
 		self.player = Player(9000, 0x3, self.lighthouse_location, self.default_inventory)
 		self.player.instructions = 7
+
+
+	def test_handle_burn_not_burnable(self):
+		self.item_start_location.add(self.water)
+
+		success, template_keys, content_args, next_args = self.handler.handle_burn(self.command, self.player, self.water)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_not_burnable"], template_keys)
+		self.assertEqual([self.water], content_args)
+		self.assertEqual([], next_args)
+		self.assertTrue(self.water in self.item_start_location.items.values())
+
+
+	def test_handle_burn_burnable(self):
+		self.item_start_location.insert(self.paper)
+
+		success, template_keys, content_args, next_args = self.handler.handle_burn(self.command, self.player, self.paper)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_burn"], template_keys)
+		self.assertEqual([self.paper, self.ash], content_args)
+		self.assertEqual([self.paper, self.ash], next_args)
+		self.assertFalse(self.paper in self.item_start_location.items.values())
+		self.assertTrue(self.ash in self.item_start_location.items.values())
 
 
 	def test_handle_climb(self):

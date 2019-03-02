@@ -6,6 +6,18 @@ class CommandHandler(Resolver):
 	# TODO: find a place for this
 	POINTS_PER_PUZZLE = 7
 
+	def handle_burn(self, command, player, item):
+		if not item.is_burnable():
+			return False, ["reject_not_burnable"], [item], []
+
+		replacement = item.replacement
+		container = item.get_first_container()
+		item.destroy()
+		container.insert(replacement)
+
+		return True, ["confirm_burn"], [item, replacement], [item, replacement]
+
+
 	def handle_climb(self, command, player, arg=None):
 		return False, ["reject_climb"], [], []
 
