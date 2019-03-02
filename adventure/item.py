@@ -343,10 +343,10 @@ class SwitchableItem(Item):
 
 class ReplaceableItem(Item):
 
-	def __init__(self, item_id, attributes, labels, size, writing, replacement=None, copied_from=None):
+	def __init__(self, item_id, attributes, labels, size, writing, copied_from=None):
 		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing, copied_from=copied_from)
 		ItemContainer.__init__(self)
-		self.replacement = replacement
+		self.replacement = None
 
 
 class WearableItem(Item):
