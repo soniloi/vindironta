@@ -2,7 +2,7 @@ import json
 import unittest
 
 from adventure.element import Labels
-from adventure.item import ContainerItem, SentientItem, SwitchableItem, WearableItem
+from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, ReplaceableItem, WearableItem
 from adventure.item_parser import ItemParser
 from adventure.location import Location
 
@@ -12,6 +12,7 @@ class TestItemParser(unittest.TestCase):
 		self.library_location = Location(80, 0x1, Labels("Library", "in the Library", ", a tall, bright room"))
 		self.lighthouse_location = Location(81, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
 		self.box = ContainerItem(1108, 0x3, Labels("box", "a box", "a small box"), 3, None)
+		self.ash = Item(1109, 0x0, Labels("ash", "some ash", "some black ash"), 1, None)
 		self.elements = {
 			80 : self.library_location,
 			81 : self.lighthouse_location,
@@ -403,6 +404,36 @@ class TestItemParser(unittest.TestCase):
 		self.assertTrue(isinstance(lever, SwitchableItem))
 		self.assertEqual(self.library_location, lever.switched_element)
 		self.assertEqual(0x40, lever.switched_attribute)
+
+
+	def test_init_replaceable(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1205, \
+					\"attributes\": \"100000\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"paper\" \
+						], \
+						\"longname\": \"some paper\", \
+						\"description\": \"some old paper\" \
+					}, \
+					\"replacement\": 1109\
+				} \
+			]"
+		)
+
+		collection = ItemParser().parse(item_inputs, self.elements)
+
+		self.assertEqual(1, len(collection.items_by_name))
+		paper = collection.items_by_name["paper"]
+		self.assertTrue(isinstance(paper, ReplaceableItem))
+		self.assertEqual(1109, paper.replacement)
 
 
 	def test_init_wearable(self):

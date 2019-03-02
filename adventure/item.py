@@ -19,6 +19,7 @@ class Item(NamedDataElement):
 	ATTRIBUTE_EDIBLE = 0x2000
 	ATTRIBUTE_SILENT = 0x20000
 	ATTRIBUTE_SENTIENT = 0x80000
+	ATTRIBUTE_BURNABLE = 0x100000
 
 
 	def __init__(self, item_id, attributes, labels, size, writing, copied_from=None):
@@ -160,6 +161,9 @@ class Item(NamedDataElement):
 
 	def is_sentient(self):
 		return self.has_attribute(Item.ATTRIBUTE_SENTIENT)
+
+	def is_burnable(self):
+		return self.has_attribute(Item.ATTRIBUTE_BURNABLE)
 
 
 	def get_outermost_container(self):
@@ -335,6 +339,14 @@ class SwitchableItem(Item):
 
 	def switch_toggle(self):
 		self.switched_element.toggle_attribute(self.switched_attribute)
+
+
+class ReplaceableItem(Item):
+
+	def __init__(self, item_id, attributes, labels, size, writing, replacement=None, copied_from=None):
+		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing, copied_from=copied_from)
+		ItemContainer.__init__(self)
+		self.replacement = replacement
 
 
 class WearableItem(Item):

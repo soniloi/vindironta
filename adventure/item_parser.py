@@ -1,5 +1,5 @@
 from adventure.element import Labels
-from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, WearableItem
+from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, ReplaceableItem, WearableItem
 from adventure.item_collection import ItemCollection
 
 class ItemParser:
@@ -47,6 +47,10 @@ class ItemParser:
 		if "wearing_info" in item_input:
 			wearing_info = int(item_input["wearing_info"], 16)
 
+		replacement = None
+		if "replacement" in item_input:
+			replacement = self.parse_replacement(item_input["replacement"])
+
 		item = self.init_item(
 			item_id=item_id,
 			attributes=attributes,
@@ -57,6 +61,7 @@ class ItemParser:
 			switched_element_id=switched_element_id,
 			switch_info=switch_info,
 			attribute_when_worn=wearing_info,
+			replacement=replacement,
 		)
 
 		container_ids = item_input["container_ids"]
@@ -78,8 +83,13 @@ class ItemParser:
 		return switched_element_id, SwitchInfo(attribute=switched_attribute, off=off_switch, on=on_switch)
 
 
+	def parse_replacement(self, replacement_input):
+		# TODO: resolve
+		return replacement_input
+
+
 	def init_item(self, item_id, attributes, labels, size, writing,
-		switched_element_id, switched_element_ids, switch_info, attribute_when_worn):
+		switched_element_id, switched_element_ids, switch_info, attribute_when_worn, replacement):
 
 		if bool(attributes & Item.ATTRIBUTE_SENTIENT):
 			item = SentientItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
@@ -91,6 +101,10 @@ class ItemParser:
 			item = SwitchableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
 				switch_info=switch_info)
 			switched_element_ids[item] = switched_element_id
+
+		elif bool(attributes & Item.ATTRIBUTE_BURNABLE):
+			item = ReplaceableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
+				replacement=replacement)
 
 		elif bool(attributes & Item.ATTRIBUTE_WEARABLE):
 			item = WearableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
