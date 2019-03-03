@@ -147,6 +147,10 @@ class Player(DataElement):
 		return self.location.gives_air() or self.get_inventory().gives_air()
 
 
+	def can_burn(self):
+		return self.get_inventory().allows_burning()
+
+
 	def get_current_command(self):
 		return self.current_command
 

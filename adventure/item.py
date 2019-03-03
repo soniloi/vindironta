@@ -20,6 +20,7 @@ class Item(NamedDataElement):
 	ATTRIBUTE_SILENT = 0x20000
 	ATTRIBUTE_SENTIENT = 0x80000
 	ATTRIBUTE_BURNABLE = 0x100000
+	ATTRIBUTE_ALLOWS_BURNING = 0x200000
 
 
 	def __init__(self, item_id, attributes, labels, size, writing, copied_from=None):
@@ -162,8 +163,13 @@ class Item(NamedDataElement):
 	def is_sentient(self):
 		return self.has_attribute(Item.ATTRIBUTE_SENTIENT)
 
+
 	def is_burnable(self):
 		return self.has_attribute(Item.ATTRIBUTE_BURNABLE)
+
+
+	def allows_burning(self):
+		return self.has_attribute(Item.ATTRIBUTE_ALLOWS_BURNING)
 
 
 	def get_outermost_container(self):
@@ -200,6 +206,13 @@ class ContainerItem(Item, ItemContainer):
 			return True
 
 		return ItemContainer.gives_air(self)
+
+
+	def allows_burning(self):
+		if self.has_attribute(Item.ATTRIBUTE_ALLOWS_BURNING):
+			return True
+
+		return ItemContainer.allows_burning(self)
 
 
 	def get_list_name(self, indentation=1):

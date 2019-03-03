@@ -72,6 +72,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.ash = Item(1112, 0x0, Labels("ash", "some ash", "some black ash"), 1, None)
 		self.paper = Item(1111, 0x100000, Labels("paper", "some paper", "some old paper"), 1, None)
 		self.paper.replacement = self.ash
+		self.matches = Item(1113, 0x200000, Labels("matches", "some matches", "a box of matches"), 2, None)
 
 
 	def setup_texts(self):
@@ -103,8 +104,20 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(self.water in self.item_start_location.items.values())
 
 
-	def test_handle_burn_burnable(self):
+	def test_handle_burn_burnable_no_burning_tool(self):
 		self.item_start_location.insert(self.paper)
+
+		success, template_keys, content_args, next_args = self.handler.handle_burn(self.command, self.player, self.paper)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_cannot_burn"], template_keys)
+		self.assertEqual([self.paper], content_args)
+		self.assertTrue(self.paper in self.item_start_location.items.values())
+
+
+	def test_handle_burn_burnable_with_burning_tool(self):
+		self.item_start_location.insert(self.paper)
+		self.player.get_inventory().add(self.matches)
 
 		success, template_keys, content_args, next_args = self.handler.handle_burn(self.command, self.player, self.paper)
 

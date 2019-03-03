@@ -56,6 +56,10 @@ class ItemContainer:
 		return any(item.gives_air() for item in self.items.values())
 
 
+	def allows_burning(self):
+		return any(item.allows_burning() for item in self.items.values())
+
+
 	def get_outermost_container(self):
 		return self
 

@@ -10,6 +10,9 @@ class CommandHandler(Resolver):
 		if not item.is_burnable():
 			return False, ["reject_not_burnable"], [item], []
 
+		if not player.can_burn():
+			return False, ["reject_cannot_burn"], [item], []
+
 		replacement = item.replacement
 		container = item.get_first_container()
 		item.destroy()
