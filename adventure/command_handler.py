@@ -18,7 +18,7 @@ class CommandHandler(Resolver):
 		item.destroy()
 		container.insert(replacement)
 
-		return True, ["confirm_burn"], [item, replacement], [item, replacement]
+		return True, ["confirm_burn"], [item, replacement], [item]
 
 
 	def handle_climb(self, command, player, arg=None):

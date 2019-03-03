@@ -124,7 +124,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(success)
 		self.assertEqual(["confirm_burn"], template_keys)
 		self.assertEqual([self.paper, self.ash], content_args)
-		self.assertEqual([self.paper, self.ash], next_args)
+		self.assertEqual([self.paper], next_args)
 		self.assertFalse(self.paper in self.item_start_location.items.values())
 		self.assertTrue(self.ash in self.item_start_location.items.values())
 
