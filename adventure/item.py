@@ -28,6 +28,7 @@ class Item(NamedDataElement):
 		self.size = size
 		self.writing = writing
 		self.containers = set()
+		self.replacements = {}
 		self.obstruction = bool(attributes & Item.ATTRIBUTE_OBSTRUCTION)
 		self.copied_from = copied_from
 		self.copied_to = set()
@@ -352,14 +353,6 @@ class SwitchableItem(Item):
 
 	def switch_toggle(self):
 		self.switched_element.toggle_attribute(self.switched_attribute)
-
-
-class ReplaceableItem(Item):
-
-	def __init__(self, item_id, attributes, labels, size, writing, copied_from=None):
-		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing, copied_from=copied_from)
-		ItemContainer.__init__(self)
-		self.replacements = {}
 
 
 class WearableItem(Item):

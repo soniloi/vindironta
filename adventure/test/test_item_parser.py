@@ -2,7 +2,7 @@ import json
 import unittest
 
 from adventure.element import Labels
-from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, ReplaceableItem, WearableItem
+from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, WearableItem
 from adventure.item_parser import ItemParser
 from adventure.location import Location
 
@@ -438,7 +438,6 @@ class TestItemParser(unittest.TestCase):
 
 		self.assertEqual(1, len(collection.items_by_name))
 		paper = collection.items_by_name["paper"]
-		self.assertTrue(isinstance(paper, ReplaceableItem))
 		self.assertEqual(1, len(paper.replacements))
 		self.assertEqual(self.ash, paper.replacements[6])
 

@@ -1,5 +1,5 @@
 from adventure.element import Labels
-from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, ReplaceableItem, WearableItem
+from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, WearableItem
 from adventure.item_collection import ItemCollection
 
 class ItemParser:
@@ -63,12 +63,11 @@ class ItemParser:
 			switched_element_id=switched_element_id,
 			switch_info=switch_info,
 			attribute_when_worn=wearing_info,
-			item_replacements=item_replacements,
-			all_replacements=all_replacements,
 		)
 
 		container_ids = item_input["container_ids"]
 		container_ids_by_item[item] = container_ids
+		all_replacements[item] = item_replacements
 
 		return item, shortnames
 
@@ -103,8 +102,6 @@ class ItemParser:
 			switched_element_ids,
 			switch_info,
 			attribute_when_worn,
-			item_replacements,
-			all_replacements,
 		):
 
 		if bool(attributes & Item.ATTRIBUTE_SENTIENT):
@@ -117,10 +114,6 @@ class ItemParser:
 			item = SwitchableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
 				switch_info=switch_info)
 			switched_element_ids[item] = switched_element_id
-
-		elif bool(attributes & Item.ATTRIBUTE_BURNABLE):
-			item = ReplaceableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
-			all_replacements[item] = item_replacements
 
 		elif bool(attributes & Item.ATTRIBUTE_WEARABLE):
 			item = WearableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
