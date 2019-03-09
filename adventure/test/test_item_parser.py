@@ -424,7 +424,12 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"some paper\", \
 						\"description\": \"some old paper\" \
 					}, \
-					\"replacement_id\": 1109\
+					\"replacements\": [ \
+						{ \
+							\"command_id\": 6, \
+							\"replacement_id\": 1109 \
+						} \
+					] \
 				} \
 			]"
 		)
@@ -434,7 +439,8 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(1, len(collection.items_by_name))
 		paper = collection.items_by_name["paper"]
 		self.assertTrue(isinstance(paper, ReplaceableItem))
-		self.assertEqual(self.ash, paper.replacement)
+		self.assertEqual(1, len(paper.replacements))
+		self.assertEqual(self.ash, paper.replacements[6])
 
 
 	def test_init_wearable(self):

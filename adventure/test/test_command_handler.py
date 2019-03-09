@@ -1,11 +1,12 @@
 import unittest
 from unittest.mock import Mock
 
+from adventure.command import Command
 from adventure.command_handler import CommandHandler
 from adventure.direction import Direction
 from adventure.element import Labels
 from adventure.inventory import Inventory
-from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, SwitchTransition, WearableItem
+from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, SwitchTransition, ReplaceableItem, WearableItem
 from adventure.location import Location
 from adventure.player import Player
 
@@ -16,7 +17,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.setup_player()
 
-		self.command = Mock()
+		self.command = Command(6, 0x9, 0x0, [], [""],  {}, {})
 		self.handler = CommandHandler()
 		self.handler.init_data(self.data)
 
@@ -70,8 +71,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.bread = Item(1109, 0x2002, Labels("bread", "some bread", "a loaf of bread"), 2, None)
 		self.water = Item(1110, 0x22902, Labels("water", "some water", "some water"), 1, None)
 		self.ash = Item(1112, 0x0, Labels("ash", "some ash", "some black ash"), 1, None)
-		self.paper = Item(1111, 0x100000, Labels("paper", "some paper", "some old paper"), 1, None)
-		self.paper.replacement = self.ash
+		self.paper = ReplaceableItem(1111, 0x100000, Labels("paper", "some paper", "some old paper"), 1, None)
+		self.paper.replacements[6] = self.ash
 		self.matches = Item(1113, 0x200000, Labels("matches", "some matches", "a box of matches"), 2, None)
 
 

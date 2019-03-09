@@ -13,7 +13,7 @@ class CommandHandler(Resolver):
 		if not player.can_burn():
 			return False, ["reject_cannot_burn"], [item], []
 
-		replacement = item.replacement
+		replacement = item.replacements[command.data_id]
 		container = item.get_first_container()
 		item.destroy()
 		container.insert(replacement)
