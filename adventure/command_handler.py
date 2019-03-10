@@ -13,12 +13,7 @@ class CommandHandler(Resolver):
 		if not player.can_burn():
 			return False, ["reject_cannot_burn"], [item], []
 
-		replacement = item.replacements[command.data_id]
-		container = item.get_first_container()
-		item.destroy()
-		container.insert(replacement)
-
-		return True, ["confirm_burn"], [item, replacement], [item]
+		return self.replace_item(command, item, "confirm_burn")
 
 
 	def handle_climb(self, command, player, arg=None):
@@ -342,12 +337,7 @@ class CommandHandler(Resolver):
 		if not item.is_smashable():
 			return False, ["reject_not_smashable"], [item], []
 
-		replacement = item.replacements[command.data_id]
-		container = item.get_first_container()
-		item.destroy()
-		container.insert(replacement)
-
-		return True, ["confirm_smash"], [item, replacement], [item]
+		return self.replace_item(command, item, "confirm_smash")
 
 
 	def handle_switch(self, command, player, item, transition):
@@ -429,3 +419,12 @@ class CommandHandler(Resolver):
 		player.take_item(item)
 		item.being_worn = True
 		return True, ["confirm_wearing"], [item], [item]
+
+
+	def replace_item(self, command, item, confirm_text_key):
+		replacement = item.replacements[command.data_id]
+		container = item.get_first_container()
+		item.destroy()
+		container.insert(replacement)
+
+		return True, [confirm_text_key], [item, replacement], [item]
