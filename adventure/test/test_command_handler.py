@@ -17,7 +17,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.setup_player()
 
-		self.command = Command(6, 0x9, 0x0, [], [""],  {}, {})
+		self.command = Command(0, 0x0, 0x0, [], [""],  {}, {})
 		self.handler = CommandHandler()
 		self.handler.init_data(self.data)
 
@@ -108,9 +108,10 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_burn_burnable_no_burning_tool(self):
+		burn_command = Command(6, 0x9, 0x0, [], [""],  {}, {})
 		self.item_start_location.insert(self.paper)
 
-		success, template_keys, content_args, next_args = self.handler.handle_burn(self.command, self.player, self.paper)
+		success, template_keys, content_args, next_args = self.handler.handle_burn(burn_command, self.player, self.paper)
 
 		self.assertFalse(success)
 		self.assertEqual(["reject_cannot_burn"], template_keys)
@@ -119,10 +120,11 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_burn_burnable_with_burning_tool(self):
+		burn_command = Command(6, 0x9, 0x0, [], [""],  {}, {})
 		self.item_start_location.insert(self.paper)
 		self.player.get_inventory().add(self.matches)
 
-		success, template_keys, content_args, next_args = self.handler.handle_burn(self.command, self.player, self.paper)
+		success, template_keys, content_args, next_args = self.handler.handle_burn(burn_command, self.player, self.paper)
 
 		self.assertTrue(success)
 		self.assertEqual(["confirm_burn"], template_keys)

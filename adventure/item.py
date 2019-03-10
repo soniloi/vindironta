@@ -19,10 +19,10 @@ class Item(NamedDataElement):
 	ATTRIBUTE_EDIBLE = 0x2000
 	ATTRIBUTE_SILENT = 0x20000
 	ATTRIBUTE_SENTIENT = 0x80000
-	ATTRIBUTE_BURNABLE = 0x100000
 	ATTRIBUTE_ALLOWS_BURNING = 0x200000
 
 	# TODO: find a better place for this
+	COMMAND_ID_BURN = 6
 	COMMAND_ID_SMASH = 73
 
 
@@ -169,7 +169,7 @@ class Item(NamedDataElement):
 
 
 	def is_burnable(self):
-		return self.has_attribute(Item.ATTRIBUTE_BURNABLE)
+		return Item.COMMAND_ID_BURN in self.replacements
 
 
 	def allows_burning(self):
