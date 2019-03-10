@@ -74,6 +74,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.paper = Item(1111, 0x100000, Labels("paper", "some paper", "some old paper"), 1, None)
 		self.paper.replacements[6] = self.ash
 		self.matches = Item(1113, 0x200000, Labels("matches", "some matches", "a box of matches"), 2, None)
+		self.shards = Item(1114, 0x2, Labels("shards", "some shards", "some glass shards"), 1, None)
+		self.bottle.replacements[73] = self.shards
 
 
 	def setup_texts(self):
@@ -950,6 +952,32 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual([self.lamp], next_args)
 		self.assertFalse(self.lamp in self.player.get_inventory().items.values())
 		self.assertTrue(self.lamp in self.player.location.items.values())
+
+
+	def test_handle_smash_not_smashable(self):
+		self.item_start_location.insert(self.book)
+
+		success, template_keys, content_args, next_args = self.handler.handle_smash(self.command, self.player, self.book)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_not_smashable"], template_keys)
+		self.assertEqual([self.book], content_args)
+		self.assertEqual([], next_args)
+		self.assertTrue(self.book in self.item_start_location.items.values())
+
+
+	def test_handle_smash_smashable(self):
+		smash_command = Command(73, 0x9, 0x0, [], [""],  {}, {})
+		self.item_start_location.insert(self.bottle)
+
+		success, template_keys, content_args, next_args = self.handler.handle_smash(smash_command, self.player, self.bottle)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_smash"], template_keys)
+		self.assertEqual([self.bottle, self.shards], content_args)
+		self.assertEqual([self.bottle], next_args)
+		self.assertFalse(self.bottle in self.item_start_location.items.values())
+		self.assertTrue(self.shards in self.item_start_location.items.values())
 
 
 	def test_handle_switch_off_to_off(self):

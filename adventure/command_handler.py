@@ -338,6 +338,18 @@ class CommandHandler(Resolver):
 		return self.handle_drop(command, player, item)
 
 
+	def handle_smash(self, command, player, item):
+		if not item.is_smashable():
+			return False, ["reject_not_smashable"], [item], []
+
+		replacement = item.replacements[command.data_id]
+		container = item.get_first_container()
+		item.destroy()
+		container.insert(replacement)
+
+		return True, ["confirm_smash"], [item, replacement], [item]
+
+
 	def handle_switch(self, command, player, item, transition):
 		if transition == SwitchTransition.OFF:
 			if not item.is_on():

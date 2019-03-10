@@ -22,6 +22,9 @@ class Item(NamedDataElement):
 	ATTRIBUTE_BURNABLE = 0x100000
 	ATTRIBUTE_ALLOWS_BURNING = 0x200000
 
+	# TODO: find a better place for this
+	COMMAND_ID_SMASH = 73
+
 
 	def __init__(self, item_id, attributes, labels, size, writing, copied_from=None):
 		NamedDataElement.__init__(self, data_id=item_id, attributes=attributes, labels=labels)
@@ -171,6 +174,10 @@ class Item(NamedDataElement):
 
 	def allows_burning(self):
 		return self.has_attribute(Item.ATTRIBUTE_ALLOWS_BURNING)
+
+
+	def is_smashable(self):
+		return Item.COMMAND_ID_SMASH in self.replacements
 
 
 	def get_outermost_container(self):
