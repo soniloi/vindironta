@@ -7,6 +7,7 @@ class Player(DataElement):
 	ATTRIBUTE_ALIVE = 0x2
 	ATTRIBUTE_IMMUNE = 0x4
 	ATTRIBUTE_VERBOSE = 0x8
+	ATTRIBUTE_STRONG = 0x10
 
 	def __init__(self, player_id, attributes, initial_location, default_inventory, inventories_by_location_id={}):
 		DataElement.__init__(self, data_id=player_id, attributes=attributes)
@@ -196,6 +197,14 @@ class Player(DataElement):
 
 	def set_verbose(self, verbose):
 		self.change_attribute(Player.ATTRIBUTE_VERBOSE, verbose)
+
+
+	def is_strong(self):
+		return self.has_attribute(Player.ATTRIBUTE_STRONG)
+
+
+	def set_strong(self, strong):
+		self.change_attribute(Player.ATTRIBUTE_STRONG, strong)
 
 
 	def reset_current_command(self):

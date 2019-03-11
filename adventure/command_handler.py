@@ -337,6 +337,9 @@ class CommandHandler(Resolver):
 		if not item.is_smashable():
 			return False, ["reject_not_smashable"], [item], []
 
+		if item.is_strong() and not player.is_strong():
+			return False, ["reject_not_strong"], [item], []
+
 		return self.replace_item(command, item, "confirm_smash")
 
 

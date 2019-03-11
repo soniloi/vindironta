@@ -16,6 +16,7 @@ class Item(NamedDataElement):
 	ATTRIBUTE_LIQUID_CONTAINER = 0x200
 	ATTRIBUTE_WEARABLE = 0x400
 	ATTRIBUTE_COPYABLE = 0x800
+	ATTRIBUTE_STRONG = 0x1000
 	ATTRIBUTE_EDIBLE = 0x2000
 	ATTRIBUTE_SILENT = 0x20000
 	ATTRIBUTE_SENTIENT = 0x80000
@@ -138,6 +139,10 @@ class Item(NamedDataElement):
 
 	def is_copyable(self):
 		return self.has_attribute(Item.ATTRIBUTE_COPYABLE)
+
+
+	def is_strong(self):
+		return self.has_attribute(Item.ATTRIBUTE_STRONG)
 
 
 	def gives_light(self):

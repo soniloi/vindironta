@@ -66,7 +66,9 @@ class TestCommandHandler(unittest.TestCase):
 		self.mobile_obstruction = Item(1003, 0x6, Labels("mobile_obstruction", "a mobile obstruction", "a mobile obstruction"), 5, None)
 		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None)
 		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, Item.ATTRIBUTE_GIVES_AIR)
+		self.shards = Item(1114, 0x2, Labels("shards", "some shards", "some glass shards"), 1, None)
 		self.bottle = ContainerItem(1108, 0x203, Labels("bottle", "a bottle", "a small bottle"), 3, None)
+		self.bottle.replacements[73] = self.shards
 		self.cat = SentientItem(1047, 0x80003, Labels("cat", "a cat", "a black cat"), 3, None)
 		self.bread = Item(1109, 0x2002, Labels("bread", "some bread", "a loaf of bread"), 2, None)
 		self.water = Item(1110, 0x22902, Labels("water", "some water", "some water"), 1, None)
@@ -74,8 +76,9 @@ class TestCommandHandler(unittest.TestCase):
 		self.paper = Item(1111, 0x100000, Labels("paper", "some paper", "some old paper"), 1, None)
 		self.paper.replacements[6] = self.ash
 		self.matches = Item(1113, 0x200000, Labels("matches", "some matches", "a box of matches"), 2, None)
-		self.shards = Item(1114, 0x2, Labels("shards", "some shards", "some glass shards"), 1, None)
-		self.bottle.replacements[73] = self.shards
+		self.dust = Item(1115, 0x2, Labels("dust", "some dust", "some grey dust"), 1, None)
+		self.rock = Item(1116, 0x1000, Labels("rock", "a rock", "a large rock"), 15, None)
+		self.rock.replacements[73] = self.dust
 
 
 	def setup_texts(self):
@@ -968,7 +971,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(self.book in self.item_start_location.items.values())
 
 
-	def test_handle_smash_smashable(self):
+	def test_handle_smash_smashable_not_strong_item(self):
 		smash_command = Command(73, 0x9, 0x0, [], [""],  {}, {})
 		self.item_start_location.insert(self.bottle)
 
@@ -980,6 +983,32 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual([self.bottle], next_args)
 		self.assertFalse(self.bottle in self.item_start_location.items.values())
 		self.assertTrue(self.shards in self.item_start_location.items.values())
+
+
+	def test_handle_smash_smashable_strong_item_not_strong_player(self):
+		smash_command = Command(73, 0x9, 0x0, [], [""],  {}, {})
+		self.item_start_location.insert(self.rock)
+
+		success, template_keys, content_args, next_args = self.handler.handle_smash(smash_command, self.player, self.rock)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_not_strong"], template_keys)
+		self.assertTrue(self.rock in self.item_start_location.items.values())
+
+
+	def test_handle_smash_smashable_strong_item_strong_player(self):
+		smash_command = Command(73, 0x9, 0x0, [], [""],  {}, {})
+		self.item_start_location.insert(self.rock)
+		self.player.set_strong(True)
+
+		success, template_keys, content_args, next_args = self.handler.handle_smash(smash_command, self.player, self.rock)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_smash"], template_keys)
+		self.assertEqual([self.rock, self.dust], content_args)
+		self.assertEqual([self.rock], next_args)
+		self.assertFalse(self.rock in self.item_start_location.items.values())
+		self.assertTrue(self.dust in self.item_start_location.items.values())
 
 
 	def test_handle_switch_off_to_off(self):
