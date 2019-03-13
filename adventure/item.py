@@ -49,7 +49,11 @@ class Item(NamedDataElement):
 			copied_from=self,
 		)
 		self.copied_to.add(item_copy)
+
+		for command_id, replacement in self.replacements.items():
+			item_copy.replacements[command_id] = replacement
 		item_copy.related_command = self.related_command
+
 		return item_copy
 
 

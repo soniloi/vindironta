@@ -27,6 +27,9 @@ class TestItem(unittest.TestCase):
 		self.mine_location = Location(11, 0x0, Labels("Mines", "in the mines", ". There are dark passages everywhere."))
 		self.inventory = Inventory(0, 0x1, Labels("Main Inventory", "in the main inventory", ", where items live usually."), 100)
 
+		self.steam = Item(1117, 0x2, Labels("steam", "some steam", "some hot steam"), 1, None)
+		self.water.replacements[98] = self.steam
+
 		self.command = Command(17, 0x0, 0x0, [], [""],  {}, {})
 		self.water.related_command = self.command
 
@@ -35,6 +38,7 @@ class TestItem(unittest.TestCase):
 		water_copy = copy(self.water)
 		self.assertEqual(self.water.data_id, water_copy.data_id)
 		self.assertFalse(water_copy.is_copyable())
+		self.assertIs(self.steam, water_copy.replacements[98])
 		self.assertIs(self.command, water_copy.related_command)
 		self.assertIs(self.water, water_copy.copied_from)
 		self.assertTrue(water_copy in self.water.copied_to)
