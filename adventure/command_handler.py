@@ -113,6 +113,10 @@ class CommandHandler(Resolver):
 		return True, ["confirm_feed"], content_args, [proposed_gift, proposed_recipient]
 
 
+	def handle_free(self, command, player, item):
+		return self.handle_drop(command, player, item)
+
+
 	def handle_give(self, command, player, proposed_gift, proposed_recipient):
 		content_args = [proposed_gift, proposed_recipient]
 

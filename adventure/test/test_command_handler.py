@@ -418,6 +418,19 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual([self.bread, self.cat], next_args)
 
 
+	def test_handle_free(self):
+		self.player.get_inventory().add(self.lamp)
+
+		success, template_keys, content_args, next_args = self.handler.handle_free(self.command, self.player, self.lamp)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_dropped"], template_keys)
+		self.assertEqual([self.lamp], content_args)
+		self.assertEqual([self.lamp], next_args)
+		self.assertFalse(self.lamp in self.default_inventory.items.values())
+		self.assertTrue(self.lamp in self.player.location.items.values())
+
+
 	def test_handle_give_non_sentient_recipient(self):
 		self.player.get_inventory().add(self.book)
 
