@@ -1,6 +1,7 @@
 from copy import copy
 import unittest
 
+from adventure.command import Command
 from adventure.element import Labels
 from adventure.inventory import Inventory
 from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, WearableItem
@@ -26,11 +27,15 @@ class TestItem(unittest.TestCase):
 		self.mine_location = Location(11, 0x0, Labels("Mines", "in the mines", ". There are dark passages everywhere."))
 		self.inventory = Inventory(0, 0x1, Labels("Main Inventory", "in the main inventory", ", where items live usually."), 100)
 
+		self.command = Command(17, 0x0, 0x0, [], [""],  {}, {})
+		self.water.related_command = self.command
+
 
 	def test_copy(self):
 		water_copy = copy(self.water)
 		self.assertEqual(self.water.data_id, water_copy.data_id)
 		self.assertFalse(water_copy.is_copyable())
+		self.assertIs(self.command, water_copy.related_command)
 		self.assertIs(self.water, water_copy.copied_from)
 		self.assertTrue(water_copy in self.water.copied_to)
 
