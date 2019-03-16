@@ -49,7 +49,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.items_by_name))
 		self.assertTrue("book" in collection.items_by_name)
@@ -64,6 +64,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual("The Pied Piper of Hamelin", book.writing)
 		self.assertFalse(isinstance(book, ContainerItem))
 		self.assertEqual(book, self.library_location.get_by_id(book.data_id))
+		self.assertEqual(0, len(related_commands))
 
 
 	def test_init_different_items(self):
@@ -109,12 +110,13 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(2, len(collection.items_by_name))
 		book = collection.items_by_name["book"]
 		lamp = collection.items_by_name["lamp"]
 		self.assertIsNot(book, lamp)
+		self.assertEqual(0, len(related_commands))
 
 
 	def test_init_aliased_item(self):
@@ -139,12 +141,13 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(2, len(collection.items_by_name))
 		kohlrabi = collection.items_by_name["kohlrabi"]
 		cabbage = collection.items_by_name["cabbage"]
 		self.assertIs(kohlrabi, cabbage)
+		self.assertEqual(0, len(related_commands))
 
 
 
@@ -175,11 +178,12 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.items_by_name))
 		lamp = collection.items_by_name["lamp"]
 		self.assertFalse(lamp.containers)
+		self.assertEqual(0, len(related_commands))
 
 
 	def test_init_item_with_multiple_containers(self):
@@ -204,7 +208,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.items_by_name))
 		self.assertTrue("water" in collection.items_by_name)
@@ -212,6 +216,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(2, len(water.containers))
 		self.assertTrue(self.library_location in water.containers)
 		self.assertTrue(self.lighthouse_location in water.containers)
+		self.assertEqual(0, len(related_commands))
 
 
 	def test_init_container_item(self):
@@ -235,12 +240,13 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.items_by_name))
 		self.assertTrue("basket" in collection.items_by_name)
 		basket = collection.items_by_name["basket"]
 		self.assertTrue(isinstance(basket, ContainerItem))
+		self.assertEqual(0, len(related_commands))
 
 
 	def test_init_sentient_item(self):
@@ -264,12 +270,13 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.items_by_name))
 		self.assertTrue("cat" in collection.items_by_name)
 		cat = collection.items_by_name["cat"]
 		self.assertTrue(isinstance(cat, SentientItem))
+		self.assertEqual(0, len(related_commands))
 
 
 	def test_init_item_with_item_container(self):
@@ -294,12 +301,13 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		book = collection.items_by_name["book"]
 		self.assertEqual(1, len(book.containers))
 		self.assertTrue(self.box in book.containers)
 		self.assertEqual(book, self.box.get_by_id(book.data_id))
+		self.assertEqual(0, len(related_commands))
 
 
 	def test_init_switchable_switching_self(self):
@@ -329,7 +337,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.items_by_name))
 		lamp = collection.items_by_name["lamp"]
@@ -339,6 +347,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(2, len(lamp.state_to_text))
 		self.assertEqual("off", lamp.state_to_text[False])
 		self.assertEqual("on", lamp.state_to_text[True])
+		self.assertEqual(0, len(related_commands))
 
 
 	def test_init_switchable_switching_other_item(self):
@@ -368,13 +377,14 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.items_by_name))
 		button = collection.items_by_name["button"]
 		self.assertTrue(isinstance(button, SwitchableItem))
 		self.assertEqual(self.box, button.switched_element)
 		self.assertEqual(0x20, button.switched_attribute)
+		self.assertEqual(0, len(related_commands))
 
 
 	def test_init_switchable_switching_other_location(self):
@@ -404,13 +414,14 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.items_by_name))
 		lever = collection.items_by_name["lever"]
 		self.assertTrue(isinstance(lever, SwitchableItem))
 		self.assertEqual(self.library_location, lever.switched_element)
 		self.assertEqual(0x40, lever.switched_attribute)
+		self.assertEqual(0, len(related_commands))
 
 
 	def test_init_replaceable(self):
@@ -440,12 +451,13 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.items_by_name))
 		paper = collection.items_by_name["paper"]
 		self.assertEqual(1, len(paper.replacements))
 		self.assertEqual(self.ash, paper.replacements[6])
+		self.assertEqual(0, len(related_commands))
 
 
 	def test_init_wearable(self):
@@ -470,12 +482,13 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.items_by_name))
 		suit = collection.items_by_name["suit"]
 		self.assertTrue(isinstance(suit, WearableItem))
 		self.assertEqual(0x20, suit.attribute_activated)
+		self.assertEqual(0, len(related_commands))
 
 
 	def test_init_item_with_related_command(self):
@@ -500,12 +513,13 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.items_by_name))
 		self.assertTrue("water" in collection.items_by_name)
 		water = collection.items_by_name["water"]
-		self.assertEqual(self.command, water.related_command)
+		self.assertEqual(1, len(related_commands))
+		self.assertEqual(self.command, related_commands["water"])
 
 
 if __name__ == "__main__":

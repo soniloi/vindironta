@@ -1,12 +1,13 @@
 class DataCollection:
 
-	def __init__(self, commands, inventories, locations, elements_by_id, items, hints, explanations, responses,
-			inputs, events):
+	def __init__(self, commands, inventories, locations, elements_by_id, items, item_related_commands, hints, explanations,
+			responses, inputs, events):
 		self.commands = commands
 		self.inventories = inventories
 		self.locations = locations
 		self.elements_by_id = elements_by_id
 		self.items = items
+		self.item_related_commands = item_related_commands
 		self.hints = hints
 		self.explanations = explanations
 		self.responses = responses

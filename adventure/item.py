@@ -33,7 +33,6 @@ class Item(NamedDataElement):
 		self.writing = writing
 		self.containers = set()
 		self.replacements = {}
-		self.related_command = None
 		self.obstruction = bool(attributes & Item.ATTRIBUTE_OBSTRUCTION)
 		self.copied_from = copied_from
 		self.copied_to = set()
@@ -52,7 +51,6 @@ class Item(NamedDataElement):
 
 		for command_id, replacement in self.replacements.items():
 			item_copy.replacements[command_id] = replacement
-		item_copy.related_command = self.related_command
 
 		return item_copy
 

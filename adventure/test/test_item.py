@@ -30,16 +30,12 @@ class TestItem(unittest.TestCase):
 		self.steam = Item(1117, 0x2, Labels("steam", "some steam", "some hot steam"), 1, None)
 		self.water.replacements[98] = self.steam
 
-		self.command = Command(17, 0x0, 0x0, [], [""],  {}, {})
-		self.water.related_command = self.command
-
 
 	def test_copy(self):
 		water_copy = copy(self.water)
 		self.assertEqual(self.water.data_id, water_copy.data_id)
 		self.assertFalse(water_copy.is_copyable())
 		self.assertIs(self.steam, water_copy.replacements[98])
-		self.assertIs(self.command, water_copy.related_command)
 		self.assertIs(self.water, water_copy.copied_from)
 		self.assertTrue(water_copy in self.water.copied_to)
 

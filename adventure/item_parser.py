@@ -8,35 +8,39 @@ class ItemParser:
 		container_ids_by_item = {}
 		switched_element_ids = {}
 		replacements = {}
-		related_command_ids = {}
-		items_by_name, items_by_id = self.parse_items(item_inputs, container_ids_by_item, elements_by_id,
-			switched_element_ids, replacements, related_command_ids)
+		items_by_name, items_by_id, related_commands = self.parse_items(item_inputs, container_ids_by_item, elements_by_id,
+			commands_by_id, switched_element_ids, replacements)
 
 		self.place_items(container_ids_by_item, elements_by_id)
 		self.resolve_switches(switched_element_ids, elements_by_id)
 		self.resolve_replacements(replacements, elements_by_id)
-		self.resolve_related_commands(related_command_ids, commands_by_id)
 
-		return ItemCollection(items_by_name, items_by_id)
+		return ItemCollection(items_by_name, items_by_id), related_commands
 
 
-	def parse_items(self, item_inputs, container_ids_by_item, elements_by_id, switched_element_ids, replacements, related_command_ids):
+	def parse_items(self, item_inputs, container_ids_by_item, elements_by_id, commands_by_id, switched_element_ids,
+			replacements):
 		items_by_name = {}
 		items_by_id = {}
+		related_commands = {}
 
 		for item_input in item_inputs:
-			item, shortnames = self.parse_item(item_input, container_ids_by_item, switched_element_ids, replacements, related_command_ids)
+			item, shortnames, related_command_id = self.parse_item(
+				item_input, container_ids_by_item, switched_element_ids, replacements)
 			items_by_id[item.data_id] = item
 			elements_by_id[item.data_id] = item
 
 			for shortname in shortnames:
 				items_by_name[shortname] = item
 
+			if related_command_id:
+				for shortname in shortnames:
+					related_commands[shortname] = commands_by_id.get(related_command_id)
 
-		return items_by_name, items_by_id
+		return items_by_name, items_by_id, related_commands
 
 
-	def parse_item(self, item_input, container_ids_by_item, switched_element_ids, all_replacements, related_command_ids):
+	def parse_item(self, item_input, container_ids_by_item, switched_element_ids, all_replacements):
 		item_id = item_input["data_id"]
 		attributes = int(item_input["attributes"], 16)
 		labels, shortnames = self.parse_labels(item_input["labels"])
@@ -73,10 +77,8 @@ class ItemParser:
 		container_ids = item_input["container_ids"]
 		container_ids_by_item[item] = container_ids
 		all_replacements[item] = item_replacements
-		if related_command_id:
-			related_command_ids[item] = related_command_id
 
-		return item, shortnames
+		return item, shortnames, related_command_id
 
 
 	def parse_labels(self, label_input):
@@ -151,8 +153,3 @@ class ItemParser:
 			for command_id, replacement_id in replacement_ids.items():
 				replacement = elements_by_id.get(replacement_id)
 				replaced_item.replacements[command_id] = replacement
-
-
-	def resolve_related_commands(self, related_command_ids, commands_by_id):
-		for item, related_command_id in related_command_ids.items():
-			item.related_command = commands_by_id.get(related_command_id)

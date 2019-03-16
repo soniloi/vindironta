@@ -16,7 +16,7 @@ class DataParser:
 		locations = LocationParser().parse(content_input["locations"])
 		elements_by_id = locations.locations.copy()
 		commands_by_id = commands.commands_by_id.copy()
-		items = ItemParser().parse(content_input["items"], elements_by_id, commands_by_id)
+		items, related_commands = ItemParser().parse(content_input["items"], elements_by_id, commands_by_id)
 		hints = TextParser().parse(content_input["hints"])
 		explanations = TextParser().parse(content_input["explanations"])
 		responses = TextParser().parse(content_input["responses"])
@@ -34,6 +34,7 @@ class DataParser:
 			locations=locations,
 			elements_by_id=elements_by_id,
 			items=items,
+			item_related_commands=related_commands,
 			hints=hints,
 			explanations=explanations,
 			responses=responses,
