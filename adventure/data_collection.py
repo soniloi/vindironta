@@ -23,6 +23,10 @@ class DataCollection:
 		return self.commands.list_commands()
 
 
+	def get_item_related_commands(self):
+		return self.item_related_commands
+
+
 	def get_element_by_id(self, data_id):
 		return self.elements_by_id.get(data_id)
 

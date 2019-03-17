@@ -5,6 +5,7 @@ class TokenProcessor:
 	def __init__(self, data, command_runner):
 		self.data = data
 		self.commands = data.get_commands()
+		self.item_related_commands = data.get_item_related_commands()
 		self.command_runner = command_runner
 
 
@@ -34,13 +35,18 @@ class TokenProcessor:
 				command_args = tokens[1:]
 			player.increment_instructions()
 
+		if not command:
+			command = self.item_related_commands.get(tokens[0])
+
 		# TODO: deprecate this in favour of nouns-as-verbs
 		if not command:
 			command = self.commands.get_by_name("switch")
 
 		if not command:
 			return ""
+
 		return self.command_runner.run(command, player, command_args)
+
 
 	def get_command_from_input(self, tokens):
 		return self.commands.get_by_name(tokens[0])

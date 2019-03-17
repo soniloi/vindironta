@@ -19,6 +19,7 @@ class TestTokenProcessor(unittest.TestCase):
 	def setup_data(self):
 		self.data = Mock()
 		self.setup_commands()
+		self.setup_item_related_commands()
 		self.setup_inventories()
 		self.setup_locations()
 		self.data.matches_input.side_effect = self.matches_input_side_effect
@@ -34,9 +35,6 @@ class TestTokenProcessor(unittest.TestCase):
 		self.take_command = Mock()
 		self.take_command.verb_is_first_arg.return_value = False
 
-		self.pour_command = Mock()
-		self.pour_command.verb_is_first_arg.return_value = True
-
 		self.switch_command = Mock()
 		self.switch_command.verb_is_first_arg.return_value = False
 
@@ -46,10 +44,21 @@ class TestTokenProcessor(unittest.TestCase):
 			"look" : self.look_command,
 			"switch" : self.switch_command,
 			"take" : self.take_command,
-			"water" : self.pour_command,
 		}.get(x)
 
 		self.data.get_commands.return_value = self.commands
+
+
+	def setup_item_related_commands(self):
+		self.pour_command = Mock()
+		self.pour_command.verb_is_first_arg.return_value = True
+
+		self.item_related_commands = Mock()
+		self.item_related_commands.get.side_effect = lambda x: {
+			"water" : self.pour_command,
+		}.get(x)
+
+		self.data.get_item_related_commands.return_value = self.item_related_commands
 
 
 	def setup_inventories(self):
@@ -94,7 +103,7 @@ class TestTokenProcessor(unittest.TestCase):
 		return False
 
 
-	def test_process_tokens_command_unknown(self):
+	def test_process_tokens_unknown(self):
 		self.player.get_current_command.return_value = None
 		self.command_runner.run.return_value = "Done."
 
@@ -127,7 +136,7 @@ class TestTokenProcessor(unittest.TestCase):
 		self.command_runner.run.assert_called_once_with(self.take_command, self.player, ["lamp"])
 
 
-	def test_process_tokens_command_known_noun_as_verb(self):
+	def test_process_tokens_item_related_command_known(self):
 		self.player.get_current_command.return_value = None
 		self.command_runner.run.return_value = "Done."
 
