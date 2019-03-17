@@ -3,7 +3,7 @@ from adventure.event import Event, EventMatch, EventMatchArgument, EventMatchArg
 from adventure.event import EventMatchPrerequisiteKind, ItemEventMatchPrerequisite, ItemEventMatchPrerequisiteContainer, ItemEventMatchPrerequisiteContainerKind
 from adventure.event import LocationEventMatchPrerequisite, EventEventMatchPrerequisite
 from adventure.event import EventOutcome, EventOutcomeActionKind, PlayerEventOutcomeAction, ItemEventOutcomeAction
-from adventure.event import LocationEventOutcomeAction, LinkEventOutcomeAction
+from adventure.event import LocationEventOutcomeAction, LinkEventOutcomeAction, DescriptionEventOutcomeAction
 from adventure.event import ItemEventOutcomeActionDestination, ItemEventOutcomeActionDestinationKind
 from adventure.event_collection import EventCollection
 
@@ -155,6 +155,17 @@ class EventParser:
 					destination = locations_by_id[destination_id]
 
 				action = LinkEventOutcomeAction(kind=kind, source=source, direction=direction, destination=destination)
+				actions.append(action)
+
+			elif kind == EventOutcomeActionKind.DESCRIPTION:
+				data_id = event_outcome_action_input["data_id"]
+				named_data_element = locations_by_id.get(data_id)
+				if not named_data_element:
+					named_data_element = items_by_id.get(data_id)
+
+				extended_description_index = event_outcome_action_input["extended_description_index"]
+
+				action = DescriptionEventOutcomeAction(kind=kind, named_data_element=named_data_element, extended_description_index=extended_description_index)
 				actions.append(action)
 
 		return actions

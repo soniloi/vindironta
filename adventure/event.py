@@ -104,6 +104,7 @@ class EventOutcomeActionKind(Enum):
 	ITEM = 1
 	LOCATION = 2
 	LINK = 3
+	DESCRIPTION = 4
 
 
 class PlayerEventOutcomeAction:
@@ -153,3 +154,11 @@ class LinkEventOutcomeAction:
 		self.source = source
 		self.direction = direction
 		self.destination = destination
+
+
+class DescriptionEventOutcomeAction:
+
+	def __init__(self, kind, named_data_element, extended_description_index):
+		self.kind = kind
+		self.named_data_element = named_data_element
+		self.extended_description_index = extended_description_index
