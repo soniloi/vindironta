@@ -38,10 +38,6 @@ class TokenProcessor:
 		if not command:
 			command = self.item_related_commands.get(tokens[0])
 
-		# TODO: deprecate this in favour of nouns-as-verbs
-		if not command:
-			command = self.commands.get_by_name("switch")
-
 		if not command:
 			return ""
 

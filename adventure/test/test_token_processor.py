@@ -109,8 +109,8 @@ class TestTokenProcessor(unittest.TestCase):
 
 		response = self.processor.process_tokens(self.player, ["notacommand"])
 
-		self.assertEqual("Done.", response)
-		self.command_runner.run.assert_called_once_with(self.switch_command, self.player, ["notacommand"])
+		self.assertEqual("", response)
+		self.command_runner.run.assert_not_called()
 		self.player.increment_instructions.assert_called_once()
 
 
