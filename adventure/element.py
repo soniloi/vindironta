@@ -45,3 +45,14 @@ class NamedDataElement(DataElement):
 		self.longname = labels.longname
 		self.description = labels.description
 		self.extended_descriptions = labels.extended_descriptions
+		self.extended_description_index = 0
+
+
+	def get_description(self):
+		return self.description + self.get_extended_description()
+
+
+	def get_extended_description(self):
+		return self.extended_descriptions[self.extended_description_index] \
+			if self.extended_description_index < len(self.extended_descriptions) \
+			else ""

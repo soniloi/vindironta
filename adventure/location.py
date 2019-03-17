@@ -34,7 +34,7 @@ class Location(NamedDataElement, ItemContainer):
 
 
 	def get_description(self):
-		return self.longname + self.description
+		return self.longname + NamedDataElement.get_description(self)
 
 
 	def get_contents_description(self):

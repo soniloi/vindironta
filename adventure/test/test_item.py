@@ -19,11 +19,11 @@ class TestItem(unittest.TestCase):
 		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None)
 		self.box = ContainerItem(1108, 0x3, Labels("box", "a box", "a small box"), 3, None)
 		self.lamp = SwitchableItem(1043, 0x100A, Labels("lamp", "a lamp", "a small lamp"), 2, None, lamp_switching_info)
-		self.button = SwitchableItem(1044, 0x8, Labels("button", "a button", "a red button"), 2, None, button_switching_info)
+		self.button = SwitchableItem(1044, 0x8, Labels("button", "a button", "a red button", [". It is dark", ". It is glowing"]), 2, None, button_switching_info)
 		self.lever = SwitchableItem(1045, 0x8, Labels("lever", "a lever", "a mysterious lever"), 2, None, lever_switching_info)
 		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, Item.ATTRIBUTE_GIVES_AIR)
 		self.cat = SentientItem(1047, 0x80002, Labels("cat", "a cat", "a black cat"), 3, None)
-		self.water = Item(1109, 0x22902, Labels("water", "some water", "some water"), 1, None)
+		self.water = Item(1109, 0x22902, Labels("water", "some water", "some water", [". It is cold", ". It is hot"]), 1, None)
 		self.mine_location = Location(11, 0x0, Labels("Mines", "in the mines", ". There are dark passages everywhere."))
 		self.inventory = Inventory(0, 0x1, Labels("Main Inventory", "in the main inventory", ", where items live usually."), 100)
 
@@ -34,6 +34,10 @@ class TestItem(unittest.TestCase):
 	def test_copy(self):
 		water_copy = copy(self.water)
 		self.assertEqual(self.water.data_id, water_copy.data_id)
+		self.assertEqual(self.water.shortname, water_copy.shortname)
+		self.assertEqual(self.water.longname, water_copy.longname)
+		self.assertEqual(self.water.description, water_copy.description)
+		self.assertEqual(self.water.extended_descriptions, water_copy.extended_descriptions)
 		self.assertFalse(water_copy.is_copyable())
 		self.assertIs(self.steam, water_copy.replacements[98])
 		self.assertIs(self.water, water_copy.copied_from)
@@ -63,6 +67,14 @@ class TestItem(unittest.TestCase):
 
 	def test_get_list_name_simple_indented(self):
 		self.assertEqual("\n\t\t\ta book", self.book.get_list_name(3))
+
+
+	def test_get_full_description_without_extended_descriptions(self):
+		self.assertEqual(["a book of fairytales"], self.book.get_full_description())
+
+
+	def test_get_full_description_with_extended_descriptions(self):
+		self.assertEqual(["some water. It is cold"], self.water.get_full_description())
 
 
 	def test_get_non_silent_list_name_simple_silent_item(self):
@@ -220,6 +232,20 @@ class TestItem(unittest.TestCase):
 		self.lever.switch_on()
 
 		self.assertEqual("\n\ta lever (up)", self.lever.get_list_name())
+
+
+	def test_get_full_description_switchable_without_extended_descriptions(self):
+		self.lamp.switched_element = self.lamp
+		self.lamp.switch_off()
+
+		self.assertEqual(["a small lamp", "off"], self.lamp.get_full_description())
+
+
+	def test_get_full_description_switchable_with_extended_descriptions(self):
+		self.button.switched_element = self.lamp
+		self.button.switch_off()
+
+		self.assertEqual(["a red button. It is dark", "up"], self.button.get_full_description())
 
 
 	def test_has_attribute_wearable_not_being_worn(self):
