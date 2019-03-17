@@ -42,7 +42,7 @@ class Item(NamedDataElement):
 		item_copy = type(self)(
 			item_id=self.data_id,
 			attributes=(self.attributes & ~Item.ATTRIBUTE_COPYABLE),
-			labels=Labels(self.shortname, self.longname, self.description),
+			labels=Labels(self.shortname, self.longname, self.description, self.extended_descriptions),
 			size=self.size,
 			writing=self.writing,
 			copied_from=self,

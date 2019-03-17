@@ -1,6 +1,11 @@
-from collections import namedtuple
+class Labels:
 
-Labels = namedtuple("Labels", "shortname longname description")
+	def __init__(self, shortname, longname, description, extended_descriptions=[]):
+		self.shortname = shortname
+		self.longname = longname
+		self.description = description
+		self.extended_descriptions = extended_descriptions
+
 
 class Element:
 
@@ -39,3 +44,4 @@ class NamedDataElement(DataElement):
 		self.shortname = labels.shortname
 		self.longname = labels.longname
 		self.description = labels.description
+		self.extended_descriptions = labels.extended_descriptions

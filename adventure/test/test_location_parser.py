@@ -37,7 +37,11 @@ class TestLocationParser(unittest.TestCase):
 					\"labels\": { \
 						\"shortname\": \"Ward\", \
 						\"longname\": \"in a medical ward\", \
-						\"description\": \". The faint electric light is flickering on and off\" \
+						\"description\": \". The faint electric light is flickering on and off\", \
+						\"extended_descriptions\": [ \
+							\". There is no way out of this room\", \
+							\". There is a hole in the wall that you can escape through\" \
+						] \
 					} \
 				} \
 			]"
@@ -54,6 +58,8 @@ class TestLocationParser(unittest.TestCase):
 		self.assertEqual("Ward", ward_location.shortname)
 		self.assertEqual("in a medical ward", ward_location.longname)
 		self.assertEqual(". The faint electric light is flickering on and off", ward_location.description)
+		self.assertEqual(2, len(ward_location.extended_descriptions))
+		self.assertEqual([". There is no way out of this room", ". There is a hole in the wall that you can escape through"], ward_location.extended_descriptions)
 
 		infirmary_location = collection.locations[7]
 		self.assertIsNot(ward_location, infirmary_location)

@@ -42,7 +42,10 @@ class TestItemParser(unittest.TestCase):
 							\"book\" \
 						], \
 						\"longname\": \"a book\", \
-						\"description\": \"a book of fairytales in English. It is open on a particular page\" \
+						\"description\": \"a book of fairytales in English\", \
+						\"extended_descriptions\": [ \
+							\". It is open on a particular page\" \
+						] \
 					}, \
 					\"writing\": \"The Pied Piper of Hamelin\" \
 				} \
@@ -60,7 +63,8 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(2, book.size)
 		self.assertEqual("book", book.shortname)
 		self.assertEqual("a book", book.longname)
-		self.assertEqual("a book of fairytales in English. It is open on a particular page", book.description)
+		self.assertEqual("a book of fairytales in English", book.description)
+		self.assertEqual([". It is open on a particular page"], book.extended_descriptions)
 		self.assertEqual("The Pied Piper of Hamelin", book.writing)
 		self.assertFalse(isinstance(book, ContainerItem))
 		self.assertEqual(book, self.library_location.get_by_id(book.data_id))

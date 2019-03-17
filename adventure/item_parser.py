@@ -83,7 +83,8 @@ class ItemParser:
 
 	def parse_labels(self, label_input):
 		shortnames = label_input["shortnames"]
-		return Labels(shortnames[0], label_input["longname"], label_input["description"]), shortnames
+		extended_descriptions = label_input.get("extended_descriptions", [])
+		return Labels(shortnames[0], label_input["longname"], label_input["description"], extended_descriptions), shortnames
 
 
 	def parse_switch_info(self, switch_info_input):

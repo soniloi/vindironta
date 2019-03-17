@@ -35,7 +35,8 @@ class LocationParser:
 
 
 	def parse_labels(self, label_input):
-		return Labels(label_input["shortname"], label_input["longname"], label_input["description"])
+		extended_descriptions = label_input.get("extended_descriptions", [])
+		return Labels(label_input["shortname"], label_input["longname"], label_input["description"], extended_descriptions)
 
 
 	def parse_links(self, direction_inputs):

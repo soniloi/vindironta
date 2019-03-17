@@ -30,6 +30,10 @@ class TestInventoryParser(unittest.TestCase):
 		self.assertEqual(1, len(collection.inventories))
 		self.assertTrue(0 in collection.inventories)
 		inventory = collection.inventories[0]
+		self.assertEqual("Main Inventory", inventory.shortname)
+		self.assertEqual("in the main unventory", inventory.longname)
+		self.assertEqual(", where items live usually.", inventory.description)
+		self.assertEqual([], inventory.extended_descriptions)
 		self.assertEqual(13, inventory.capacity)
 		self.assertFalse(inventory.location_ids)
 
@@ -43,7 +47,10 @@ class TestInventoryParser(unittest.TestCase):
 					\"labels\": { \
 						\"shortname\": \"Special Inventory\", \
 						\"longname\": \"in the special unventory\", \
-						\"description\": \", where items live sometimes.\" \
+						\"description\": \", where items live sometimes.\", \
+						\"extended_descriptions\": [ \
+							\". This is unusual\" \
+						] \
 					}, \
 					\"capacity\": 17, \
 					\"locations\": [ \
@@ -60,6 +67,10 @@ class TestInventoryParser(unittest.TestCase):
 		self.assertEqual(1, len(collection.inventories))
 		self.assertTrue(1 in collection.inventories)
 		inventory = collection.inventories[1]
+		self.assertEqual("Special Inventory", inventory.shortname)
+		self.assertEqual("in the special unventory", inventory.longname)
+		self.assertEqual(", where items live sometimes.", inventory.description)
+		self.assertEqual([". This is unusual"], inventory.extended_descriptions)
 		self.assertEqual(17, inventory.capacity)
 		self.assertEqual(3, len(inventory.location_ids))
 		self.assertTrue(4 in inventory.location_ids)

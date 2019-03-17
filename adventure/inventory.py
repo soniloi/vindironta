@@ -13,7 +13,7 @@ class Inventory(NamedDataElement, ItemContainer):
 
 
 	def __copy__(self):
-		labels = Labels(self.shortname, self.longname, self.description)
+		labels = Labels(self.shortname, self.longname, self.description, self.extended_descriptions)
 		return Inventory(self.data_id, self.attributes, labels, self.capacity, self.location_ids)
 
 
