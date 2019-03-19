@@ -6,7 +6,7 @@ from adventure.command import Command
 from adventure.direction import Direction
 from adventure.element import Labels
 from adventure.event import Event, EventMatch, EventOutcome, EventOutcomeActionKind, PlayerEventOutcomeAction, ItemEventOutcomeAction
-from adventure.event import LocationEventOutcomeAction, LinkEventOutcomeAction
+from adventure.event import LocationEventOutcomeAction, LinkEventOutcomeAction, DescriptionEventOutcomeAction
 from adventure.event import EventMatchPrerequisiteKind, ItemEventMatchPrerequisite, ItemEventMatchPrerequisiteContainer, ItemEventMatchPrerequisiteContainerKind
 from adventure.event import LocationEventMatchPrerequisite, EventEventMatchPrerequisite
 from adventure.event import ItemEventOutcomeActionDestination, ItemEventOutcomeActionDestinationKind
@@ -531,6 +531,19 @@ class TestEventResolver(unittest.TestCase):
 
 		self.assertEqual((True, ["event_response_key"], [self.wand], [self.wand]), response)
 		self.assertFalse(Direction.EAST in self.lighthouse_location.directions)
+
+
+	def test_resolve_event_with_description_outcome_action(self):
+		wave_wand_event_match = EventMatch(command=self.wave_command, arguments=[self.wand], prerequisites=[])
+		action = DescriptionEventOutcomeAction(kind=EventOutcomeActionKind.DESCRIPTION, named_data_element=self.lighthouse_location, extended_description_index=1)
+		wave_wand_event_outcome = EventOutcome(text_key="event_response_key", actions=[action])
+		wave_wand_event = Event(event_id=3004, attributes=0x4, match=wave_wand_event_match, outcome=wave_wand_event_outcome)
+		self.data.get_events.side_effect = lambda x: {(self.wave_command, self.wand): [wave_wand_event],}.get(x)
+
+		response = self.resolver.resolve_event(self.wave_command, self.player, self.wand)
+
+		self.assertEqual((True, ["event_response_key"], [self.wand], [self.wand]), response)
+		self.assertEqual(1, self.lighthouse_location.extended_description_index)
 
 
 if __name__ == "__main__":

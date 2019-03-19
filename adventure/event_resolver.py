@@ -93,6 +93,8 @@ class EventResolver(Resolver):
 				self.handle_location_outcome_action(player, action)
 			elif action.kind == EventOutcomeActionKind.LINK:
 				self.handle_link_outcome_action(player, action)
+			elif action.kind == EventOutcomeActionKind.DESCRIPTION:
+				self.handle_description_outcome_action(player, action)
 
 
 	def handle_player_outcome_action(self, player, action):
@@ -147,6 +149,10 @@ class EventResolver(Resolver):
 			source.directions[direction] = destination
 		else:
 			source.directions.pop(direction, None)
+
+
+	def handle_description_outcome_action(self, player, action):
+		action.named_data_element.extended_description_index = action.extended_description_index
 
 
 	def update_player_outcomes(self, player, event):
