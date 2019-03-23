@@ -417,6 +417,36 @@ class CommandHandler(Resolver):
 		return True, [], [], [destination, source]
 
 
+	def handle_throw(self, command, player, item):
+		content_args = [item]
+		next_args = [item]
+
+		if item.is_liquid():
+			return False, ["reject_throw_liquid"], content_args, []
+
+		dropped_item = item
+		template_keys = ["confirm_throw"]
+		location = player.get_location()
+		destination = location
+		if not location.has_floor():
+			destination = destination.get_adjacent_location(Direction.DOWN)
+			template_keys.append("describe_item_falling")
+
+		if item.is_fragile():
+			item.destroy()
+			dropped_item = item.replacements[Item.COMMAND_ID_SMASH]
+			content_args.append(dropped_item)
+			if location.has_floor():
+				template_keys.append("describe_item_smash_see")
+			else:
+				template_keys.append("describe_item_smash_hear")
+
+		dropped_item.remove_from_containers()
+		destination.insert(dropped_item)
+
+		return True, template_keys, content_args, next_args
+
+
 	def handle_toggle(self, command, player, item):
 		if not item.is_switchable():
 			return False, ["reject_no_know_how"], [item], []

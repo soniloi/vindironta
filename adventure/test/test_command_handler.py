@@ -1221,6 +1221,80 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertIs(None, self.player.previous_location)
 
 
+	def test_handle_throw_liquid(self):
+		self.bottle.add(self.water)
+		self.player.get_inventory().add(self.bottle)
+
+		success, template_keys, content_args, next_args = self.handler.handle_throw(self.command, self.player, self.water)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_throw_liquid"], template_keys)
+		self.assertEqual([self.water], content_args)
+		self.assertEqual([], next_args)
+		self.assertTrue(self.water in self.bottle.items.values())
+		self.assertFalse(self.water in self.player.location.items.values())
+
+
+	def test_handle_throw_with_floor_non_fragile(self):
+		self.player.get_inventory().add(self.book)
+
+		success, template_keys, content_args, next_args = self.handler.handle_throw(self.command, self.player, self.book)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_throw"], template_keys)
+		self.assertEqual([self.book], content_args)
+		self.assertEqual([self.book], next_args)
+		self.assertFalse(self.book in self.bottle.items.values())
+		self.assertTrue(self.book in self.player.location.items.values())
+
+
+	def test_handle_throw_with_floor_fragile(self):
+		self.player.get_inventory().add(self.bottle)
+
+		success, template_keys, content_args, next_args = self.handler.handle_throw(self.command, self.player, self.bottle)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_throw", "describe_item_smash_see"], template_keys)
+		self.assertEqual([self.bottle, self.shards], content_args)
+		self.assertEqual([self.bottle], next_args)
+		self.assertFalse(self.bottle in self.bottle.items.values())
+		self.assertFalse(self.bottle in self.player.location.items.values())
+		self.assertTrue(self.shards in self.player.location.items.values())
+
+
+	def test_handle_throw_without_floor_non_fragile(self):
+		self.player.location = self.cave_location
+		self.cave_location.directions[Direction.DOWN] = self.mine_location
+		self.player.get_inventory().add(self.book)
+
+		success, template_keys, content_args, next_args = self.handler.handle_throw(self.command, self.player, self.book)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_throw", "describe_item_falling"], template_keys)
+		self.assertEqual([self.book], content_args)
+		self.assertEqual([self.book], next_args)
+		self.assertFalse(self.book in self.bottle.items.values())
+		self.assertFalse(self.book in self.cave_location.items.values())
+		self.assertTrue(self.book in self.mine_location.items.values())
+
+
+	def test_handle_throw_without_floor_fragile(self):
+		self.player.location = self.cave_location
+		self.cave_location.directions[Direction.DOWN] = self.mine_location
+		self.player.get_inventory().add(self.bottle)
+
+		success, template_keys, content_args, next_args = self.handler.handle_throw(self.command, self.player, self.bottle)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_throw", "describe_item_falling", "describe_item_smash_hear"], template_keys)
+		self.assertEqual([self.bottle, self.shards], content_args)
+		self.assertEqual([self.bottle], next_args)
+		self.assertFalse(self.bottle in self.bottle.items.values())
+		self.assertFalse(self.bottle in self.cave_location.items.values())
+		self.assertFalse(self.shards in self.cave_location.items.values())
+		self.assertTrue(self.shards in self.mine_location.items.values())
+
+
 	def test_handle_toggle_non_switchable_item(self):
 		success, template_keys, content_args, next_args = self.handler.handle_toggle(self.command, self.player, self.book)
 
