@@ -67,7 +67,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None)
 		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, Item.ATTRIBUTE_GIVES_AIR)
 		self.shards = Item(1114, 0x2, Labels("shards", "some shards", "some glass shards"), 1, None)
-		self.bottle = ContainerItem(1108, 0x203, Labels("bottle", "a bottle", "a small bottle"), 3, None)
+		self.bottle = ContainerItem(1108, 0x4203, Labels("bottle", "a bottle", "a small glass bottle"), 3, None)
 		self.bottle.replacements[73] = self.shards
 		self.cat = SentientItem(1047, 0x80003, Labels("cat", "a cat", "a black cat"), 3, None)
 		self.bread = Item(1109, 0x2002, Labels("bread", "some bread", "a loaf of bread"), 2, None)
@@ -283,7 +283,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertFalse(self.bottle in self.water.containers)
 
 
-	def test_handle_drop_at_location_with_no_floor(self):
+	def test_handle_drop_at_location_with_no_floor_non_fragile(self):
 		self.player.location = self.cave_location
 		self.cave_location.directions[Direction.DOWN] = self.mine_location
 		self.player.get_inventory().add(self.lamp)
@@ -296,6 +296,22 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual([self.lamp], next_args)
 		self.assertFalse(self.lamp in self.default_inventory.items.values())
 		self.assertTrue(self.lamp in self.mine_location.items.values())
+
+
+	def test_handle_drop_at_location_with_no_floor_fragile(self):
+		self.player.location = self.cave_location
+		self.cave_location.directions[Direction.DOWN] = self.mine_location
+		self.player.get_inventory().add(self.bottle)
+
+		success, template_keys, content_args, next_args = self.handler.handle_drop(self.command, self.player, self.bottle)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_dropped", "describe_item_falling", "describe_item_smash_hear"], template_keys)
+		self.assertEqual([self.bottle, self.shards], content_args)
+		self.assertEqual([self.bottle], next_args)
+		self.assertFalse(self.bottle in self.default_inventory.items.values())
+		self.assertFalse(self.bottle in self.mine_location.items.values())
+		self.assertTrue(self.shards in self.mine_location.items.values())
 
 
 	def test_handle_eat_liquid(self):

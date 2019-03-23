@@ -18,6 +18,7 @@ class Item(NamedDataElement):
 	ATTRIBUTE_COPYABLE = 0x800
 	ATTRIBUTE_STRONG = 0x1000
 	ATTRIBUTE_EDIBLE = 0x2000
+	ATTRIBUTE_FRAGILE = 0x4000
 	ATTRIBUTE_SILENT = 0x20000
 	ATTRIBUTE_SENTIENT = 0x80000
 	ATTRIBUTE_ALLOWS_BURNING = 0x200000
@@ -167,6 +168,10 @@ class Item(NamedDataElement):
 
 	def is_edible(self):
 		return self.has_attribute(Item.ATTRIBUTE_EDIBLE)
+
+
+	def is_fragile(self):
+		return self.has_attribute(Item.ATTRIBUTE_FRAGILE)
 
 
 	def is_silent(self):

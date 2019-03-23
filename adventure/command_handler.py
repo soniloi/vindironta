@@ -1,5 +1,5 @@
 from adventure.direction import Direction
-from adventure.item import SwitchTransition
+from adventure.item import Item, SwitchTransition
 from adventure.resolver import Resolver
 
 class CommandHandler(Resolver):
@@ -58,13 +58,21 @@ class CommandHandler(Resolver):
 			item.destroy()
 			return True, ["confirm_poured_no_destination"], content_args, next_args
 
+		dropped_item = item
 		template_keys = ["confirm_dropped"]
 		destination = player.get_location()
 		if not destination.has_floor():
 			destination = destination.get_adjacent_location(Direction.DOWN)
 			template_keys.append("describe_item_falling")
+			if item.is_fragile():
+				item.destroy()
+				dropped_item = item.replacements[Item.COMMAND_ID_SMASH]
+				content_args.append(dropped_item)
+				template_keys.append("describe_item_smash_hear")
 
-		player.drop_item_to_location(item, destination)
+		dropped_item.remove_from_containers()
+		destination.insert(dropped_item)
+
 		return True, template_keys, content_args, next_args
 
 
