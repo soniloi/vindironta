@@ -58,8 +58,14 @@ class CommandHandler(Resolver):
 			item.destroy()
 			return True, ["confirm_poured_no_destination"], content_args, next_args
 
-		player.drop_item(item)
-		return True, ["confirm_dropped"], content_args, next_args
+		template_keys = ["confirm_dropped"]
+		destination = player.get_location()
+		if not destination.has_floor():
+			destination = destination.get_adjacent_location(Direction.DOWN)
+			template_keys.append("describe_item_falling")
+
+		player.drop_item_to_location(item, destination)
+		return True, template_keys, content_args, next_args
 
 
 	def handle_eat(self, command, player, item):

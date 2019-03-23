@@ -92,8 +92,12 @@ class Player(DataElement):
 
 
 	def drop_item(self, item):
+		self.drop_item_to_location(item, self.location)
+
+
+	def drop_item_to_location(self, item, location):
 		item.remove_from_containers()
-		self.location.insert(item)
+		location.insert(item)
 
 
 	def drop_all_items(self):

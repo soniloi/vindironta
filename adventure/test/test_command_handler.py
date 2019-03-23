@@ -40,12 +40,12 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def setup_locations(self):
-		self.beach_location = Location(13, 0x1, Labels("Beach", "on a beach", " of black sand"))
-		self.lighthouse_location = Location(12, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
-		self.mine_location = Location(11, 0x0, Labels("Mines", "in the mines", ". There are dark passages everywhere."))
-		self.sun_location = Location(10, 0x11, Labels("Sun", "in the sun", ". It is hot."))
+		self.beach_location = Location(13, 0x201, Labels("Beach", "on a beach", " of black sand"))
+		self.lighthouse_location = Location(12, 0x201, Labels("Lighthouse", "at a lighthouse", " by the sea."))
+		self.mine_location = Location(11, 0x200, Labels("Mines", "in the mines", ". There are dark passages everywhere."))
+		self.sun_location = Location(10, 0x211, Labels("Sun", "in the sun", ". It is hot."))
 		self.cave_location = Location(9, 0x0, Labels("Cave", "in a cave", ". It is dark"))
-		self.item_start_location = Location(0, 0x0, Labels("Start", "at the start", ", where items start out."))
+		self.item_start_location = Location(0, 0x200, Labels("Start", "at the start", ", where items start out."))
 
 		self.data.get_location.side_effect = lambda x: {
 			11 : self.mine_location,
@@ -281,6 +281,21 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertFalse(self.water in self.bottle.items.values())
 		self.assertFalse(self.water in self.player.location.items.values())
 		self.assertFalse(self.bottle in self.water.containers)
+
+
+	def test_handle_drop_at_location_with_no_floor(self):
+		self.player.location = self.cave_location
+		self.cave_location.directions[Direction.DOWN] = self.mine_location
+		self.player.get_inventory().add(self.lamp)
+
+		success, template_keys, content_args, next_args = self.handler.handle_drop(self.command, self.player, self.lamp)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_dropped", "describe_item_falling"], template_keys)
+		self.assertEqual([self.lamp], content_args)
+		self.assertEqual([self.lamp], next_args)
+		self.assertFalse(self.lamp in self.default_inventory.items.values())
+		self.assertTrue(self.lamp in self.mine_location.items.values())
 
 
 	def test_handle_eat_liquid(self):
