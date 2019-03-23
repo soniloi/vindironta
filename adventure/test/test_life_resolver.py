@@ -42,6 +42,19 @@ class TestLifeResolver(unittest.TestCase):
 		self.assertIs(self.drop_location, self.player.drop_location)
 
 
+	def test_resolve_life_player_has_no_gravity(self):
+		self.player.take_item(self.book)
+		self.location.gives_air.return_value = True
+		self.location.gives_gravity.return_value = False
+
+		response = self.resolver.resolve_life(self.command, self.player)
+
+		self.assertEqual((False, ["death_no_gravity", "describe_dead", "describe_reincarnation"], [], []), response)
+		self.assertFalse(self.player.is_alive())
+		self.inventory.drop_all_items.assert_called_once_with(self.drop_location)
+		self.assertIs(self.drop_location, self.player.drop_location)
+
+
 	def test_resolve_life_player_was_not_alive(self):
 		self.location.gives_air.return_value = True
 		self.inventory.gives_air.return_value = False

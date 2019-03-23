@@ -5,6 +5,7 @@ class Location(NamedDataElement, ItemContainer):
 
 	ATTRIBUTE_GIVES_LIGHT = 0x1
 	ATTRIBUTE_GIVES_AIR = 0x2
+	ATTRIBUTE_GIVES_GRAVITY = 0x4
 	ATTRIBUTE_NEEDS_NO_LIGHT = 0x10
 	ATTRIBUTE_HAS_FLOOR = 0x200
 
@@ -57,6 +58,10 @@ class Location(NamedDataElement, ItemContainer):
 			return True
 
 		return ItemContainer.gives_air(self)
+
+
+	def gives_gravity(self):
+		return self.has_attribute(Location.ATTRIBUTE_GIVES_GRAVITY)
 
 
 	def needs_no_light(self):

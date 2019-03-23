@@ -9,6 +9,10 @@ class LifeResolver(Resolver):
 			player.set_alive(False)
 			template_keys.append("death_no_air")
 
+		elif not player.has_gravity():
+			player.set_alive(False)
+			template_keys.append("death_no_gravity")
+
 		if player.is_alive():
 			player.update_drop_location()
 		else:
