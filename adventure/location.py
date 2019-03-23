@@ -6,6 +6,7 @@ class Location(NamedDataElement, ItemContainer):
 	ATTRIBUTE_GIVES_LIGHT = 0x1
 	ATTRIBUTE_GIVES_AIR = 0x2
 	ATTRIBUTE_NEEDS_NO_LIGHT = 0x10
+	ATTRIBUTE_HAS_FLOOR = 0x200
 
 	def __init__(self, location_id, attributes, labels):
 		NamedDataElement.__init__(self, data_id=location_id, attributes=attributes, labels=labels)
@@ -44,10 +45,6 @@ class Location(NamedDataElement, ItemContainer):
 		return result
 
 
-	def needs_no_light(self):
-		return self.has_attribute(Location.ATTRIBUTE_NEEDS_NO_LIGHT)
-
-
 	def gives_light(self):
 		if self.has_attribute(Location.ATTRIBUTE_GIVES_LIGHT):
 			return True
@@ -60,6 +57,14 @@ class Location(NamedDataElement, ItemContainer):
 			return True
 
 		return ItemContainer.gives_air(self)
+
+
+	def needs_no_light(self):
+		return self.has_attribute(Location.ATTRIBUTE_NEEDS_NO_LIGHT)
+
+
+	def has_floor(self):
+		return self.has_attribute(Location.ATTRIBUTE_HAS_FLOOR)
 
 
 	def get_obstructions(self):

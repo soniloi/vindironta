@@ -1,3 +1,4 @@
+from adventure.direction import Direction
 from adventure.item import SwitchTransition
 from adventure.resolver import Resolver
 
@@ -131,13 +132,17 @@ class CommandHandler(Resolver):
 		return True, ["confirm_given"], content_args, [proposed_gift, proposed_recipient]
 
 
-	def handle_go(self, command, player, proposed_location):
+	def handle_go(self, command, player, direction, proposed_location):
 		obstructions = player.get_obstructions()
 		if obstructions and proposed_location is not player.get_previous_location():
 			template_key, content = self.reject_go_obstructed(player, obstructions)
 			return False, [template_key], content, []
 
 		current_location = player.get_location()
+
+		if direction == Direction.DOWN and not current_location.has_floor():
+			return False, ["reject_no_floor"], [], []
+
 		self.update_previous_location(player, proposed_location)
 		player.location = proposed_location
 

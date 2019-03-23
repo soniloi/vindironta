@@ -471,7 +471,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.add(self.obstruction)
 		self.player.location.directions[Direction.SOUTH] = self.beach_location
 
-		success, template_keys, content_args, next_args = self.handler.handle_go(self.command, self.player, self.beach_location)
+		success, template_keys, content_args, next_args = self.handler.handle_go(self.command, self.player, Direction.SOUTH, self.beach_location)
 
 		self.assertFalse(success)
 		self.assertEqual(["reject_obstruction_known"], template_keys)
@@ -484,7 +484,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.add(self.obstruction)
 		self.player.location.directions[Direction.EAST] = self.beach_location
 
-		success, template_keys, content_args, next_args = self.handler.handle_go(self.command, self.player, self.beach_location)
+		success, template_keys, content_args, next_args = self.handler.handle_go(self.command, self.player, Direction.EAST, self.beach_location)
 
 		self.assertFalse(success)
 		self.assertEqual(["reject_obstruction_unknown"], template_keys)
@@ -497,8 +497,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.directions[Direction.SOUTH] = self.beach_location
 		self.beach_location.directions[Direction.NORTH] = self.lighthouse_location
 
-		self.handler.handle_go(self.command, self.player, self.beach_location)
-		success, template_keys, content_args, next_args = self.handler.handle_go(self.command, self.player, self.lighthouse_location)
+		self.handler.handle_go(self.command, self.player, Direction.SOUTH, self.beach_location)
+		success, template_keys, content_args, next_args = self.handler.handle_go(self.command, self.player, Direction.NORTH, self.lighthouse_location)
 
 		self.assertTrue(success)
 		self.assertEqual([], template_keys)
@@ -512,7 +512,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.player.location.directions[Direction.SOUTH] = self.beach_location
 		self.beach_location.directions[Direction.NORTH] = self.player.location
 
-		success, template_keys, content_args, next_args = self.handler.handle_go(self.command, self.player, self.beach_location)
+		success, template_keys, content_args, next_args = self.handler.handle_go(self.command, self.player, Direction.SOUTH, self.beach_location)
 
 		self.assertTrue(success)
 		self.assertEqual([], template_keys)
@@ -525,7 +525,7 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_go_without_obstruction_one_way(self):
 		self.player.location.directions[Direction.SOUTH] = self.beach_location
 
-		success, template_keys, content_args, next_args = self.handler.handle_go(self.command, self.player, self.beach_location)
+		success, template_keys, content_args, next_args = self.handler.handle_go(self.command, self.player, Direction.SOUTH, self.beach_location)
 
 		self.assertTrue(success)
 		self.assertEqual([], template_keys)

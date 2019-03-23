@@ -49,7 +49,7 @@ class ArgumentResolver(Resolver):
 			if not proposed_location:
 				return False, [self.get_reject_movement_template_key(direction)], [direction], []
 
-		return True, [], [], [proposed_location]
+		return True, [], [], [direction, proposed_location]
 
 
 	def get_reject_movement_template_key(self, direction):

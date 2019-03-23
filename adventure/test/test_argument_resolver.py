@@ -97,7 +97,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_movement(command, self.player)
 
-		self.assertEqual((True, [], [], [proposed_location]), response)
+		self.assertEqual((True, [], [], [Direction.BACK, proposed_location]), response)
 
 
 	def test_resolve_movement_out_without_destination(self):
@@ -116,7 +116,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_movement(command, self.player)
 
-		self.assertEqual((True, [], [], [proposed_location]), response)
+		self.assertEqual((True, [], [], [Direction.OUT, proposed_location]), response)
 
 
 	def test_resolve_movement_non_back_non_out_without_destination(self):
@@ -135,7 +135,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_movement(command, self.player)
 
-		self.assertEqual((True, [], [], [proposed_location]), response)
+		self.assertEqual((True, [], [], [Direction.NORTH, proposed_location]), response)
 
 
 	def test_resolve_switchable_without_arg(self):
