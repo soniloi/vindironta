@@ -134,5 +134,33 @@ class TestLocation(unittest.TestCase):
 		self.assertTrue(self.location.can_reach(self.other_location))
 
 
+	def test_gives_tether_with_gravity_with_ceiling(self):
+		self.location.set_attribute(Location.ATTRIBUTE_GIVES_GRAVITY)
+		self.location.set_attribute(Location.ATTRIBUTE_HAS_CEILING)
+
+		self.assertTrue(self.location.gives_tether())
+
+
+	def test_gives_tether_with_gravity_without_ceiling(self):
+		self.location.set_attribute(Location.ATTRIBUTE_GIVES_GRAVITY)
+		self.location.unset_attribute(Location.ATTRIBUTE_HAS_CEILING)
+
+		self.assertTrue(self.location.gives_tether())
+
+
+	def test_gives_tether_without_gravity_with_ceiling(self):
+		self.location.unset_attribute(Location.ATTRIBUTE_GIVES_GRAVITY)
+		self.location.set_attribute(Location.ATTRIBUTE_HAS_CEILING)
+
+		self.assertTrue(self.location.gives_tether())
+
+
+	def test_gives_tether_without_gravity_without_ceiling(self):
+		self.location.unset_attribute(Location.ATTRIBUTE_GIVES_GRAVITY)
+		self.location.unset_attribute(Location.ATTRIBUTE_HAS_CEILING)
+
+		self.assertFalse(self.location.gives_tether())
+
+
 if __name__ == "__main__":
 	unittest.main()

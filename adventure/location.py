@@ -7,6 +7,7 @@ class Location(NamedDataElement, ItemContainer):
 	ATTRIBUTE_GIVES_AIR = 0x2
 	ATTRIBUTE_GIVES_GRAVITY = 0x4
 	ATTRIBUTE_NEEDS_NO_LIGHT = 0x10
+	ATTRIBUTE_HAS_CEILING = 0x100
 	ATTRIBUTE_HAS_FLOOR = 0x200
 
 	def __init__(self, location_id, attributes, labels):
@@ -68,8 +69,16 @@ class Location(NamedDataElement, ItemContainer):
 		return self.has_attribute(Location.ATTRIBUTE_NEEDS_NO_LIGHT)
 
 
+	def has_ceiling(self):
+		return self.has_attribute(Location.ATTRIBUTE_HAS_CEILING)
+
+
 	def has_floor(self):
 		return self.has_attribute(Location.ATTRIBUTE_HAS_FLOOR)
+
+
+	def gives_tether(self):
+		return self.gives_gravity() or self.has_ceiling()
 
 
 	def get_obstructions(self):

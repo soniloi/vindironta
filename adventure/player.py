@@ -152,8 +152,8 @@ class Player(DataElement):
 		return self.location.gives_air() or self.get_inventory().gives_air()
 
 
-	def has_gravity(self):
-		return self.location.gives_gravity() or self.get_inventory().gives_gravity()
+	def has_tether(self):
+		return self.location.gives_tether() or self.get_inventory().gives_gravity()
 
 
 	def can_burn(self):
