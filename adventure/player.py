@@ -153,7 +153,7 @@ class Player(DataElement):
 
 
 	def has_gravity(self):
-		return self.location.gives_gravity()
+		return self.location.gives_gravity() or self.get_inventory().gives_gravity()
 
 
 	def can_burn(self):

@@ -46,6 +46,7 @@ class TestLifeResolver(unittest.TestCase):
 		self.player.take_item(self.book)
 		self.location.gives_air.return_value = True
 		self.location.gives_gravity.return_value = False
+		self.inventory.gives_gravity.return_value = False
 
 		response = self.resolver.resolve_life(self.command, self.player)
 

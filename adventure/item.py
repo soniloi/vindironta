@@ -12,6 +12,7 @@ class Item(NamedDataElement):
 	ATTRIBUTE_SWITCHABLE = 0x8
 	ATTRIBUTE_GIVES_LIGHT = 0x10
 	ATTRIBUTE_GIVES_AIR = 0x20
+	ATTRIBUTE_GIVES_GRAVITY = 0x40
 	ATTRIBUTE_LIQUID = 0x100
 	ATTRIBUTE_LIQUID_CONTAINER = 0x200
 	ATTRIBUTE_WEARABLE = 0x400
@@ -156,6 +157,10 @@ class Item(NamedDataElement):
 
 	def gives_air(self):
 		return self.has_attribute(Item.ATTRIBUTE_GIVES_AIR)
+
+
+	def gives_gravity(self):
+		return self.has_attribute(Item.ATTRIBUTE_GIVES_GRAVITY)
 
 
 	def is_liquid(self):
