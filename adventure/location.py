@@ -1,3 +1,4 @@
+from adventure.direction import Direction
 from adventure.element import NamedDataElement
 from adventure.item_container import ItemContainer
 
@@ -78,7 +79,14 @@ class Location(NamedDataElement, ItemContainer):
 
 
 	def gives_tether(self):
-		return self.gives_gravity() or self.has_ceiling()
+		if self.gives_gravity() or self.has_ceiling():
+			return True
+
+		above = self.get_adjacent_location(Direction.UP)
+		if above:
+			return above.gives_gravity()
+
+		return False
 
 
 	def get_obstructions(self):
