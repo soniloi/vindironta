@@ -1,8 +1,7 @@
-import re
-
 from adventure.element import Labels
 from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, WearableItem
 from adventure.item_collection import ItemCollection
+from adventure.token_translator import TokenTranslator
 
 class ItemParser:
 
@@ -110,12 +109,7 @@ class ItemParser:
 
 
 	def parse_list_template(self, list_template_input):
-		return re.sub("\$[0-9]+", self.replace_token, list_template_input)
-
-
-	def replace_token(self, match):
-		match_token = match.group(0)
-		return "{" + match_token[1:] + "}"
+		return TokenTranslator.translate_substitution_tokens(list_template_input)
 
 
 	def init_item(self,
