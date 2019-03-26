@@ -1,3 +1,5 @@
+import re
+
 from adventure.element import Labels
 from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, WearableItem
 from adventure.item_collection import ItemCollection
@@ -60,6 +62,10 @@ class ItemParser:
 		if "replacements" in item_input:
 			self.parse_replacements(item_input["replacements"], item_replacements)
 
+		list_template = None
+		if "list_template" in item_input:
+			list_template = self.parse_list_template(item_input["list_template"])
+
 		related_command_id = item_input.get("related_command_id")
 
 		item = self.init_item(
@@ -72,6 +78,7 @@ class ItemParser:
 			switched_element_id=switched_element_id,
 			switch_info=switch_info,
 			attribute_when_worn=wearing_info,
+			list_template=list_template,
 		)
 
 		container_ids = item_input["container_ids"]
@@ -102,6 +109,15 @@ class ItemParser:
 			item_replacements[command_id] = replacement_id
 
 
+	def parse_list_template(self, list_template_input):
+		return re.sub("\$[0-9]+", self.replace_token, list_template_input)
+
+
+	def replace_token(self, match):
+		match_token = match.group(0)
+		return "{" + match_token[1:] + "}"
+
+
 	def init_item(self,
 			item_id,
 			attributes,
@@ -112,25 +128,29 @@ class ItemParser:
 			switched_element_ids,
 			switch_info,
 			attribute_when_worn,
+			list_template,
 		):
 
 		if bool(attributes & Item.ATTRIBUTE_SENTIENT):
-			item = SentientItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
+			item = SentientItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
+				list_template=list_template)
 
 		elif bool(attributes & Item.ATTRIBUTE_CONTAINER):
-			item = ContainerItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
+			item = ContainerItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
+				list_template=list_template)
 
 		elif bool(attributes & Item.ATTRIBUTE_SWITCHABLE):
 			item = SwitchableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-				switch_info=switch_info)
+				list_template=list_template, switch_info=switch_info)
 			switched_element_ids[item] = switched_element_id
 
 		elif bool(attributes & Item.ATTRIBUTE_WEARABLE):
 			item = WearableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-				attribute_activated=attribute_when_worn)
+				list_template=list_template, attribute_activated=attribute_when_worn)
 
 		else:
-			item = Item(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing)
+			item = Item(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
+				list_template=list_template)
 
 		return item
 

@@ -336,7 +336,8 @@ class TestItemParser(unittest.TestCase):
 						\"attribute\": \"10\", \
 						\"off\": \"off\", \
 						\"on\": \"on\" \
-					} \
+					}, \
+					\"list_template\": \"$0 (currently $1)\"\
 				} \
 			]"
 		)
@@ -352,6 +353,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual("off", lamp.state_to_text[False])
 		self.assertEqual("on", lamp.state_to_text[True])
 		self.assertEqual(0, len(related_commands))
+		self.assertEqual("{0} (currently {1})", lamp.list_template)
 
 
 	def test_init_switchable_switching_other_item(self):
