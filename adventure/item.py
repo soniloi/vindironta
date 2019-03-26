@@ -87,7 +87,17 @@ class Item(NamedDataElement):
 		result = "\n"
 		for i in range(0, indentation):
 			result += "\t"
-		return result + self.longname
+		return result + self.get_base_list_name()
+
+
+	def get_base_list_name(self):
+		if self.list_template:
+			return self.get_formatted_list_name()
+		return self.longname
+
+
+	def get_formatted_list_name(self):
+		return self.list_template.format(self.longname)
 
 
 	def get_non_silent_list_name(self, indentation=1):
@@ -355,10 +365,8 @@ class SwitchableItem(Item):
 		return True
 
 
-	def get_list_name(self, indentation=1):
-		result = Item.get_list_name(self, indentation)
-		result += " (" + self.get_state_text() + ")"
-		return result
+	def get_formatted_list_name(self):
+		return self.list_template.format(self.longname, self.get_state_text())
 
 
 	def get_full_description(self):
@@ -399,6 +407,12 @@ class WearableItem(Item):
 		if self.being_worn:
 			return bool((self.attributes | self.attribute_activated) & attribute)
 		return Item.has_attribute(self, attribute)
+
+
+	def get_base_list_name(self):
+		if self.being_worn and self.list_template:
+			return self.get_formatted_list_name()
+		return self.longname
 
 
 	def get_weight(self):
