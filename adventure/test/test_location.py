@@ -10,8 +10,9 @@ class TestLocation(unittest.TestCase):
 
 	def setUp(self):
 		extended_descriptions = [". The walls are dark and cold", ". The walls are glowing"]
-		self.mine_location = Location(11, 0, Labels("Mines", "in the mines", ". There are dark passages everywhere", extended_descriptions))
 		self.lighthouse_location = Location(12, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
+		self.mine_location = Location(11, 0x0, Labels("Mines", "in the mines", ". There are dark passages everywhere", extended_descriptions))
+		self.lower_mine_location = Location(10, 0x200, Labels("Lower mines", "in the lower mines", ". This is the bottom of the mines", extended_descriptions))
 
 		self.book = Item(1105, 2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
 		self.desk = Item(1000, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None)
@@ -104,6 +105,23 @@ class TestLocation(unittest.TestCase):
 		description = self.mine_location.get_full_description()
 
 		self.assertEqual(["in the mines. There are dark passages everywhere. The walls are dark and cold", ""], description)
+
+
+	def test_get_drop_location_has_floor(self):
+		self.assertIs(self.lower_mine_location, self.lower_mine_location.get_drop_location())
+
+
+	def test_get_drop_location_one_below_has_floor(self):
+		self.mine_location.directions[Direction.DOWN] = self.lower_mine_location
+
+		self.assertIs(self.lower_mine_location, self.mine_location.get_drop_location())
+
+
+	def test_get_drop_location_two_below_has_floor(self):
+		self.lighthouse_location.directions[Direction.DOWN] = self.mine_location
+		self.mine_location.directions[Direction.DOWN] = self.lower_mine_location
+
+		self.assertIs(self.lower_mine_location, self.lighthouse_location.get_drop_location())
 
 
 	def test_get_obstructions(self):

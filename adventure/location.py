@@ -48,6 +48,13 @@ class Location(NamedDataElement, ItemContainer):
 		return result
 
 
+	def get_drop_location(self):
+		drop_location = self
+		while not drop_location.has_floor():
+			drop_location = drop_location.get_adjacent_location(Direction.DOWN)
+		return drop_location
+
+
 	def gives_light(self):
 		if self.has_attribute(Location.ATTRIBUTE_GIVES_LIGHT):
 			return True

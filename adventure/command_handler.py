@@ -60,15 +60,16 @@ class CommandHandler(Resolver):
 
 		dropped_item = item
 		template_keys = ["confirm_dropped"]
-		destination = player.get_location()
-		if not destination.has_floor():
-			destination = destination.get_adjacent_location(Direction.DOWN)
+		location = player.get_location()
+		destination = location.get_drop_location()
+
+		if destination is not location:
 			template_keys.append("describe_item_falling")
 			if item.is_fragile():
-				item.destroy()
-				dropped_item = item.replacements[Item.COMMAND_ID_SMASH]
-				content_args.append(dropped_item)
-				template_keys.append("describe_item_smash_hear")
+					item.destroy()
+					dropped_item = item.replacements[Item.COMMAND_ID_SMASH]
+					content_args.append(dropped_item)
+					template_keys.append("describe_item_smash_hear")
 
 		dropped_item.remove_from_containers()
 		destination.insert(dropped_item)
