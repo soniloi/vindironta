@@ -153,6 +153,10 @@ class CommandHandler(Resolver):
 			template_key, content = self.reject_go_obstructed(player, obstructions)
 			return False, [template_key], content, []
 
+		environment_movement_reject_template = self.get_environment_movement_reject_template(player, proposed_location)
+		if environment_movement_reject_template:
+			return False, [environment_movement_reject_template], [], []
+
 		current_location = player.get_location()
 
 		if direction == Direction.DOWN and not current_location.has_floor():
@@ -169,6 +173,13 @@ class CommandHandler(Resolver):
 		if player.has_light():
 			return "reject_obstruction_known", [obstructions[0].longname]
 		return "reject_obstruction_unknown", []
+
+
+	def get_environment_movement_reject_template(self, player, proposed_location):
+		if not proposed_location.gives_air() and not player.carries_air():
+			return "reject_movement_no_air"
+
+		return None
 
 
 	def update_previous_location(self, player, proposed_location):

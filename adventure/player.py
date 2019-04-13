@@ -149,7 +149,11 @@ class Player(DataElement):
 
 
 	def has_air(self):
-		return self.location.gives_air() or self.get_inventory().gives_air()
+		return self.location.gives_air() or self.carries_air()
+
+
+	def carries_air(self):
+		return self.get_inventory().gives_air()
 
 
 	def has_tether(self):
