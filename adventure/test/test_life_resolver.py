@@ -19,19 +19,20 @@ class TestLifeResolver(unittest.TestCase):
 		self.data = Mock()
 		self.command = Command(150, 0x0, [], [], ["do"], {}, {})
 		self.inventory = Mock()
-		self.location = Mock()
+		self.player_location = Mock()
 		self.drop_location = Mock()
 		self.book = Mock()
 
 
 	def setup_player(self):
-		self.player = Player(1, 0x3, self.location, self.inventory)
+		self.player = Player(1, 0x3, self.player_location, self.inventory)
 		self.player.drop_location = self.drop_location
+		self.player.set_immune(False)
 
 
-	def test_resolve_life_player_has_no_air(self):
+	def test_resolve_life_player_has_no_air_not_immune(self):
 		self.player.take_item(self.book)
-		self.location.gives_air.return_value = False
+		self.player_location.gives_air.return_value = False
 		self.inventory.gives_air.return_value = False
 
 		response = self.resolver.resolve_life(self.command, self.player)
@@ -42,10 +43,24 @@ class TestLifeResolver(unittest.TestCase):
 		self.assertIs(self.drop_location, self.player.drop_location)
 
 
-	def test_resolve_life_player_has_no_tether(self):
+	def test_resolve_life_player_has_no_air_immune(self):
+		self.player.set_immune(True)
 		self.player.take_item(self.book)
-		self.location.gives_air.return_value = True
-		self.location.gives_tether.return_value = False
+		self.player_location.gives_air.return_value = False
+		self.inventory.gives_air.return_value = False
+
+		response = self.resolver.resolve_life(self.command, self.player)
+
+		self.assertEqual((True, [], [], []), response)
+		self.assertTrue(self.player.is_alive())
+		self.inventory.drop_all_items.assert_not_called()
+		self.assertIs(self.player_location, self.player.drop_location)
+
+
+	def test_resolve_life_player_has_no_tether_not_immune(self):
+		self.player.take_item(self.book)
+		self.player_location.gives_air.return_value = True
+		self.player_location.gives_tether.return_value = False
 		self.inventory.gives_gravity.return_value = False
 
 		response = self.resolver.resolve_life(self.command, self.player)
@@ -56,8 +71,23 @@ class TestLifeResolver(unittest.TestCase):
 		self.assertIs(self.drop_location, self.player.drop_location)
 
 
+	def test_resolve_life_player_has_no_tether_immune(self):
+		self.player.set_immune(True)
+		self.player.take_item(self.book)
+		self.player_location.gives_air.return_value = True
+		self.player_location.gives_tether.return_value = False
+		self.inventory.gives_gravity.return_value = False
+
+		response = self.resolver.resolve_life(self.command, self.player)
+
+		self.assertEqual((True, [], [], []), response)
+		self.assertTrue(self.player.is_alive())
+		self.inventory.drop_all_items.assert_not_called()
+		self.assertIs(self.player_location, self.player.drop_location)
+
+
 	def test_resolve_life_player_was_not_alive(self):
-		self.location.gives_air.return_value = True
+		self.player_location.gives_air.return_value = True
 		self.inventory.gives_air.return_value = False
 		self.player.set_alive(False)
 
@@ -69,14 +99,14 @@ class TestLifeResolver(unittest.TestCase):
 
 
 	def test_resolve_life_player_does_not_die(self):
-		self.location.gives_air.return_value = True
+		self.player_location.gives_air.return_value = True
 		self.inventory.gives_air.return_value = False
 
 		response = self.resolver.resolve_life(self.command, self.player)
 
 		self.assertEqual((True, [], [], []), response)
 		self.assertTrue(self.player.is_alive())
-		self.assertIs(self.location, self.player.drop_location)
+		self.assertIs(self.player_location, self.player.drop_location)
 
 
 

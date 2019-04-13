@@ -6,12 +6,10 @@ class LifeResolver(Resolver):
 		template_keys = []
 
 		if not player.has_air():
-			player.set_alive(False)
-			template_keys.append("death_no_air")
+			self.kill_non_immune_player(player, template_keys, "death_no_air")
 
 		elif not player.has_tether():
-			player.set_alive(False)
-			template_keys.append("death_untethered")
+			self.kill_non_immune_player(player, template_keys, "death_untethered")
 
 		if player.is_alive():
 			player.update_drop_location()
@@ -21,3 +19,9 @@ class LifeResolver(Resolver):
 			template_keys.append("describe_reincarnation")
 
 		return player.is_alive(), template_keys, [], list(args)
+
+
+	def kill_non_immune_player(self, player, template_keys, death_template_key):
+		if not player.is_immune():
+			player.set_alive(False)
+			template_keys.append(death_template_key)
