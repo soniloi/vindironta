@@ -87,7 +87,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_movement(command, self.player)
 
-		self.assertEqual((False, ["reject_no_back"], [Direction.BACK], []), response)
+		self.assertEqual((False, ["reject_movement_no_back"], [Direction.BACK], []), response)
 
 
 	def test_resolve_movement_back_with_destination(self):
@@ -106,7 +106,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_movement(command, self.player)
 
-		self.assertEqual((False, ["reject_no_out"], [Direction.OUT], []), response)
+		self.assertEqual((False, ["reject_movement_no_out"], [Direction.OUT], []), response)
 
 
 	def test_resolve_movement_out_with_destination(self):
@@ -125,7 +125,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_movement(command, self.player)
 
-		self.assertEqual((False, ["reject_no_direction"], [Direction.NORTH], []), response)
+		self.assertEqual((False, ["reject_movement_no_direction"], [Direction.NORTH], []), response)
 
 
 	def test_resolve_movement_non_back_non_out_with_destination(self):

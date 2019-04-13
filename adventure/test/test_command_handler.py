@@ -567,7 +567,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertIs(None, self.player.previous_location)
 
 
-	def test_handle_go_without_air_at_destination(self):
+	def test_handle_go_without_air_at_destination_not_immune(self):
 		self.player.location.directions[Direction.SOUTH] = self.airless_location
 
 		success, template_keys, content_args, next_args = self.handler.handle_go(self.command, self.player, Direction.SOUTH, self.airless_location)
@@ -577,6 +577,46 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual([], content_args)
 		self.assertEqual([], next_args)
 		self.assertIs(self.lighthouse_location, self.player.location)
+
+
+	def test_handle_go_without_air_at_destination_immune(self):
+		self.player.set_immune(True)
+		self.player.location.directions[Direction.SOUTH] = self.airless_location
+
+		success, template_keys, content_args, next_args = self.handler.handle_go(self.command, self.player, Direction.SOUTH, self.airless_location)
+
+		self.assertTrue(success)
+		self.assertEqual([], template_keys)
+		self.assertEqual([], content_args)
+		self.assertEqual([self.airless_location, self.lighthouse_location], next_args)
+		self.assertIs(self.airless_location, self.player.location)
+
+
+	def test_handle_go_down_without_floor_not_immune(self):
+		self.player.location = self.cave_location
+		self.cave_location.directions[Direction.DOWN] = self.mine_location
+
+		success, template_keys, content_args, next_args = self.handler.handle_go(self.command, self.player, Direction.DOWN, self.mine_location)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_movement_no_floor"], template_keys)
+		self.assertEqual([], content_args)
+		self.assertEqual([], next_args)
+		self.assertIs(self.cave_location, self.player.location)
+
+
+	def test_handle_go_down_without_floor_immune(self):
+		self.player.set_immune(True)
+		self.player.location = self.cave_location
+		self.cave_location.directions[Direction.DOWN] = self.mine_location
+
+		success, template_keys, content_args, next_args = self.handler.handle_go(self.command, self.player, Direction.DOWN, self.mine_location)
+
+		self.assertTrue(success)
+		self.assertEqual([], template_keys)
+		self.assertEqual([], content_args)
+		self.assertEqual([self.mine_location, self.cave_location], next_args)
+		self.assertIs(self.mine_location, self.player.location)
 
 
 	def test_handle_go_disambiguate(self):

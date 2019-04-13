@@ -42,7 +42,7 @@ class ArgumentResolver(Resolver):
 		if direction == Direction.BACK:
 			proposed_location = player.get_previous_location()
 			if not proposed_location:
-				return False, ["reject_no_back"], [direction], []
+				return False, ["reject_movement_no_back"], [direction], []
 
 		else:
 			proposed_location = player.get_adjacent_location(direction)
@@ -54,9 +54,9 @@ class ArgumentResolver(Resolver):
 
 	def get_reject_movement_template_key(self, direction):
 		if direction == Direction.OUT:
-			return "reject_no_out"
+			return "reject_movement_no_out"
 		else:
-			return "reject_no_direction"
+			return "reject_movement_no_direction"
 
 
 	def resolve_switchable(self, command, player, *args):
