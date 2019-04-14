@@ -40,13 +40,14 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def setup_locations(self):
-		self.beach_location = Location(13, 0x203, Labels("Beach", "on a beach", " of black sand"))
-		self.lighthouse_location = Location(12, 0x203, Labels("Lighthouse", "at a lighthouse", " by the sea."))
-		self.mine_location = Location(11, 0x202, Labels("Mines", "in the mines", ". There are dark passages everywhere."))
-		self.sun_location = Location(10, 0x213, Labels("Sun", "in the sun", ". It is hot."))
-		self.cave_location = Location(9, 0x2, Labels("Cave", "in a cave", ". It is dark"))
-		self.airless_location = Location(8, 0x0, Labels("Airless", "in an airless room", ". There is no air here"))
-		self.item_start_location = Location(0, 0x202, Labels("Start", "at the start", ", where items start out."))
+		self.beach_location = Location(13, 0x603, Labels("Beach", "on a beach", " of black sand"))
+		self.lighthouse_location = Location(12, 0x603, Labels("Lighthouse", "at a lighthouse", " by the sea."))
+		self.mine_location = Location(11, 0x602, Labels("Mines", "in the mines", ". There are dark passages everywhere."))
+		self.sun_location = Location(10, 0x613, Labels("Sun", "in the sun", ". It is hot."))
+		self.cave_location = Location(9, 0x402, Labels("Cave", "in a cave", ". It is dark"))
+		self.airless_location = Location(8, 0x400, Labels("Airless", "in an airless room", ". There is no air here"))
+		self.water_location = Location(8, 0x2, Labels("River", "on a river", ". it moves fast"))
+		self.item_start_location = Location(0, 0x602, Labels("Start", "at the start", ", where items start out."))
 
 		self.data.get_location.side_effect = lambda x: {
 			11 : self.mine_location,
@@ -610,6 +611,31 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual([], content_args)
 		self.assertEqual([self.airless_location, self.lighthouse_location], next_args)
 		self.assertIs(self.airless_location, self.player.location)
+
+
+	def test_handle_go_without_land_at_destination_not_immune(self):
+		self.player.location.directions[Direction.SOUTH] = self.water_location
+
+		success, template_keys, content_args, next_args = self.handler.handle_go(self.command, self.player, Direction.SOUTH, self.water_location)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_movement_no_land"], template_keys)
+		self.assertEqual([], content_args)
+		self.assertEqual([], next_args)
+		self.assertIs(self.lighthouse_location, self.player.location)
+
+
+	def test_handle_go_without_land_at_destination_immune(self):
+		self.player.set_immune(True)
+		self.player.location.directions[Direction.SOUTH] = self.water_location
+
+		success, template_keys, content_args, next_args = self.handler.handle_go(self.command, self.player, Direction.SOUTH, self.water_location)
+
+		self.assertTrue(success)
+		self.assertEqual([], template_keys)
+		self.assertEqual([], content_args)
+		self.assertEqual([self.water_location, self.lighthouse_location], next_args)
+		self.assertIs(self.water_location, self.player.location)
 
 
 	def test_handle_go_down_without_floor_not_immune(self):

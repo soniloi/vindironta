@@ -193,6 +193,9 @@ class CommandHandler(Resolver):
 		if not proposed_location.gives_air() and not player.carries_air():
 			return "reject_movement_no_air"
 
+		if not proposed_location.has_land() and not player.carries_land():
+			return "reject_movement_no_land"
+
 		if direction == Direction.DOWN and not current_location.has_floor():
 			return "reject_movement_no_floor"
 

@@ -157,7 +157,11 @@ class Player(DataElement):
 
 
 	def has_land(self):
-		return self.location.has_land() or self.get_inventory().gives_land()
+		return self.location.has_land() or self.carries_land()
+
+
+	def carries_land(self):
+		return self.get_inventory().gives_land()
 
 
 	def has_tether(self):
