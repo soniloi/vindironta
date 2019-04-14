@@ -66,15 +66,29 @@ class CommandHandler(Resolver):
 		if destination is not location:
 			template_keys.append("describe_item_falling")
 			if item.is_fragile():
-					item.destroy()
-					dropped_item = item.replacements[Item.COMMAND_ID_SMASH]
-					content_args.append(dropped_item)
-					template_keys.append("describe_item_smash_hear")
+				template_keys.append("describe_item_smash_hear")
+				dropped_item = self.break_item(item, destination, template_keys, content_args)
 
 		dropped_item.remove_from_containers()
 		destination.insert(dropped_item)
 
 		return True, template_keys, content_args, next_args
+
+
+	def break_item(self, item, destination, template_keys, content_args):
+		item_within = item.break_open()
+		dropped_item = item.replacements[Item.COMMAND_ID_SMASH]
+		content_args.append(dropped_item)
+
+		if item_within:
+			content_args.append(item_within)
+			if item_within.is_liquid():
+				template_keys.append("describe_item_smash_release_liquid")
+			else:
+				destination.insert(item_within)
+				template_keys.append("describe_item_smash_release_solid")
+
+		return dropped_item
 
 
 	def handle_eat(self, command, player, item):
@@ -448,22 +462,12 @@ class CommandHandler(Resolver):
 			template_keys.append("describe_item_falling")
 
 		if item.is_fragile():
-			item_within = item.break_open()
-
-			dropped_item = item.replacements[Item.COMMAND_ID_SMASH]
-			content_args.append(dropped_item)
 			if location.has_floor():
 				template_keys.append("describe_item_smash_see")
 			else:
 				template_keys.append("describe_item_smash_hear")
 
-			if item_within:
-				content_args.append(item_within)
-				if item_within.is_liquid():
-					template_keys.append("describe_item_smash_release_liquid")
-				else:
-					destination.insert(item_within)
-					template_keys.append("describe_item_smash_release_solid")
+			dropped_item = self.break_item(item, destination, template_keys, content_args)
 
 		dropped_item.remove_from_containers()
 		destination.insert(dropped_item)

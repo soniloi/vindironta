@@ -301,7 +301,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(self.lamp in self.mine_location.items.values())
 
 
-	def test_handle_drop_at_location_with_no_floor_fragile(self):
+	def test_handle_drop_at_location_with_no_floor_fragile_empty(self):
 		self.player.location = self.cave_location
 		self.cave_location.directions[Direction.DOWN] = self.mine_location
 		self.player.get_inventory().add(self.bottle)
@@ -315,6 +315,24 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertFalse(self.bottle in self.default_inventory.items.values())
 		self.assertFalse(self.bottle in self.mine_location.items.values())
 		self.assertTrue(self.shards in self.mine_location.items.values())
+
+
+	def test_handle_drop_at_location_with_no_floor_fragile_non_empty(self):
+		self.player.location = self.cave_location
+		self.cave_location.directions[Direction.DOWN] = self.mine_location
+		self.tray.add(self.book)
+		self.player.get_inventory().add(self.tray)
+
+		success, template_keys, content_args, next_args = self.handler.handle_drop(self.command, self.player, self.tray)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_dropped", "describe_item_falling", "describe_item_smash_hear", "describe_item_smash_release_solid"], template_keys)
+		self.assertEqual([self.tray, self.shards, self.book], content_args)
+		self.assertEqual([self.tray], next_args)
+		self.assertFalse(self.tray in self.default_inventory.items.values())
+		self.assertFalse(self.tray in self.mine_location.items.values())
+		self.assertTrue(self.shards in self.mine_location.items.values())
+		self.assertTrue(self.book in self.mine_location.items.values())
 
 
 	def test_handle_eat_liquid(self):
