@@ -60,6 +60,10 @@ class ItemContainer:
 		return any(item.gives_gravity() for item in self.items.values())
 
 
+	def gives_land(self):
+		return any(item.gives_land() for item in self.items.values())
+
+
 	def allows_burning(self):
 		return any(item.allows_burning() for item in self.items.values())
 

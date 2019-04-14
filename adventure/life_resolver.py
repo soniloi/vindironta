@@ -8,6 +8,9 @@ class LifeResolver(Resolver):
 		if not player.has_air():
 			self.kill_non_immune_player(player, template_keys, "death_no_air")
 
+		elif not player.has_land():
+			self.kill_non_immune_player(player, template_keys, "death_no_land")
+
 		elif not player.has_tether():
 			self.kill_non_immune_player(player, template_keys, "death_untethered")
 

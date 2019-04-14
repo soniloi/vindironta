@@ -57,9 +57,41 @@ class TestLifeResolver(unittest.TestCase):
 		self.assertIs(self.player_location, self.player.drop_location)
 
 
+	def test_resolve_life_player_has_no_land_not_immune(self):
+		self.player.take_item(self.book)
+		self.player_location.gives_air.return_value = True
+		self.player_location.has_land.return_value = False
+		self.inventory.gives_land.return_value = False
+		self.inventory.gives_gravity.return_value = False
+
+		response = self.resolver.resolve_life(self.command, self.player)
+
+		self.assertEqual((False, ["death_no_land", "describe_dead", "describe_reincarnation"], [], []), response)
+		self.assertFalse(self.player.is_alive())
+		self.inventory.drop_all_items.assert_called_once_with(self.drop_location)
+		self.assertIs(self.drop_location, self.player.drop_location)
+
+
+	def test_resolve_life_player_has_no_land_immune(self):
+		self.player.set_immune(True)
+		self.player.take_item(self.book)
+		self.player_location.gives_air.return_value = True
+		self.player_location.has_land.return_value = False
+		self.inventory.gives_land.return_value = False
+		self.inventory.gives_gravity.return_value = False
+
+		response = self.resolver.resolve_life(self.command, self.player)
+
+		self.assertEqual((True, [], [], []), response)
+		self.assertTrue(self.player.is_alive())
+		self.inventory.drop_all_items.assert_not_called()
+		self.assertIs(self.player_location, self.player.drop_location)
+
+
 	def test_resolve_life_player_has_no_tether_not_immune(self):
 		self.player.take_item(self.book)
 		self.player_location.gives_air.return_value = True
+		self.player_location.has_land.return_value = True
 		self.player_location.gives_tether.return_value = False
 		self.inventory.gives_gravity.return_value = False
 
@@ -75,6 +107,7 @@ class TestLifeResolver(unittest.TestCase):
 		self.player.set_immune(True)
 		self.player.take_item(self.book)
 		self.player_location.gives_air.return_value = True
+		self.player_location.has_land.return_value = True
 		self.player_location.gives_tether.return_value = False
 		self.inventory.gives_gravity.return_value = False
 

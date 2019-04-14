@@ -21,6 +21,7 @@ class Item(NamedDataElement):
 	ATTRIBUTE_EDIBLE = 0x2000
 	ATTRIBUTE_FRAGILE = 0x4000
 	ATTRIBUTE_SILENT = 0x20000
+	ATTRIBUTE_GIVES_LAND = 0x40000
 	ATTRIBUTE_SENTIENT = 0x80000
 	ATTRIBUTE_ALLOWS_BURNING = 0x200000
 
@@ -197,6 +198,10 @@ class Item(NamedDataElement):
 
 	def is_silent(self):
 		return self.has_attribute(Item.ATTRIBUTE_SILENT)
+
+
+	def gives_land(self):
+		return self.has_attribute(Item.ATTRIBUTE_GIVES_LAND)
 
 
 	def is_sentient(self):
