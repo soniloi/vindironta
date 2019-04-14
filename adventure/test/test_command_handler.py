@@ -46,7 +46,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.sun_location = Location(10, 0x613, Labels("Sun", "in the sun", ". It is hot."))
 		self.cave_location = Location(9, 0x402, Labels("Cave", "in a cave", ". It is dark"))
 		self.airless_location = Location(8, 0x400, Labels("Airless", "in an airless room", ". There is no air here"))
-		self.water_location = Location(8, 0x2, Labels("River", "on a river", ". it moves fast"))
+		self.water_location = Location(8, 0x202, Labels("River", "on a river", ". it moves fast"))
 		self.item_start_location = Location(0, 0x602, Labels("Start", "at the start", ", where items start out."))
 
 		self.data.get_location.side_effect = lambda x: {
@@ -334,6 +334,20 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertFalse(self.tray in self.mine_location.items.values())
 		self.assertTrue(self.shards in self.mine_location.items.values())
 		self.assertTrue(self.book in self.mine_location.items.values())
+
+
+	def test_handle_drop_at_location_with_no_land(self):
+		self.player.location = self.water_location
+		self.player.get_inventory().add(self.book)
+
+		success, template_keys, content_args, next_args = self.handler.handle_drop(self.command, self.player, self.book)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_dropped", "describe_item_sink"], template_keys)
+		self.assertEqual([self.book], content_args)
+		self.assertEqual([self.book], next_args)
+		self.assertFalse(self.book in self.default_inventory.items.values())
+		self.assertFalse(self.book in self.water_location.items.values())
 
 
 	def test_handle_eat_liquid(self):
@@ -1436,6 +1450,20 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertFalse(self.tray in self.default_inventory.items.values())
 		self.assertFalse(self.tray in self.player.location.items.values())
 		self.assertTrue(self.shards in self.player.location.items.values())
+
+
+	def test_handle_throw_at_location_with_no_land(self):
+		self.player.location = self.water_location
+		self.player.get_inventory().add(self.book)
+
+		success, template_keys, content_args, next_args = self.handler.handle_throw(self.command, self.player, self.book)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_throw", "describe_item_sink"], template_keys)
+		self.assertEqual([self.book], content_args)
+		self.assertEqual([self.book], next_args)
+		self.assertFalse(self.book in self.default_inventory.items.values())
+		self.assertFalse(self.book in self.water_location.items.values())
 
 
 	def test_handle_toggle_non_switchable_item(self):

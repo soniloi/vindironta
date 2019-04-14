@@ -70,7 +70,12 @@ class CommandHandler(Resolver):
 				dropped_item = self.break_item(item, destination, template_keys, content_args)
 
 		dropped_item.remove_from_containers()
-		destination.insert(dropped_item)
+
+		if destination.has_land():
+			destination.insert(dropped_item)
+		else:
+			item.destroy()
+			template_keys.append("describe_item_sink")
 
 		return True, template_keys, content_args, next_args
 
@@ -473,7 +478,12 @@ class CommandHandler(Resolver):
 			dropped_item = self.break_item(item, destination, template_keys, content_args)
 
 		dropped_item.remove_from_containers()
-		destination.insert(dropped_item)
+
+		if destination.has_land():
+			destination.insert(dropped_item)
+		else:
+			item.destroy()
+			template_keys.append("describe_item_sink")
 
 		return True, template_keys, content_args, next_args
 
