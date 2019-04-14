@@ -71,6 +71,11 @@ class Item(NamedDataElement):
 			self.copied_from.copied_to.remove(self)
 
 
+	def break_open(self):
+		self.destroy()
+		return None
+
+
 	def is_allow_copy(self, item):
 		return item is self or item is self.copied_from
 
@@ -238,6 +243,13 @@ class ContainerItem(Item, ItemContainer):
 		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
 			list_template=list_template, copied_from=copied_from)
 		ItemContainer.__init__(self)
+
+
+	def break_open(self):
+		self.destroy()
+		if self.has_items():
+			return self.get_contained_item()
+		return None
 
 
 	def gives_air(self):

@@ -61,6 +61,10 @@ class TestItem(unittest.TestCase):
 		self.assertEqual(self.water, water_copy_copy.get_original())
 
 
+	def test_break_open_non_container(self):
+		self.assertIsNone(self.lamp.break_open())
+
+
 	def test_get_list_name_simple(self):
 		self.assertEqual("\n\ta book", self.book.get_list_name())
 
@@ -83,6 +87,12 @@ class TestItem(unittest.TestCase):
 
 	def test_get_non_silent_list_name_simple_non_silent_item(self):
 		self.assertEqual("\n\ta book", self.book.get_non_silent_list_name())
+
+
+	def test_break_open_container(self):
+		self.box.insert(self.book)
+
+		self.assertEqual(self.book, self.box.break_open())
 
 
 	def test_get_list_name_container_empty(self):

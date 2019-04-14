@@ -80,6 +80,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.dust = Item(1115, 0x2, Labels("dust", "some dust", "some grey dust"), 1, None)
 		self.rock = Item(1116, 0x1000, Labels("rock", "a rock", "a large rock"), 15, None)
 		self.rock.replacements[73] = self.dust
+		self.tray = ContainerItem(1117, 0x4003, Labels("tray", "a tray", "a glass tray"), 4, None)
+		self.tray.replacements[73] = self.shards
 
 
 	def setup_texts(self):
@@ -1297,7 +1299,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_throw"], template_keys)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([self.book], next_args)
-		self.assertFalse(self.book in self.bottle.items.values())
+		self.assertFalse(self.book in self.default_inventory.items.values())
 		self.assertTrue(self.book in self.player.location.items.values())
 
 
@@ -1310,7 +1312,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_throw", "describe_item_smash_see"], template_keys)
 		self.assertEqual([self.bottle, self.shards], content_args)
 		self.assertEqual([self.bottle], next_args)
-		self.assertFalse(self.bottle in self.bottle.items.values())
+		self.assertFalse(self.bottle in self.default_inventory.items.values())
 		self.assertFalse(self.bottle in self.player.location.items.values())
 		self.assertTrue(self.shards in self.player.location.items.values())
 
@@ -1326,7 +1328,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_throw", "describe_item_falling"], template_keys)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([self.book], next_args)
-		self.assertFalse(self.book in self.bottle.items.values())
+		self.assertFalse(self.book in self.default_inventory.items.values())
 		self.assertFalse(self.book in self.cave_location.items.values())
 		self.assertTrue(self.book in self.mine_location.items.values())
 
@@ -1342,10 +1344,54 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_throw", "describe_item_falling", "describe_item_smash_hear"], template_keys)
 		self.assertEqual([self.bottle, self.shards], content_args)
 		self.assertEqual([self.bottle], next_args)
-		self.assertFalse(self.bottle in self.bottle.items.values())
+		self.assertFalse(self.bottle in self.default_inventory.items.values())
 		self.assertFalse(self.bottle in self.cave_location.items.values())
 		self.assertFalse(self.shards in self.cave_location.items.values())
 		self.assertTrue(self.shards in self.mine_location.items.values())
+
+
+	def test_handle_throw_fragile_liquid_container(self):
+		self.bottle.add(self.water)
+		self.player.get_inventory().add(self.bottle)
+
+		success, template_keys, content_args, next_args = self.handler.handle_throw(self.command, self.player, self.bottle)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_throw", "describe_item_smash_see", "describe_item_smash_release_liquid"], template_keys)
+		self.assertEqual([self.bottle, self.shards, self.water], content_args)
+		self.assertEqual([self.bottle], next_args)
+		self.assertFalse(self.bottle in self.default_inventory.items.values())
+		self.assertFalse(self.bottle in self.player.location.items.values())
+		self.assertTrue(self.shards in self.player.location.items.values())
+
+
+	def test_handle_throw_fragile_solid_container(self):
+		self.tray.insert(self.book)
+		self.player.get_inventory().insert(self.tray)
+
+		success, template_keys, content_args, next_args = self.handler.handle_throw(self.command, self.player, self.tray)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_throw", "describe_item_smash_see", "describe_item_smash_release_solid"], template_keys)
+		self.assertEqual([self.tray, self.shards, self.book], content_args)
+		self.assertEqual([self.tray], next_args)
+		self.assertFalse(self.tray in self.default_inventory.items.values())
+		self.assertFalse(self.tray in self.player.location.items.values())
+		self.assertTrue(self.shards in self.player.location.items.values())
+
+
+	def test_handle_throw_fragile_container_empty(self):
+		self.player.get_inventory().insert(self.tray)
+
+		success, template_keys, content_args, next_args = self.handler.handle_throw(self.command, self.player, self.tray)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_throw", "describe_item_smash_see"], template_keys)
+		self.assertEqual([self.tray, self.shards], content_args)
+		self.assertEqual([self.tray], next_args)
+		self.assertFalse(self.tray in self.default_inventory.items.values())
+		self.assertFalse(self.tray in self.player.location.items.values())
+		self.assertTrue(self.shards in self.player.location.items.values())
 
 
 	def test_handle_toggle_non_switchable_item(self):
