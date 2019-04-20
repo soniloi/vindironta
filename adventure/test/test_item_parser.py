@@ -497,6 +497,37 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(0, len(related_commands))
 
 
+	def test_init_sailable(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1205, \
+					\"attributes\": \"10000\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 3, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"raft\" \
+						], \
+						\"longname\": \"a raft\", \
+						\"description\": \"a rickety raft\" \
+					}, \
+					\"using_info\": \"40000\" \
+				} \
+			]"
+		)
+
+		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(collection.items_by_name))
+		suit = collection.items_by_name["raft"]
+		self.assertTrue(isinstance(suit, UsableItem))
+		self.assertEqual(0x40000, suit.attribute_activated)
+		self.assertEqual(0, len(related_commands))
+
+
 	def test_init_item_with_related_command(self):
 		item_inputs = json.loads(
 			"[ \

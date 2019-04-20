@@ -138,7 +138,7 @@ class ItemParser:
 				list_template=list_template, switch_info=switch_info)
 			switched_element_ids[item] = switched_element_id
 
-		elif bool(attributes & Item.ATTRIBUTE_WEARABLE):
+		elif bool(attributes & Item.ATTRIBUTE_WEARABLE) or bool(attributes & Item.ATTRIBUTE_SAILABLE):
 			item = UsableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
 				list_template=list_template, attribute_activated=attribute_when_used)
 
