@@ -1,5 +1,5 @@
 from adventure.element import Labels
-from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, WearableItem
+from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, UsableItem
 from adventure.item_collection import ItemCollection
 from adventure.token_translator import TokenTranslator
 
@@ -53,9 +53,9 @@ class ItemParser:
 		if "switch_info" in item_input:
 			switched_element_id, switch_info = self.parse_switch_info(item_input["switch_info"])
 
-		wearing_info = None
-		if "wearing_info" in item_input:
-			wearing_info = int(item_input["wearing_info"], 16)
+		using_info = None
+		if "using_info" in item_input:
+			using_info = int(item_input["using_info"], 16)
 
 		item_replacements = {}
 		if "replacements" in item_input:
@@ -76,7 +76,7 @@ class ItemParser:
 			switched_element_ids=switched_element_ids,
 			switched_element_id=switched_element_id,
 			switch_info=switch_info,
-			attribute_when_worn=wearing_info,
+			attribute_when_used=using_info,
 			list_template=list_template,
 		)
 
@@ -121,7 +121,7 @@ class ItemParser:
 			switched_element_id,
 			switched_element_ids,
 			switch_info,
-			attribute_when_worn,
+			attribute_when_used,
 			list_template,
 		):
 
@@ -139,8 +139,8 @@ class ItemParser:
 			switched_element_ids[item] = switched_element_id
 
 		elif bool(attributes & Item.ATTRIBUTE_WEARABLE):
-			item = WearableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-				list_template=list_template, attribute_activated=attribute_when_worn)
+			item = UsableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
+				list_template=list_template, attribute_activated=attribute_when_used)
 
 		else:
 			item = Item(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,

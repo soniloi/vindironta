@@ -6,7 +6,7 @@ from adventure.command_handler import CommandHandler
 from adventure.direction import Direction
 from adventure.element import Labels
 from adventure.inventory import Inventory
-from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, SwitchTransition, WearableItem
+from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, SwitchTransition, UsableItem
 from adventure.location import Location
 from adventure.player import Player
 
@@ -67,7 +67,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.obstruction = Item(1002, 0x4, Labels("obstruction", "an obstruction", "an obstruction blocking you"), 8, None)
 		self.mobile_obstruction = Item(1003, 0x6, Labels("mobile_obstruction", "a mobile obstruction", "a mobile obstruction"), 5, None)
 		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None)
-		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, None, Item.ATTRIBUTE_GIVES_AIR)
+		self.suit = UsableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, None, Item.ATTRIBUTE_GIVES_AIR)
 		self.shards = Item(1114, 0x2, Labels("shards", "some shards", "some glass shards"), 1, None)
 		self.bottle = ContainerItem(1108, 0x4203, Labels("bottle", "a bottle", "a small glass bottle"), 3, None)
 		self.bottle.replacements[73] = self.shards
@@ -245,7 +245,7 @@ class TestCommandHandler(unittest.TestCase):
 
 	def test_handle_drop_wearable(self):
 		self.player.get_inventory().add(self.suit)
-		self.suit.being_worn = True
+		self.suit.being_used = True
 
 		success, template_keys, content_args, next_args = self.handler.handle_drop(self.command, self.player, self.suit)
 
@@ -255,7 +255,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual([self.suit], next_args)
 		self.assertFalse(self.suit in self.player.get_inventory().items.values())
 		self.assertTrue(self.suit in self.player.location.items.values())
-		self.assertFalse(self.suit.being_worn)
+		self.assertFalse(self.suit.being_used)
 
 
 	def test_handle_drop_from_inside_container(self):
@@ -1533,7 +1533,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_wear_wearable_already_wearing(self):
-		self.suit.being_worn = True
+		self.suit.being_used = True
 
 		success, template_keys, content_args, next_args = self.handler.handle_wear(self.command, self.player, self.suit)
 
@@ -1545,7 +1545,7 @@ class TestCommandHandler(unittest.TestCase):
 
 	def test_handle_wear_wearable_not_already_wearing(self):
 		self.player.location.add(self.suit)
-		self.suit.being_worn = False
+		self.suit.being_used = False
 
 		success, template_keys, content_args, next_args = self.handler.handle_wear(self.command, self.player, self.suit)
 

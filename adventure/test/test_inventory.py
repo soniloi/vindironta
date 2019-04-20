@@ -1,7 +1,7 @@
 import unittest
 
 from adventure.element import Labels
-from adventure.item import Item, WearableItem
+from adventure.item import Item, UsableItem
 from adventure.inventory import Inventory
 from adventure.location import Location
 
@@ -14,7 +14,7 @@ class TestInventory(unittest.TestCase):
 		self.lamp = Item(1043, 0x101A, Labels("lamp", "a lamp", "a small lamp"), 2, None)
 		self.coin = Item(1000, 0x2, Labels("coin", "a coin", "a silver coin"), 1, None)
 		self.medal = Item(1001, 0x2, Labels("medal", "a medal", "a gold medal"), 1, None)
-		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, None, Item.ATTRIBUTE_GIVES_AIR)
+		self.suit = UsableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, None, Item.ATTRIBUTE_GIVES_AIR)
 		self.water = Item(1109, 0x22902, Labels("water", "some water", "some water"), 1, None)
 		self.drop_location = Location(12, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
 
@@ -55,16 +55,16 @@ class TestInventory(unittest.TestCase):
 		self.assertFalse(self.inventory.can_accommodate(self.lamp))
 
 
-	def test_can_accommodate_above_capacity_wearable_not_being_worn(self):
+	def test_can_accommodate_above_capacity_wearable_not_being_used(self):
 		self.inventory.insert(self.suit)
-		self.suit.being_worn = False
+		self.suit.being_used = False
 
 		self.assertFalse(self.inventory.can_accommodate(self.lamp))
 
 
-	def test_can_accommodate_above_capacity_wearable_being_worn(self):
+	def test_can_accommodate_above_capacity_wearable_being_used(self):
 		self.inventory.insert(self.suit)
-		self.suit.being_worn = True
+		self.suit.being_used = True
 
 		self.assertTrue(self.inventory.can_accommodate(self.lamp))
 

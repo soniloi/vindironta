@@ -510,11 +510,11 @@ class CommandHandler(Resolver):
 		if not item.is_wearable():
 			return False, ["reject_not_wearable"], [item], []
 
-		if item.being_worn:
+		if item.being_used:
 			return False, ["reject_already_wearing"], [item], []
 
 		player.take_item(item)
-		item.being_worn = True
+		item.being_used = True
 		return True, ["confirm_wearing"], [item], [item]
 
 

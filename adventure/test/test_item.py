@@ -4,7 +4,7 @@ import unittest
 from adventure.command import Command
 from adventure.element import Labels
 from adventure.inventory import Inventory
-from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, WearableItem
+from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, UsableItem
 from adventure.location import Location
 
 class TestItem(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestItem(unittest.TestCase):
 		self.lamp = SwitchableItem(1043, 0x100A, Labels("lamp", "a lamp", "a small lamp"), 2, None, "{0} ({1})", lamp_switching_info)
 		self.button = SwitchableItem(1044, 0x8, Labels("button", "a button", "a red button", [". It is dark", ". It is glowing"]), 2, None, "{0} ({1})", button_switching_info)
 		self.lever = SwitchableItem(1045, 0x8, Labels("lever", "a lever", "a mysterious lever"), 2, None, "{0} ({1})", lever_switching_info)
-		self.suit = WearableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, "{0} (being worn)", Item.ATTRIBUTE_GIVES_AIR)
+		self.suit = UsableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, "{0} (being worn)", Item.ATTRIBUTE_GIVES_AIR)
 		self.cat = SentientItem(1047, 0x80002, Labels("cat", "a cat", "a black cat"), 3, None, None)
 		self.water = Item(1109, 0x22902, Labels("water", "some water", "some water", [". It is cold", ". It is hot"]), 1, None, None)
 		self.mine_location = Location(11, 0x0, Labels("Mines", "in the mines", ". There are dark passages everywhere."))
@@ -258,26 +258,26 @@ class TestItem(unittest.TestCase):
 		self.assertEqual(["a red button. It is dark", "up"], self.button.get_full_description())
 
 
-	def test_has_attribute_wearable_not_being_worn(self):
-		self.suit.being_worn = False
+	def test_has_attribute_wearable_not_being_used(self):
+		self.suit.being_used = False
 
 		self.assertFalse(self.suit.gives_air())
 
 
-	def test_has_attribute_wearable_being_worn(self):
-		self.suit.being_worn = True
+	def test_has_attribute_wearable_being_used(self):
+		self.suit.being_used = True
 
 		self.assertTrue(self.suit.gives_air())
 
 
-	def test_list_name_wearable_not_being_worn(self):
-		self.suit.being_worn = False
+	def test_list_name_wearable_not_being_used(self):
+		self.suit.being_used = False
 
 		self.assertEqual("\n\ta suit", self.suit.get_list_name())
 
 
-	def test_list_name_wearable_being_worn(self):
-		self.suit.being_worn = True
+	def test_list_name_wearable_being_used(self):
+		self.suit.being_used = True
 
 		self.assertEqual("\n\ta suit (being worn)", self.suit.get_list_name())
 

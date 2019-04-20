@@ -410,34 +410,34 @@ class SwitchableItem(Item):
 		self.switched_element.toggle_attribute(self.switched_attribute)
 
 
-class WearableItem(Item):
+class UsableItem(Item):
 
 	def __init__(self, item_id, attributes, labels, size, writing, list_template, attribute_activated,
 			copied_from=None):
 		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
 			list_template=list_template, copied_from=copied_from)
 		self.attribute_activated = attribute_activated
-		self.being_worn = False
+		self.being_used = False
 
 
 	def has_attribute(self, attribute):
-		if self.being_worn:
+		if self.being_used:
 			return bool((self.attributes | self.attribute_activated) & attribute)
 		return Item.has_attribute(self, attribute)
 
 
 	def get_base_list_name(self):
-		if self.being_worn and self.list_template:
+		if self.being_used and self.list_template:
 			return self.get_formatted_list_name()
 		return self.longname
 
 
 	def get_weight(self):
-		if self.being_worn:
+		if self.being_used:
 			return 0
 		return self.size
 
 
 	def update_container(self, container):
 		Item.update_container(self, container)
-		self.being_worn = False
+		self.being_used = False

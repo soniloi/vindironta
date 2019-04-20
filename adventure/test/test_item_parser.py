@@ -3,7 +3,7 @@ import unittest
 
 from adventure.command import Command
 from adventure.element import Labels
-from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, WearableItem
+from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, UsableItem
 from adventure.item_parser import ItemParser
 from adventure.location import Location
 
@@ -483,7 +483,7 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"a suit\", \
 						\"description\": \"a space-suit\" \
 					}, \
-					\"wearing_info\": \"20\" \
+					\"using_info\": \"20\" \
 				} \
 			]"
 		)
@@ -492,7 +492,7 @@ class TestItemParser(unittest.TestCase):
 
 		self.assertEqual(1, len(collection.items_by_name))
 		suit = collection.items_by_name["suit"]
-		self.assertTrue(isinstance(suit, WearableItem))
+		self.assertTrue(isinstance(suit, UsableItem))
 		self.assertEqual(0x20, suit.attribute_activated)
 		self.assertEqual(0, len(related_commands))
 
