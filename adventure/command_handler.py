@@ -42,6 +42,17 @@ class CommandHandler(Resolver):
 		return True, template_keys, item.get_full_description(), [item]
 
 
+	def handle_disembark(self, command, player, item):
+		if not item.is_sailable():
+			return False, ["reject_not_sailable"], [item], []
+
+		if not item.being_used:
+			return False, ["reject_not_sailing"], [item], []
+
+		item.being_used = False
+		return True, ["confirm_disembark"], [item], [item]
+
+
 	def handle_drink(self, command, player, item):
 		if not item.is_liquid():
 			return False, ["reject_drink_solid"], [item], []

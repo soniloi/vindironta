@@ -207,6 +207,37 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual([self.lamp], next_args)
 
 
+	def test_handle_disembark_not_sailable(self):
+		success, template_keys, content_args, next_args = self.handler.handle_disembark(self.command, self.player, self.book)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_not_sailable"], template_keys)
+		self.assertEqual([self.book], content_args)
+		self.assertEqual([], next_args)
+
+
+	def test_handle_disembark_not_sailing(self):
+		success, template_keys, content_args, next_args = self.handler.handle_disembark(self.command, self.player, self.raft)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_not_sailing"], template_keys)
+		self.assertEqual([self.raft], content_args)
+		self.assertEqual([], next_args)
+		self.assertFalse(self.raft.being_used)
+
+
+	def test_handle_disembark_success(self):
+		self.raft.being_used = True
+
+		success, template_keys, content_args, next_args = self.handler.handle_disembark(self.command, self.player, self.raft)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_disembark"], template_keys)
+		self.assertEqual([self.raft], content_args)
+		self.assertEqual([self.raft], next_args)
+		self.assertFalse(self.raft.being_used)
+
+
 	def test_handle_drink_solid(self):
 		self.item_start_location.add(self.bread)
 
