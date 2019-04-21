@@ -385,6 +385,9 @@ class CommandHandler(Resolver):
 			return False, ["reject_no_water_sail"], [item], []
 
 		if item.being_used:
+			return False, ["reject_already_sailing_item"], [item], []
+
+		if player.is_sailing():
 			return False, ["reject_already_sailing"], [item], []
 
 		item.being_used = True

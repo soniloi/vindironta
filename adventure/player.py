@@ -164,6 +164,10 @@ class Player(DataElement):
 		return self.get_inventory().gives_land()
 
 
+	def is_sailing(self):
+		return self.carries_land()
+
+
 	def has_tether(self):
 		return self.location.gives_tether() or self.get_inventory().gives_gravity()
 

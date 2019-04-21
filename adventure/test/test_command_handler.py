@@ -84,6 +84,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.tray = ContainerItem(1117, 0x4003, Labels("tray", "a tray", "a glass tray"), 4, None)
 		self.tray.replacements[73] = self.shards
 		self.raft = UsableItem(1118, 0x10000, Labels("raft", "a raft", "a rickety raft"), 6, None, None, Item.ATTRIBUTE_GIVES_LAND)
+		self.boat = UsableItem(1119, 0x10000, Labels("boat", "a boat", "a wooden boat"), 6, None, None, Item.ATTRIBUTE_GIVES_LAND)
 
 
 	def setup_texts(self):
@@ -1101,9 +1102,23 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertFalse(self.raft.being_used)
 
 
-	def test_handle_sail_already_sailing(self):
+	def test_handle_sail_already_sailing_item(self):
 		self.player.location = self.water_location
 		self.raft.being_used = True
+
+		success, template_keys, content_args, next_args = self.handler.handle_sail(self.command, self.player, self.raft)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_already_sailing_item"], template_keys)
+		self.assertEqual([self.raft], content_args)
+		self.assertEqual([], next_args)
+		self.assertTrue(self.raft.being_used)
+
+
+	def test_handle_sail_already_sailing(self):
+		self.player.location = self.water_location
+		self.default_inventory.insert(self.boat)
+		self.boat.being_used = True
 
 		success, template_keys, content_args, next_args = self.handler.handle_sail(self.command, self.player, self.raft)
 
@@ -1111,7 +1126,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["reject_already_sailing"], template_keys)
 		self.assertEqual([self.raft], content_args)
 		self.assertEqual([], next_args)
-		self.assertTrue(self.raft.being_used)
+		self.assertFalse(self.raft.being_used)
 
 
 	def test_handle_sail_success(self):
