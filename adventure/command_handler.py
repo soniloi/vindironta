@@ -215,6 +215,9 @@ class CommandHandler(Resolver):
 		if direction == Direction.DOWN and not current_location.has_floor():
 			return "reject_movement_no_floor"
 
+		if player.is_sailing() and not proposed_location.has_water():
+			return "reject_movement_no_water"
+
 		return None
 
 

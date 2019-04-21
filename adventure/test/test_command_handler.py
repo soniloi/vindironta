@@ -712,6 +712,20 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertIs(self.mine_location, self.player.location)
 
 
+	def test_handle_go_sail_without_water(self):
+		self.player.location = self.water_location
+		self.default_inventory.insert(self.raft)
+		self.raft.being_used = True
+
+		success, template_keys, content_args, next_args = self.handler.handle_go(self.command, self.player, Direction.EAST, self.lighthouse_location)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_movement_no_water"], template_keys)
+		self.assertEqual([], content_args)
+		self.assertEqual([], next_args)
+		self.assertIs(self.water_location, self.player.location)
+
+
 	def test_handle_go_disambiguate(self):
 		success, template_keys, content_args, next_args = self.handler.handle_go_disambiguate(self.command, self.player, "east")
 
