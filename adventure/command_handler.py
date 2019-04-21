@@ -365,6 +365,21 @@ class CommandHandler(Resolver):
 		return True, [], [], [item]
 
 
+	def handle_sail(self, command, player, item):
+		if not item.is_sailable():
+			return False, ["reject_not_sailable"], [item], []
+
+		location = player.get_location()
+		if not location.has_water():
+			return False, ["reject_no_water_sail"], [item], []
+
+		if item.being_used:
+			return False, ["reject_already_sailing"], [item], []
+
+		item.being_used = True
+		return True, ["confirm_sail"], [item], [item]
+
+
 	def handle_say(self, command, player, word, audience=None):
 		content_args = [word]
 		next_args = [word]

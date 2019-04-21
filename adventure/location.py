@@ -11,6 +11,7 @@ class Location(NamedDataElement, ItemContainer):
 	ATTRIBUTE_HAS_CEILING = 0x100
 	ATTRIBUTE_HAS_FLOOR = 0x200
 	ATTRIBUTE_HAS_LAND = 0x400
+	ATTRIBUTE_HAS_WATER = 0x800
 
 	def __init__(self, location_id, attributes, labels):
 		NamedDataElement.__init__(self, data_id=location_id, attributes=attributes, labels=labels)
@@ -88,6 +89,10 @@ class Location(NamedDataElement, ItemContainer):
 
 	def has_land(self):
 		return self.has_attribute(Location.ATTRIBUTE_HAS_LAND)
+
+
+	def has_water(self):
+		return self.has_attribute(Location.ATTRIBUTE_HAS_WATER)
 
 
 	def gives_tether(self):
