@@ -1637,6 +1637,15 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(self.player.is_verbose())
 
 
+	def test_handle_wave(self):
+		success, template_keys, content_args, next_args = self.handler.handle_wave(self.command, self.player, self.lamp)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_wave"], template_keys)
+		self.assertEqual([self.lamp], content_args)
+		self.assertEqual([self.lamp], next_args)
+
+
 	def test_handle_wear_not_wearable(self):
 		success, template_keys, content_args, next_args = self.handler.handle_wear(self.command, self.player, self.lamp)
 

@@ -542,6 +542,10 @@ class CommandHandler(Resolver):
 		return True, [template_key], [arg], [arg]
 
 
+	def handle_wave(self, command, player, item):
+		return True, ["confirm_wave"], [item], [item]
+
+
 	def handle_wear(self, command, player, item):
 		if not item.is_wearable():
 			return False, ["reject_not_wearable"], [item], []
