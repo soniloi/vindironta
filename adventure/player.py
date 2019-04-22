@@ -9,9 +9,10 @@ class Player(DataElement):
 	ATTRIBUTE_VERBOSE = 0x8
 	ATTRIBUTE_STRONG = 0x10
 
-	def __init__(self, player_id, attributes, initial_location, default_inventory, inventories_by_location_id={}):
+	def __init__(self, player_id, attributes, initial_location, reincarnation_location, default_inventory, inventories_by_location_id={}):
 		DataElement.__init__(self, data_id=player_id, attributes=attributes)
 		self.location = initial_location
+		self.reincarnation_location = reincarnation_location
 		self.previous_location = None
 		self.drop_location = initial_location
 		self.score = 0
@@ -234,3 +235,9 @@ class Player(DataElement):
 	def reset_current_command(self):
 		self.current_command = None
 		self.current_args = []
+
+
+	def reincarnate(self):
+		self.set_alive(True)
+		self.location = self.reincarnation_location
+		self.previous_location = None

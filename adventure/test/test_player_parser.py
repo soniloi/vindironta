@@ -15,11 +15,11 @@ class TestPlayerParser(unittest.TestCase):
 
 	def setup_locations(self):
 		self.lighthouse_location = Location(12, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
-		#self.mine_location = Location(11, 0x0, Labels("Mines", "in the mines", ". There are dark passages everywhere."))
-		#self.cave_location = Location(9, 0x0, Labels("Cave", "in a cave", ". It is dark"))
+		self.cave_location = Location(9, 0x0, Labels("Cave", "in a cave", ". It is dark"))
 
 		self.location_map = {
 			12 : self.lighthouse_location,
+			9 : self.cave_location,
 		}
 
 
@@ -47,7 +47,8 @@ class TestPlayerParser(unittest.TestCase):
 				{ \
 					\"data_id\": 9000, \
 					\"attributes\": \"3\", \
-					\"location_id\": 12 \
+					\"location_id\": 12, \
+					\"reincarnation_location_id\": 9 \
 				} \
 			]"
 		)
@@ -57,6 +58,7 @@ class TestPlayerParser(unittest.TestCase):
 		self.assertEqual(9000, player.data_id)
 		self.assertEqual(3, player.attributes)
 		self.assertEqual(self.lighthouse_location, player.location)
+		self.assertEqual(self.cave_location, player.reincarnation_location)
 
 		default_inventory = player.default_inventory
 		self.assertEqual(self.default_inventory.data_id, default_inventory.data_id)
@@ -78,12 +80,14 @@ class TestPlayerParser(unittest.TestCase):
 				{ \
 					\"data_id\": 9000, \
 					\"attributes\": \"3\", \
-					\"location_id\": 12 \
+					\"location_id\": 12, \
+					\"reincarnation_location_id\": 9 \
 				}, \
 				{ \
 					\"data_id\": 9001, \
 					\"attributes\": \"5\", \
-					\"location_id\": 17 \
+					\"location_id\": 17, \
+					\"reincarnation_location_id\": 17 \
 				} \
 			]"
 		)

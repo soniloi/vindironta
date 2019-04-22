@@ -186,9 +186,7 @@ class TestTokenProcessor(unittest.TestCase):
 		response = self.processor.process_tokens(self.player, ["yes"])
 
 		self.assertEqual("You have been reincarnated.", response)
-		self.player.set_alive.assert_called_once_with(True)
-		self.player.set_location.assert_called_once_with(self.initial_location)
-		self.player.set_previous_location.assert_called_once_with(None)
+		self.player.reincarnate.assert_called_once()
 		self.player.set_playing.assert_not_called()
 
 

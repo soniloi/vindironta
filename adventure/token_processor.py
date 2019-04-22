@@ -1,7 +1,5 @@
 class TokenProcessor:
 
-	PLAYER_INITIAL_LOCATION_ID = 9
-
 	def __init__(self, data, command_runner):
 		self.data = data
 		self.commands = data.get_commands()
@@ -52,7 +50,7 @@ class TokenProcessor:
 		answer = tokens[0]
 
 		if self.data.matches_input("true", answer):
-			self.process_reincarnation(player)
+			player.reincarnate()
 			return self.data.get_response("confirm_reincarnation")
 
 		elif self.data.matches_input("false", answer):
@@ -60,9 +58,3 @@ class TokenProcessor:
 			return self.data.get_response("confirm_quit")
 
 		return self.data.get_response("reject_no_understand_selection")
-
-
-	def process_reincarnation(self, player):
-		player.set_alive(True)
-		player.set_location(self.data.get_location(TokenProcessor.PLAYER_INITIAL_LOCATION_ID))
-		player.set_previous_location(None)
