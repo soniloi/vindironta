@@ -224,7 +224,7 @@ class TestArgumentResolver(unittest.TestCase):
 
 		response = self.resolver.resolve_args(command, self.player, "book")
 
-		self.assertEqual((False, ["reject_carrying"], ["book"], []), response)
+		self.assertEqual((False, ["reject_carrying"], ["take", "book"], []), response)
 
 
 	def test_resolve_args_with_item_arg_known_needs_location_only_and_player_not_near(self):

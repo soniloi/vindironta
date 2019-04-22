@@ -202,7 +202,7 @@ class ArgumentResolver(Resolver):
 
 		if arg_info.takes_item_arg_from_location_only():
 			if carried_item:
-				return False, "reject_carrying", [item.shortname]
+				return False, "reject_carrying", [command.primary, item.shortname]
 			if not nearby_item:
 				return False, "reject_not_here", [item.shortname]
 			item = nearby_item
