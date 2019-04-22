@@ -435,6 +435,10 @@ class CommandHandler(Resolver):
 		return self.replace_item(command, item, "confirm_smash")
 
 
+	def handle_swim(self, command, player):
+		return False, ["reject_no_know_swim"], [], []
+
+
 	def handle_switch(self, command, player, item, transition):
 		if transition == SwitchTransition.OFF:
 			if not item.is_on():

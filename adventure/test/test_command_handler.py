@@ -1285,6 +1285,15 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertFalse(self.lamp.is_on())
 
 
+	def test_handle_swim(self):
+		success, template_keys, content_args, next_args = self.handler.handle_swim(self.command, self.player)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_no_know_swim"], template_keys)
+		self.assertEqual([], content_args)
+		self.assertEqual([], next_args)
+
+
 	def test_handle_switch_off_to_on(self):
 		self.lamp.switch_off()
 
