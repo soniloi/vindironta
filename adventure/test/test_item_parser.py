@@ -14,11 +14,13 @@ class TestItemParser(unittest.TestCase):
 		self.lighthouse_location = Location(81, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
 		self.box = ContainerItem(1108, 0x3, Labels("box", "a box", "a small box"), 3, None)
 		self.ash = Item(1109, 0x0, Labels("ash", "some ash", "some black ash"), 1, None)
+		self.candle = Item(1110, 0x0, Labels("candle", "a candle", "a small candle"), 2, None)
 		self.elements = {
 			80 : self.library_location,
 			81 : self.lighthouse_location,
 			1108 : self.box,
 			1109 : self.ash,
+			1110 : self.candle,
 		}
 
 		self.command = Command(17, 0x0, 0x0, [], [""],  {}, {})
@@ -430,7 +432,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(0, len(related_commands))
 
 
-	def test_init_replaceable(self):
+	def test_init_replaceable_simple(self):
 		item_inputs = json.loads(
 			"[ \
 				{ \
@@ -462,7 +464,48 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(1, len(collection.items_by_name))
 		paper = collection.items_by_name["paper"]
 		self.assertEqual(1, len(paper.replacements))
-		self.assertEqual(self.ash, paper.replacements[6])
+		replacement_6 = paper.replacements[6]
+		self.assertIs(self.ash, replacement_6.replacement)
+		self.assertIsNone(replacement_6.tool)
+		self.assertEqual(0, len(related_commands))
+
+
+	def test_init_replaceable_with_tool(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1205, \
+					\"attributes\": \"100000\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"paper\" \
+						], \
+						\"longname\": \"some paper\", \
+						\"description\": \"some old paper\" \
+					}, \
+					\"replacements\": [ \
+						{ \
+							\"command_id\": 6, \
+							\"replacement_id\": 1109, \
+							\"tool_id\": 1110 \
+						} \
+					] \
+				} \
+			]"
+		)
+
+		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(collection.items_by_name))
+		paper = collection.items_by_name["paper"]
+		self.assertEqual(1, len(paper.replacements))
+		replacement_6 = paper.replacements[6]
+		self.assertIs(self.ash, replacement_6.replacement)
+		self.assertIs(self.candle, replacement_6.tool)
 		self.assertEqual(0, len(related_commands))
 
 

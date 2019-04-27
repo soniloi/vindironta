@@ -4,6 +4,8 @@ from enum import Enum
 from adventure.element import Labels, NamedDataElement
 from adventure.item_container import ItemContainer
 
+Replacement = namedtuple("Replacement", "replacement tool")
+
 class Item(NamedDataElement):
 
 	ATTRIBUTE_CONTAINER = 0x1

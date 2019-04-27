@@ -1,7 +1,11 @@
+from collections import namedtuple
+
 from adventure.element import Labels
-from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, UsableItem
+from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, UsableItem, Replacement
 from adventure.item_collection import ItemCollection
 from adventure.token_translator import TokenTranslator
+
+ReplacementInfo = namedtuple("ReplacementInfo", "replacement_id tool_id")
 
 class ItemParser:
 
@@ -105,7 +109,8 @@ class ItemParser:
 		for replacement_input in replacement_inputs:
 			command_id = replacement_input["command_id"]
 			replacement_id = replacement_input["replacement_id"]
-			item_replacements[command_id] = replacement_id
+			tool_id = replacement_input.get("tool_id", None)
+			item_replacements[command_id] = ReplacementInfo(replacement_id=replacement_id, tool_id=tool_id)
 
 
 	def parse_list_template(self, list_template_input):
@@ -163,8 +168,9 @@ class ItemParser:
 			switching_item.switched_element = element
 
 
-	def resolve_replacements(self, replacements, elements_by_id):
-		for replaced_item, replacement_ids in replacements.items():
-			for command_id, replacement_id in replacement_ids.items():
-				replacement = elements_by_id.get(replacement_id)
-				replaced_item.replacements[command_id] = replacement
+	def resolve_replacements(self, replacement_infos_by_replaced, elements_by_id):
+		for replaced_item, replacement_infos in replacement_infos_by_replaced.items():
+			for command_id, replacement_info in replacement_infos.items():
+				replacement = elements_by_id.get(replacement_info.replacement_id)
+				tool = elements_by_id.get(replacement_info.tool_id)
+				replaced_item.replacements[command_id] = Replacement(replacement=replacement, tool=tool)
