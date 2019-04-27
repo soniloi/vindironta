@@ -6,7 +6,7 @@ from adventure.command_handler import CommandHandler
 from adventure.direction import Direction
 from adventure.element import Labels
 from adventure.inventory import Inventory
-from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, SwitchTransition, UsableItem, Replacement
+from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, SwitchTransition, UsableItem, Transformation
 from adventure.location import Location
 from adventure.player import Player
 
@@ -70,24 +70,24 @@ class TestCommandHandler(unittest.TestCase):
 		self.suit = UsableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, None, Item.ATTRIBUTE_GIVES_AIR)
 		self.shards = Item(1114, 0x2, Labels("shards", "some shards", "some glass shards"), 1, None)
 		self.bottle = ContainerItem(1108, 0x4203, Labels("bottle", "a bottle", "a small glass bottle"), 3, None)
-		self.bottle.replacements[73] = Replacement(replacement=self.shards, tool=None)
+		self.bottle.transformations[73] = Transformation(replacement=self.shards, tool=None)
 		self.cat = SentientItem(1047, 0x80003, Labels("cat", "a cat", "a black cat"), 3, None)
 		self.bread = Item(1109, 0x2002, Labels("bread", "some bread", "a loaf of bread"), 2, None)
 		self.water = Item(1110, 0x22902, Labels("water", "some water", "some water"), 1, None)
 		self.ash = Item(1112, 0x0, Labels("ash", "some ash", "some black ash"), 1, None)
 		self.paper = Item(1111, 0x100000, Labels("paper", "some paper", "some old paper"), 1, None)
-		self.paper.replacements[6] = Replacement(replacement=self.ash, tool=None)
+		self.paper.transformations[6] = Transformation(replacement=self.ash, tool=None)
 		self.matches = Item(1113, 0x200000, Labels("matches", "some matches", "a box of matches"), 2, None)
 		self.dust = Item(1115, 0x2, Labels("dust", "some dust", "some grey dust"), 1, None)
 		self.rock = Item(1116, 0x1000, Labels("rock", "a rock", "a large rock"), 15, None)
-		self.rock.replacements[73] = Replacement(replacement=self.dust, tool=None)
+		self.rock.transformations[73] = Transformation(replacement=self.dust, tool=None)
 		self.tray = ContainerItem(1117, 0x4003, Labels("tray", "a tray", "a glass tray"), 4, None)
-		self.tray.replacements[73] = Replacement(replacement=self.shards, tool=None)
+		self.tray.transformations[73] = Transformation(replacement=self.shards, tool=None)
 		self.raft = UsableItem(1118, 0x10000, Labels("raft", "a raft", "a rickety raft"), 6, None, None, Item.ATTRIBUTE_GIVES_LAND)
 		self.boat = UsableItem(1119, 0x10000, Labels("boat", "a boat", "a wooden boat"), 6, None, None, Item.ATTRIBUTE_GIVES_LAND)
 		self.timber = Item(1120, 0x2, Labels("plank", "a plank of timber", "a small plank of timber"), 3, None)
 		self.log = Item(1121, 0x0, Labels("log", "a log of wood", "a large log of wood"), 6, None)
-		self.log.replacements[78] = Replacement(replacement=self.timber, tool=None)
+		self.log.transformations[78] = Transformation(replacement=self.timber, tool=None)
 		self.axe = Item(1121, 0x400002, Labels("axe", "an axe", "a small axe"), 3, None)
 
 

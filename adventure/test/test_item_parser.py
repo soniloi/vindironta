@@ -432,7 +432,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(0, len(related_commands))
 
 
-	def test_init_replaceable_simple(self):
+	def test_init_transformable_simple(self):
 		item_inputs = json.loads(
 			"[ \
 				{ \
@@ -449,7 +449,7 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"some paper\", \
 						\"description\": \"some old paper\" \
 					}, \
-					\"replacements\": [ \
+					\"transformations\": [ \
 						{ \
 							\"command_id\": 6, \
 							\"replacement_id\": 1109 \
@@ -463,14 +463,14 @@ class TestItemParser(unittest.TestCase):
 
 		self.assertEqual(1, len(collection.items_by_name))
 		paper = collection.items_by_name["paper"]
-		self.assertEqual(1, len(paper.replacements))
-		replacement_6 = paper.replacements[6]
-		self.assertIs(self.ash, replacement_6.replacement)
-		self.assertIsNone(replacement_6.tool)
+		self.assertEqual(1, len(paper.transformations))
+		transformation_6 = paper.transformations[6]
+		self.assertIs(self.ash, transformation_6.replacement)
+		self.assertIsNone(transformation_6.tool)
 		self.assertEqual(0, len(related_commands))
 
 
-	def test_init_replaceable_with_tool(self):
+	def test_init_transformable_with_tool(self):
 		item_inputs = json.loads(
 			"[ \
 				{ \
@@ -487,7 +487,7 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"some paper\", \
 						\"description\": \"some old paper\" \
 					}, \
-					\"replacements\": [ \
+					\"transformations\": [ \
 						{ \
 							\"command_id\": 6, \
 							\"replacement_id\": 1109, \
@@ -502,10 +502,10 @@ class TestItemParser(unittest.TestCase):
 
 		self.assertEqual(1, len(collection.items_by_name))
 		paper = collection.items_by_name["paper"]
-		self.assertEqual(1, len(paper.replacements))
-		replacement_6 = paper.replacements[6]
-		self.assertIs(self.ash, replacement_6.replacement)
-		self.assertIs(self.candle, replacement_6.tool)
+		self.assertEqual(1, len(paper.transformations))
+		transformation_6 = paper.transformations[6]
+		self.assertIs(self.ash, transformation_6.replacement)
+		self.assertIs(self.candle, transformation_6.tool)
 		self.assertEqual(0, len(related_commands))
 
 

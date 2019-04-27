@@ -4,7 +4,7 @@ from enum import Enum
 from adventure.element import Labels, NamedDataElement
 from adventure.item_container import ItemContainer
 
-Replacement = namedtuple("Replacement", "replacement tool")
+Transformation = namedtuple("Transformation", "replacement tool")
 
 class Item(NamedDataElement):
 
@@ -40,7 +40,7 @@ class Item(NamedDataElement):
 		self.size = size
 		self.writing = writing
 		self.containers = set()
-		self.replacements = {}
+		self.transformations = {}
 		self.obstruction = bool(attributes & Item.ATTRIBUTE_OBSTRUCTION)
 		self.list_template = list_template
 		self.copied_from = copied_from
@@ -58,8 +58,8 @@ class Item(NamedDataElement):
 		)
 		self.copied_to.add(item_copy)
 
-		for command_id, replacement in self.replacements.items():
-			item_copy.replacements[command_id] = replacement
+		for command_id, transformation in self.transformations.items():
+			item_copy.transformations[command_id] = transformation
 
 		return item_copy
 
@@ -218,7 +218,7 @@ class Item(NamedDataElement):
 
 
 	def is_burnable(self):
-		return Item.COMMAND_ID_BURN in self.replacements
+		return Item.COMMAND_ID_BURN in self.transformations
 
 
 	def allows_burning(self):
@@ -230,11 +230,11 @@ class Item(NamedDataElement):
 
 
 	def is_smashable(self):
-		return Item.COMMAND_ID_SMASH in self.replacements
+		return Item.COMMAND_ID_SMASH in self.transformations
 
 
 	def is_choppable(self):
-		return Item.COMMAND_ID_CHOP in self.replacements
+		return Item.COMMAND_ID_CHOP in self.transformations
 
 
 	def get_outermost_container(self):

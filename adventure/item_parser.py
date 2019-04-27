@@ -1,37 +1,37 @@
 from collections import namedtuple
 
 from adventure.element import Labels
-from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, UsableItem, Replacement
+from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, UsableItem, Transformation
 from adventure.item_collection import ItemCollection
 from adventure.token_translator import TokenTranslator
 
-ReplacementInfo = namedtuple("ReplacementInfo", "replacement_id tool_id")
+TransformationInfo = namedtuple("TransformationInfo", "replacement_id tool_id")
 
 class ItemParser:
 
 	def parse(self, item_inputs, elements_by_id, commands_by_id):
 		container_ids_by_item = {}
 		switched_element_ids = {}
-		replacements = {}
+		transformation_infos = {}
 		items_by_name, items_by_id, related_commands = self.parse_items(item_inputs, container_ids_by_item, elements_by_id,
-			commands_by_id, switched_element_ids, replacements)
+			commands_by_id, switched_element_ids, transformation_infos)
 
 		self.place_items(container_ids_by_item, elements_by_id)
 		self.resolve_switches(switched_element_ids, elements_by_id)
-		self.resolve_replacements(replacements, elements_by_id)
+		self.resolve_transformations(transformation_infos, elements_by_id)
 
 		return ItemCollection(items_by_name, items_by_id), related_commands
 
 
 	def parse_items(self, item_inputs, container_ids_by_item, elements_by_id, commands_by_id, switched_element_ids,
-			replacements):
+			transformation_infos):
 		items_by_name = {}
 		items_by_id = {}
 		related_commands = {}
 
 		for item_input in item_inputs:
 			item, shortnames, related_command_id = self.parse_item(
-				item_input, container_ids_by_item, switched_element_ids, replacements)
+				item_input, container_ids_by_item, switched_element_ids, transformation_infos)
 			items_by_id[item.data_id] = item
 			elements_by_id[item.data_id] = item
 
@@ -45,7 +45,7 @@ class ItemParser:
 		return items_by_name, items_by_id, related_commands
 
 
-	def parse_item(self, item_input, container_ids_by_item, switched_element_ids, all_replacements):
+	def parse_item(self, item_input, container_ids_by_item, switched_element_ids, transformation_infos):
 		item_id = item_input["data_id"]
 		attributes = int(item_input["attributes"], 16)
 		labels, shortnames = self.parse_labels(item_input["labels"])
@@ -61,9 +61,9 @@ class ItemParser:
 		if "using_info" in item_input:
 			using_info = int(item_input["using_info"], 16)
 
-		item_replacements = {}
-		if "replacements" in item_input:
-			self.parse_replacements(item_input["replacements"], item_replacements)
+		transformation_info = {}
+		if "transformations" in item_input:
+			self.parse_transformations(item_input["transformations"], transformation_info)
 
 		list_template = None
 		if "list_template" in item_input:
@@ -86,7 +86,7 @@ class ItemParser:
 
 		container_ids = item_input["container_ids"]
 		container_ids_by_item[item] = container_ids
-		all_replacements[item] = item_replacements
+		transformation_infos[item] = transformation_info
 
 		return item, shortnames, related_command_id
 
@@ -105,12 +105,12 @@ class ItemParser:
 		return switched_element_id, SwitchInfo(attribute=switched_attribute, off=off_switch, on=on_switch)
 
 
-	def parse_replacements(self, replacement_inputs, item_replacements):
-		for replacement_input in replacement_inputs:
-			command_id = replacement_input["command_id"]
-			replacement_id = replacement_input["replacement_id"]
-			tool_id = replacement_input.get("tool_id", None)
-			item_replacements[command_id] = ReplacementInfo(replacement_id=replacement_id, tool_id=tool_id)
+	def parse_transformations(self, transformation_inputs, item_transformations):
+		for transformation_input in transformation_inputs:
+			command_id = transformation_input["command_id"]
+			replacement_id = transformation_input["replacement_id"]
+			tool_id = transformation_input.get("tool_id", None)
+			item_transformations[command_id] = TransformationInfo(replacement_id=replacement_id, tool_id=tool_id)
 
 
 	def parse_list_template(self, list_template_input):
@@ -168,9 +168,9 @@ class ItemParser:
 			switching_item.switched_element = element
 
 
-	def resolve_replacements(self, replacement_infos_by_replaced, elements_by_id):
-		for replaced_item, replacement_infos in replacement_infos_by_replaced.items():
-			for command_id, replacement_info in replacement_infos.items():
-				replacement = elements_by_id.get(replacement_info.replacement_id)
-				tool = elements_by_id.get(replacement_info.tool_id)
-				replaced_item.replacements[command_id] = Replacement(replacement=replacement, tool=tool)
+	def resolve_transformations(self, transformation_infos_by_transformed, elements_by_id):
+		for transformed_item, transformation_infos in transformation_infos_by_transformed.items():
+			for command_id, transformation_info in transformation_infos.items():
+				replacement = elements_by_id.get(transformation_info.replacement_id)
+				tool = elements_by_id.get(transformation_info.tool_id)
+				transformed_item.transformations[command_id] = Transformation(replacement=replacement, tool=tool)

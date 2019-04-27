@@ -28,7 +28,7 @@ class TestItem(unittest.TestCase):
 		self.inventory = Inventory(0, 0x1, Labels("Main Inventory", "in the main inventory", ", where items live usually."), 100)
 
 		self.steam = Item(1117, 0x2, Labels("steam", "some steam", "some hot steam"), 1, None, None)
-		self.water.replacements[98] = self.steam
+		self.water.transformations[98] = self.steam
 
 
 	def test_copy(self):
@@ -39,7 +39,7 @@ class TestItem(unittest.TestCase):
 		self.assertEqual(self.water.description, water_copy.description)
 		self.assertEqual(self.water.extended_descriptions, water_copy.extended_descriptions)
 		self.assertFalse(water_copy.is_copyable())
-		self.assertIs(self.steam, water_copy.replacements[98])
+		self.assertIs(self.steam, water_copy.transformations[98])
 		self.assertIs(self.water, water_copy.copied_from)
 		self.assertTrue(water_copy in self.water.copied_to)
 

@@ -14,7 +14,7 @@ class CommandHandler(Resolver):
 		if not player.can_burn():
 			return False, ["reject_cannot_burn"], [item], []
 
-		return self.replace_item(command, player, item, "confirm_burn")
+		return self.transform_item(command, player, item, "confirm_burn")
 
 
 	def handle_chop(self, command, player, item):
@@ -24,7 +24,7 @@ class CommandHandler(Resolver):
 		if not player.can_chop():
 			return False, ["reject_cannot_chop"], [item], []
 
-		return self.replace_item(command, player, item, "confirm_chop")
+		return self.transform_item(command, player, item, "confirm_chop")
 
 
 	def handle_climb(self, command, player, arg=None):
@@ -103,7 +103,7 @@ class CommandHandler(Resolver):
 
 	def break_item(self, item, destination, template_keys, content_args):
 		item_within = item.break_open()
-		dropped_item = item.replacements[Item.COMMAND_ID_SMASH].replacement
+		dropped_item = item.transformations[Item.COMMAND_ID_SMASH].replacement
 		content_args.append(dropped_item)
 
 		if item_within:
@@ -442,7 +442,7 @@ class CommandHandler(Resolver):
 		if item.is_strong() and not player.is_strong():
 			return False, ["reject_not_strong"], [item], []
 
-		return self.replace_item(command, player, item, "confirm_smash")
+		return self.transform_item(command, player, item, "confirm_smash")
 
 
 	def handle_swim(self, command, player):
@@ -568,8 +568,8 @@ class CommandHandler(Resolver):
 		return True, ["confirm_wearing"], [item], [item]
 
 
-	def replace_item(self, command, player, item, confirm_key):
-		replacement = item.replacements[command.data_id].replacement
+	def transform_item(self, command, player, item, confirm_key):
+		replacement = item.transformations[command.data_id].replacement
 
 		container = item.get_first_container()
 		item.destroy()
