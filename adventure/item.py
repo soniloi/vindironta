@@ -25,10 +25,12 @@ class Item(NamedDataElement):
 	ATTRIBUTE_GIVES_LAND = 0x40000
 	ATTRIBUTE_SENTIENT = 0x80000
 	ATTRIBUTE_ALLOWS_BURNING = 0x200000
+	ATTRIBUTE_ALLOWS_CHOPPING = 0x400000
 
 	# TODO: find a better place for this
 	COMMAND_ID_BURN = 6
 	COMMAND_ID_SMASH = 73
+	COMMAND_ID_CHOP = 78
 
 
 	def __init__(self, item_id, attributes, labels, size, writing, list_template=None, copied_from=None):
@@ -221,8 +223,16 @@ class Item(NamedDataElement):
 		return self.has_attribute(Item.ATTRIBUTE_ALLOWS_BURNING)
 
 
+	def allows_chopping(self):
+		return self.has_attribute(Item.ATTRIBUTE_ALLOWS_CHOPPING)
+
+
 	def is_smashable(self):
 		return Item.COMMAND_ID_SMASH in self.replacements
+
+
+	def is_choppable(self):
+		return Item.COMMAND_ID_CHOP in self.replacements
 
 
 	def get_outermost_container(self):

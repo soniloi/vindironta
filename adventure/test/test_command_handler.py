@@ -85,6 +85,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.tray.replacements[73] = self.shards
 		self.raft = UsableItem(1118, 0x10000, Labels("raft", "a raft", "a rickety raft"), 6, None, None, Item.ATTRIBUTE_GIVES_LAND)
 		self.boat = UsableItem(1119, 0x10000, Labels("boat", "a boat", "a wooden boat"), 6, None, None, Item.ATTRIBUTE_GIVES_LAND)
+		self.timber = Item(1120, 0x2, Labels("plank", "a plank of timber", "a small plank of timber"), 3, None)
+		self.log = Item(1121, 0x0, Labels("log", "a log of wood", "a large log of wood"), 6, None)
+		self.log.replacements[78] = self.timber
+		self.axe = Item(1121, 0x400002, Labels("axe", "an axe", "a small axe"), 3, None)
 
 
 	def setup_texts(self):
@@ -117,10 +121,9 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_burn_burnable_no_burning_tool(self):
-		burn_command = Command(6, 0x9, 0x0, [], [""],  {}, {})
 		self.item_start_location.insert(self.paper)
 
-		success, template_keys, content_args, next_args = self.handler.handle_burn(burn_command, self.player, self.paper)
+		success, template_keys, content_args, next_args = self.handler.handle_burn(self.command, self.player, self.paper)
 
 		self.assertFalse(success)
 		self.assertEqual(["reject_cannot_burn"], template_keys)
@@ -129,7 +132,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_burn_burnable_with_burning_tool(self):
-		burn_command = Command(6, 0x9, 0x0, [], [""],  {}, {})
+		burn_command = Command(6, 0x9, 0x0, [], [""], {}, {})
 		self.item_start_location.insert(self.paper)
 		self.player.get_inventory().add(self.matches)
 
@@ -141,6 +144,45 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual([self.paper], next_args)
 		self.assertFalse(self.paper in self.item_start_location.items.values())
 		self.assertTrue(self.ash in self.item_start_location.items.values())
+
+
+	def test_handle_chop_not_choppable(self):
+		self.item_start_location.add(self.water)
+
+		success, template_keys, content_args, next_args = self.handler.handle_chop(self.command, self.player, self.water)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_not_choppable"], template_keys)
+		self.assertEqual([self.water], content_args)
+		self.assertEqual([], next_args)
+		self.assertTrue(self.water in self.item_start_location.items.values())
+
+
+	def test_handle_chop_choppable_no_chopping_tool(self):
+		self.item_start_location.add(self.log)
+
+		success, template_keys, content_args, next_args = self.handler.handle_chop(self.command, self.player, self.log)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_cannot_chop"], template_keys)
+		self.assertEqual([self.log], content_args)
+		self.assertEqual([], next_args)
+		self.assertTrue(self.log in self.item_start_location.items.values())
+
+
+	def test_handle_chop_choppable_with_chopping_tool(self):
+		chop_command = Command(78, 0x0, 0x0, [], [""], {}, {})
+		self.item_start_location.add(self.log)
+		self.player.get_inventory().add(self.axe)
+
+		success, template_keys, content_args, next_args = self.handler.handle_chop(chop_command, self.player, self.log)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_chop"], template_keys)
+		self.assertEqual([self.log, self.timber], content_args)
+		self.assertEqual([self.log], next_args)
+		self.assertFalse(self.log in self.item_start_location.items.values())
+		self.assertTrue(self.timber in self.item_start_location.items.values())
 
 
 	def test_handle_climb(self):

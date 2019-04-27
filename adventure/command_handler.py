@@ -17,6 +17,16 @@ class CommandHandler(Resolver):
 		return self.replace_item(command, item, "confirm_burn")
 
 
+	def handle_chop(self, command, player, item):
+		if not item.is_choppable():
+			return False, ["reject_not_choppable"], [item], []
+
+		if not player.can_chop():
+			return False, ["reject_cannot_chop"], [item], []
+
+		return self.replace_item(command, item, "confirm_chop")
+
+
 	def handle_climb(self, command, player, arg=None):
 		return False, ["reject_climb"], [], []
 
