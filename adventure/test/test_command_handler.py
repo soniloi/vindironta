@@ -145,7 +145,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertTrue(success)
 		self.assertEqual(["confirm_burn"], template_keys)
-		self.assertEqual([self.paper, self.ash], content_args)
+		self.assertEqual([self.paper, "some ash"], content_args)
 		self.assertEqual([self.paper], next_args)
 		self.assertFalse(self.paper in self.item_start_location.items.values())
 		self.assertTrue(self.ash in self.item_start_location.items.values())
@@ -185,7 +185,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertTrue(success)
 		self.assertEqual(["confirm_chop"], template_keys)
-		self.assertEqual([self.log, self.timber], content_args)
+		self.assertEqual([self.log, "a plank of timber"], content_args)
 		self.assertEqual([self.log], next_args)
 		self.assertFalse(self.log in self.item_start_location.items.values())
 		self.assertTrue(self.timber in self.item_start_location.items.values())
@@ -1289,7 +1289,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertTrue(success)
 		self.assertEqual(["confirm_smash"], template_keys)
-		self.assertEqual([self.bottle, self.shards], content_args)
+		self.assertEqual([self.bottle, "some shards"], content_args)
 		self.assertEqual([self.bottle], next_args)
 		self.assertFalse(self.bottle in self.item_start_location.items.values())
 		self.assertTrue(self.shards in self.item_start_location.items.values())
@@ -1315,7 +1315,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertTrue(success)
 		self.assertEqual(["confirm_smash"], template_keys)
-		self.assertEqual([self.rock, self.dust], content_args)
+		self.assertEqual([self.rock, "some dust"], content_args)
 		self.assertEqual([self.rock], next_args)
 		self.assertFalse(self.rock in self.item_start_location.items.values())
 		self.assertTrue(self.dust in self.item_start_location.items.values())

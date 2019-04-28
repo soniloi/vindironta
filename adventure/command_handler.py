@@ -574,4 +574,4 @@ class CommandHandler(Resolver):
 		item.destroy()
 		container.insert(replacement)
 
-		return True, [confirm_key], [item, replacement], [item]
+		return True, [confirm_key], [item, replacement.longname], [item]
