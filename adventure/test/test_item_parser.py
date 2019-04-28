@@ -531,7 +531,9 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"a suit\", \
 						\"description\": \"a space-suit\" \
 					}, \
-					\"using_info\": \"20\" \
+					\"using_info\": \"20\", \
+					\"list_template\": \"$0 (lugging)\", \
+					\"list_template_using\": \"$0 (wearing)\" \
 				} \
 			]"
 		)
@@ -543,6 +545,8 @@ class TestItemParser(unittest.TestCase):
 		self.assertTrue(isinstance(suit, UsableItem))
 		self.assertEqual(0x20, suit.attribute_activated)
 		self.assertEqual(0, len(related_commands))
+		self.assertEqual("{0} (lugging)", suit.list_template)
+		self.assertEqual("{0} (wearing)", suit.list_template_using)
 
 
 	def test_init_sailable(self):

@@ -101,13 +101,13 @@ class Item(NamedDataElement):
 
 
 	def get_base_list_name(self):
-		if self.list_template:
-			return self.get_formatted_list_name()
+		return self.get_formatted_list_name(self.list_template)
+
+
+	def get_formatted_list_name(self, template):
+		if template:
+			return template.format(self.longname)
 		return self.longname
-
-
-	def get_formatted_list_name(self):
-		return self.list_template.format(self.longname)
 
 
 	def get_non_silent_list_name(self, indentation=1):
@@ -394,8 +394,8 @@ class SwitchableItem(Item):
 		return True
 
 
-	def get_formatted_list_name(self):
-		return self.list_template.format(self.longname, self.get_state_text())
+	def get_formatted_list_name(self, template):
+		return template.format(self.longname, self.get_state_text())
 
 
 	def get_full_description(self):
@@ -424,10 +424,11 @@ class SwitchableItem(Item):
 
 class UsableItem(Item):
 
-	def __init__(self, item_id, attributes, labels, size, writing, list_template, attribute_activated,
-			copied_from=None):
+	def __init__(self, item_id, attributes, labels, size, writing, list_template, list_template_using,
+			attribute_activated, copied_from=None):
 		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
 			list_template=list_template, copied_from=copied_from)
+		self.list_template_using = list_template_using
 		self.attribute_activated = attribute_activated
 		self.being_used = False
 
@@ -439,9 +440,10 @@ class UsableItem(Item):
 
 
 	def get_base_list_name(self):
-		if self.being_used and self.list_template:
-			return self.get_formatted_list_name()
-		return self.longname
+		template = self.list_template
+		if self.being_used:
+			template = self.list_template_using
+		return self.get_formatted_list_name(template)
 
 
 	def get_weight(self):

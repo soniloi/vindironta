@@ -69,6 +69,10 @@ class ItemParser:
 		if "list_template" in item_input:
 			list_template = self.parse_list_template(item_input["list_template"])
 
+		list_template_using = None
+		if "list_template_using" in item_input:
+			list_template_using = self.parse_list_template_using(item_input["list_template_using"])
+
 		related_command_id = item_input.get("related_command_id")
 
 		item = self.init_item(
@@ -82,6 +86,7 @@ class ItemParser:
 			switch_info=switch_info,
 			attribute_when_used=using_info,
 			list_template=list_template,
+			list_template_using=list_template_using,
 		)
 
 		container_ids = item_input["container_ids"]
@@ -118,6 +123,10 @@ class ItemParser:
 		return TokenTranslator.translate_substitution_tokens(list_template_input)
 
 
+	def parse_list_template_using(self, list_template_using_input):
+		return TokenTranslator.translate_substitution_tokens(list_template_using_input)
+
+
 	def init_item(self,
 			item_id,
 			attributes,
@@ -129,6 +138,7 @@ class ItemParser:
 			switch_info,
 			attribute_when_used,
 			list_template,
+			list_template_using,
 		):
 
 		if bool(attributes & Item.ATTRIBUTE_SENTIENT):
@@ -146,7 +156,7 @@ class ItemParser:
 
 		elif bool(attributes & Item.ATTRIBUTE_WEARABLE) or bool(attributes & Item.ATTRIBUTE_SAILABLE):
 			item = UsableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-				list_template=list_template, attribute_activated=attribute_when_used)
+				list_template=list_template, attribute_activated=attribute_when_used, list_template_using=list_template_using)
 
 		else:
 			item = Item(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
