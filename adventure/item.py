@@ -26,8 +26,6 @@ class Item(NamedDataElement):
 	ATTRIBUTE_SILENT = 0x20000
 	ATTRIBUTE_GIVES_LAND = 0x40000
 	ATTRIBUTE_SENTIENT = 0x80000
-	ATTRIBUTE_ALLOWS_BURNING = 0x200000
-	ATTRIBUTE_ALLOWS_CHOPPING = 0x400000
 
 	# TODO: find a better place for this
 	COMMAND_ID_BURN = 6
@@ -219,14 +217,6 @@ class Item(NamedDataElement):
 
 	def is_burnable(self):
 		return Item.COMMAND_ID_BURN in self.transformations
-
-
-	def allows_burning(self):
-		return self.has_attribute(Item.ATTRIBUTE_ALLOWS_BURNING)
-
-
-	def allows_chopping(self):
-		return self.has_attribute(Item.ATTRIBUTE_ALLOWS_CHOPPING)
 
 
 	def is_smashable(self):

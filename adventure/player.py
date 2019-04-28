@@ -173,14 +173,6 @@ class Player(DataElement):
 		return self.location.gives_tether() or self.get_inventory().gives_gravity()
 
 
-	def can_burn(self):
-		return self.get_inventory().allows_burning()
-
-
-	def can_chop(self):
-		return self.get_inventory().allows_chopping()
-
-
 	def get_current_command(self):
 		return self.current_command
 

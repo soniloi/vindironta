@@ -11,18 +11,12 @@ class CommandHandler(Resolver):
 		if not item.is_burnable():
 			return False, ["reject_not_burnable"], [item], []
 
-		if not player.can_burn():
-			return False, ["reject_cannot_burn"], [item], []
-
 		return self.transform_item(command, player, item, "confirm_burn")
 
 
 	def handle_chop(self, command, player, item):
 		if not item.is_choppable():
 			return False, ["reject_not_choppable"], [item], []
-
-		if not player.can_chop():
-			return False, ["reject_cannot_chop"], [item], []
 
 		return self.transform_item(command, player, item, "confirm_chop")
 
@@ -569,8 +563,13 @@ class CommandHandler(Resolver):
 
 
 	def transform_item(self, command, player, item, confirm_key):
-		replacement = item.transformations[command.data_id].replacement
+		transformation = item.transformations[command.data_id]
 
+		tool = transformation.tool
+		if tool and not player.get_carried_item(tool):
+			return False, ["reject_no_tool"], [item, command.primary], []
+
+		replacement = transformation.replacement
 		container = item.get_first_container()
 		item.destroy()
 		container.insert(replacement)
