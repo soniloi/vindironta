@@ -70,7 +70,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.suit = UsableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, None, Item.ATTRIBUTE_GIVES_AIR)
 		self.shards = Item(1114, 0x2, Labels("shards", "some shards", "some glass shards"), 1, None)
 		self.bottle = ContainerItem(1108, 0x4203, Labels("bottle", "a bottle", "a small glass bottle"), 3, None)
-		self.bottle.transformations[73] = Transformation(replacement=self.shards, tool=None)
+		self.bottle.transformations[73] = Transformation(replacement=self.shards, tool=None, material=None)
 		self.cat = SentientItem(1047, 0x80003, Labels("cat", "a cat", "a black cat"), 3, None)
 		self.bread = Item(1109, 0x2002, Labels("bread", "some bread", "a loaf of bread"), 2, None)
 		self.water = Item(1110, 0x22902, Labels("water", "some water", "some water"), 1, None)
@@ -80,19 +80,22 @@ class TestCommandHandler(unittest.TestCase):
 		self.ash = Item(1112, 0x0, Labels("ash", "some ash", "some black ash"), 1, None)
 		self.matches = Item(1113, 0x200000, Labels("matches", "some matches", "a box of matches"), 2, None)
 		self.paper = Item(1111, 0x100000, Labels("paper", "some paper", "some old paper"), 1, None)
-		self.paper.transformations[6] = Transformation(replacement=self.ash, tool=self.matches)
+		self.paper.transformations[6] = Transformation(replacement=self.ash, tool=self.matches, material=None)
 
 		self.dust = Item(1115, 0x2, Labels("dust", "some dust", "some grey dust"), 1, None)
 		self.rock = Item(1116, 0x1000, Labels("rock", "a rock", "a large rock"), 15, None)
-		self.rock.transformations[73] = Transformation(replacement=self.dust, tool=None)
+		self.rock.transformations[73] = Transformation(replacement=self.dust, tool=None, material=None)
 
 		self.tray = ContainerItem(1117, 0x4003, Labels("tray", "a tray", "a glass tray"), 4, None)
-		self.tray.transformations[73] = Transformation(replacement=self.shards, tool=None)
+		self.tray.transformations[73] = Transformation(replacement=self.shards, tool=None, material=None)
 
 		self.timber = Item(1120, 0x2, Labels("plank", "a plank of timber", "a small plank of timber"), 3, None)
 		self.axe = Item(1121, 0x400002, Labels("axe", "an axe", "a small axe"), 3, None)
-		self.log = Item(1121, 0x0, Labels("log", "a log of wood", "a large log of wood"), 6, None)
-		self.log.transformations[78] = Transformation(replacement=self.timber, tool=self.axe)
+		self.log = Item(1122, 0x0, Labels("log", "a log of wood", "a large log of wood"), 6, None)
+		self.log.transformations[78] = Transformation(replacement=self.timber, tool=self.axe, material=None)
+
+		self.rope = Item(1123, 0x2, Labels("rope", "some rope", "a small length of rope"), 2, None)
+		self.log.transformations[57] = Transformation(replacement=self.raft, tool=None, material=self.rope)
 
 
 	def setup_texts(self):
@@ -1626,6 +1629,45 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual([self.book], next_args)
 		self.assertFalse(self.book in self.default_inventory.items.values())
 		self.assertFalse(self.book in self.water_location.items.values())
+
+
+	def test_handle_tie_not_tyable(self):
+		self.item_start_location.add(self.water)
+
+		success, template_keys, content_args, next_args = self.handler.handle_tie(self.command, self.player, self.water)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_not_tyable"], template_keys)
+		self.assertEqual([self.water], content_args)
+		self.assertEqual([], next_args)
+		self.assertTrue(self.water in self.item_start_location.items.values())
+
+
+	def test_handle_tie_tyable_no_tying_material(self):
+		tie_command = Command(57, 0x9, 0x0, [], ["tie"], {}, {})
+		self.item_start_location.insert(self.log)
+
+		success, template_keys, content_args, next_args = self.handler.handle_tie(tie_command, self.player, self.log)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_no_material"], template_keys)
+		self.assertEqual([self.log, "tie", "some rope"], content_args)
+		self.assertTrue(self.log in self.item_start_location.items.values())
+
+
+	def test_handle_tie_tyable_with_tying_material(self):
+		tie_command = Command(57, 0x9, 0x0, [], ["tie"], {}, {})
+		self.item_start_location.insert(self.log)
+		self.player.get_inventory().add(self.rope)
+
+		success, template_keys, content_args, next_args = self.handler.handle_tie(tie_command, self.player, self.log)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_tie"], template_keys)
+		self.assertEqual([self.log, "a raft"], content_args)
+		self.assertEqual([self.log], next_args)
+		self.assertFalse(self.log in self.item_start_location.items.values())
+		self.assertTrue(self.raft in self.item_start_location.items.values())
 
 
 	def test_handle_toggle_non_switchable_item(self):

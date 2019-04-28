@@ -15,12 +15,14 @@ class TestItemParser(unittest.TestCase):
 		self.box = ContainerItem(1108, 0x3, Labels("box", "a box", "a small box"), 3, None)
 		self.ash = Item(1109, 0x0, Labels("ash", "some ash", "some black ash"), 1, None)
 		self.candle = Item(1110, 0x0, Labels("candle", "a candle", "a small candle"), 2, None)
+		self.kindling = Item(1111, 0x0, Labels("kindling", "some kindling", "some kindling"), 2, None)
 		self.elements = {
 			80 : self.library_location,
 			81 : self.lighthouse_location,
 			1108 : self.box,
 			1109 : self.ash,
 			1110 : self.candle,
+			1111 : self.kindling,
 		}
 
 		self.command = Command(17, 0x0, 0x0, [], [""],  {}, {})
@@ -467,10 +469,11 @@ class TestItemParser(unittest.TestCase):
 		transformation_6 = paper.transformations[6]
 		self.assertIs(self.ash, transformation_6.replacement)
 		self.assertIsNone(transformation_6.tool)
+		self.assertIsNone(transformation_6.material)
 		self.assertEqual(0, len(related_commands))
 
 
-	def test_init_transformable_with_tool(self):
+	def test_init_transformable_with_tool_with_material(self):
 		item_inputs = json.loads(
 			"[ \
 				{ \
@@ -491,7 +494,8 @@ class TestItemParser(unittest.TestCase):
 						{ \
 							\"command_id\": 6, \
 							\"replacement_id\": 1109, \
-							\"tool_id\": 1110 \
+							\"tool_id\": 1110, \
+							\"material_id\": 1111 \
 						} \
 					] \
 				} \
@@ -506,6 +510,7 @@ class TestItemParser(unittest.TestCase):
 		transformation_6 = paper.transformations[6]
 		self.assertIs(self.ash, transformation_6.replacement)
 		self.assertIs(self.candle, transformation_6.tool)
+		self.assertIs(self.kindling, transformation_6.material)
 		self.assertEqual(0, len(related_commands))
 
 

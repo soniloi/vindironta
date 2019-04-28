@@ -5,7 +5,7 @@ from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, Sw
 from adventure.item_collection import ItemCollection
 from adventure.token_translator import TokenTranslator
 
-TransformationInfo = namedtuple("TransformationInfo", "replacement_id tool_id")
+TransformationInfo = namedtuple("TransformationInfo", "replacement_id tool_id material_id")
 
 class ItemParser:
 
@@ -110,7 +110,8 @@ class ItemParser:
 			command_id = transformation_input["command_id"]
 			replacement_id = transformation_input["replacement_id"]
 			tool_id = transformation_input.get("tool_id", None)
-			item_transformations[command_id] = TransformationInfo(replacement_id=replacement_id, tool_id=tool_id)
+			material_id = transformation_input.get("material_id", None)
+			item_transformations[command_id] = TransformationInfo(replacement_id=replacement_id, tool_id=tool_id, material_id=material_id)
 
 
 	def parse_list_template(self, list_template_input):
@@ -173,4 +174,5 @@ class ItemParser:
 			for command_id, transformation_info in transformation_infos.items():
 				replacement = elements_by_id.get(transformation_info.replacement_id)
 				tool = elements_by_id.get(transformation_info.tool_id)
-				transformed_item.transformations[command_id] = Transformation(replacement=replacement, tool=tool)
+				material = elements_by_id.get(transformation_info.material_id)
+				transformed_item.transformations[command_id] = Transformation(replacement=replacement, tool=tool, material=material)

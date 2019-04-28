@@ -4,7 +4,7 @@ from enum import Enum
 from adventure.element import Labels, NamedDataElement
 from adventure.item_container import ItemContainer
 
-Transformation = namedtuple("Transformation", "replacement tool")
+Transformation = namedtuple("Transformation", "replacement tool material")
 
 class Item(NamedDataElement):
 
@@ -29,6 +29,7 @@ class Item(NamedDataElement):
 
 	# TODO: find a better place for this
 	COMMAND_ID_BURN = 6
+	COMMAND_ID_TIE = 57
 	COMMAND_ID_SMASH = 73
 	COMMAND_ID_CHOP = 78
 
@@ -217,6 +218,10 @@ class Item(NamedDataElement):
 
 	def is_burnable(self):
 		return Item.COMMAND_ID_BURN in self.transformations
+
+
+	def is_tyable(self):
+		return Item.COMMAND_ID_TIE in self.transformations
 
 
 	def is_smashable(self):

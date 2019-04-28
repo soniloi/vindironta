@@ -528,6 +528,13 @@ class CommandHandler(Resolver):
 		return True, template_keys, content_args, next_args
 
 
+	def handle_tie(self, command, player, item):
+		if not item.is_tyable():
+			return False, ["reject_not_tyable"], [item], []
+
+		return self.transform_item(command, player, item, "confirm_tie")
+
+
 	def handle_toggle(self, command, player, item):
 		if not item.is_switchable():
 			return False, ["reject_no_know_how"], [item], []
@@ -568,6 +575,12 @@ class CommandHandler(Resolver):
 		tool = transformation.tool
 		if tool and not player.get_carried_item(tool):
 			return False, ["reject_no_tool"], [item, command.primary], []
+
+		material = transformation.material
+		if material:
+			if not player.get_carried_item(material):
+				return False, ["reject_no_material"], [item, command.primary, material.longname], []
+			material.destroy()
 
 		replacement = transformation.replacement
 		container = item.get_first_container()
