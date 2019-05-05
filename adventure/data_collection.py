@@ -55,6 +55,10 @@ class DataCollection:
 		return self.responses.get(response_key)
 
 
+	def get_start_message(self):
+		return self.responses.get("describe_start")
+
+
 	def matches_input(self, internal_key, input_key):
 		return self.inputs.matches(internal_key, input_key)
 

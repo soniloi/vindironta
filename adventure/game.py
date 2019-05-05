@@ -55,6 +55,10 @@ class Game:
 		self.token_processor = TokenProcessor(data, command_runner)
 
 
+	def get_start_message(self):
+		return self.data.get_start_message()
+
+
 	def process_input(self, line):
 		tokens = line.lower().split()
 		if tokens:
