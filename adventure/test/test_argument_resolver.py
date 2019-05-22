@@ -29,11 +29,11 @@ class TestArgumentResolver(unittest.TestCase):
 		self.lamp = SwitchableItem(1043, 0x101A, Labels("lamp", "a lamp", "a small lamp"), 2, None, None, lamp_switching_info)
 		self.salt = Item(1110, 0x102, Labels("salt", "some salt", "some salt"), 1, None)
 
-		self.data.get_item_by_name.side_effect = lambda x: {
-			"book" : self.book,
-			"box" : self.box,
-			"lamp" : self.lamp,
-			"salt" : self.salt,
+		self.data.get_item_list_by_name.side_effect = lambda x: {
+			"book" : [self.book],
+			"box" : [self.box],
+			"lamp" : [self.lamp],
+			"salt" : [self.salt],
 		}.get(x)
 
 

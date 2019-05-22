@@ -13,19 +13,19 @@ class ItemParser:
 		container_ids_by_item = {}
 		switched_element_ids = {}
 		transformation_infos = {}
-		items_by_name, items_by_id, related_commands = self.parse_items(item_inputs, container_ids_by_item, elements_by_id,
+		item_lists_by_name, items_by_id, related_commands = self.parse_items(item_inputs, container_ids_by_item, elements_by_id,
 			commands_by_id, switched_element_ids, transformation_infos)
 
 		self.place_items(container_ids_by_item, elements_by_id)
 		self.resolve_switches(switched_element_ids, elements_by_id)
 		self.resolve_transformations(transformation_infos, elements_by_id)
 
-		return ItemCollection(items_by_name, items_by_id), related_commands
+		return ItemCollection(item_lists_by_name, items_by_id), related_commands
 
 
 	def parse_items(self, item_inputs, container_ids_by_item, elements_by_id, commands_by_id, switched_element_ids,
 			transformation_infos):
-		items_by_name = {}
+		item_lists_by_name = {}
 		items_by_id = {}
 		related_commands = {}
 
@@ -36,13 +36,15 @@ class ItemParser:
 			elements_by_id[item.data_id] = item
 
 			for shortname in shortnames:
-				items_by_name[shortname] = item
+				if not shortname in item_lists_by_name:
+					item_lists_by_name[shortname] = []
+				item_lists_by_name[shortname].append(item)
 
 			if related_command_id:
 				for shortname in shortnames:
 					related_commands[shortname] = commands_by_id.get(related_command_id)
 
-		return items_by_name, items_by_id, related_commands
+		return item_lists_by_name, items_by_id, related_commands
 
 
 	def parse_item(self, item_input, container_ids_by_item, switched_element_ids, transformation_infos):

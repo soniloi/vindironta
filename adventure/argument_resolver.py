@@ -188,9 +188,10 @@ class ArgumentResolver(Resolver):
 		if not arg_info.is_item:
 			return True, "", arg_input
 
-		item = self.data.get_item_by_name(arg_input)
-		if not item:
+		item_list = self.data.get_item_list_by_name(arg_input)
+		if not item_list:
 			return False, "reject_unknown", [arg_input]
+		item = item_list[0]
 
 		carried_item = player.get_carried_item(item)
 		nearby_item = player.get_nearby_item(item)

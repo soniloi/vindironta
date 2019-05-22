@@ -35,8 +35,8 @@ class DataCollection:
 		return self.locations.get(location_id)
 
 
-	def get_item_by_name(self, item_shortname):
-		return self.items.get_by_name(item_shortname)
+	def get_item_list_by_name(self, item_shortname):
+		return self.items.get_list_by_name(item_shortname)
 
 
 	def get_item_by_id(self, item_id):
