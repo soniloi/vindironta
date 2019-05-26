@@ -128,7 +128,7 @@ class EventParser:
 			elif kind == EventOutcomeActionKind.ITEM:
 				item_id = event_outcome_action_input["item_id"]
 				item = items_by_id[item_id]
-				destination = self.parse_item_event_outcome_action_destination(event_outcome_action_input["destination"])
+				destination = self.parse_item_event_outcome_action_destination(event_outcome_action_input["destination"], items_by_id, locations_by_id)
 
 				action = ItemEventOutcomeAction(kind=kind, item=item, destination=destination)
 				actions.append(action)
@@ -171,8 +171,15 @@ class EventParser:
 		return actions
 
 
-	def parse_item_event_outcome_action_destination(self, item_event_outcome_action_destination_input):
+	def parse_item_event_outcome_action_destination(self, item_event_outcome_action_destination_input, items_by_id, locations_by_id):
 		kind_key = item_event_outcome_action_destination_input["kind"].upper()
 		kind = ItemEventOutcomeActionDestinationKind[kind_key]
 		data_id = item_event_outcome_action_destination_input.get("data_id")
-		return ItemEventOutcomeActionDestination(kind, data_id)
+
+		named_data_element = None
+		if data_id:
+			named_data_element = locations_by_id.get(data_id)
+			if not named_data_element:
+				named_data_element = items_by_id.get(data_id)
+
+		return ItemEventOutcomeActionDestination(kind, named_data_element)

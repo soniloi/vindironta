@@ -125,9 +125,9 @@ class ItemEventOutcomeAction:
 
 class ItemEventOutcomeActionDestination:
 
-	def __init__(self, kind, data_id):
+	def __init__(self, kind, named_data_element):
 		self.kind = kind
-		self.data_id = data_id
+		self.named_data_element = named_data_element
 
 
 class ItemEventOutcomeActionDestinationKind(Enum):

@@ -382,7 +382,7 @@ class TestEventParser(unittest.TestCase):
 								\"item_id\": 1044, \
 								\"destination\": { \
 									\"kind\": \"replace\", \
-									\"data_id\": 1050 \
+									\"data_id\": 1044 \
 								} \
 							} \
 						] \
@@ -415,14 +415,14 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual(self.book, first_action.item)
 		first_action_destination = first_action.destination
 		self.assertEqual(ItemEventOutcomeActionDestinationKind.DESTROY, first_action_destination.kind)
-		self.assertIsNone(first_action_destination.data_id)
+		self.assertIsNone(first_action_destination.named_data_element)
 
 		second_action = outcome.actions[1]
 		self.assertEqual(EventOutcomeActionKind.ITEM, second_action.kind)
 		self.assertEqual(self.bread, second_action.item)
 		second_action_destination = second_action.destination
 		self.assertEqual(ItemEventOutcomeActionDestinationKind.REPLACE, second_action_destination.kind)
-		self.assertEqual(1050, second_action_destination.data_id)
+		self.assertEqual(self.bread, second_action_destination.named_data_element)
 
 
 	def test_parse_with_player_outcome_actions(self):

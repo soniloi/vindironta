@@ -122,14 +122,13 @@ class EventResolver(Resolver):
 				item.remove_from_containers()
 
 			# TODO: handle case where container is ContainerItem and already contains something
-			container = self.data.get_element_by_id(destination.data_id)
+			container = destination.named_data_element
 			container.insert(item)
 
 		elif destination.kind == ItemEventOutcomeActionDestinationKind.REPLACE:
-			replacement =  self.data.get_item_by_id(destination.data_id)
 			container = item.get_first_container()
 			item.destroy()
-			container.insert(replacement)
+			container.insert(destination.named_data_element)
 
 
 	def handle_location_outcome_action(self, player, action):
