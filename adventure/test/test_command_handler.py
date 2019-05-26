@@ -124,7 +124,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["reject_not_burnable"], template_keys)
 		self.assertEqual([self.water], content_args)
 		self.assertEqual([], next_args)
-		self.assertTrue(self.water in self.item_start_location.items.values())
+		self.assertTrue(self.water in self.item_start_location.items)
 
 
 	def test_handle_burn_burnable_no_burning_tool(self):
@@ -136,7 +136,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertFalse(success)
 		self.assertEqual(["reject_no_tool"], template_keys)
 		self.assertEqual([self.paper, "burn"], content_args)
-		self.assertTrue(self.paper in self.item_start_location.items.values())
+		self.assertTrue(self.paper in self.item_start_location.items)
 
 
 	def test_handle_burn_burnable_with_burning_tool(self):
@@ -150,8 +150,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_burn"], template_keys)
 		self.assertEqual([self.paper, "some ash"], content_args)
 		self.assertEqual([self.paper], next_args)
-		self.assertFalse(self.paper in self.item_start_location.items.values())
-		self.assertTrue(self.ash in self.item_start_location.items.values())
+		self.assertFalse(self.paper in self.item_start_location.items)
+		self.assertTrue(self.ash in self.item_start_location.items)
 
 
 	def test_handle_chop_not_choppable(self):
@@ -163,7 +163,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["reject_not_choppable"], template_keys)
 		self.assertEqual([self.water], content_args)
 		self.assertEqual([], next_args)
-		self.assertTrue(self.water in self.item_start_location.items.values())
+		self.assertTrue(self.water in self.item_start_location.items)
 
 
 	def test_handle_chop_choppable_no_chopping_tool(self):
@@ -176,7 +176,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["reject_no_tool"], template_keys)
 		self.assertEqual([self.log, "chop"], content_args)
 		self.assertEqual([], next_args)
-		self.assertTrue(self.log in self.item_start_location.items.values())
+		self.assertTrue(self.log in self.item_start_location.items)
 
 
 	def test_handle_chop_choppable_with_chopping_tool(self):
@@ -190,8 +190,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_chop"], template_keys)
 		self.assertEqual([self.log, "a plank of timber"], content_args)
 		self.assertEqual([self.log], next_args)
-		self.assertFalse(self.log in self.item_start_location.items.values())
-		self.assertTrue(self.timber in self.item_start_location.items.values())
+		self.assertFalse(self.log in self.item_start_location.items)
+		self.assertTrue(self.timber in self.item_start_location.items)
 
 
 	def test_handle_climb(self):
@@ -221,7 +221,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["reject_not_consumable"], template_keys)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([], next_args)
-		self.assertTrue(self.book in self.item_start_location.items.values())
+		self.assertTrue(self.book in self.item_start_location.items)
 
 
 	def test_handle_consume_edible(self):
@@ -233,7 +233,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_consume"], template_keys)
 		self.assertEqual([self.bread], content_args)
 		self.assertEqual([self.bread], next_args)
-		self.assertFalse(self.bread in self.item_start_location.items.values())
+		self.assertFalse(self.bread in self.item_start_location.items)
 		self.assertFalse(self.item_start_location in self.bread.containers)
 
 
@@ -299,7 +299,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["reject_drink_solid"], template_keys)
 		self.assertEqual([self.bread], content_args)
 		self.assertEqual([], next_args)
-		self.assertTrue(self.bread in self.item_start_location.items.values())
+		self.assertTrue(self.bread in self.item_start_location.items)
 
 
 	def test_handle_drink_liquid(self):
@@ -311,7 +311,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_consume"], template_keys)
 		self.assertEqual([self.water], content_args)
 		self.assertEqual([self.water], next_args)
-		self.assertFalse(self.water in self.bottle.items.values())
+		self.assertFalse(self.water in self.bottle.items)
 
 
 	def test_handle_drop_non_wearable(self):
@@ -323,8 +323,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_dropped"], template_keys)
 		self.assertEqual([self.lamp], content_args)
 		self.assertEqual([self.lamp], next_args)
-		self.assertFalse(self.lamp in self.default_inventory.items.values())
-		self.assertTrue(self.lamp in self.player.location.items.values())
+		self.assertFalse(self.lamp in self.default_inventory.items)
+		self.assertTrue(self.lamp in self.player.location.items)
 
 
 	def test_handle_drop_wearable(self):
@@ -337,8 +337,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_dropped"], template_keys)
 		self.assertEqual([self.suit], content_args)
 		self.assertEqual([self.suit], next_args)
-		self.assertFalse(self.suit in self.player.get_inventory().items.values())
-		self.assertTrue(self.suit in self.player.location.items.values())
+		self.assertFalse(self.suit in self.player.get_inventory().items)
+		self.assertTrue(self.suit in self.player.location.items)
 		self.assertFalse(self.suit.being_used)
 
 
@@ -352,8 +352,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_dropped"], template_keys)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([self.book], next_args)
-		self.assertFalse(self.book in self.player.get_inventory().items.values())
-		self.assertTrue(self.book in self.player.location.items.values())
+		self.assertFalse(self.book in self.player.get_inventory().items)
+		self.assertTrue(self.book in self.player.location.items)
 
 
 	def test_handle_drop_liquid(self):
@@ -366,8 +366,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_poured_no_destination"], template_keys)
 		self.assertEqual([self.water, self.bottle], content_args)
 		self.assertEqual([self.water], next_args)
-		self.assertFalse(self.water in self.bottle.items.values())
-		self.assertFalse(self.water in self.player.location.items.values())
+		self.assertFalse(self.water in self.bottle.items)
+		self.assertFalse(self.water in self.player.location.items)
 		self.assertFalse(self.bottle in self.water.containers)
 
 
@@ -382,8 +382,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_dropped", "describe_item_falling"], template_keys)
 		self.assertEqual([self.lamp], content_args)
 		self.assertEqual([self.lamp], next_args)
-		self.assertFalse(self.lamp in self.default_inventory.items.values())
-		self.assertTrue(self.lamp in self.mine_location.items.values())
+		self.assertFalse(self.lamp in self.default_inventory.items)
+		self.assertTrue(self.lamp in self.mine_location.items)
 
 
 	def test_handle_drop_at_location_with_no_floor_fragile_empty(self):
@@ -397,9 +397,9 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_dropped", "describe_item_falling", "describe_item_smash_hear"], template_keys)
 		self.assertEqual([self.bottle, self.shards], content_args)
 		self.assertEqual([self.bottle], next_args)
-		self.assertFalse(self.bottle in self.default_inventory.items.values())
-		self.assertFalse(self.bottle in self.mine_location.items.values())
-		self.assertTrue(self.shards in self.mine_location.items.values())
+		self.assertFalse(self.bottle in self.default_inventory.items)
+		self.assertFalse(self.bottle in self.mine_location.items)
+		self.assertTrue(self.shards in self.mine_location.items)
 
 
 	def test_handle_drop_at_location_with_no_floor_fragile_non_empty(self):
@@ -414,10 +414,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_dropped", "describe_item_falling", "describe_item_smash_hear", "describe_item_smash_release_solid"], template_keys)
 		self.assertEqual([self.tray, self.shards, self.book], content_args)
 		self.assertEqual([self.tray], next_args)
-		self.assertFalse(self.tray in self.default_inventory.items.values())
-		self.assertFalse(self.tray in self.mine_location.items.values())
-		self.assertTrue(self.shards in self.mine_location.items.values())
-		self.assertTrue(self.book in self.mine_location.items.values())
+		self.assertFalse(self.tray in self.default_inventory.items)
+		self.assertFalse(self.tray in self.mine_location.items)
+		self.assertTrue(self.shards in self.mine_location.items)
+		self.assertTrue(self.book in self.mine_location.items)
 
 
 	def test_handle_drop_at_location_with_no_land(self):
@@ -430,8 +430,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_dropped", "describe_item_sink"], template_keys)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([self.book], next_args)
-		self.assertFalse(self.book in self.default_inventory.items.values())
-		self.assertFalse(self.book in self.water_location.items.values())
+		self.assertFalse(self.book in self.default_inventory.items)
+		self.assertFalse(self.book in self.water_location.items)
 
 
 	def test_handle_eat_liquid(self):
@@ -443,7 +443,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["reject_eat_liquid"], template_keys)
 		self.assertEqual([self.water], content_args)
 		self.assertEqual([], next_args)
-		self.assertTrue(self.water in self.item_start_location.items.values())
+		self.assertTrue(self.water in self.item_start_location.items)
 
 
 	def test_handle_eat_solid(self):
@@ -453,7 +453,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_consume"], template_keys)
 		self.assertEqual([self.bread], content_args)
 		self.assertEqual([self.bread], next_args)
-		self.assertFalse(self.bread in self.item_start_location.items.values())
+		self.assertFalse(self.bread in self.item_start_location.items)
 
 
 	def test_handle_empty_non_container(self):
@@ -489,8 +489,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_emptied_liquid"], template_keys)
 		self.assertEqual([self.bottle, self.water], content_args)
 		self.assertEqual([self.bottle], next_args)
-		self.assertFalse(self.water in self.bottle.items.values())
-		self.assertFalse(self.water in self.player.location.items.values())
+		self.assertFalse(self.water in self.bottle.items)
+		self.assertFalse(self.water in self.player.location.items)
 		self.assertFalse(self.bottle in self.water.containers)
 
 
@@ -504,9 +504,9 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_emptied_solid"], template_keys)
 		self.assertEqual([self.basket, self.book], content_args)
 		self.assertEqual([self.basket], next_args)
-		self.assertFalse(self.book in self.basket.items.values())
-		self.assertTrue(self.book in self.player.get_inventory().items.values())
-		self.assertFalse(self.book in self.player.location.items.values())
+		self.assertFalse(self.book in self.basket.items)
+		self.assertTrue(self.book in self.player.get_inventory().items)
+		self.assertFalse(self.book in self.player.location.items)
 
 
 	def test_handle_empty_solid_at_location(self):
@@ -519,9 +519,9 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_emptied_solid"], template_keys)
 		self.assertEqual([self.basket, self.book], content_args)
 		self.assertEqual([self.basket], next_args)
-		self.assertFalse(self.book in self.basket.items.values())
-		self.assertFalse(self.book in self.player.get_inventory().items.values())
-		self.assertTrue(self.book in self.player.location.items.values())
+		self.assertFalse(self.book in self.basket.items)
+		self.assertFalse(self.book in self.player.get_inventory().items)
+		self.assertTrue(self.book in self.player.location.items)
 
 
 	def test_handle_explain_default(self):
@@ -578,8 +578,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_dropped"], template_keys)
 		self.assertEqual([self.lamp], content_args)
 		self.assertEqual([self.lamp], next_args)
-		self.assertFalse(self.lamp in self.default_inventory.items.values())
-		self.assertTrue(self.lamp in self.player.location.items.values())
+		self.assertFalse(self.lamp in self.default_inventory.items)
+		self.assertTrue(self.lamp in self.player.location.items)
 
 
 	def test_handle_give_non_sentient_recipient(self):
@@ -614,7 +614,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_given"], template_keys)
 		self.assertEqual([self.book, self.cat], content_args)
 		self.assertEqual([self.book, self.cat], next_args)
-		self.assertFalse(self.book in self.player.get_inventory().items.values())
+		self.assertFalse(self.book in self.player.get_inventory().items)
 		self.assertFalse(self.player.get_inventory() in self.book.containers)
 
 
@@ -920,9 +920,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertTrue(success)
 		self.assertEqual(["confirm_inserted"], template_keys)
 		self.assertEqual([self.book, self.basket], content_args)
-		self.assertFalse(self.book.data_id in self.item_start_location.items)
-		self.assertTrue(self.book.data_id in self.basket.items)
-		self.assertIs(self.book, self.basket.items[self.book.data_id])
+		self.assertFalse(self.book in self.item_start_location.items)
+		self.assertTrue(self.book in self.basket.items)
 		self.assertEqual([self.book, self.basket], next_args)
 
 
@@ -935,10 +934,13 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_inserted"], template_keys)
 		self.assertEqual([self.water, self.bottle], content_args)
 		self.assertEqual([self.water, self.bottle], next_args)
-		self.assertTrue(self.water.data_id in self.item_start_location.items)
-		self.assertIs(self.water, self.item_start_location.items[self.water.data_id])
-		self.assertTrue(self.water.data_id in self.bottle.items)
-		self.assertIsNot(self.water, self.bottle.items[self.water.data_id])
+		self.assertTrue(self.water in self.item_start_location.items)
+		self.assertFalse(self.water in self.bottle.items)
+		bottle_water = self.bottle.get_allow_copy(self.water)
+		self.assertTrue(bottle_water in self.bottle.items)
+		self.assertIsNot(self.water, bottle_water)
+		self.assertIs(self.water, bottle_water.copied_from)
+		self.assertTrue(bottle_water in self.water.copied_to)
 
 
 	def test_handle_inventory_empty(self):
@@ -1086,8 +1088,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_taken"], template_keys)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([self.book], next_args)
-		self.assertTrue(self.book in self.player.get_inventory().items.values())
-		self.assertFalse(self.book in self.player.location.items.values())
+		self.assertTrue(self.book in self.player.get_inventory().items)
+		self.assertFalse(self.book in self.player.location.items)
 
 
 	def test_pour_non_liquid(self):
@@ -1111,8 +1113,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_poured_with_destination"], template_keys)
 		self.assertEqual([self.water, self.lamp, self.bottle], content_args)
 		self.assertEqual([self.water, self.lamp], next_args)
-		self.assertFalse(self.water in self.bottle.items.values())
-		self.assertFalse(self.water in self.player.location.items.values())
+		self.assertFalse(self.water in self.bottle.items)
+		self.assertFalse(self.water in self.player.location.items)
 
 
 	def test_handle_quit(self):
@@ -1268,8 +1270,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_dropped"], template_keys)
 		self.assertEqual([self.lamp], content_args)
 		self.assertEqual([self.lamp], next_args)
-		self.assertFalse(self.lamp in self.player.get_inventory().items.values())
-		self.assertTrue(self.lamp in self.player.location.items.values())
+		self.assertFalse(self.lamp in self.player.get_inventory().items)
+		self.assertTrue(self.lamp in self.player.location.items)
 
 
 	def test_handle_smash_not_smashable(self):
@@ -1281,7 +1283,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["reject_not_smashable"], template_keys)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([], next_args)
-		self.assertTrue(self.book in self.item_start_location.items.values())
+		self.assertTrue(self.book in self.item_start_location.items)
 
 
 	def test_handle_smash_smashable_not_strong_item(self):
@@ -1294,8 +1296,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_smash"], template_keys)
 		self.assertEqual([self.bottle, "some shards"], content_args)
 		self.assertEqual([self.bottle], next_args)
-		self.assertFalse(self.bottle in self.item_start_location.items.values())
-		self.assertTrue(self.shards in self.item_start_location.items.values())
+		self.assertFalse(self.bottle in self.item_start_location.items)
+		self.assertTrue(self.shards in self.item_start_location.items)
 
 
 	def test_handle_smash_smashable_strong_item_not_strong_player(self):
@@ -1306,7 +1308,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertFalse(success)
 		self.assertEqual(["reject_not_strong"], template_keys)
-		self.assertTrue(self.rock in self.item_start_location.items.values())
+		self.assertTrue(self.rock in self.item_start_location.items)
 
 
 	def test_handle_smash_smashable_strong_item_strong_player(self):
@@ -1320,8 +1322,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_smash"], template_keys)
 		self.assertEqual([self.rock, "some dust"], content_args)
 		self.assertEqual([self.rock], next_args)
-		self.assertFalse(self.rock in self.item_start_location.items.values())
-		self.assertTrue(self.dust in self.item_start_location.items.values())
+		self.assertFalse(self.rock in self.item_start_location.items)
+		self.assertTrue(self.dust in self.item_start_location.items)
 
 
 	def test_handle_switch_off_to_off(self):
@@ -1390,8 +1392,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["reject_take_animate"], template_keys)
 		self.assertEqual([self.book, self.cat], content_args)
 		self.assertEqual([], next_args)
-		self.assertFalse(self.book in self.player.get_inventory().items.values())
-		self.assertTrue(self.book in self.cat.items.values())
+		self.assertFalse(self.book in self.player.get_inventory().items)
+		self.assertTrue(self.book in self.cat.items)
 
 
 	def test_handle_take_from_sentient_nested(self):
@@ -1404,9 +1406,9 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["reject_take_animate"], template_keys)
 		self.assertEqual([self.book, self.cat], content_args)
 		self.assertEqual([], next_args)
-		self.assertFalse(self.book in self.player.get_inventory().items.values())
-		self.assertTrue(self.basket in self.cat.items.values())
-		self.assertTrue(self.book in self.basket.items.values())
+		self.assertFalse(self.book in self.player.get_inventory().items)
+		self.assertTrue(self.basket in self.cat.items)
+		self.assertTrue(self.book in self.basket.items)
 
 
 	def test_handle_take_not_portable(self):
@@ -1418,8 +1420,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["reject_not_portable"], template_keys)
 		self.assertEqual([self.desk], content_args)
 		self.assertEqual([], next_args)
-		self.assertFalse(self.desk in self.player.get_inventory().items.values())
-		self.assertTrue(self.desk in self.player.location.items.values())
+		self.assertFalse(self.desk in self.player.get_inventory().items)
+		self.assertTrue(self.desk in self.player.location.items)
 
 
 	def test_handle_take_obstruction(self):
@@ -1431,8 +1433,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["reject_not_portable"], template_keys)
 		self.assertEqual([self.mobile_obstruction], content_args)
 		self.assertEqual([], next_args)
-		self.assertFalse(self.mobile_obstruction in self.player.get_inventory().items.values())
-		self.assertTrue(self.mobile_obstruction in self.player.location.items.values())
+		self.assertFalse(self.mobile_obstruction in self.player.get_inventory().items)
+		self.assertTrue(self.mobile_obstruction in self.player.location.items)
 
 
 	def test_handle_take_over_capacity(self):
@@ -1445,8 +1447,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["reject_too_full"], template_keys)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([], next_args)
-		self.assertFalse(self.book in self.player.get_inventory().items.values())
-		self.assertTrue(self.book in self.player.location.items.values())
+		self.assertFalse(self.book in self.player.get_inventory().items)
+		self.assertTrue(self.book in self.player.location.items)
 
 
 	def test_handle_take_at_location(self):
@@ -1458,8 +1460,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_taken"], template_keys)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([self.book], next_args)
-		self.assertTrue(self.book in self.player.get_inventory().items.values())
-		self.assertFalse(self.book in self.player.location.items.values())
+		self.assertTrue(self.book in self.player.get_inventory().items)
+		self.assertFalse(self.book in self.player.location.items)
 
 
 	def test_handle_take_liquid(self):
@@ -1471,8 +1473,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["reject_take_liquid"], template_keys)
 		self.assertEqual([self.water], content_args)
 		self.assertEqual([], next_args)
-		self.assertFalse(self.water in self.player.get_inventory().items.values())
-		self.assertTrue(self.water in self.player.location.items.values())
+		self.assertFalse(self.water in self.player.get_inventory().items)
+		self.assertTrue(self.water in self.player.location.items)
 
 
 	def test_handle_take_multi_arg(self):
@@ -1485,7 +1487,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_inserted"], template_keys)
 		self.assertEqual([self.book, self.basket], content_args)
 		self.assertEqual([self.book, self.basket], next_args)
-		self.assertTrue(self.book in self.basket.items.values())
+		self.assertTrue(self.book in self.basket.items)
 
 
 	def test_handle_teleport(self):
@@ -1509,8 +1511,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["reject_throw_liquid"], template_keys)
 		self.assertEqual([self.water], content_args)
 		self.assertEqual([], next_args)
-		self.assertTrue(self.water in self.bottle.items.values())
-		self.assertFalse(self.water in self.player.location.items.values())
+		self.assertTrue(self.water in self.bottle.items)
+		self.assertFalse(self.water in self.player.location.items)
 
 
 	def test_handle_throw_with_floor_non_fragile(self):
@@ -1522,8 +1524,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_throw"], template_keys)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([self.book], next_args)
-		self.assertFalse(self.book in self.default_inventory.items.values())
-		self.assertTrue(self.book in self.player.location.items.values())
+		self.assertFalse(self.book in self.default_inventory.items)
+		self.assertTrue(self.book in self.player.location.items)
 
 
 	def test_handle_throw_with_floor_fragile(self):
@@ -1535,9 +1537,9 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_throw", "describe_item_smash_see"], template_keys)
 		self.assertEqual([self.bottle, self.shards], content_args)
 		self.assertEqual([self.bottle], next_args)
-		self.assertFalse(self.bottle in self.default_inventory.items.values())
-		self.assertFalse(self.bottle in self.player.location.items.values())
-		self.assertTrue(self.shards in self.player.location.items.values())
+		self.assertFalse(self.bottle in self.default_inventory.items)
+		self.assertFalse(self.bottle in self.player.location.items)
+		self.assertTrue(self.shards in self.player.location.items)
 
 
 	def test_handle_throw_without_floor_non_fragile(self):
@@ -1551,9 +1553,9 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_throw", "describe_item_falling"], template_keys)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([self.book], next_args)
-		self.assertFalse(self.book in self.default_inventory.items.values())
-		self.assertFalse(self.book in self.cave_location.items.values())
-		self.assertTrue(self.book in self.mine_location.items.values())
+		self.assertFalse(self.book in self.default_inventory.items)
+		self.assertFalse(self.book in self.cave_location.items)
+		self.assertTrue(self.book in self.mine_location.items)
 
 
 	def test_handle_throw_without_floor_fragile(self):
@@ -1567,10 +1569,10 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_throw", "describe_item_falling", "describe_item_smash_hear"], template_keys)
 		self.assertEqual([self.bottle, self.shards], content_args)
 		self.assertEqual([self.bottle], next_args)
-		self.assertFalse(self.bottle in self.default_inventory.items.values())
-		self.assertFalse(self.bottle in self.cave_location.items.values())
-		self.assertFalse(self.shards in self.cave_location.items.values())
-		self.assertTrue(self.shards in self.mine_location.items.values())
+		self.assertFalse(self.bottle in self.default_inventory.items)
+		self.assertFalse(self.bottle in self.cave_location.items)
+		self.assertFalse(self.shards in self.cave_location.items)
+		self.assertTrue(self.shards in self.mine_location.items)
 
 
 	def test_handle_throw_fragile_liquid_container(self):
@@ -1583,9 +1585,9 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_throw", "describe_item_smash_see", "describe_item_smash_release_liquid"], template_keys)
 		self.assertEqual([self.bottle, self.shards, self.water], content_args)
 		self.assertEqual([self.bottle], next_args)
-		self.assertFalse(self.bottle in self.default_inventory.items.values())
-		self.assertFalse(self.bottle in self.player.location.items.values())
-		self.assertTrue(self.shards in self.player.location.items.values())
+		self.assertFalse(self.bottle in self.default_inventory.items)
+		self.assertFalse(self.bottle in self.player.location.items)
+		self.assertTrue(self.shards in self.player.location.items)
 
 
 	def test_handle_throw_fragile_solid_container(self):
@@ -1598,9 +1600,9 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_throw", "describe_item_smash_see", "describe_item_smash_release_solid"], template_keys)
 		self.assertEqual([self.tray, self.shards, self.book], content_args)
 		self.assertEqual([self.tray], next_args)
-		self.assertFalse(self.tray in self.default_inventory.items.values())
-		self.assertFalse(self.tray in self.player.location.items.values())
-		self.assertTrue(self.shards in self.player.location.items.values())
+		self.assertFalse(self.tray in self.default_inventory.items)
+		self.assertFalse(self.tray in self.player.location.items)
+		self.assertTrue(self.shards in self.player.location.items)
 
 
 	def test_handle_throw_fragile_container_empty(self):
@@ -1612,9 +1614,9 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_throw", "describe_item_smash_see"], template_keys)
 		self.assertEqual([self.tray, self.shards], content_args)
 		self.assertEqual([self.tray], next_args)
-		self.assertFalse(self.tray in self.default_inventory.items.values())
-		self.assertFalse(self.tray in self.player.location.items.values())
-		self.assertTrue(self.shards in self.player.location.items.values())
+		self.assertFalse(self.tray in self.default_inventory.items)
+		self.assertFalse(self.tray in self.player.location.items)
+		self.assertTrue(self.shards in self.player.location.items)
 
 
 	def test_handle_throw_at_location_with_no_land(self):
@@ -1627,8 +1629,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_throw", "describe_item_sink"], template_keys)
 		self.assertEqual([self.book], content_args)
 		self.assertEqual([self.book], next_args)
-		self.assertFalse(self.book in self.default_inventory.items.values())
-		self.assertFalse(self.book in self.water_location.items.values())
+		self.assertFalse(self.book in self.default_inventory.items)
+		self.assertFalse(self.book in self.water_location.items)
 
 
 	def test_handle_tie_not_tyable(self):
@@ -1640,7 +1642,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["reject_not_tyable"], template_keys)
 		self.assertEqual([self.water], content_args)
 		self.assertEqual([], next_args)
-		self.assertTrue(self.water in self.item_start_location.items.values())
+		self.assertTrue(self.water in self.item_start_location.items)
 
 
 	def test_handle_tie_tyable_no_tying_material(self):
@@ -1652,7 +1654,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertFalse(success)
 		self.assertEqual(["reject_no_material"], template_keys)
 		self.assertEqual([self.log, "tie", "some rope"], content_args)
-		self.assertTrue(self.log in self.item_start_location.items.values())
+		self.assertTrue(self.log in self.item_start_location.items)
 
 
 	def test_handle_tie_tyable_with_tying_material(self):
@@ -1666,8 +1668,8 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["confirm_tie"], template_keys)
 		self.assertEqual([self.log, "a raft"], content_args)
 		self.assertEqual([self.log], next_args)
-		self.assertFalse(self.log in self.item_start_location.items.values())
-		self.assertTrue(self.raft in self.item_start_location.items.values())
+		self.assertFalse(self.log in self.item_start_location.items)
+		self.assertTrue(self.raft in self.item_start_location.items)
 
 
 	def test_handle_toggle_non_switchable_item(self):

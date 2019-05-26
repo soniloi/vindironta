@@ -29,7 +29,11 @@ class TestInventory(unittest.TestCase):
 		self.inventory.insert(self.water)
 
 		self.assertFalse(self.inventory.contains(self.water))
-		self.assertTrue(self.water.data_id in self.inventory.items)
+		water_copy = self.inventory.get_allow_copy(self.water)
+		self.assertTrue(water_copy)
+		self.assertEqual(self.water.data_id, water_copy.data_id)
+		self.assertIs(self.water, water_copy.copied_from)
+		self.assertTrue(water_copy in self.water.copied_to)
 
 
 	def test_can_accommodate_below_capacity(self):

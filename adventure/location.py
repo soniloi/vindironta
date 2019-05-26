@@ -45,7 +45,7 @@ class Location(NamedDataElement, ItemContainer):
 
 	def get_contents_description(self):
 		result = ""
-		for item in self.items.values():
+		for item in self.items:
 			result += item.get_non_silent_list_name()
 		return result
 
@@ -107,7 +107,7 @@ class Location(NamedDataElement, ItemContainer):
 
 
 	def get_obstructions(self):
-		return [item for item in self.items.values() if item.is_obstruction()]
+		return [item for item in self.items if item.is_obstruction()]
 
 
 	def can_reach(self, other_location):
@@ -115,4 +115,4 @@ class Location(NamedDataElement, ItemContainer):
 
 
 	def has_non_silent_items(self):
-		return any(not item.is_silent() for item in self.items.values())
+		return any(not item.is_silent() for item in self.items)

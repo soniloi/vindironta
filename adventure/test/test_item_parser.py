@@ -72,7 +72,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual([". It is open on a particular page"], book.extended_descriptions)
 		self.assertEqual("The Pied Piper of Hamelin", book.writing)
 		self.assertFalse(isinstance(book, ContainerItem))
-		self.assertEqual(book, self.library_location.get_by_id(book.data_id))
+		self.assertTrue(book in self.library_location.items)
 		self.assertEqual(0, len(related_commands))
 
 
@@ -378,7 +378,7 @@ class TestItemParser(unittest.TestCase):
 		book = book_list[0]
 		self.assertEqual(1, len(book.containers))
 		self.assertTrue(self.box in book.containers)
-		self.assertEqual(book, self.box.get_by_id(book.data_id))
+		self.assertTrue(book in self.box.items)
 		self.assertEqual(0, len(related_commands))
 
 

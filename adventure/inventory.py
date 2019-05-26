@@ -23,7 +23,7 @@ class Inventory(NamedDataElement, ItemContainer):
 
 	def get_contents_description(self):
 		result = ""
-		for item in self.items.values():
+		for item in self.items:
 			result += item.get_list_name()
 		return result
 
@@ -33,10 +33,10 @@ class Inventory(NamedDataElement, ItemContainer):
 
 
 	def get_current_weight(self):
-		return sum(item.get_weight() for item in self.items.values())
+		return sum(item.get_weight() for item in self.items)
 
 
 	def drop_all_items(self, location):
-		for item in self.items.values():
+		for item in self.items:
 			location.insert(item)
 		self.items.clear()

@@ -293,7 +293,7 @@ class ContainerItem(Item, ItemContainer):
 		contents = ""
 		if self.items:
 			template = "+{0}"
-			inner_item = next(iter(self.items.values()))
+			inner_item = next(iter(self.items))
 			contents = inner_item.get_list_name(inner_indentation)
 
 		result += template.format(contents)
@@ -324,7 +324,7 @@ class ContainerItem(Item, ItemContainer):
 
 
 	def get_contained_item(self):
-		return next(iter(self.items.values()))
+		return next(iter(self.items))
 
 
 	def can_accommodate(self, item):
@@ -353,7 +353,7 @@ class SentientItem(ItemContainer, Item):
 
 		if self.items:
 			template = " +{0}"
-			inner_item = next(iter(self.items.values()))
+			inner_item = next(iter(self.items))
 			contents = inner_item.get_list_name(inner_indentation)
 			result += template.format(contents)
 
