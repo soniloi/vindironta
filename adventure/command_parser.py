@@ -14,19 +14,20 @@ class CommandParser:
 		self.event_resolver = resolvers.event_resolver
 		self.life_resolver = resolvers.life_resolver
 
-		commands_by_name, commands_by_id, validation_messages = self.parse_commands(command_inputs)
+		commands_by_name, commands_by_id, teleport_infos, validation_messages = self.parse_commands(command_inputs)
 		command_list = self.create_command_list(commands_by_name)
 
-		return CommandCollection(commands_by_name, commands_by_id, command_list), validation_messages
+		return CommandCollection(commands_by_name, commands_by_id, command_list), teleport_infos, validation_messages
 
 
 	def parse_commands(self, command_inputs):
 		commands_by_name = {}
 		commands_by_id = {}
 		validation_messages = []
+		teleport_infos = {}
 
 		for command_input in command_inputs:
-			command = self.parse_command(command_input)
+			command, teleport_info = self.parse_command(command_input)
 			if command:
 				for alias in command.aliases:
 					if alias in commands_by_name:
@@ -40,7 +41,10 @@ class CommandParser:
 					validation_messages.append(CommandParser.SHARED_ID.format(command.data_id, command.primary))
 				commands_by_id[command.data_id] = command
 
-		return commands_by_name, commands_by_id, validation_messages
+				if teleport_info:
+					teleport_infos[command] = teleport_info
+
+		return commands_by_name, commands_by_id, teleport_infos, validation_messages
 
 
 	def parse_command(self, command_input):
@@ -51,19 +55,19 @@ class CommandParser:
 		switch_info = self.parse_switch_info(command_input.get("switch_info"))
 		teleport_info = self.parse_teleport_info(command_input.get("teleport_info"))
 
+		command = None
 		proceed, resolver_functions = self.get_resolver_functions(attributes, arg_infos, command_input["handler"])
-		if not proceed:
-			return None
-
-		return Command(
+		if proceed:
+			command = Command(
 			command_id=command_id,
 			attributes=attributes,
 			arg_infos=arg_infos,
 			resolver_functions=resolver_functions,
 			aliases=aliases,
 			switch_info=switch_info,
-			teleport_info=teleport_info,
 		)
+
+		return command, teleport_info
 
 
 	def parse_arg_infos(self, arg_info_inputs):

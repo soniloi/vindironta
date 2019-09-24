@@ -42,10 +42,10 @@ class TestEventResolver(unittest.TestCase):
 
 
 	def setup_commands(self):
-		self.drink_command = Command(14, 0x0, [], [], "drink", {}, {})
-		self.pour_command = Command(40, 0x0, [], [], "pour", {}, {})
-		self.rub_command = Command(48, 0x10, [], [], ["rub"], {}, {})
-		self.wave_command = Command(150, 0x0, [], [], ["wave"], {}, {})
+		self.drink_command = Command(14, 0x0, [], [], "drink", {})
+		self.pour_command = Command(40, 0x0, [], [], "pour", {})
+		self.rub_command = Command(48, 0x10, [], [], ["rub"], {})
+		self.wave_command = Command(150, 0x0, [], [], ["wave"], {})
 
 
 	def setup_locations(self):

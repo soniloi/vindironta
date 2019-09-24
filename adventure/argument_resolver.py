@@ -27,8 +27,7 @@ class ArgumentResolver(Resolver):
 		if not source_location_id in command.teleport_info:
 			return False, ["reject_nothing"], [None], []
 
-		destination_location_id = command.teleport_info[source_location_id]
-		destination_location = self.data.get_location(destination_location_id)
+		destination_location = command.teleport_info[source_location_id]
 
 		return True, [], [], [destination_location]
 

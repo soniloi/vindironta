@@ -5,10 +5,15 @@ from adventure.location_collection import LocationCollection
 
 class LocationParser:
 
-	def parse(self, location_inputs):
+	def parse(self, location_inputs, teleport_infos):
 		links = {}
 		locations = self.parse_locations(location_inputs, links)
 		self.cross_reference(locations, links)
+
+		for command, teleport_info in teleport_infos.items():
+			for source_id, destination_id in teleport_info.items():
+				destination = locations[destination_id]
+				command.teleport_info[source_id] = destination
 
 		return LocationCollection(locations)
 

@@ -19,8 +19,8 @@ class TestEventParser(unittest.TestCase):
 
 
 	def setup_commands(self):
-		self.command_48 = Command(48, 0x0, [], [], [""], {}, {})
-		self.command_49 = Command(49, 0x0, [], [], [""], {}, {})
+		self.command_48 = Command(48, 0x0, [], [], [""], {})
+		self.command_49 = Command(49, 0x0, [], [], [""], {})
 		self.commands = {
 			48 : self.command_48,
 			49 : self.command_49,

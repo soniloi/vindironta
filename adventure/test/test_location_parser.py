@@ -1,6 +1,7 @@
 import json
 import unittest
 
+from adventure.command import Command
 from adventure.direction import Direction
 from adventure.location_parser import LocationParser
 
@@ -46,8 +47,10 @@ class TestLocationParser(unittest.TestCase):
 				} \
 			]"
 		)
+		command = Command(150, 0x0, [], [], ["do"], {})
+		teleport_infos = {command: {7: 9, 9: 7}}
 
-		collection = LocationParser().parse(location_inputs)
+		collection = LocationParser().parse(location_inputs, teleport_infos)
 
 		self.assertEqual(2, len(collection.locations))
 		self.assertTrue(7 in collection.locations)
@@ -71,6 +74,9 @@ class TestLocationParser(unittest.TestCase):
 		self.assertNotIn(Direction.NORTH, infirmary_location.directions)
 		self.assertNotIn(Direction.WEST, infirmary_location.directions)
 		self.assertNotIn(Direction.OUT, infirmary_location.directions)
+
+		self.assertIs(infirmary_location, command.teleport_info[9])
+		self.assertIs(ward_location, command.teleport_info[7])
 
 
 if __name__ == "__main__":

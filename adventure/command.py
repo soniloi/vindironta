@@ -12,14 +12,14 @@ class Command(DataElement):
 	ATTRIBUTE_SWITCHING = 0x200
 	ATTRIBUTE_REQUIRES_VISION = 0x400
 
-	def __init__(self, command_id, attributes, arg_infos, resolver_functions, aliases, switch_info, teleport_info):
+	def __init__(self, command_id, attributes, arg_infos, resolver_functions, aliases, switch_info):
 		DataElement.__init__(self, data_id=command_id, attributes=attributes)
 		self.arg_infos = arg_infos
 		self.resolver_functions = resolver_functions
 		self.primary = aliases[0]
 		self.aliases = aliases
 		self.switch_info = switch_info
-		self.teleport_info = teleport_info
+		self.teleport_info = {}
 
 
 	def verb_is_first_arg(self):

@@ -43,7 +43,7 @@ class TestCommandRunner(unittest.TestCase):
 
 	def test_run_movement(self):
 		resolver_functions = [self.arg_function_movement, self.vision_function, self.handler_function]
-		command_movement = Command(1, 0x49, 0x0, resolver_functions, [""],  {}, {})
+		command_movement = Command(1, 0x49, 0x0, resolver_functions, [""],  {})
 
 		result = self.runner.run(command_movement, None, ["test"])
 
@@ -52,7 +52,7 @@ class TestCommandRunner(unittest.TestCase):
 
 	def test_run_non_movement(self):
 		resolver_functions = [self.arg_function_non_movement, self.vision_function, self.handler_function]
-		command_non_movement = Command(1, 0x9, 0x0, resolver_functions, [""],  {}, {})
+		command_non_movement = Command(1, 0x9, 0x0, resolver_functions, [""],  {})
 
 		result = self.runner.run(command_non_movement, None, ["test"])
 
@@ -61,7 +61,7 @@ class TestCommandRunner(unittest.TestCase):
 
 	def test_run_item_args(self):
 		resolver_functions = [self.arg_function_non_movement, self.vision_function, self.handler_function]
-		command_non_movement = Command(1, 0x9, 0x0, resolver_functions, [""],  {}, {})
+		command_non_movement = Command(1, 0x9, 0x0, resolver_functions, [""],  {})
 		book = Item(1105, 2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
 
 		result = self.runner.run(command_non_movement, None, [book])
@@ -71,7 +71,7 @@ class TestCommandRunner(unittest.TestCase):
 
 	def test_run_unsuccessful(self):
 		resolver_functions = [self.arg_function_unsuccessful, self.vision_function, self.handler_function]
-		command_unsuccessful = Command(1, 0x9, 0x0, resolver_functions, [""], {}, {})
+		command_unsuccessful = Command(1, 0x9, 0x0, resolver_functions, [""], {})
 
 		result = self.runner.run(command_unsuccessful, None, ["test"])
 

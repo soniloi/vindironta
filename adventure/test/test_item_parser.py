@@ -25,7 +25,7 @@ class TestItemParser(unittest.TestCase):
 			1111 : self.kindling,
 		}
 
-		self.command = Command(17, 0x0, 0x0, [], [""],  {}, {})
+		self.command = Command(17, 0x0, 0x0, [], [""],  {})
 		self.commands_by_id = {
 			17 : self.command,
 		}

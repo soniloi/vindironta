@@ -17,7 +17,7 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.setup_player()
 
-		self.command = Command(0, 0x0, 0x0, [], [""],  {}, {})
+		self.command = Command(0, 0x0, 0x0, [], [""],  {})
 		self.handler = CommandHandler()
 		self.handler.init_data(self.data)
 
@@ -128,7 +128,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_burn_burnable_no_burning_tool(self):
-		burn_command = Command(6, 0x9, 0x0, [], ["burn"], {}, {})
+		burn_command = Command(6, 0x9, 0x0, [], ["burn"], {})
 		self.item_start_location.insert(self.paper)
 
 		success, template_keys, content_args, next_args = self.handler.handle_burn(burn_command, self.player, self.paper)
@@ -140,7 +140,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_burn_burnable_with_burning_tool(self):
-		burn_command = Command(6, 0x9, 0x0, [], ["burn"], {}, {})
+		burn_command = Command(6, 0x9, 0x0, [], ["burn"], {})
 		self.item_start_location.insert(self.paper)
 		self.player.get_inventory().add(self.matches)
 
@@ -167,7 +167,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_chop_choppable_no_chopping_tool(self):
-		chop_command = Command(78, 0x0, 0x0, [], ["chop"], {}, {})
+		chop_command = Command(78, 0x0, 0x0, [], ["chop"], {})
 		self.item_start_location.add(self.log)
 
 		success, template_keys, content_args, next_args = self.handler.handle_chop(chop_command, self.player, self.log)
@@ -180,7 +180,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_chop_choppable_with_chopping_tool(self):
-		chop_command = Command(78, 0x0, 0x0, [], ["chop"], {}, {})
+		chop_command = Command(78, 0x0, 0x0, [], ["chop"], {})
 		self.item_start_location.add(self.log)
 		self.player.get_inventory().add(self.axe)
 
@@ -1287,7 +1287,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_smash_smashable_not_strong_item(self):
-		smash_command = Command(73, 0x9, 0x0, [], [""],  {}, {})
+		smash_command = Command(73, 0x9, 0x0, [], [""],  {})
 		self.item_start_location.insert(self.bottle)
 
 		success, template_keys, content_args, next_args = self.handler.handle_smash(smash_command, self.player, self.bottle)
@@ -1301,7 +1301,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_smash_smashable_strong_item_not_strong_player(self):
-		smash_command = Command(73, 0x9, 0x0, [], [""],  {}, {})
+		smash_command = Command(73, 0x9, 0x0, [], [""],  {})
 		self.item_start_location.insert(self.rock)
 
 		success, template_keys, content_args, next_args = self.handler.handle_smash(smash_command, self.player, self.rock)
@@ -1312,7 +1312,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_smash_smashable_strong_item_strong_player(self):
-		smash_command = Command(73, 0x9, 0x0, [], [""],  {}, {})
+		smash_command = Command(73, 0x9, 0x0, [], [""],  {})
 		self.item_start_location.insert(self.rock)
 		self.player.set_strong(True)
 
@@ -1646,7 +1646,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_tie_tyable_no_tying_material(self):
-		tie_command = Command(57, 0x9, 0x0, [], ["tie"], {}, {})
+		tie_command = Command(57, 0x9, 0x0, [], ["tie"], {})
 		self.item_start_location.insert(self.log)
 
 		success, template_keys, content_args, next_args = self.handler.handle_tie(tie_command, self.player, self.log)
@@ -1658,7 +1658,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_tie_tyable_with_tying_material(self):
-		tie_command = Command(57, 0x9, 0x0, [], ["tie"], {}, {})
+		tie_command = Command(57, 0x9, 0x0, [], ["tie"], {})
 		self.item_start_location.insert(self.log)
 		self.player.get_inventory().add(self.rope)
 

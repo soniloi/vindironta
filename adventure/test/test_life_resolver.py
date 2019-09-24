@@ -17,7 +17,7 @@ class TestLifeResolver(unittest.TestCase):
 
 	def setup_data(self):
 		self.data = Mock()
-		self.command = Command(150, 0x0, [], [], ["do"], {}, {})
+		self.command = Command(150, 0x0, [], [], ["do"], {})
 		self.inventory = Mock()
 		self.player_location = Mock()
 		self.drop_location = Mock()
