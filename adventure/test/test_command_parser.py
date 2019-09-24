@@ -444,7 +444,7 @@ class TestCommandParser(unittest.TestCase):
 		self.assertFalse(messages)
 
 
-	def test_init_command_shared_alias(self):
+	def test_init_command_shared_alias_different_commands(self):
 		command_inputs = json.loads(
 			"[ \
 				{ \
@@ -481,8 +481,74 @@ class TestCommandParser(unittest.TestCase):
 		self.assertIsNot(score_command, south_command)
 
 		self.assertEqual(1, len(messages))
-		self.assertEqual("Multiple commands found with alias \"s\".", messages[0])
+		self.assertEqual("Multiple commands found with alias \"s\". Alias will map to command with id 51.", messages[0])
 		self.assertIs(south_command, collection.commands_by_name["s"])
+
+
+	def test_init_command_shared_alias_same_command(self):
+		command_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 51, \
+					\"attributes\": \"48\", \
+					\"handler\": \"go\", \
+					\"aliases\": [ \
+						\"south\", \
+						\"s\", \
+						\"s\" \
+					] \
+				} \
+			]"
+		)
+
+		collection, messages = CommandParser().parse(command_inputs, self.resolvers)
+
+		self.assertEqual(2, len(collection.commands_by_name))
+		self.assertEqual(1, len(collection.commands_by_id))
+		self.assertTrue("south" in collection.commands_by_name)
+		self.assertTrue("s" in collection.commands_by_name)
+		self.assertIs(collection.commands_by_name["south"], collection.commands_by_name["s"])
+
+		self.assertEqual(1, len(messages))
+		self.assertEqual("Alias \"s\" given twice for command with id 51.", messages[0])
+
+
+	def test_init_command_shared_id(self):
+		command_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 50, \
+					\"attributes\": \"0\", \
+					\"handler\": \"score\", \
+					\"aliases\": [ \
+						\"score\" \
+					] \
+				}, \
+				{ \
+					\"data_id\": 50, \
+					\"attributes\": \"48\", \
+					\"handler\": \"go\", \
+					\"aliases\": [ \
+						\"south\" \
+					] \
+				} \
+			]"
+		)
+
+		collection, messages = CommandParser().parse(command_inputs, self.resolvers)
+
+		self.assertEqual(2, len(collection.commands_by_name))
+		self.assertEqual(1, len(collection.commands_by_id))
+		self.assertTrue("score" in collection.commands_by_name)
+		self.assertTrue("south" in collection.commands_by_name)
+
+		score_command = collection.commands_by_name["score"]
+		south_command = collection.commands_by_name["south"]
+		self.assertIsNot(score_command, south_command)
+
+		self.assertEqual(1, len(messages))
+		self.assertEqual("Multiple commands found with id 50. Alias will map to command with primary alias \"south\".", messages[0])
+		self.assertIs(south_command, collection.commands_by_id[50])
 
 
 	def test_list_commands(self):

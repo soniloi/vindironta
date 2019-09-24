@@ -3,6 +3,10 @@ from adventure.command_collection import CommandCollection
 
 class CommandParser:
 
+	SHARED_ALIAS_DIFFERENT_COMMANDS = "Multiple commands found with alias \"{0}\". Alias will map to command with id {1}."
+	SHARED_ALIAS_SAME_COMMAND = "Alias \"{0}\" given twice for command with id {1}."
+	SHARED_ID = "Multiple commands found with id {0}. Alias will map to command with primary alias \"{1}\"."
+
 	def parse(self, command_inputs, resolvers):
 		self.vision_resolver = resolvers.vision_resolver
 		self.argument_resolver = resolvers.argument_resolver
@@ -26,8 +30,14 @@ class CommandParser:
 			if command:
 				for alias in command.aliases:
 					if alias in commands_by_name:
-						validation_messages.append("Multiple commands found with alias \"{0}\".".format(alias))
+						if command is commands_by_name[alias]:
+							validation_messages.append(CommandParser.SHARED_ALIAS_SAME_COMMAND.format(alias, command.data_id))
+						else:
+							validation_messages.append(CommandParser.SHARED_ALIAS_DIFFERENT_COMMANDS.format(alias, command.data_id))
 					commands_by_name[alias] = command
+
+				if command.data_id in commands_by_id:
+					validation_messages.append(CommandParser.SHARED_ID.format(command.data_id, command.primary))
 				commands_by_id[command.data_id] = command
 
 		return commands_by_name, commands_by_id, validation_messages
