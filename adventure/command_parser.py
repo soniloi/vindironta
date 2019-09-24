@@ -10,24 +10,27 @@ class CommandParser:
 		self.event_resolver = resolvers.event_resolver
 		self.life_resolver = resolvers.life_resolver
 
-		commands_by_name, commands_by_id = self.parse_commands(command_inputs)
+		commands_by_name, commands_by_id, validation_messages = self.parse_commands(command_inputs)
 		command_list = self.create_command_list(commands_by_name)
 
-		return CommandCollection(commands_by_name, commands_by_id, command_list)
+		return CommandCollection(commands_by_name, commands_by_id, command_list), validation_messages
 
 
 	def parse_commands(self, command_inputs):
 		commands_by_name = {}
 		commands_by_id = {}
+		validation_messages = []
 
 		for command_input in command_inputs:
 			command = self.parse_command(command_input)
 			if command:
 				for alias in command.aliases:
+					if alias in commands_by_name:
+						validation_messages.append("Multiple commands found with alias \"{0}\".".format(alias))
 					commands_by_name[alias] = command
 				commands_by_id[command.data_id] = command
 
-		return commands_by_name, commands_by_id
+		return commands_by_name, commands_by_id, validation_messages
 
 
 	def parse_command(self, command_input):

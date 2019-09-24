@@ -11,7 +11,7 @@ from adventure.text_parser import TextParser
 class DataParser:
 
 	def parse(self, content_input, resolvers):
-		commands = CommandParser().parse(content_input["commands"], resolvers)
+		commands, validation_messages = CommandParser().parse(content_input["commands"], resolvers)
 		inventories = InventoryParser().parse(content_input["inventories"])
 		locations = LocationParser().parse(content_input["locations"])
 		elements_by_id = locations.locations.copy()
