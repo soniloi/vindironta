@@ -2,8 +2,9 @@ import json
 import unittest
 from unittest.mock import Mock
 
-from adventure.command_parser import CommandParser, ValidationSeverity
+from adventure.command_parser import CommandParser
 from adventure.resolvers import Resolvers
+from adventure.validation import Severity
 
 class TestCommandParser(unittest.TestCase):
 
@@ -494,7 +495,10 @@ class TestCommandParser(unittest.TestCase):
 		self.assertIsNot(score_command, south_command)
 
 		self.assertEqual(1, len(messages))
-		self.assertEqual((ValidationSeverity.ERROR, "Multiple commands found with alias \"s\". Alias will map to command with id 51."), messages[0])
+		message = messages[0]
+		self.assertEqual(Severity.ERROR, message.severity)
+		self.assertEqual("Multiple commands found with alias \"{0}\". Alias will map to command with id {1}.", message.template)
+		self.assertEqual(("s", 51), message.args)
 		self.assertIs(south_command, collection.commands_by_name["s"])
 
 
@@ -523,7 +527,10 @@ class TestCommandParser(unittest.TestCase):
 		self.assertIs(collection.commands_by_name["south"], collection.commands_by_name["s"])
 
 		self.assertEqual(1, len(messages))
-		self.assertEqual((ValidationSeverity.WARN, "Alias \"s\" given twice for command with id 51."), messages[0])
+		message = messages[0]
+		self.assertEqual(Severity.WARN, message.severity)
+		self.assertEqual("Alias \"{0}\" given twice for command with id {1}.", message.template)
+		self.assertEqual(("s", 51), message.args)
 
 
 	def test_init_command_shared_id(self):
@@ -560,7 +567,10 @@ class TestCommandParser(unittest.TestCase):
 		self.assertIsNot(score_command, south_command)
 
 		self.assertEqual(1, len(messages))
-		self.assertEqual((ValidationSeverity.ERROR, "Multiple commands found with id 50. Alias will map to command with primary alias \"south\"."), messages[0])
+		message = messages[0]
+		self.assertEqual(Severity.ERROR, message.severity)
+		self.assertEqual("Multiple commands found with id {0}. Alias will map to command with primary alias \"{1}\".", message.template)
+		self.assertEqual((50, "south"), message.args)
 		self.assertIs(south_command, collection.commands_by_id[50])
 
 

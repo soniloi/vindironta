@@ -1,12 +1,6 @@
-from enum import Enum
-
 from adventure.command import ArgInfo, Command
 from adventure.command_collection import CommandCollection
-
-class ValidationSeverity(Enum):
-	ERROR = "ERROR"
-	WARN = "WARN"
-
+from adventure.validation import ValidationMessage, Severity
 
 class CommandParser:
 
@@ -39,13 +33,13 @@ class CommandParser:
 				for alias in command.aliases:
 					if alias in commands_by_name:
 						if command is commands_by_name[alias]:
-							validation_messages.append((ValidationSeverity.WARN, CommandParser.SHARED_ALIAS_SAME_COMMAND.format(alias, command.data_id)))
+							validation_messages.append(ValidationMessage(Severity.WARN, CommandParser.SHARED_ALIAS_SAME_COMMAND, (alias, command.data_id)))
 						else:
-							validation_messages.append((ValidationSeverity.ERROR, CommandParser.SHARED_ALIAS_DIFFERENT_COMMANDS.format(alias, command.data_id)))
+							validation_messages.append(ValidationMessage(Severity.ERROR, CommandParser.SHARED_ALIAS_DIFFERENT_COMMANDS, (alias, command.data_id)))
 					commands_by_name[alias] = command
 
 				if command.data_id in commands_by_id:
-					validation_messages.append((ValidationSeverity.ERROR, CommandParser.SHARED_ID.format(command.data_id, command.primary)))
+					validation_messages.append(ValidationMessage(Severity.ERROR, CommandParser.SHARED_ID, (command.data_id, command.primary)))
 				commands_by_id[command.data_id] = command
 
 				if teleport_info:
