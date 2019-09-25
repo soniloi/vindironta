@@ -48,8 +48,8 @@ class Game:
 
 		if messages:
 			with open(Game.VALIDATION_MESSAGE_FILENAME, "w") as messages_file:
-				for message in messages:
-					messages_file.write(message + "\n")
+				for (severity, message) in messages:
+					messages_file.write("{0} {1}\n".format(severity.value, message))
 			print("Validation errors found, see {0}.".format(Game.VALIDATION_MESSAGE_FILENAME))
 
 		self.argument_resolver.init_data(self.data)
