@@ -17,7 +17,7 @@ class Game:
 	VALIDATION_MESSAGE_FILENAME = "messages.txt"
 
 	def __init__(self, filename=None):
-		self.on = True
+		self.running = True
 		self.argument_resolver = ArgumentResolver()
 		self.command_handler = CommandHandler()
 		self.vision_resolver = VisionResolver()
@@ -63,6 +63,10 @@ class Game:
 		self.token_processor = TokenProcessor(data, command_runner)
 
 
+	def is_running(self):
+		return self.running
+
+
 	def get_start_message(self):
 		return self.data.get_start_message()
 
@@ -71,6 +75,6 @@ class Game:
 		tokens = line.lower().split()
 		if tokens:
 			response = self.token_processor.process_tokens(self.player, tokens)
-			self.on = self.player.is_playing()
+			self.running = self.player.is_playing()
 			return response
 		return ""

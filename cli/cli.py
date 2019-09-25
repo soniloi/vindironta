@@ -6,10 +6,25 @@ RESET_COLOUR = "\x1b[0m"
 INPUT_COLOUR = "\x1b[0m"
 OUTPUT_COLOUR = "\x1b[32m"
 PROMPT = "> "
-RESPONSE_FORMAT = OUTPUT_COLOUR + PROMPT + "{0}"
+RESPONSE_FORMAT = OUTPUT_COLOUR + PROMPT + "{0}\n"
 
-def format_response(response):
-	return RESPONSE_FORMAT.format(response)
+
+class Cli:
+
+	def run(self, game, output=sys.stdout):
+		output.write(self.format_response(game.get_start_message()))
+
+		while(game.is_running()):
+			request = input(INPUT_COLOUR + PROMPT)
+			response = game.process_input(request).rstrip()
+			if response:
+				output.write(self.format_response(response))
+
+		output.write(RESET_COLOUR)
+
+
+	def format_response(self, response):
+		return RESPONSE_FORMAT.format(response)
 
 
 if __name__ == '__main__':
@@ -18,12 +33,6 @@ if __name__ == '__main__':
 		sys.exit(1)
 
 	current_game = game.Game(sys.argv[1])
-	print(format_response(current_game.get_start_message()))
 
-	while(current_game.on):
-		request = input(INPUT_COLOUR + PROMPT)
-		response = current_game.process_input(request).rstrip()
-		if response:
-			print(format_response(response))
-
-	print(RESET_COLOUR)
+	cli = Cli()
+	cli.run(current_game)

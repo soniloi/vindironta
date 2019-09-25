@@ -56,7 +56,7 @@ class TestGame(unittest.TestCase):
 		response = self.game.process_input("hello")
 
 		self.assertEqual("goodbye", response)
-		self.assertTrue(self.game.on)
+		self.assertTrue(self.game.running)
 
 
 	def test_process_input_player_not_still_playing(self):
@@ -65,7 +65,7 @@ class TestGame(unittest.TestCase):
 		response = self.game.process_input("hello")
 
 		self.assertEqual("goodbye", response)
-		self.assertFalse(self.game.on)
+		self.assertFalse(self.game.running)
 
 
 if __name__ == "__main__":
