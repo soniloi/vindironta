@@ -14,6 +14,8 @@ from adventure.vision_resolver import VisionResolver
 
 class Game:
 
+	VALIDATION_MESSAGE_FILENAME = "messages.txt"
+
 	def __init__(self, filename=None):
 		self.on = True
 		self.argument_resolver = ArgumentResolver()
@@ -42,7 +44,13 @@ class Game:
 			life_resolver=self.life_resolver,
 		)
 		data_parser = DataParser()
-		self.data, self.player = data_parser.parse(content, resolvers)
+		self.data, self.player, messages = data_parser.parse(content, resolvers)
+
+		if messages:
+			with open(Game.VALIDATION_MESSAGE_FILENAME, "w") as messages_file:
+				for message in messages:
+					messages_file.write(message + "\n")
+			print("Validation errors found, see {0}.".format(Game.VALIDATION_MESSAGE_FILENAME))
 
 		self.argument_resolver.init_data(self.data)
 		self.command_handler.init_data(self.data)
