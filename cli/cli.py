@@ -11,11 +11,13 @@ RESPONSE_FORMAT = OUTPUT_COLOUR + PROMPT + "{0}\n"
 
 class Cli:
 
-	def run(self, game, output=sys.stdout):
+	def run(self, game, output=sys.stdout, input=sys.stdin):
 		output.write(self.format_response(game.get_start_message()))
 
 		while(game.is_running()):
-			request = input(INPUT_COLOUR + PROMPT)
+			output.write(INPUT_COLOUR + PROMPT)
+			output.flush()
+			request = input.readline()
 			response = game.process_input(request).rstrip()
 			if response:
 				output.write(self.format_response(response))
