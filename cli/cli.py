@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from adventure import game
+from adventure import data_parser
 
 RESET_COLOUR = "\x1b[0m"
 INPUT_COLOUR = "\x1b[0m"
@@ -39,7 +39,8 @@ if __name__ == '__main__':
 	filename = args.filename
 	validate_only = args.validate_only
 
-	current_game = game.Game(filename)
+	current_game = data_parser.DataParser().parse(filename)
+
 	if not validate_only:
 		cli = Cli()
 		cli.run(current_game)

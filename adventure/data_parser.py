@@ -1,16 +1,71 @@
+import json
+
+from adventure.argument_resolver import ArgumentResolver
+from adventure.command_handler import CommandHandler
 from adventure.command_parser import CommandParser
 from adventure.data_collection import DataCollection
 from adventure.event_parser import EventParser
+from adventure.event_resolver import EventResolver
+from adventure.file_reader import FileReader
+from adventure.game import Game
 from adventure.input_parser import InputParser
 from adventure.inventory_parser import InventoryParser
 from adventure.item_parser import ItemParser
+from adventure.life_resolver import LifeResolver
 from adventure.location_parser import LocationParser
+from adventure.player import Player
 from adventure.player_parser import PlayerParser
+from adventure.resolvers import Resolvers
 from adventure.text_parser import TextParser
+from adventure.vision_resolver import VisionResolver
 
 class DataParser:
 
-	def parse(self, content_input, resolvers):
+	VALIDATION_MESSAGE_FILENAME = "messages.txt"
+
+	def parse(self, filename):
+		with open(filename, "rb") as input_file:
+			reader = FileReader(input_file)
+			content = reader.get_content()
+			json_content = json.loads(content)
+			return self.parse_file(json_content)
+
+
+	def parse_file(self, json_content):
+		resolvers = self.init_resolvers()
+
+		data, player, messages = self.parse_content(json_content, resolvers)
+		if messages:
+			with open(DataParser.VALIDATION_MESSAGE_FILENAME, "w") as messages_file:
+				for message in messages:
+					messages_file.write(message.get_formatted_message() + "\n")
+			print("Validation errors found, see {0}.".format(DataParser.VALIDATION_MESSAGE_FILENAME))
+
+		resolvers.argument_resolver.init_data(data)
+		resolvers.command_handler.init_data(data)
+		resolvers.vision_resolver.init_data(data)
+		resolvers.event_resolver.init_data(data)
+		resolvers.life_resolver.init_data(data)
+
+		return Game(data, player)
+
+
+	def init_resolvers(self):
+		argument_resolver = ArgumentResolver()
+		command_handler = CommandHandler()
+		vision_resolver = VisionResolver()
+		event_resolver = EventResolver()
+		life_resolver = LifeResolver()
+		return Resolvers(
+			vision_resolver=vision_resolver,
+			argument_resolver=argument_resolver,
+			command_handler=command_handler,
+			event_resolver=event_resolver,
+			life_resolver=life_resolver,
+		)
+
+
+	def parse_content(self, content_input, resolvers):
 		commands, teleport_infos, messages = CommandParser().parse(content_input["commands"], resolvers)
 		inventories = InventoryParser().parse(content_input["inventories"])
 		locations = LocationParser().parse(content_input["locations"], teleport_infos)

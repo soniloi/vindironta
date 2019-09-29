@@ -1,62 +1,14 @@
-import json
-
-from adventure.argument_resolver import ArgumentResolver
-from adventure.command_handler import CommandHandler
 from adventure.command_runner import CommandRunner
-from adventure.data_parser import DataParser
-from adventure.event_resolver import EventResolver
-from adventure.file_reader import FileReader
-from adventure.life_resolver import LifeResolver
-from adventure.player import Player
-from adventure.resolvers import Resolvers
 from adventure.token_processor import TokenProcessor
-from adventure.vision_resolver import VisionResolver
 
 class Game:
 
-	VALIDATION_MESSAGE_FILENAME = "messages.txt"
-
-	def __init__(self, filename=None):
+	def __init__(self, data, player):
+		self.data = data
+		self.player = player
 		self.running = True
-		self.argument_resolver = ArgumentResolver()
-		self.command_handler = CommandHandler()
-		self.vision_resolver = VisionResolver()
-		self.event_resolver = EventResolver()
-		self.life_resolver = LifeResolver()
-
-		if filename:
-			with open(filename, "rb") as input_file:
-				reader = FileReader(input_file)
-				content = reader.get_content()
-				json_content = json.loads(content)
-				self.init_data_and_player(json_content)
-
-				command_runner = CommandRunner(self.data)
-				self.init_token_processor(self.data, command_runner)
-
-
-	def init_data_and_player(self, content):
-		resolvers = Resolvers(
-			vision_resolver=self.vision_resolver,
-			argument_resolver=self.argument_resolver,
-			command_handler=self.command_handler,
-			event_resolver=self.event_resolver,
-			life_resolver=self.life_resolver,
-		)
-		data_parser = DataParser()
-		self.data, self.player, messages = data_parser.parse(content, resolvers)
-
-		if messages:
-			with open(Game.VALIDATION_MESSAGE_FILENAME, "w") as messages_file:
-				for message in messages:
-					messages_file.write(message.get_formatted_message() + "\n")
-			print("Validation errors found, see {0}.".format(Game.VALIDATION_MESSAGE_FILENAME))
-
-		self.argument_resolver.init_data(self.data)
-		self.command_handler.init_data(self.data)
-		self.vision_resolver.init_data(self.data)
-		self.event_resolver.init_data(self.data)
-		self.life_resolver.init_data(self.data)
+		command_runner = CommandRunner(self.data)
+		self.init_token_processor(self.data, command_runner)
 
 
 	def init_token_processor(self, data, command_runner):

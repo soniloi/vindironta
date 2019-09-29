@@ -6,12 +6,12 @@ from adventure.game import Game
 class TestGame(unittest.TestCase):
 
 	def setUp(self):
+		self.data = Mock()
 		self.player = Mock()
 		self.token_processor = Mock()
 		self.token_processor.process_tokens.return_value = "goodbye"
 
-		self.game = Game()
-		self.game.player = self.player
+		self.game = Game(self.data, self.player)
 		self.game.token_processor = self.token_processor
 
 
