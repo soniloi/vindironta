@@ -2,30 +2,40 @@ from adventure.direction import Direction
 from adventure.element import Labels
 from adventure.location import Location
 from adventure.location_collection import LocationCollection
+from adventure.validation import ValidationMessage, Severity
 
 class LocationParser:
 
+	TELEPORT_UNKNOWN_DESTINATION_ID = "Unknown destination location id {0} for teleport command {1} \"{2}\"."
+	TELEPORT_UNKNOWN_SOURCE_ID = "Unknown source location id {0} for teleport command {1} \"{2}\". This command will be unreachable."
+
 	def parse(self, location_inputs, teleport_infos):
 		links = {}
-		locations = self.parse_locations(location_inputs, links)
+		locations, validation = self.parse_locations(location_inputs, links)
 		self.cross_reference(locations, links)
 
 		for command, teleport_info in teleport_infos.items():
 			for source_id, destination_id in teleport_info.items():
-				destination = locations[destination_id]
-				command.teleport_info[source_id] = destination
+				if not source_id in locations:
+					validation.append(ValidationMessage(Severity.WARN, LocationParser.TELEPORT_UNKNOWN_SOURCE_ID, (source_id, command.data_id, command.primary)))
+				if not destination_id in locations:
+					validation.append(ValidationMessage(Severity.ERROR, LocationParser.TELEPORT_UNKNOWN_DESTINATION_ID, (destination_id, command.data_id, command.primary)))
+				else:
+					destination = locations[destination_id]
+					command.teleport_info[source_id] = destination
 
-		return LocationCollection(locations)
+		return LocationCollection(locations), validation
 
 
 	def parse_locations(self, location_inputs, links):
 		locations = {}
+		validation = []
 
 		for location_input in location_inputs:
 			location = self.parse_location(location_input, links)
 			locations[location.data_id] = location
 
-		return locations
+		return locations, validation
 
 
 	def parse_location(self, location_input, links):

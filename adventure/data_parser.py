@@ -21,7 +21,7 @@ from adventure.vision_resolver import VisionResolver
 
 class DataParser:
 
-	VALIDATION_MESSAGE_FILENAME = "messages.txt"
+	VALIDATION_MESSAGE_FILENAME = "validation.txt"
 
 	def parse(self, filename):
 		with open(filename, "rb") as input_file:
@@ -34,11 +34,11 @@ class DataParser:
 	def parse_file(self, json_content):
 		resolvers = self.init_resolvers()
 
-		data, player, messages = self.parse_content(json_content, resolvers)
-		if messages:
-			with open(DataParser.VALIDATION_MESSAGE_FILENAME, "w") as messages_file:
-				for message in messages:
-					messages_file.write(message.get_formatted_message() + "\n")
+		data, player, validation = self.parse_content(json_content, resolvers)
+		if validation:
+			with open(DataParser.VALIDATION_MESSAGE_FILENAME, "w") as validation_file:
+				for validation_message in validation:
+					validation_file.write(validation_message.get_formatted_message() + "\n")
 			print("Validation errors found, see {0}.".format(DataParser.VALIDATION_MESSAGE_FILENAME))
 
 		resolvers.argument_resolver.init_data(data)
@@ -66,9 +66,15 @@ class DataParser:
 
 
 	def parse_content(self, content_input, resolvers):
-		commands, teleport_infos, messages = CommandParser().parse(content_input["commands"], resolvers)
+		validation = []
+
+		commands, teleport_infos, command_validation = CommandParser().parse(content_input["commands"], resolvers)
+		validation += command_validation
+
 		inventories = InventoryParser().parse(content_input["inventories"])
-		locations = LocationParser().parse(content_input["locations"], teleport_infos)
+		locations, location_validation = LocationParser().parse(content_input["locations"], teleport_infos)
+		validation += location_validation
+
 		elements_by_id = locations.locations.copy()
 		commands_by_id = commands.commands_by_id.copy()
 		items, related_commands = ItemParser().parse(content_input["items"], elements_by_id, commands_by_id)
@@ -104,4 +110,4 @@ class DataParser:
 			inventories.get_all(),
 		)
 
-		return data, player, messages
+		return data, player, validation
