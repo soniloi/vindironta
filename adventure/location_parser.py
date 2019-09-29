@@ -6,9 +6,6 @@ from adventure.validation import Message, Severity
 
 class LocationParser:
 
-	TELEPORT_UNKNOWN_DESTINATION_ID = "Unknown destination location id {0} for teleport command {1} \"{2}\"."
-	TELEPORT_UNKNOWN_SOURCE_ID = "Unknown source location id {0} for teleport command {1} \"{2}\". This command will be unreachable."
-
 	def parse(self, location_inputs, teleport_infos):
 		links = {}
 		locations, validation = self.parse_locations(location_inputs, links)
@@ -17,9 +14,11 @@ class LocationParser:
 		for command, teleport_info in teleport_infos.items():
 			for source_id, destination_id in teleport_info.items():
 				if not source_id in locations:
-					validation.append(Message(Severity.WARN, LocationParser.TELEPORT_UNKNOWN_SOURCE_ID, (source_id, command.data_id, command.primary)))
+					validation.append(Message(Message.COMMAND_TELEPORT_UNKNOWN_SOURCE_ID, (source_id, command.data_id, command.primary)))
+				if source_id == destination_id:
+					validation.append(Message(Message.COMMAND_TELEPORT_SOURCE_DESTINATION_SAME, (source_id, command.data_id, command.primary)))
 				if not destination_id in locations:
-					validation.append(Message(Severity.ERROR, LocationParser.TELEPORT_UNKNOWN_DESTINATION_ID, (destination_id, command.data_id, command.primary)))
+					validation.append(Message(Message.COMMAND_TELEPORT_UNKNOWN_DESTINATION_ID, (destination_id, command.data_id, command.primary)))
 				else:
 					destination = locations[destination_id]
 					command.teleport_info[source_id] = destination

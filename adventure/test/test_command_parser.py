@@ -497,8 +497,8 @@ class TestCommandParser(unittest.TestCase):
 		self.assertEqual(1, len(validation))
 		validation_line = validation[0]
 		self.assertEqual(Severity.ERROR, validation_line.severity)
-		self.assertEqual("Multiple commands found with alias \"{0}\". Alias will map to command with id {1}.", validation_line.template)
-		self.assertEqual(("s", 51), validation_line.args)
+		self.assertEqual("Multiple commands found with alias \"{0}\". Alias will map to command {1} \"{2}\".", validation_line.template)
+		self.assertEqual(("s", 51, "south"), validation_line.args)
 		self.assertIs(south_command, collection.commands_by_name["s"])
 
 
@@ -529,8 +529,8 @@ class TestCommandParser(unittest.TestCase):
 		self.assertEqual(1, len(validation))
 		validation_line = validation[0]
 		self.assertEqual(Severity.WARN, validation_line.severity)
-		self.assertEqual("Alias \"{0}\" given twice for command with id {1}.", validation_line.template)
-		self.assertEqual(("s", 51), validation_line.args)
+		self.assertEqual("Alias \"{0}\" given twice for command {1} \"{2}\".", validation_line.template)
+		self.assertEqual(("s", 51, "south"), validation_line.args)
 
 
 	def test_init_command_shared_id(self):

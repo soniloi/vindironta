@@ -4,10 +4,6 @@ from adventure.validation import Message, Severity
 
 class CommandParser:
 
-	SHARED_ALIAS_DIFFERENT_COMMANDS = "Multiple commands found with alias \"{0}\". Alias will map to command with id {1}."
-	SHARED_ALIAS_SAME_COMMAND = "Alias \"{0}\" given twice for command with id {1}."
-	SHARED_ID = "Multiple commands found with id {0}. Alias will map to command with primary alias \"{1}\"."
-
 	def parse(self, command_inputs, resolvers):
 		self.vision_resolver = resolvers.vision_resolver
 		self.argument_resolver = resolvers.argument_resolver
@@ -33,13 +29,13 @@ class CommandParser:
 				for alias in command.aliases:
 					if alias in commands_by_name:
 						if command is commands_by_name[alias]:
-							validation.append(Message(Severity.WARN, CommandParser.SHARED_ALIAS_SAME_COMMAND, (alias, command.data_id)))
+							validation.append(Message(Message.COMMAND_SHARED_ALIAS_SAME_COMMAND, (alias, command.data_id, command.primary)))
 						else:
-							validation.append(Message(Severity.ERROR, CommandParser.SHARED_ALIAS_DIFFERENT_COMMANDS, (alias, command.data_id)))
+							validation.append(Message(Message.COMMAND_SHARED_ALIAS_DIFFERENT_COMMANDS, (alias, command.data_id, command.primary)))
 					commands_by_name[alias] = command
 
 				if command.data_id in commands_by_id:
-					validation.append(Message(Severity.ERROR, CommandParser.SHARED_ID, (command.data_id, command.primary)))
+					validation.append(Message(Message.COMMAND_SHARED_ID, (command.data_id, command.primary)))
 				commands_by_id[command.data_id] = command
 
 				if teleport_info:

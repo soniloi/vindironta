@@ -89,15 +89,25 @@ class TestLocationParser(unittest.TestCase):
 					\"data_id\": 7, \
 					\"attributes\": \"70F\", \
 					\"directions\": { \
-						\"west\": 8, \
-						\"southeast\": 34, \
 						\"northwest\": 9, \
-						\"down\": 33 \
+						\"down\": 8 \
 					}, \
 					\"labels\": { \
 						\"shortname\": \"Infirm\", \
 						\"longname\": \"in the infirmary\", \
 						\"description\": \"; the room is dimly-lit, presumably with emergency lighting\" \
+					} \
+				}, \
+				{ \
+					\"data_id\": 8, \
+					\"attributes\": \"70F\", \
+					\"directions\": { \
+						\"up\": 7 \
+					}, \
+					\"labels\": { \
+						\"shortname\": \"Morgue\", \
+						\"longname\": \"in the morgue\", \
+						\"description\": \", a dim place\" \
 					} \
 				}, \
 				{ \
@@ -119,11 +129,11 @@ class TestLocationParser(unittest.TestCase):
 			]"
 		)
 		command = Command(150, 0x0, [], [], ["do"], {})
-		teleport_infos = {command: {111: 9, 9: 17}}
+		teleport_infos = {command: {111: 9, 9: 17, 8: 8}}
 
 		collection, validation = LocationParser().parse(location_inputs, teleport_infos)
 
-		self.assertEqual(2, len(collection.locations))
+		self.assertEqual(3, len(collection.locations))
 		self.assertTrue(7 in collection.locations)
 		self.assertTrue(9 in collection.locations)
 
@@ -146,17 +156,22 @@ class TestLocationParser(unittest.TestCase):
 		self.assertNotIn(Direction.WEST, infirmary_location.directions)
 		self.assertNotIn(Direction.OUT, infirmary_location.directions)
 
-		self.assertEqual(2, len(validation))
+		self.assertEqual(3, len(validation))
 
 		validation_line_0 = validation[0]
-		self.assertEqual(LocationParser.TELEPORT_UNKNOWN_SOURCE_ID, validation_line_0.template)
+		self.assertEqual("Unknown source location id {0} for teleport command {1} \"{2}\". This command will be unreachable.", validation_line_0.template)
 		self.assertEqual(Severity.WARN, validation_line_0.severity)
 		self.assertEqual((111, 150, "do"), validation_line_0.args)
 
 		validation_line_1 = validation[1]
-		self.assertEqual(LocationParser.TELEPORT_UNKNOWN_DESTINATION_ID, validation_line_1.template)
+		self.assertEqual("Unknown destination location id {0} for teleport command {1} \"{2}\".", validation_line_1.template)
 		self.assertEqual(Severity.ERROR, validation_line_1.severity)
 		self.assertEqual((17, 150, "do"), validation_line_1.args)
+
+		validation_line_2 = validation[2]
+		self.assertEqual("Source id and destination id {0} are the same for teleport command {1} \"{2}\".", validation_line_2.template)
+		self.assertEqual(Severity.WARN, validation_line_2.severity)
+		self.assertEqual((8, 150, "do"), validation_line_2.args)
 
 
 if __name__ == "__main__":
