@@ -111,7 +111,7 @@ class TestCommandParser(unittest.TestCase):
 			]"
 		)
 
-		collection, teleport_infos, messages = CommandParser().parse(command_inputs, self.resolvers)
+		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
 
 		self.assertEqual(2, len(collection.commands_by_name))
 		self.assertEqual(2, len(collection.commands_by_id))
@@ -123,7 +123,7 @@ class TestCommandParser(unittest.TestCase):
 		self.assertIsNot(score_command, look_command)
 
 		self.assertFalse(teleport_infos)
-		self.assertFalse(messages)
+		self.assertFalse(validation)
 
 
 	def test_init_command_aliases(self):
@@ -141,7 +141,7 @@ class TestCommandParser(unittest.TestCase):
 			]"
 		)
 
-		collection, teleport_infos, messages = CommandParser().parse(command_inputs, self.resolvers)
+		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
 
 		self.assertEqual(2, len(collection.commands_by_name))
 		self.assertEqual(1, len(collection.commands_by_id))
@@ -153,7 +153,7 @@ class TestCommandParser(unittest.TestCase):
 		self.assertIs(look_command, l_command)
 
 		self.assertFalse(teleport_infos)
-		self.assertFalse(messages)
+		self.assertFalse(validation)
 
 
 	def test_init_non_existent_command(self):
@@ -170,12 +170,12 @@ class TestCommandParser(unittest.TestCase):
 			]"
 		)
 
-		collection, teleport_infos, messages = CommandParser().parse(command_inputs, self.resolvers)
+		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
 
 		self.assertEqual(0, len(collection.commands_by_name))
 		self.assertEqual(0, len(collection.commands_by_id))
 		self.assertFalse(teleport_infos)
-		self.assertFalse(messages)
+		self.assertFalse(validation)
 
 
 	def test_init_movement_command(self):
@@ -192,7 +192,7 @@ class TestCommandParser(unittest.TestCase):
 			]"
 		)
 
-		collection, teleport_infos, messages = CommandParser().parse(command_inputs, self.resolvers)
+		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
 
 		self.assertTrue("east" in collection.commands_by_name)
 		east_command = collection.commands_by_name["east"]
@@ -203,7 +203,7 @@ class TestCommandParser(unittest.TestCase):
 		self.assertEqual(self.mock_resolve_event, east_command.resolver_functions[3])
 		self.assertEqual(self.mock_resolve_life, east_command.resolver_functions[4])
 		self.assertFalse(teleport_infos)
-		self.assertFalse(messages)
+		self.assertFalse(validation)
 
 
 	def test_init_switchable_command(self):
@@ -231,7 +231,7 @@ class TestCommandParser(unittest.TestCase):
 			]"
 		)
 
-		collection, teleport_infos, messages = CommandParser().parse(command_inputs, self.resolvers)
+		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
 
 		self.assertTrue("verbose" in collection.commands_by_name)
 		verbose_command = collection.commands_by_name["verbose"]
@@ -245,7 +245,7 @@ class TestCommandParser(unittest.TestCase):
 		self.assertEqual(self.mock_resolve_event, verbose_command.resolver_functions[2])
 		self.assertEqual(self.mock_resolve_life, verbose_command.resolver_functions[3])
 		self.assertFalse(teleport_infos)
-		self.assertFalse(messages)
+		self.assertFalse(validation)
 
 
 	def test_init_teleport_command(self):
@@ -272,7 +272,7 @@ class TestCommandParser(unittest.TestCase):
 			]"
 		)
 
-		collection, teleport_infos, messages = CommandParser().parse(command_inputs, self.resolvers)
+		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
 
 		self.assertTrue("abrakadabra" in collection.commands_by_name)
 		teleport_command = collection.commands_by_name["abrakadabra"]
@@ -288,7 +288,7 @@ class TestCommandParser(unittest.TestCase):
 		self.assertEqual(24, teleport_info[23])
 		self.assertEqual(23, teleport_info[26])
 
-		self.assertFalse(messages)
+		self.assertFalse(validation)
 
 
 	def test_init_single_arg_command(self):
@@ -313,7 +313,7 @@ class TestCommandParser(unittest.TestCase):
 			]"
 		)
 
-		collection, teleport_infos, messages = CommandParser().parse(command_inputs, self.resolvers)
+		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
 
 		self.assertTrue("take" in collection.commands_by_name)
 		take_command = collection.commands_by_name["take"]
@@ -323,7 +323,7 @@ class TestCommandParser(unittest.TestCase):
 		self.assertEqual(self.mock_resolve_event, take_command.resolver_functions[2])
 		self.assertEqual(self.mock_resolve_life, take_command.resolver_functions[3])
 		self.assertFalse(teleport_infos)
-		self.assertFalse(messages)
+		self.assertFalse(validation)
 
 
 	def test_init_multiple_arg_command(self):
@@ -355,7 +355,7 @@ class TestCommandParser(unittest.TestCase):
 			]"
 		)
 
-		collection, teleport_infos, messages = CommandParser().parse(command_inputs, self.resolvers)
+		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
 
 		self.assertTrue("insert" in collection.commands_by_name)
 		insert_command = collection.commands_by_name["insert"]
@@ -368,7 +368,7 @@ class TestCommandParser(unittest.TestCase):
 		self.assertEqual([""], insert_command.arg_infos[0].linkers)
 		self.assertEqual(["into", "in"], insert_command.arg_infos[1].linkers)
 		self.assertFalse(teleport_infos)
-		self.assertFalse(messages)
+		self.assertFalse(validation)
 
 
 	def test_init_resolve_vision_pre_light_and_dark(self):
@@ -385,7 +385,7 @@ class TestCommandParser(unittest.TestCase):
 			]"
 		)
 
-		collection, teleport_infos, messages = CommandParser().parse(command_inputs, self.resolvers)
+		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
 
 		look_command = collection.commands_by_name["look"]
 		self.assertEqual(5, len(look_command.resolver_functions))
@@ -395,7 +395,7 @@ class TestCommandParser(unittest.TestCase):
 		self.assertEqual(self.mock_resolve_event, look_command.resolver_functions[3])
 		self.assertEqual(self.mock_resolve_life, look_command.resolver_functions[4])
 		self.assertFalse(teleport_infos)
-		self.assertFalse(messages)
+		self.assertFalse(validation)
 
 
 	def test_init_resolve_vision_pre_dark(self):
@@ -418,7 +418,7 @@ class TestCommandParser(unittest.TestCase):
 			]"
 		)
 
-		collection, teleport_infos, messages = CommandParser().parse(command_inputs, self.resolvers)
+		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
 
 		read_command = collection.commands_by_name["read"]
 		self.assertEqual(5, len(read_command.resolver_functions))
@@ -428,7 +428,7 @@ class TestCommandParser(unittest.TestCase):
 		self.assertEqual(self.mock_resolve_event, read_command.resolver_functions[3])
 		self.assertEqual(self.mock_resolve_life, read_command.resolver_functions[4])
 		self.assertFalse(teleport_infos)
-		self.assertFalse(messages)
+		self.assertFalse(validation)
 
 
 	def test_init_resolve_vision_none(self):
@@ -446,7 +446,7 @@ class TestCommandParser(unittest.TestCase):
 		)
 
 
-		collection, teleport_infos, messages = CommandParser().parse(command_inputs, self.resolvers)
+		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
 
 		score_command = collection.commands_by_name["score"]
 		self.assertEqual(4, len(score_command.resolver_functions))
@@ -455,7 +455,7 @@ class TestCommandParser(unittest.TestCase):
 		self.assertEqual(self.mock_resolve_event, score_command.resolver_functions[2])
 		self.assertEqual(self.mock_resolve_life, score_command.resolver_functions[3])
 		self.assertFalse(teleport_infos)
-		self.assertFalse(messages)
+		self.assertFalse(validation)
 
 
 	def test_init_command_shared_alias_different_commands(self):
@@ -482,7 +482,7 @@ class TestCommandParser(unittest.TestCase):
 			]"
 		)
 
-		collection, teleport_infos, messages = CommandParser().parse(command_inputs, self.resolvers)
+		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
 
 		self.assertEqual(3, len(collection.commands_by_name))
 		self.assertEqual(2, len(collection.commands_by_id))
@@ -494,11 +494,11 @@ class TestCommandParser(unittest.TestCase):
 		south_command = collection.commands_by_name["south"]
 		self.assertIsNot(score_command, south_command)
 
-		self.assertEqual(1, len(messages))
-		message = messages[0]
-		self.assertEqual(Severity.ERROR, message.severity)
-		self.assertEqual("Multiple commands found with alias \"{0}\". Alias will map to command with id {1}.", message.template)
-		self.assertEqual(("s", 51), message.args)
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual("Multiple commands found with alias \"{0}\". Alias will map to command with id {1}.", validation_line.template)
+		self.assertEqual(("s", 51), validation_line.args)
 		self.assertIs(south_command, collection.commands_by_name["s"])
 
 
@@ -518,7 +518,7 @@ class TestCommandParser(unittest.TestCase):
 			]"
 		)
 
-		collection, teleport_infos, messages = CommandParser().parse(command_inputs, self.resolvers)
+		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
 
 		self.assertEqual(2, len(collection.commands_by_name))
 		self.assertEqual(1, len(collection.commands_by_id))
@@ -526,11 +526,11 @@ class TestCommandParser(unittest.TestCase):
 		self.assertTrue("s" in collection.commands_by_name)
 		self.assertIs(collection.commands_by_name["south"], collection.commands_by_name["s"])
 
-		self.assertEqual(1, len(messages))
-		message = messages[0]
-		self.assertEqual(Severity.WARN, message.severity)
-		self.assertEqual("Alias \"{0}\" given twice for command with id {1}.", message.template)
-		self.assertEqual(("s", 51), message.args)
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual(Severity.WARN, validation_line.severity)
+		self.assertEqual("Alias \"{0}\" given twice for command with id {1}.", validation_line.template)
+		self.assertEqual(("s", 51), validation_line.args)
 
 
 	def test_init_command_shared_id(self):
@@ -555,7 +555,7 @@ class TestCommandParser(unittest.TestCase):
 			]"
 		)
 
-		collection, teleport_infos, messages = CommandParser().parse(command_inputs, self.resolvers)
+		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
 
 		self.assertEqual(2, len(collection.commands_by_name))
 		self.assertEqual(1, len(collection.commands_by_id))
@@ -566,11 +566,11 @@ class TestCommandParser(unittest.TestCase):
 		south_command = collection.commands_by_name["south"]
 		self.assertIsNot(score_command, south_command)
 
-		self.assertEqual(1, len(messages))
-		message = messages[0]
-		self.assertEqual(Severity.ERROR, message.severity)
-		self.assertEqual("Multiple commands found with id {0}. Alias will map to command with primary alias \"{1}\".", message.template)
-		self.assertEqual((50, "south"), message.args)
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual("Multiple commands found with id {0}. Alias will map to command with primary alias \"{1}\".", validation_line.template)
+		self.assertEqual((50, "south"), validation_line.args)
 		self.assertIs(south_command, collection.commands_by_id[50])
 
 
@@ -630,10 +630,10 @@ class TestCommandParser(unittest.TestCase):
 			]"
 		)
 
-		collection, teleport_infos, messages = CommandParser().parse(command_inputs, self.resolvers)
+		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
 
 		self.assertEqual("e/east, l/look, score, take", collection.list_commands())
-		self.assertFalse(messages)
+		self.assertFalse(validation)
 
 
 if __name__ == "__main__":

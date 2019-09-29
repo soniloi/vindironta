@@ -37,8 +37,8 @@ class DataParser:
 		data, player, validation = self.parse_content(json_content, resolvers)
 		if validation:
 			with open(DataParser.VALIDATION_MESSAGE_FILENAME, "w") as validation_file:
-				for validation_message in validation:
-					validation_file.write(validation_message.get_formatted_message() + "\n")
+				for validation_line in validation:
+					validation_file.write(validation_line.get_formatted_message() + "\n")
 			print("Validation errors found, see {0}.".format(DataParser.VALIDATION_MESSAGE_FILENAME))
 
 		resolvers.argument_resolver.init_data(data)

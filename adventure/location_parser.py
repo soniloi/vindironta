@@ -2,7 +2,7 @@ from adventure.direction import Direction
 from adventure.element import Labels
 from adventure.location import Location
 from adventure.location_collection import LocationCollection
-from adventure.validation import ValidationMessage, Severity
+from adventure.validation import Message, Severity
 
 class LocationParser:
 
@@ -17,9 +17,9 @@ class LocationParser:
 		for command, teleport_info in teleport_infos.items():
 			for source_id, destination_id in teleport_info.items():
 				if not source_id in locations:
-					validation.append(ValidationMessage(Severity.WARN, LocationParser.TELEPORT_UNKNOWN_SOURCE_ID, (source_id, command.data_id, command.primary)))
+					validation.append(Message(Severity.WARN, LocationParser.TELEPORT_UNKNOWN_SOURCE_ID, (source_id, command.data_id, command.primary)))
 				if not destination_id in locations:
-					validation.append(ValidationMessage(Severity.ERROR, LocationParser.TELEPORT_UNKNOWN_DESTINATION_ID, (destination_id, command.data_id, command.primary)))
+					validation.append(Message(Severity.ERROR, LocationParser.TELEPORT_UNKNOWN_DESTINATION_ID, (destination_id, command.data_id, command.primary)))
 				else:
 					destination = locations[destination_id]
 					command.teleport_info[source_id] = destination

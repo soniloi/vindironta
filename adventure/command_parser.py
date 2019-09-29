@@ -1,6 +1,6 @@
 from adventure.command import ArgInfo, Command
 from adventure.command_collection import CommandCollection
-from adventure.validation import ValidationMessage, Severity
+from adventure.validation import Message, Severity
 
 class CommandParser:
 
@@ -15,16 +15,16 @@ class CommandParser:
 		self.event_resolver = resolvers.event_resolver
 		self.life_resolver = resolvers.life_resolver
 
-		commands_by_name, commands_by_id, teleport_infos, validation_messages = self.parse_commands(command_inputs)
+		commands_by_name, commands_by_id, teleport_infos, validation = self.parse_commands(command_inputs)
 		command_list = self.create_command_list(commands_by_name)
 
-		return CommandCollection(commands_by_name, commands_by_id, command_list), teleport_infos, validation_messages
+		return CommandCollection(commands_by_name, commands_by_id, command_list), teleport_infos, validation
 
 
 	def parse_commands(self, command_inputs):
 		commands_by_name = {}
 		commands_by_id = {}
-		validation_messages = []
+		validation = []
 		teleport_infos = {}
 
 		for command_input in command_inputs:
@@ -33,19 +33,19 @@ class CommandParser:
 				for alias in command.aliases:
 					if alias in commands_by_name:
 						if command is commands_by_name[alias]:
-							validation_messages.append(ValidationMessage(Severity.WARN, CommandParser.SHARED_ALIAS_SAME_COMMAND, (alias, command.data_id)))
+							validation.append(Message(Severity.WARN, CommandParser.SHARED_ALIAS_SAME_COMMAND, (alias, command.data_id)))
 						else:
-							validation_messages.append(ValidationMessage(Severity.ERROR, CommandParser.SHARED_ALIAS_DIFFERENT_COMMANDS, (alias, command.data_id)))
+							validation.append(Message(Severity.ERROR, CommandParser.SHARED_ALIAS_DIFFERENT_COMMANDS, (alias, command.data_id)))
 					commands_by_name[alias] = command
 
 				if command.data_id in commands_by_id:
-					validation_messages.append(ValidationMessage(Severity.ERROR, CommandParser.SHARED_ID, (command.data_id, command.primary)))
+					validation.append(Message(Severity.ERROR, CommandParser.SHARED_ID, (command.data_id, command.primary)))
 				commands_by_id[command.data_id] = command
 
 				if teleport_info:
 					teleport_infos[command] = teleport_info
 
-		return commands_by_name, commands_by_id, teleport_infos, validation_messages
+		return commands_by_name, commands_by_id, teleport_infos, validation
 
 
 	def parse_command(self, command_input):

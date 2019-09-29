@@ -5,7 +5,7 @@ class Severity(Enum):
 	WARN = "WARN"
 
 
-class ValidationMessage:
+class Message:
 
 	def __init__(self, severity, template, args):
 		self.severity = severity
