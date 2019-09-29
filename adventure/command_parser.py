@@ -24,7 +24,7 @@ class CommandParser:
 		teleport_infos = {}
 
 		for command_input in command_inputs:
-			command, teleport_info = self.parse_command(command_input)
+			command, teleport_info = self.parse_command(command_input, validation)
 			if command:
 				for alias in command.aliases:
 					if alias in commands_by_name:
@@ -44,7 +44,7 @@ class CommandParser:
 		return commands_by_name, commands_by_id, teleport_infos, validation
 
 
-	def parse_command(self, command_input):
+	def parse_command(self, command_input, validation):
 		command_id = command_input["data_id"]
 		attributes = int(command_input["attributes"], 16)
 		arg_infos = self.parse_arg_infos(command_input.get("argument_infos"))
@@ -53,7 +53,8 @@ class CommandParser:
 		teleport_info = self.parse_teleport_info(command_input.get("teleport_info"))
 
 		command = None
-		proceed, resolver_functions = self.get_resolver_functions(attributes, arg_infos, command_input["handler"])
+		proceed, resolver_functions = self.get_resolver_functions(attributes, arg_infos, command_input["handler"],
+				validation, command_id, aliases[0])
 		if proceed:
 			command = Command(
 			command_id=command_id,
@@ -97,9 +98,10 @@ class CommandParser:
 		return teleport_infos
 
 
-	def get_resolver_functions(self, attributes, arg_infos, handler_input):
+	def get_resolver_functions(self, attributes, arg_infos, handler_input, validation, command_id, primary):
 		handler_function = self.get_handler_function(handler_input)
 		if not handler_function:
+			validation.append(Message(Message.COMMAND_UNRECOGNIZED_HANDLER, (handler_input, command_id, primary)))
 			return False, ()
 
 		pre_vision_function = self.get_pre_vision_function(attributes, arg_infos)

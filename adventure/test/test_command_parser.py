@@ -175,7 +175,11 @@ class TestCommandParser(unittest.TestCase):
 		self.assertEqual(0, len(collection.commands_by_name))
 		self.assertEqual(0, len(collection.commands_by_id))
 		self.assertFalse(teleport_infos)
-		self.assertFalse(validation)
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Unrecognized handler {0} for command {1} \"{2}\". This command will not be available.", validation_line.template)
+		self.assertEqual(Severity.WARN, validation_line.severity)
+		self.assertEqual(("notacommand", 1000, "notacommand"), validation_line.args)
 
 
 	def test_init_movement_command(self):
@@ -633,7 +637,10 @@ class TestCommandParser(unittest.TestCase):
 		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
 
 		self.assertEqual("e/east, l/look, score, take", collection.list_commands())
-		self.assertFalse(validation)
+		validation_line = validation[0]
+		self.assertEqual("Unrecognized handler {0} for command {1} \"{2}\". This command will not be available.", validation_line.template)
+		self.assertEqual(Severity.WARN, validation_line.severity)
+		self.assertEqual(("notacommand", 1000, "notacommand"), validation_line.args)
 
 
 if __name__ == "__main__":
