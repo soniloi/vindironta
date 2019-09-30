@@ -20,14 +20,24 @@ class TestLocationParser(unittest.TestCase):
 					\"attributes\": \"70F\", \
 					\"directions\": { \
 						\"west\": 8, \
-						\"southeast\": 34, \
-						\"northwest\": 9, \
-						\"down\": 33 \
+						\"northwest\": 9 \
 					}, \
 					\"labels\": { \
 						\"shortname\": \"Infirm\", \
 						\"longname\": \"in the infirmary\", \
 						\"description\": \"; the room is dimly-lit, presumably with emergency lighting\" \
+					} \
+				}, \
+				{ \
+					\"data_id\": 8, \
+					\"attributes\": \"70E\", \
+					\"directions\": { \
+						\"east\": 7 \
+					}, \
+					\"labels\": { \
+						\"shortname\": \"Store\", \
+						\"longname\": \"in a medical storage room\", \
+						\"description\": \"; the only exit is to the east\" \
 					} \
 				}, \
 				{ \
@@ -51,8 +61,9 @@ class TestLocationParser(unittest.TestCase):
 
 		collection, validation = LocationParser().parse(location_inputs, {})
 
-		self.assertEqual(2, len(collection.locations))
+		self.assertEqual(3, len(collection.locations))
 		self.assertTrue(7 in collection.locations)
+		self.assertTrue(8 in collection.locations)
 		self.assertTrue(9 in collection.locations)
 
 		ward_location = collection.locations[9]
@@ -66,15 +77,128 @@ class TestLocationParser(unittest.TestCase):
 		infirmary_location = collection.locations[7]
 		self.assertIsNot(ward_location, infirmary_location)
 
-		self.assertEqual(infirmary_location, ward_location.directions[Direction.SOUTH])
-		self.assertEqual(infirmary_location, ward_location.directions[Direction.OUT])
+		store_location = collection.locations[8]
+		self.assertIsNot(ward_location, store_location)
+		self.assertIsNot(infirmary_location, store_location)
 
 		self.assertEqual(ward_location, infirmary_location.directions[Direction.NORTHWEST])
+		self.assertEqual(store_location, infirmary_location.directions[Direction.WEST])
 		self.assertNotIn(Direction.NORTH, infirmary_location.directions)
-		self.assertNotIn(Direction.WEST, infirmary_location.directions)
 		self.assertNotIn(Direction.OUT, infirmary_location.directions)
+		self.assertEqual(infirmary_location, ward_location.directions[Direction.SOUTH])
+		self.assertEqual(infirmary_location, ward_location.directions[Direction.OUT])
+		self.assertEqual(infirmary_location, store_location.directions[Direction.EAST])
 
 		self.assertFalse(validation)
+
+
+	def test_init_shared_location_ids(self):
+		location_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 7, \
+					\"attributes\": \"70F\", \
+					\"directions\": { \
+						\"down\": 7 \
+					}, \
+					\"labels\": { \
+						\"shortname\": \"Infirm\", \
+						\"longname\": \"in the infirmary\", \
+						\"description\": \"; the room is dimly-lit, presumably with emergency lighting\" \
+					} \
+				}, \
+				{ \
+					\"data_id\": 7, \
+					\"attributes\": \"70F\", \
+					\"directions\": { \
+						\"south\": 7 \
+					}, \
+					\"labels\": { \
+						\"shortname\": \"Ward\", \
+						\"longname\": \"in a medical ward\", \
+						\"description\": \". The faint electric light is flickering on and off\", \
+						\"extended_descriptions\": [ \
+							\". There is no way out of this room\", \
+							\". There is a hole in the wall that you can escape through\" \
+						] \
+					} \
+				} \
+			]"
+		)
+
+		collection, validation = LocationParser().parse(location_inputs, {})
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Multiple locations found with id {0}.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((7,), validation_line.args)
+
+
+	def test_init_unknown_link_direction(self):
+		location_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 9, \
+					\"attributes\": \"70F\", \
+					\"directions\": { \
+						\"hello\": 9 \
+					}, \
+					\"labels\": { \
+						\"shortname\": \"Ward\", \
+						\"longname\": \"in a medical ward\", \
+						\"description\": \". The faint electric light is flickering on and off\", \
+						\"extended_descriptions\": [ \
+							\". There is no way out of this room\", \
+							\". There is a hole in the wall that you can escape through\" \
+						] \
+					} \
+				} \
+			]"
+		)
+
+		collection, validation = LocationParser().parse(location_inputs, {})
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Unknown link direction \"{0}\" from location {1}.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual(("hello", 9), validation_line.args)
+
+
+	def test_init_unknown_link_destination(self):
+		location_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 9, \
+					\"attributes\": \"70F\", \
+					\"directions\": { \
+						\"north\": 7 \
+					}, \
+					\"labels\": { \
+						\"shortname\": \"Ward\", \
+						\"longname\": \"in a medical ward\", \
+						\"description\": \". The faint electric light is flickering on and off\", \
+						\"extended_descriptions\": [ \
+							\". There is no way out of this room\", \
+							\". There is a hole in the wall that you can escape through\" \
+						] \
+					} \
+				} \
+			]"
+		)
+
+		collection, validation = LocationParser().parse(location_inputs, {})
+
+		self.assertEqual(2, len(validation))
+		validation_line_0 = validation[0]
+		self.assertEqual("Unknown link destination {0} for direction {1} from location {2}.", validation_line_0.template)
+		self.assertEqual(Severity.ERROR, validation_line_0.severity)
+		self.assertEqual((7, Direction.NORTH, 9), validation_line_0.args)
+		validation_line_1 = validation[1]
+		self.assertEqual("Unknown link destination {0} for direction {1} from location {2}.", validation_line_1.template)
+		self.assertEqual(Severity.ERROR, validation_line_1.severity)
+		self.assertEqual((7, Direction.OUT, 9), validation_line_1.args)
 
 
 	def test_init_teleport_info_valid(self):
@@ -84,10 +208,7 @@ class TestLocationParser(unittest.TestCase):
 					\"data_id\": 7, \
 					\"attributes\": \"70F\", \
 					\"directions\": { \
-						\"west\": 8, \
-						\"southeast\": 34, \
-						\"northwest\": 9, \
-						\"down\": 33 \
+						\"northwest\": 9 \
 					}, \
 					\"labels\": { \
 						\"shortname\": \"Infirm\", \
@@ -132,9 +253,7 @@ class TestLocationParser(unittest.TestCase):
 				{ \
 					\"data_id\": 9, \
 					\"attributes\": \"70F\", \
-					\"directions\": { \
-						\"south\": 7 \
-					}, \
+					\"directions\": {}, \
 					\"labels\": { \
 						\"shortname\": \"Ward\", \
 						\"longname\": \"in a medical ward\", \
@@ -171,9 +290,7 @@ class TestLocationParser(unittest.TestCase):
 				{ \
 					\"data_id\": 9, \
 					\"attributes\": \"70F\", \
-					\"directions\": { \
-						\"south\": 7 \
-					}, \
+					\"directions\": {}, \
 					\"labels\": { \
 						\"shortname\": \"Ward\", \
 						\"longname\": \"in a medical ward\", \

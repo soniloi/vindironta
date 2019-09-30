@@ -9,7 +9,7 @@ class LocationParser:
 	def parse(self, location_inputs, teleport_infos):
 		links = {}
 		locations, validation = self.parse_locations(location_inputs, links)
-		self.cross_reference(locations, links)
+		self.cross_reference(locations, links, validation)
 
 		for command, teleport_info in teleport_infos.items():
 			for source_id, destination_id in teleport_info.items():
@@ -31,19 +31,22 @@ class LocationParser:
 		validation = []
 
 		for location_input in location_inputs:
-			location = self.parse_location(location_input, links)
+			location = self.parse_location(location_input, links, validation)
+
+			if location.data_id in locations:
+				validation.append(Message(Message.LOCATION_SHARED_ID, (location.data_id,)))
 			locations[location.data_id] = location
 
 		return locations, validation
 
 
-	def parse_location(self, location_input, links):
+	def parse_location(self, location_input, links, validation):
 		location_id = location_input["data_id"]
 		attributes = int(location_input["attributes"], 16)
 		labels = self.parse_labels(location_input["labels"])
 
 		location = Location(location_id, attributes, labels)
-		links[location] = self.parse_links(location_input["directions"])
+		links[location] = self.parse_links(location_input["directions"], validation, location_id)
 
 		return location
 
@@ -53,31 +56,27 @@ class LocationParser:
 		return Labels(label_input["shortname"], label_input["longname"], label_input["description"], extended_descriptions)
 
 
-	def parse_links(self, direction_inputs):
+	def parse_links(self, direction_inputs, validation, location_id):
 		links = {}
 		for direction_key_input, direction_value_input in direction_inputs.items():
 			direction_key = direction_key_input.upper()
-			direction = Direction[direction_key]
-			self.parse_link(links, direction, direction_value_input)
+			if not direction_key in Direction.__members__:
+				validation.append(Message(Message.LOCATION_UNKNOWN_LINK_DIRECTION, (direction_key_input, location_id)))
+			else:
+				direction = Direction[direction_key]
+				links[direction] = direction_value_input
 		self.calculate_out(links)
 		return links
 
 
-	def parse_link(self, links, direction, direction_input):
-		if direction_input:
-			links[direction] = direction_input
-
-
-	def cross_reference(self, locations, links):
+	def cross_reference(self, locations, links, validation):
 		for location, links in links.items():
 			for direction, linked_location_id in links.items():
-				linked_location = locations.get(linked_location_id)
-				self.link(location, linked_location, direction)
-
-
-	def link(self, location, linked_location, direction):
-		if linked_location:
-			location.directions[direction] = linked_location
+				if not linked_location_id in locations:
+					validation.append(Message(Message.LOCATION_UNKNOWN_LINK_DESTINATION, (linked_location_id, direction, location.data_id)))
+				else:
+					linked_location = locations[linked_location_id]
+					location.directions[direction] = linked_location
 
 
 	def calculate_out(self, links):
