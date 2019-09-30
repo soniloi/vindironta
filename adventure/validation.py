@@ -10,6 +10,7 @@ class Message:
 	COMMAND_SHARED_ALIAS_DIFFERENT_COMMANDS = (Severity.ERROR, "Multiple commands found with alias \"{0}\". Alias will map to command {1} \"{2}\".")
 	COMMAND_SHARED_ALIAS_SAME_COMMAND = (Severity.WARN, "Alias \"{0}\" given twice for command {1} \"{2}\".")
 	COMMAND_SHARED_ID = (Severity.ERROR, "Multiple commands found with id {0}. Alias will map to command with primary alias \"{1}\".")
+	COMMAND_TELEPORT_SHARED_SOURCES = (Severity.WARN, "Multiple destinations found for source {0} in teleport command {1} \"{2}\". Destination with id {3} will be its destination.")
 	COMMAND_TELEPORT_SOURCE_DESTINATION_SAME = (Severity.WARN, "Source id and destination id {0} are the same for teleport command {1} \"{2}\".")
 	COMMAND_TELEPORT_UNKNOWN_DESTINATION_ID = (Severity.ERROR, "Unknown destination location id {0} for teleport command {1} \"{2}\".")
 	COMMAND_TELEPORT_UNKNOWN_SOURCE_ID = (Severity.WARN, "Unknown source location id {0} for teleport command {1} \"{2}\". This command will be unreachable.")

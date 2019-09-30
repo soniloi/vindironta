@@ -252,7 +252,7 @@ class TestCommandParser(unittest.TestCase):
 		self.assertFalse(validation)
 
 
-	def test_init_teleport_command(self):
+	def test_init_teleport_command_valid(self):
 		command_inputs = json.loads(
 			"[ \
 				{ \
@@ -293,6 +293,44 @@ class TestCommandParser(unittest.TestCase):
 		self.assertEqual(23, teleport_info[26])
 
 		self.assertFalse(validation)
+
+
+	def test_init_teleport_command_shared_source(self):
+		command_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 119, \
+					\"attributes\": \"1A\", \
+					\"handler\": \"teleport\", \
+					\"aliases\": [ \
+						\"abrakadabra\" \
+					], \
+					\"teleport_info\": [ \
+						{ \
+							\"source\": 23, \
+							\"destination\": 24 \
+						}, \
+						{ \
+							\"source\": 23, \
+							\"destination\": 26 \
+						} \
+					] \
+				} \
+			]"
+		)
+
+		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
+
+		teleport_command = collection.commands_by_name["abrakadabra"]
+		self.assertEqual(1, len(teleport_infos))
+		teleport_info = teleport_infos[teleport_command]
+		self.assertEqual(24, teleport_info[23])
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Multiple destinations found for source {0} in teleport command {1} \"{2}\". Destination with id {3} will be its destination.", validation_line.template)
+		self.assertEqual(Severity.WARN, validation_line.severity)
+		self.assertEqual((23, 119, "abrakadabra", 26), validation_line.args)
 
 
 	def test_init_single_arg_command(self):

@@ -50,7 +50,7 @@ class CommandParser:
 		arg_infos = self.parse_arg_infos(command_input.get("argument_infos"))
 		aliases = command_input["aliases"]
 		switch_info = self.parse_switch_info(command_input.get("switch_info"))
-		teleport_info = self.parse_teleport_info(command_input.get("teleport_info"))
+		teleport_info = self.parse_teleport_info(command_input.get("teleport_info"), validation, command_id, aliases[0])
 
 		command = None
 		proceed, resolver_functions = self.get_resolver_functions(attributes, arg_infos, command_input["handler"],
@@ -88,12 +88,17 @@ class CommandParser:
 		return switch_info
 
 
-	def parse_teleport_info(self, teleport_info_inputs):
+	def parse_teleport_info(self, teleport_info_inputs, validation, command_id, primary):
 		teleport_infos = {}
 
 		if teleport_info_inputs:
 			for teleport_info_input in teleport_info_inputs:
-				teleport_infos[teleport_info_input["source"]] = teleport_info_input["destination"]
+				source_id = teleport_info_input["source"]
+				destination_id = teleport_info_input["destination"]
+				if source_id in teleport_infos:
+					validation.append(Message(Message.COMMAND_TELEPORT_SHARED_SOURCES, (source_id, command_id, primary, destination_id)))
+				else:
+					teleport_infos[source_id] = destination_id
 
 		return teleport_infos
 
