@@ -315,5 +315,57 @@ class TestLocationParser(unittest.TestCase):
 		self.assertEqual((9, 150, "do"), validation_line.args)
 
 
+	def test_init_invalid_attributes_no_floor_no_down(self):
+		location_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 17, \
+					\"attributes\": \"50F\", \
+					\"directions\": {}, \
+					\"labels\": { \
+						\"shortname\": \"Precipice\", \
+						\"longname\": \"on a precipice\", \
+						\"description\": \", high in the air\" \
+					} \
+				} \
+			]"
+		)
+
+		collection, validation = LocationParser().parse(location_inputs, {})
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Location {0} has no floor, but does not specify a link in direction {1}.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((17, "DOWN"), validation_line.args)
+
+
+	def test_init_invalid_attributes_no_land_no_floor(self):
+		location_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 19, \
+					\"attributes\": \"10F\", \
+					\"directions\": { \
+						\"down\": 19 \
+					}, \
+					\"labels\": { \
+						\"shortname\": \"Mid-air\", \
+						\"longname\": \"in mid-air\", \
+						\"description\": \"; you are not sure how high\" \
+					} \
+				} \
+			]"
+		)
+
+		collection, validation = LocationParser().parse(location_inputs, {})
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Location {0} has no land, but also no floor. Locations without land must have a floor.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((19,), validation_line.args)
+
+
 if __name__ == "__main__":
 	unittest.main()

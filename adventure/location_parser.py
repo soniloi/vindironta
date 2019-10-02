@@ -23,6 +23,7 @@ class LocationParser:
 					destination = locations[destination_id]
 					command.teleport_info[source_id] = destination
 
+		self.validate_attributes(locations, validation)
 		return LocationCollection(locations), validation
 
 
@@ -84,3 +85,11 @@ class LocationParser:
 		if len(adjacent_location_ids) == 1:
 			(out,) = adjacent_location_ids
 			links[Direction.OUT] = out
+
+
+	def validate_attributes(self, locations, validation):
+		for location in locations.values():
+			if not location.has_floor() and not location.get_adjacent_location(Direction.DOWN):
+				validation.append(Message(Message.LOCATION_NO_FLOOR_NO_DOWN, (location.data_id, Direction.DOWN.name)))
+			if not location.has_land() and not location.has_floor():
+				validation.append(Message(Message.LOCATION_NO_LAND_NO_FLOOR, (location.data_id,)))
