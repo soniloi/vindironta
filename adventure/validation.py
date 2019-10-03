@@ -15,6 +15,7 @@ class Message:
 	COMMAND_TELEPORT_UNKNOWN_DESTINATION_ID = (Severity.ERROR, "Unknown destination location id {0} for teleport command {1} \"{2}\".")
 	COMMAND_TELEPORT_UNKNOWN_SOURCE_ID = (Severity.WARN, "Unknown source location id {0} for teleport command {1} \"{2}\". This command will be unreachable.")
 	COMMAND_UNRECOGNIZED_HANDLER = (Severity.WARN, "Unrecognized handler {0} for command {1} \"{2}\". This command will not be available.")
+	ITEM_SHARED_ID = (Severity.ERROR, "Multiple items found with id {0}.")
 	LOCATION_NO_FLOOR_NO_DOWN = (Severity.ERROR, "Location {0} has no floor, but does not specify a link in direction {1}.")
 	LOCATION_NO_LAND_NO_FLOOR = (Severity.ERROR, "Location {0} has no land, but also no floor. Locations without land must have a floor.")
 	LOCATION_SHARED_ID = (Severity.ERROR, "Multiple locations found with id {0}.")

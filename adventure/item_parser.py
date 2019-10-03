@@ -4,6 +4,7 @@ from adventure.element import Labels
 from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, UsableItem, Transformation
 from adventure.item_collection import ItemCollection
 from adventure.token_translator import TokenTranslator
+from adventure.validation import Message, Severity
 
 TransformationInfo = namedtuple("TransformationInfo", "replacement_id tool_id material_id")
 
@@ -13,14 +14,14 @@ class ItemParser:
 		container_ids_by_item = {}
 		switched_element_ids = {}
 		transformation_infos = {}
-		item_lists_by_name, items_by_id, related_commands = self.parse_items(item_inputs, container_ids_by_item, elements_by_id,
-			commands_by_id, switched_element_ids, transformation_infos)
+		item_lists_by_name, items_by_id, related_commands, validation = self.parse_items(item_inputs,
+			container_ids_by_item,elements_by_id, commands_by_id, switched_element_ids, transformation_infos)
 
 		self.place_items(container_ids_by_item, elements_by_id)
 		self.resolve_switches(switched_element_ids, elements_by_id)
 		self.resolve_transformations(transformation_infos, elements_by_id)
 
-		return ItemCollection(item_lists_by_name, items_by_id), related_commands
+		return ItemCollection(item_lists_by_name, items_by_id), related_commands, validation
 
 
 	def parse_items(self, item_inputs, container_ids_by_item, elements_by_id, commands_by_id, switched_element_ids,
@@ -28,10 +29,14 @@ class ItemParser:
 		item_lists_by_name = {}
 		items_by_id = {}
 		related_commands = {}
+		validation = []
 
 		for item_input in item_inputs:
 			item, shortnames, related_command_id = self.parse_item(
 				item_input, container_ids_by_item, switched_element_ids, transformation_infos)
+
+			if item.data_id in items_by_id:
+				validation.append(Message(Message.ITEM_SHARED_ID, (item.data_id,)))
 			items_by_id[item.data_id] = item
 			elements_by_id[item.data_id] = item
 
@@ -44,7 +49,7 @@ class ItemParser:
 				for shortname in shortnames:
 					related_commands[shortname] = commands_by_id.get(related_command_id)
 
-		return item_lists_by_name, items_by_id, related_commands
+		return item_lists_by_name, items_by_id, related_commands, validation
 
 
 	def parse_item(self, item_input, container_ids_by_item, switched_element_ids, transformation_infos):

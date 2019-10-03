@@ -6,6 +6,7 @@ from adventure.element import Labels
 from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, UsableItem
 from adventure.item_parser import ItemParser
 from adventure.location import Location
+from adventure.validation import Severity
 
 class TestItemParser(unittest.TestCase):
 
@@ -56,7 +57,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.item_lists_by_name))
 		book_list = collection.item_lists_by_name["book"]
@@ -74,6 +75,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertFalse(isinstance(book, ContainerItem))
 		self.assertTrue(book in self.library_location.items)
 		self.assertEqual(0, len(related_commands))
+		self.assertFalse(validation)
 
 
 	def test_init_different_items_with_different_names(self):
@@ -119,7 +121,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(2, len(collection.item_lists_by_name))
 		book_list = collection.item_lists_by_name["book"]
@@ -130,6 +132,7 @@ class TestItemParser(unittest.TestCase):
 		lamp = lamp_list[0]
 		self.assertIsNot(book, lamp)
 		self.assertEqual(0, len(related_commands))
+		self.assertFalse(validation)
 
 
 	def test_init_different_items_with_same_name(self):
@@ -170,7 +173,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.item_lists_by_name))
 		book_list = collection.item_lists_by_name["book"]
@@ -178,6 +181,7 @@ class TestItemParser(unittest.TestCase):
 		fairytale_book = book_list[0]
 		recipe_book = book_list[1]
 		self.assertIsNot(recipe_book, fairytale_book)
+		self.assertFalse(validation)
 
 
 	def test_init_aliased_item(self):
@@ -202,7 +206,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(2, len(collection.item_lists_by_name))
 		kohlrabi_list = collection.item_lists_by_name["kohlrabi"]
@@ -213,7 +217,7 @@ class TestItemParser(unittest.TestCase):
 		cabbage = cabbage_list[0]
 		self.assertIs(kohlrabi, cabbage)
 		self.assertEqual(0, len(related_commands))
-
+		self.assertFalse(validation)
 
 
 	def test_init_item_without_container(self):
@@ -243,7 +247,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.item_lists_by_name))
 		lamp_list = collection.item_lists_by_name["lamp"]
@@ -251,6 +255,7 @@ class TestItemParser(unittest.TestCase):
 		lamp = lamp_list[0]
 		self.assertFalse(lamp.containers)
 		self.assertEqual(0, len(related_commands))
+		self.assertFalse(validation)
 
 
 	def test_init_item_with_multiple_containers(self):
@@ -275,7 +280,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.item_lists_by_name))
 		water_list = collection.item_lists_by_name["water"]
@@ -285,6 +290,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertTrue(self.library_location in water.containers)
 		self.assertTrue(self.lighthouse_location in water.containers)
 		self.assertEqual(0, len(related_commands))
+		self.assertFalse(validation)
 
 
 	def test_init_container_item(self):
@@ -308,7 +314,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.item_lists_by_name))
 		basket_list = collection.item_lists_by_name["basket"]
@@ -316,6 +322,7 @@ class TestItemParser(unittest.TestCase):
 		basket = basket_list[0]
 		self.assertTrue(isinstance(basket, ContainerItem))
 		self.assertEqual(0, len(related_commands))
+		self.assertFalse(validation)
 
 
 	def test_init_sentient_item(self):
@@ -339,7 +346,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.item_lists_by_name))
 		cat_list = collection.item_lists_by_name["cat"]
@@ -347,6 +354,7 @@ class TestItemParser(unittest.TestCase):
 		cat = cat_list[0]
 		self.assertTrue(isinstance(cat, SentientItem))
 		self.assertEqual(0, len(related_commands))
+		self.assertFalse(validation)
 
 
 	def test_init_item_with_item_container(self):
@@ -371,7 +379,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.item_lists_by_name))
 		book_list = collection.item_lists_by_name["book"]
@@ -380,6 +388,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertTrue(self.box in book.containers)
 		self.assertTrue(book in self.box.items)
 		self.assertEqual(0, len(related_commands))
+		self.assertFalse(validation)
 
 
 	def test_init_switchable_switching_self(self):
@@ -410,7 +419,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.item_lists_by_name))
 		lamp_list = collection.item_lists_by_name["lamp"]
@@ -424,6 +433,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual("on", lamp.state_to_text[True])
 		self.assertEqual(0, len(related_commands))
 		self.assertEqual("{0} (currently {1})", lamp.list_template)
+		self.assertFalse(validation)
 
 
 	def test_init_switchable_switching_other_item(self):
@@ -453,7 +463,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.item_lists_by_name))
 		button_list = collection.item_lists_by_name["button"]
@@ -463,6 +473,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(self.box, button.switched_element)
 		self.assertEqual(0x20, button.switched_attribute)
 		self.assertEqual(0, len(related_commands))
+		self.assertFalse(validation)
 
 
 	def test_init_switchable_switching_other_location(self):
@@ -492,7 +503,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.item_lists_by_name))
 		lever_list = collection.item_lists_by_name["lever"]
@@ -502,6 +513,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(self.library_location, lever.switched_element)
 		self.assertEqual(0x40, lever.switched_attribute)
 		self.assertEqual(0, len(related_commands))
+		self.assertFalse(validation)
 
 
 	def test_init_transformable_simple(self):
@@ -531,7 +543,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.item_lists_by_name))
 		paper_list = collection.item_lists_by_name["paper"]
@@ -543,6 +555,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertIsNone(transformation_6.tool)
 		self.assertIsNone(transformation_6.material)
 		self.assertEqual(0, len(related_commands))
+		self.assertFalse(validation)
 
 
 	def test_init_transformable_with_tool_with_material(self):
@@ -574,7 +587,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.item_lists_by_name))
 		paper_list = collection.item_lists_by_name["paper"]
@@ -586,6 +599,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertIs(self.candle, transformation_6.tool)
 		self.assertIs(self.kindling, transformation_6.material)
 		self.assertEqual(0, len(related_commands))
+		self.assertFalse(validation)
 
 
 	def test_init_wearable(self):
@@ -612,7 +626,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.item_lists_by_name))
 		suit_list = collection.item_lists_by_name["suit"]
@@ -623,6 +637,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(0, len(related_commands))
 		self.assertEqual("{0} (lugging)", suit.list_template)
 		self.assertEqual("{0} (wearing)", suit.list_template_using)
+		self.assertFalse(validation)
 
 
 	def test_init_sailable(self):
@@ -647,7 +662,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.item_lists_by_name))
 		raft_list = collection.item_lists_by_name["raft"]
@@ -656,6 +671,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertTrue(isinstance(raft, UsableItem))
 		self.assertEqual(0x40000, raft.attribute_activated)
 		self.assertEqual(0, len(related_commands))
+		self.assertFalse(validation)
 
 
 	def test_init_item_with_related_command(self):
@@ -680,7 +696,7 @@ class TestItemParser(unittest.TestCase):
 			]"
 		)
 
-		collection, related_commands = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.item_lists_by_name))
 		water_list = collection.item_lists_by_name["water"]
@@ -688,6 +704,53 @@ class TestItemParser(unittest.TestCase):
 		water = water_list[0]
 		self.assertEqual(1, len(related_commands))
 		self.assertEqual(self.command, related_commands["water"])
+		self.assertFalse(validation)
+
+
+	def test_init_different_items_with_duplicate_id(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1105, \
+					\"attributes\": \"2\", \
+					\"container_ids\": [ \
+						80 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"book\" \
+						], \
+						\"longname\": \"a book\", \
+						\"description\": \"a book of fairytales in English. It is open on a particular page\" \
+					} \
+				}, \
+				{ \
+					\"data_id\": 1105, \
+					\"attributes\": \"22802\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 1, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"water\" \
+						], \
+						\"longname\": \"water\", \
+						\"description\": \"River Amethyst water. It is cold and clear\" \
+					}, \
+					\"related_command_id\": 17 \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Multiple items found with id {0}.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1105,), validation_line.args)
 
 
 if __name__ == "__main__":

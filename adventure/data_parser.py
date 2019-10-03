@@ -66,18 +66,12 @@ class DataParser:
 
 
 	def parse_content(self, content_input, resolvers):
-		validation = []
-
 		commands, teleport_infos, command_validation = CommandParser().parse(content_input["commands"], resolvers)
-		validation += command_validation
-
 		inventories = InventoryParser().parse(content_input["inventories"])
 		locations, location_validation = LocationParser().parse(content_input["locations"], teleport_infos)
-		validation += location_validation
-
 		elements_by_id = locations.locations.copy()
 		commands_by_id = commands.commands_by_id.copy()
-		items, related_commands = ItemParser().parse(content_input["items"], elements_by_id, commands_by_id)
+		items, related_commands, item_validation = ItemParser().parse(content_input["items"], elements_by_id, commands_by_id)
 		hints = TextParser().parse(content_input["hints"])
 		explanations = TextParser().parse(content_input["explanations"])
 		responses = TextParser().parse(content_input["responses"])
@@ -102,6 +96,7 @@ class DataParser:
 			inputs=inputs,
 			events=events,
 		)
+		validation = command_validation + location_validation + item_validation
 
 		player = PlayerParser().parse(
 			content_input["players"],
