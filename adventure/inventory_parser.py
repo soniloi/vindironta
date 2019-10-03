@@ -1,6 +1,7 @@
 from adventure.element import Labels
 from adventure.inventory import Inventory
 from adventure.inventory_collection import InventoryCollection
+from adventure.validation import Message, Severity
 
 class InventoryParser:
 
@@ -13,18 +14,21 @@ class InventoryParser:
 	INDEX_LOCATIONS = 6
 
 	def parse(self, inventory_inputs):
-		inventories = self.parse_inventories(inventory_inputs)
-		return InventoryCollection(inventories)
+		inventories, validation = self.parse_inventories(inventory_inputs)
+		return InventoryCollection(inventories), validation
 
 
 	def parse_inventories(self, inventory_inputs):
 		inventories = {}
+		validation = []
 
 		for inventory_input in inventory_inputs:
 			inventory = self.parse_inventory(inventory_input)
+			if inventory.data_id in inventories:
+				validation.append(Message(Message.INVENTORY_SHARED_ID, (inventory.data_id,)))
 			inventories[inventory.data_id] = inventory
 
-		return inventories
+		return inventories, validation
 
 
 	def parse_inventory(self, inventory_input):
