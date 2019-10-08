@@ -44,6 +44,16 @@ class TestInventoryParser(unittest.TestCase):
 		inventory_inputs = json.loads(
 			"[ \
 				{ \
+					\"data_id\": 0, \
+					\"attributes\": \"1\", \
+					\"labels\": { \
+						\"shortname\": \"Main Inventory\", \
+						\"longname\": \"in the main unventory\", \
+						\"description\": \", where items live usually.\" \
+					}, \
+					\"capacity\": 13 \
+				}, \
+				{ \
 					\"data_id\": 1, \
 					\"attributes\": \"0\", \
 					\"labels\": { \
@@ -66,7 +76,7 @@ class TestInventoryParser(unittest.TestCase):
 
 		collection, validation = InventoryParser().parse(inventory_inputs)
 
-		self.assertEqual(1, len(collection.inventories))
+		self.assertEqual(2, len(collection.inventories))
 		self.assertTrue(1 in collection.inventories)
 		inventory = collection.inventories[1]
 		self.assertEqual("Special Inventory", inventory.shortname)
@@ -86,7 +96,7 @@ class TestInventoryParser(unittest.TestCase):
 			"[ \
 				{ \
 					\"data_id\": 43, \
-					\"attributes\": \"1\", \
+					\"attributes\": \"0\", \
 					\"labels\": { \
 						\"shortname\": \"Main Inventory\", \
 						\"longname\": \"in the main unventory\", \
@@ -96,7 +106,7 @@ class TestInventoryParser(unittest.TestCase):
 				}, \
 				{ \
 					\"data_id\": 43, \
-					\"attributes\": \"0\", \
+					\"attributes\": \"1\", \
 					\"labels\": { \
 						\"shortname\": \"Special Inventory\", \
 						\"longname\": \"in the special unventory\", \
@@ -122,6 +132,98 @@ class TestInventoryParser(unittest.TestCase):
 		self.assertEqual("Multiple inventories found with id {0}.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
 		self.assertEqual((43,), validation_line.args)
+
+
+	def test_init_no_inventories(self):
+		inventory_inputs = json.loads(
+			"[]"
+		)
+
+		collection, validation = InventoryParser().parse(inventory_inputs)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("No inventories specified. At least one inventory must be given.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((), validation_line.args)
+
+
+	def test_init_no_default_specified(self):
+		inventory_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1, \
+					\"attributes\": \"0\", \
+					\"labels\": { \
+						\"shortname\": \"Special Inventory\", \
+						\"longname\": \"in the special unventory\", \
+						\"description\": \", where items live sometimes.\", \
+						\"extended_descriptions\": [ \
+							\". This is unusual\" \
+						] \
+					}, \
+					\"capacity\": 17, \
+					\"locations\": [ \
+						4, \
+						5, \
+						19 \
+					] \
+				} \
+			]"
+		)
+
+		collection, validation = InventoryParser().parse(inventory_inputs)
+
+		self.assertEqual(1, len(collection.inventories))
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("No default inventory found. Exactly one inventory must be marked as default.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((), validation_line.args)
+
+
+	def test_init_multiple_defaults_specified(self):
+		inventory_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 17, \
+					\"attributes\": \"1\", \
+					\"labels\": { \
+						\"shortname\": \"Main Inventory\", \
+						\"longname\": \"in the main unventory\", \
+						\"description\": \", where items live usually.\" \
+					}, \
+					\"capacity\": 13 \
+				}, \
+				{ \
+					\"data_id\": 18, \
+					\"attributes\": \"1\", \
+					\"labels\": { \
+						\"shortname\": \"Special Inventory\", \
+						\"longname\": \"in the special unventory\", \
+						\"description\": \", where items live sometimes.\", \
+						\"extended_descriptions\": [ \
+							\". This is unusual\" \
+						] \
+					}, \
+					\"capacity\": 17, \
+					\"locations\": [ \
+						4, \
+						5, \
+						19 \
+					] \
+				} \
+			]"
+		)
+
+		collection, validation = InventoryParser().parse(inventory_inputs)
+
+		self.assertEqual(2, len(collection.inventories))
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Multiple default inventories found ({0}). Exactly one inventory must be marked as default.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual(([17, 18],), validation_line.args)
 
 
 if __name__ == "__main__":

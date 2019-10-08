@@ -28,6 +28,15 @@ class InventoryParser:
 				validation.append(Message(Message.INVENTORY_SHARED_ID, (inventory.data_id,)))
 			inventories[inventory.data_id] = inventory
 
+		if len(inventories) < 1:
+			validation.append(Message(Message.INVENTORY_NONE, ()))
+		else:
+			default_inventory_ids = [inventory.data_id for inventory in inventories.values() if inventory.is_default()]
+			if len(default_inventory_ids) < 1:
+				validation.append(Message(Message.INVENTORY_NO_DEFAULT, ()))
+			elif len(default_inventory_ids) > 1:
+				validation.append(Message(Message.INVENTORY_MULTIPLE_DEFAULT, (default_inventory_ids,)))
+
 		return inventories, validation
 
 
