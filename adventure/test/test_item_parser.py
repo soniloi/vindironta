@@ -753,5 +753,76 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual((1105,), validation_line.args)
 
 
+	def test_init_no_shortnames(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1105, \
+					\"attributes\": \"2\", \
+					\"container_ids\": [ \
+						80 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [], \
+						\"longname\": \"a book\", \
+						\"description\": \"a book of fairytales in English\" \
+					}, \
+					\"writing\": \"The Pied Piper of Hamelin\" \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(0, len(collection.item_lists_by_name))
+		self.assertEqual(1, len(collection.items_by_id))
+		book = collection.items_by_id[1105]
+		self.assertFalse(book.shortname)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("No shortnames given for item with id {0}.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1105,), validation_line.args)
+
+
+	def test_init_empty_writing(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1105, \
+					\"attributes\": \"2\", \
+					\"container_ids\": [ \
+						80 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"book\" \
+						], \
+						\"longname\": \"a book\", \
+						\"description\": \"a book of fairytales in English\" \
+					}, \
+					\"writing\": \"\" \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(collection.item_lists_by_name))
+		book_list = collection.item_lists_by_name["book"]
+		self.assertEqual(1, len(book_list))
+		book = book_list[0]
+		self.assertFalse(book.writing)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Writing given for item {0} \"{1}\" is empty. To have no writing on an item, omit the field entirely.", validation_line.template)
+		self.assertEqual(Severity.WARN, validation_line.severity)
+		self.assertEqual((1105, "book"), validation_line.args)
+
+
 if __name__ == "__main__":
 	unittest.main()

@@ -33,7 +33,7 @@ class ItemParser:
 
 		for item_input in item_inputs:
 			item, shortnames, related_command_id = self.parse_item(
-				item_input, container_ids_by_item, switched_element_ids, transformation_infos)
+				item_input, container_ids_by_item, switched_element_ids, transformation_infos, validation)
 
 			if item.data_id in items_by_id:
 				validation.append(Message(Message.ITEM_SHARED_ID, (item.data_id,)))
@@ -52,12 +52,15 @@ class ItemParser:
 		return item_lists_by_name, items_by_id, related_commands, validation
 
 
-	def parse_item(self, item_input, container_ids_by_item, switched_element_ids, transformation_infos):
+	def parse_item(self, item_input, container_ids_by_item, switched_element_ids, transformation_infos, validation):
 		item_id = item_input["data_id"]
 		attributes = int(item_input["attributes"], 16)
-		labels, shortnames = self.parse_labels(item_input["labels"])
+		labels, shortnames = self.parse_labels(item_input["labels"], validation, item_id)
 		size = item_input["size"]
-		writing = item_input.get("writing")
+
+		writing = None
+		if "writing" in item_input:
+			writing = self.parse_writing(item_input["writing"], validation, item_id, labels.shortname)
 
 		switched_element_id = None
 		switch_info = None
@@ -103,10 +106,23 @@ class ItemParser:
 		return item, shortnames, related_command_id
 
 
-	def parse_labels(self, label_input):
+	def parse_labels(self, label_input, validation, item_id):
 		shortnames = label_input["shortnames"]
 		extended_descriptions = label_input.get("extended_descriptions", [])
-		return Labels(shortnames[0], label_input["longname"], label_input["description"], extended_descriptions), shortnames
+
+		primary_shortname = None
+		if shortnames:
+			primary_shortname = shortnames[0]
+		else:
+			validation.append(Message(Message.ITEM_NO_SHORTNAMES, (item_id,)))
+
+		return Labels(primary_shortname, label_input["longname"], label_input["description"], extended_descriptions), shortnames
+
+
+	def parse_writing(self, writing_input, validation, item_id, shortname):
+		if not writing_input:
+			validation.append(Message(Message.ITEM_WRITING_EMPTY, (item_id, shortname)))
+		return writing_input
 
 
 	def parse_switch_info(self, switch_info_input):
