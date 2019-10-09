@@ -26,9 +26,11 @@ class TestItemParser(unittest.TestCase):
 			1111 : self.kindling,
 		}
 
-		self.command = Command(17, 0x0, 0x0, [], [""],  {})
+		self.non_switching_command = Command(17, 0x0, 0x0, [], ["throw"],  {})
+		self.switching_command = Command(19, 0x200, 0x0, [], ["switch"],  {})
 		self.commands_by_id = {
-			17 : self.command,
+			17 : self.non_switching_command,
+			19 : self.switching_command,
 		}
 
 
@@ -396,7 +398,7 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"a lamp\", \
 						\"description\": \"a small lamp\" \
 					}, \
-					\"related_command_id\": 17, \
+					\"related_command_id\": 19, \
 					\"switch_info\": { \
 						\"element_id\": 1201, \
 						\"attribute\": \"10\", \
@@ -442,7 +444,7 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"a button\", \
 						\"description\": \"a red button\" \
 					}, \
-					\"related_command_id\": 17, \
+					\"related_command_id\": 19, \
 					\"switch_info\": { \
 						\"element_id\": 1108, \
 						\"attribute\": \"20\", \
@@ -483,7 +485,7 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"a lever\", \
 						\"description\": \"a mysterious lever\" \
 					}, \
-					\"related_command_id\": 17, \
+					\"related_command_id\": 19, \
 					\"switch_info\": { \
 						\"element_id\": 80, \
 						\"attribute\": \"40\", \
@@ -694,7 +696,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(1, len(water_list))
 		water = water_list[0]
 		self.assertEqual(1, len(related_commands))
-		self.assertEqual(self.command, related_commands["water"])
+		self.assertEqual(self.non_switching_command, related_commands["water"])
 		self.assertFalse(validation)
 
 
@@ -943,6 +945,81 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual("Switchable item {0} \"{1}\" missing mandatory field \"related_command_id\".", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
 		self.assertEqual((1201, "lamp"), validation_line.args)
+
+
+	def test_init_invalid_related_command(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1076, \
+					\"attributes\": \"22802\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 1, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"water\" \
+						], \
+						\"longname\": \"water\", \
+						\"description\": \"River Amethyst water. It is cold and clear\" \
+					}, \
+					\"related_command_id\": 77 \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(collection.item_lists_by_name))
+		water_list = collection.item_lists_by_name["water"]
+		self.assertEqual(1, len(water_list))
+		water = water_list[0]
+		self.assertEqual(0, len(related_commands))
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Related command id {0} given for switchable item {1} \"{2}\" does not reference a valid command.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((77, 1076, "water"), validation_line.args)
+
+
+	def test_init_switchable_non_switching_related_command(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1201, \
+					\"attributes\": \"8\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 3, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"lamp\" \
+						], \
+						\"longname\": \"a lamp\", \
+						\"description\": \"a small lamp\" \
+					}, \
+					\"related_command_id\": 17, \
+					\"switch_info\": { \
+						\"element_id\": 1201, \
+						\"attribute\": \"10\", \
+						\"off\": \"off\", \
+						\"on\": \"on\" \
+					}, \
+					\"list_template\": \"$0 (currently $1)\"\
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Switchable item {0} \"{1}\" has been specified with related command {2} \"{3}\", but this is not a switching command.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1201, "lamp", 17, "throw"), validation_line.args)
 
 
 if __name__ == "__main__":

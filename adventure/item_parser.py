@@ -46,8 +46,15 @@ class ItemParser:
 				item_lists_by_name[shortname].append(item)
 
 			if related_command_id:
-				for shortname in shortnames:
-					related_commands[shortname] = commands_by_id.get(related_command_id)
+				if related_command_id in commands_by_id:
+					related_command = commands_by_id[related_command_id]
+					if item.is_switchable() and not related_command.is_switching():
+						validation.append(Message(Message.ITEM_SWITCHABLE_NON_SWITCHING_RELATED_COMMAND, (item.data_id,
+							item.shortname, related_command.data_id, related_command.primary)))
+					for shortname in shortnames:
+						related_commands[shortname] = commands_by_id.get(related_command_id)
+				else:
+					validation.append(Message(Message.ITEM_INVALID_RELATED_COMMAND, (related_command_id, item.data_id, item.shortname)))
 
 		return item_lists_by_name, items_by_id, related_commands, validation
 
