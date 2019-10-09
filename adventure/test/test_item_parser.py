@@ -99,23 +99,17 @@ class TestItemParser(unittest.TestCase):
 				}, \
 				{ \
 					\"data_id\": 1106, \
-					\"attributes\": \"101A\", \
+					\"attributes\": \"102002\", \
 					\"container_ids\": [ \
 						81 \
 					], \
 					\"size\": 3, \
 					\"labels\": { \
 						\"shortnames\": [ \
-							\"lamp\" \
+							\"bread\" \
 						], \
-						\"longname\": \"a lamp\", \
-						\"description\": \"a small lamp\" \
-					}, \
-					\"switch_info\": { \
-						\"element_id\": 1106, \
-						\"attribute\": \"10\", \
-						\"off\": \"off\", \
-						\"on\": \"on\" \
+						\"longname\": \"a loaf of bread\", \
+						\"description\": \"a loaf of brown bread\" \
 					} \
 				} \
 			]"
@@ -127,10 +121,10 @@ class TestItemParser(unittest.TestCase):
 		book_list = collection.item_lists_by_name["book"]
 		self.assertEqual(1, len(book_list))
 		book = book_list[0]
-		lamp_list = collection.item_lists_by_name["lamp"]
-		self.assertEqual(1, len(lamp_list))
-		lamp = lamp_list[0]
-		self.assertIsNot(book, lamp)
+		bread_list = collection.item_lists_by_name["bread"]
+		self.assertEqual(1, len(bread_list))
+		bread = bread_list[0]
+		self.assertIsNot(book, bread)
 		self.assertEqual(0, len(related_commands))
 		self.assertFalse(validation)
 
@@ -225,23 +219,17 @@ class TestItemParser(unittest.TestCase):
 			"[ \
 				{ \
 					\"data_id\": 1106, \
-					\"attributes\": \"101A\", \
+					\"attributes\": \"102002\", \
 					\"container_ids\": [ \
 						100000 \
 					], \
 					\"size\": 3, \
 					\"labels\": { \
 						\"shortnames\": [ \
-							\"lamp\" \
+							\"bread\" \
 						], \
-						\"longname\": \"a lamp\", \
-						\"description\": \"a small lamp\" \
-					}, \
-					\"switch_info\": { \
-						\"element_id\": 1106, \
-						\"attribute\": \"10\", \
-						\"off\": \"off\", \
-						\"on\": \"on\" \
+						\"longname\": \"a loaf of bread\", \
+						\"description\": \"a loaf of brown bread\" \
 					} \
 				} \
 			]"
@@ -250,10 +238,10 @@ class TestItemParser(unittest.TestCase):
 		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
 		self.assertEqual(1, len(collection.item_lists_by_name))
-		lamp_list = collection.item_lists_by_name["lamp"]
-		self.assertEqual(1, len(lamp_list))
-		lamp = lamp_list[0]
-		self.assertFalse(lamp.containers)
+		bread_list = collection.item_lists_by_name["bread"]
+		self.assertEqual(1, len(bread_list))
+		bread = bread_list[0]
+		self.assertFalse(bread.containers)
 		self.assertEqual(0, len(related_commands))
 		self.assertFalse(validation)
 
@@ -408,6 +396,7 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"a lamp\", \
 						\"description\": \"a small lamp\" \
 					}, \
+					\"related_command_id\": 17, \
 					\"switch_info\": { \
 						\"element_id\": 1201, \
 						\"attribute\": \"10\", \
@@ -431,7 +420,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(2, len(lamp.state_to_text))
 		self.assertEqual("off", lamp.state_to_text[False])
 		self.assertEqual("on", lamp.state_to_text[True])
-		self.assertEqual(0, len(related_commands))
+		self.assertEqual(1, len(related_commands))
 		self.assertEqual("{0} (currently {1})", lamp.list_template)
 		self.assertFalse(validation)
 
@@ -453,6 +442,7 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"a button\", \
 						\"description\": \"a red button\" \
 					}, \
+					\"related_command_id\": 17, \
 					\"switch_info\": { \
 						\"element_id\": 1108, \
 						\"attribute\": \"20\", \
@@ -472,7 +462,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertTrue(isinstance(button, SwitchableItem))
 		self.assertEqual(self.box, button.switched_element)
 		self.assertEqual(0x20, button.switched_attribute)
-		self.assertEqual(0, len(related_commands))
+		self.assertEqual(1, len(related_commands))
 		self.assertFalse(validation)
 
 
@@ -493,6 +483,7 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"a lever\", \
 						\"description\": \"a mysterious lever\" \
 					}, \
+					\"related_command_id\": 17, \
 					\"switch_info\": { \
 						\"element_id\": 80, \
 						\"attribute\": \"40\", \
@@ -512,7 +503,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertTrue(isinstance(lever, SwitchableItem))
 		self.assertEqual(self.library_location, lever.switched_element)
 		self.assertEqual(0x40, lever.switched_attribute)
-		self.assertEqual(0, len(related_commands))
+		self.assertEqual(1, len(related_commands))
 		self.assertFalse(validation)
 
 
@@ -822,6 +813,136 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual("Writing given for item {0} \"{1}\" is empty. To have no writing on an item, omit the field entirely.", validation_line.template)
 		self.assertEqual(Severity.WARN, validation_line.severity)
 		self.assertEqual((1105, "book"), validation_line.args)
+
+
+	def test_init_switchable_no_switch_info(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1201, \
+					\"attributes\": \"8\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 3, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"lamp\" \
+						], \
+						\"longname\": \"a lamp\", \
+						\"description\": \"a small lamp\" \
+					}, \
+					\"related_command_id\": 17, \
+					\"list_template\": \"$0 (currently $1)\"\
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(collection.item_lists_by_name))
+		lamp_list = collection.item_lists_by_name["lamp"]
+		self.assertEqual(1, len(lamp_list))
+		lamp = lamp_list[0]
+		self.assertFalse(isinstance(lamp, SwitchableItem))
+		self.assertEqual(1, len(related_commands))
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("No switch info found for switchable item {0} \"{1}\".", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1201, "lamp"), validation_line.args)
+
+
+	def test_init_non_switchable_with_switch_info(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1105, \
+					\"attributes\": \"2\", \
+					\"container_ids\": [ \
+						80 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"book\" \
+						], \
+						\"longname\": \"a book\", \
+						\"description\": \"a book of fairytales in English\", \
+						\"extended_descriptions\": [ \
+							\". It is open on a particular page\" \
+						] \
+					}, \
+					\"switch_info\": { \
+						\"element_id\": 1105, \
+						\"attribute\": \"10\", \
+						\"off\": \"close\", \
+						\"on\": \"open\" \
+					}, \
+					\"writing\": \"The Pied Piper of Hamelin\" \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(collection.item_lists_by_name))
+		book_list = collection.item_lists_by_name["book"]
+		self.assertEqual(1, len(book_list))
+		book = book_list[0]
+		self.assertFalse(isinstance(book, SwitchableItem))
+		self.assertEqual(0, len(related_commands))
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Switch info given for non-switchable item {0} \"{1}\". This switch info will not be used.", validation_line.template)
+		self.assertEqual(Severity.WARN, validation_line.severity)
+		self.assertEqual((1105, "book"), validation_line.args)
+
+
+	def test_init_switchable_no_related_command_id(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1201, \
+					\"attributes\": \"8\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 3, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"lamp\" \
+						], \
+						\"longname\": \"a lamp\", \
+						\"description\": \"a small lamp\" \
+					}, \
+					\"switch_info\": { \
+						\"element_id\": 1201, \
+						\"attribute\": \"10\", \
+						\"off\": \"off\", \
+						\"on\": \"on\" \
+					}, \
+					\"list_template\": \"$0 (currently $1)\"\
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(collection.item_lists_by_name))
+		lamp_list = collection.item_lists_by_name["lamp"]
+		self.assertEqual(1, len(lamp_list))
+		lamp = lamp_list[0]
+		self.assertTrue(isinstance(lamp, SwitchableItem))
+		self.assertEqual(0, len(related_commands))
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Switchable item {0} \"{1}\" missing mandatory field \"related_command_id\".", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1201, "lamp"), validation_line.args)
 
 
 if __name__ == "__main__":

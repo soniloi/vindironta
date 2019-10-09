@@ -62,10 +62,19 @@ class ItemParser:
 		if "writing" in item_input:
 			writing = self.parse_writing(item_input["writing"], validation, item_id, labels.shortname)
 
+		related_command_id = item_input.get("related_command_id")
+
 		switched_element_id = None
 		switch_info = None
-		if "switch_info" in item_input:
-			switched_element_id, switch_info = self.parse_switch_info(item_input["switch_info"])
+		if (attributes & Item.ATTRIBUTE_SWITCHABLE):
+			if "switch_info" in item_input:
+				switched_element_id, switch_info = self.parse_switch_info(item_input["switch_info"])
+			else:
+				validation.append(Message(Message.ITEM_SWITCHABLE_NO_SWITCH_INFO, (item_id, labels.shortname)))
+			if not related_command_id:
+				validation.append(Message(Message.ITEM_SWITCHABLE_NO_RELATED_COMMAND, (item_id, labels.shortname)))
+		elif "switch_info" in item_input:
+			validation.append(Message(Message.ITEM_NON_SWITCHABLE_WITH_SWITCH_INFO, (item_id, labels.shortname)))
 
 		using_info = None
 		if "using_info" in item_input:
@@ -82,8 +91,6 @@ class ItemParser:
 		list_template_using = None
 		if "list_template_using" in item_input:
 			list_template_using = self.parse_list_template_using(item_input["list_template_using"])
-
-		related_command_id = item_input.get("related_command_id")
 
 		item = self.init_item(
 			item_id=item_id,
@@ -172,7 +179,7 @@ class ItemParser:
 			item = ContainerItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
 				list_template=list_template)
 
-		elif bool(attributes & Item.ATTRIBUTE_SWITCHABLE):
+		elif switch_info:
 			item = SwitchableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
 				list_template=list_template, switch_info=switch_info)
 			switched_element_ids[item] = switched_element_id
