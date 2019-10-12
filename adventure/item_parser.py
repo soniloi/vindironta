@@ -18,7 +18,7 @@ class ItemParser:
 			container_ids_by_item,elements_by_id, commands_by_id, switched_element_ids, transformation_infos)
 
 		self.place_items(container_ids_by_item, elements_by_id)
-		self.resolve_switches(switched_element_ids, elements_by_id)
+		self.resolve_switches(switched_element_ids, elements_by_id, validation)
 		self.resolve_transformations(transformation_infos, elements_by_id)
 
 		return ItemCollection(item_lists_by_name, items_by_id), related_commands, validation
@@ -34,27 +34,9 @@ class ItemParser:
 		for item_input in item_inputs:
 			item, shortnames, related_command_id = self.parse_item(
 				item_input, container_ids_by_item, switched_element_ids, transformation_infos, validation)
-
-			if item.data_id in items_by_id:
-				validation.append(Message(Message.ITEM_SHARED_ID, (item.data_id,)))
-			items_by_id[item.data_id] = item
-			elements_by_id[item.data_id] = item
-
-			for shortname in shortnames:
-				if not shortname in item_lists_by_name:
-					item_lists_by_name[shortname] = []
-				item_lists_by_name[shortname].append(item)
-
-			if related_command_id:
-				if related_command_id in commands_by_id:
-					related_command = commands_by_id[related_command_id]
-					if item.is_switchable() and not related_command.is_switching():
-						validation.append(Message(Message.ITEM_SWITCHABLE_NON_SWITCHING_RELATED_COMMAND, (item.data_id,
-							item.shortname, related_command.data_id, related_command.primary)))
-					for shortname in shortnames:
-						related_commands[shortname] = commands_by_id.get(related_command_id)
-				else:
-					validation.append(Message(Message.ITEM_INVALID_RELATED_COMMAND, (related_command_id, item.data_id, item.shortname)))
+			self.add_item_by_id(items_by_id, elements_by_id, item, validation)
+			self.add_item_by_name(item_lists_by_name, item, shortnames)
+			self.resolve_related_command(item, commands_by_id, related_command_id, related_commands, shortnames, validation)
 
 		return item_lists_by_name, items_by_id, related_commands, validation
 
@@ -202,6 +184,33 @@ class ItemParser:
 		return item
 
 
+	def add_item_by_id(self, items_by_id, elements_by_id, item, validation):
+		if item.data_id in items_by_id:
+			validation.append(Message(Message.ITEM_SHARED_ID, (item.data_id,)))
+		items_by_id[item.data_id] = item
+		elements_by_id[item.data_id] = item
+
+
+	def add_item_by_name(self, item_lists_by_name, item, shortnames):
+		for shortname in shortnames:
+			if not shortname in item_lists_by_name:
+				item_lists_by_name[shortname] = []
+			item_lists_by_name[shortname].append(item)
+
+
+	def resolve_related_command(self, item, commands_by_id, related_command_id, related_commands, shortnames, validation):
+		if related_command_id:
+			if related_command_id in commands_by_id:
+				related_command = commands_by_id[related_command_id]
+				if item.is_switchable() and not related_command.is_switching():
+					validation.append(Message(Message.ITEM_SWITCHABLE_NON_SWITCHING_RELATED_COMMAND, (item.data_id,
+						item.shortname, related_command.data_id, related_command.primary)))
+				for shortname in shortnames:
+					related_commands[shortname] = commands_by_id.get(related_command_id)
+			else:
+				validation.append(Message(Message.ITEM_INVALID_RELATED_COMMAND, (related_command_id, item.data_id, item.shortname)))
+
+
 	def place_items(self, container_ids_by_item, containers):
 		for item, container_ids in container_ids_by_item.items():
 			for container_id in container_ids:
@@ -210,10 +219,13 @@ class ItemParser:
 					container.add(item)
 
 
-	def resolve_switches(self, switched_element_ids, elements_by_id):
+	def resolve_switches(self, switched_element_ids, elements_by_id, validation):
 		for switching_item, switched_element_id in switched_element_ids.items():
-			element = elements_by_id.get(switched_element_id)
-			switching_item.switched_element = element
+			if switched_element_id in elements_by_id:
+				switching_item.switched_element = elements_by_id[switched_element_id]
+			else:
+				validation.append(Message(Message.ITEM_SWITCHABLE_INVALID_SWITCHED_ELEMENT, (switching_item.data_id,
+					switching_item.shortname, switched_element_id)))
 
 
 	def resolve_transformations(self, transformation_infos_by_transformed, elements_by_id):

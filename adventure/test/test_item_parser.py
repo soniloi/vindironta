@@ -1022,5 +1022,43 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual((1201, "lamp", 17, "throw"), validation_line.args)
 
 
+	def test_init_switchable_invalid_switched_element(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1201, \
+					\"attributes\": \"8\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 3, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"lamp\" \
+						], \
+						\"longname\": \"a lamp\", \
+						\"description\": \"a small lamp\" \
+					}, \
+					\"related_command_id\": 19, \
+					\"switch_info\": { \
+						\"element_id\": 9999, \
+						\"attribute\": \"10\", \
+						\"off\": \"off\", \
+						\"on\": \"on\" \
+					}, \
+					\"list_template\": \"$0 (currently $1)\"\
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Switchable item {0} \"{1}\" has invalid switched element id {2}.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1201, "lamp", 9999), validation_line.args)
+
+
 if __name__ == "__main__":
 	unittest.main()

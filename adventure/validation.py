@@ -23,6 +23,7 @@ class Message:
 	ITEM_NO_SHORTNAMES = (Severity.ERROR, "No shortnames given for item with id {0}.")
 	ITEM_NON_SWITCHABLE_WITH_SWITCH_INFO = (Severity.WARN, "Switch info given for non-switchable item {0} \"{1}\". This switch info will not be used.")
 	ITEM_SHARED_ID = (Severity.ERROR, "Multiple items found with id {0}.")
+	ITEM_SWITCHABLE_INVALID_SWITCHED_ELEMENT = (Severity.ERROR, "Switchable item {0} \"{1}\" has invalid switched element id {2}.")
 	ITEM_SWITCHABLE_NO_RELATED_COMMAND = (Severity.ERROR, "Switchable item {0} \"{1}\" missing mandatory field \"related_command_id\".")
 	ITEM_SWITCHABLE_NO_SWITCH_INFO = (Severity.ERROR, "No switch info found for switchable item {0} \"{1}\".")
 	ITEM_SWITCHABLE_NON_SWITCHING_RELATED_COMMAND = (Severity.ERROR, "Switchable item {0} \"{1}\" has been specified with related command {2} \"{3}\", but this is not a switching command.")
