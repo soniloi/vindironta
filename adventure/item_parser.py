@@ -42,44 +42,19 @@ class ItemParser:
 
 
 	def parse_item(self, item_input, container_ids_by_item, switched_element_ids, transformation_infos, validation):
-		item_id = item_input["data_id"]
-		attributes = int(item_input["attributes"], 16)
-		labels, shortnames = self.parse_labels(item_input["labels"], validation, item_id)
-		size = item_input["size"]
-
-		writing = None
-		if "writing" in item_input:
-			writing = self.parse_writing(item_input["writing"], validation, item_id, labels.shortname)
-
-		related_command_id = item_input.get("related_command_id")
-
-		switched_element_id = None
-		switch_info = None
-		if (attributes & Item.ATTRIBUTE_SWITCHABLE):
-			if "switch_info" in item_input:
-				switched_element_id, switch_info = self.parse_switch_info(item_input["switch_info"])
-			else:
-				validation.append(Message(Message.ITEM_SWITCHABLE_NO_SWITCH_INFO, (item_id, labels.shortname)))
-			if not related_command_id:
-				validation.append(Message(Message.ITEM_SWITCHABLE_NO_RELATED_COMMAND, (item_id, labels.shortname)))
-		elif "switch_info" in item_input:
-			validation.append(Message(Message.ITEM_NON_SWITCHABLE_WITH_SWITCH_INFO, (item_id, labels.shortname)))
-
-		using_info = None
-		if "using_info" in item_input:
-			using_info = int(item_input["using_info"], 16)
-
-		transformation_info = {}
-		if "transformations" in item_input:
-			self.parse_transformations(item_input["transformations"], transformation_info)
-
-		list_template = None
-		if "list_template" in item_input:
-			list_template = self.parse_list_template(item_input["list_template"])
-
-		list_template_using = None
-		if "list_template_using" in item_input:
-			list_template_using = self.parse_list_template_using(item_input["list_template_using"])
+		item_id = self.parse_id(item_input)
+		attributes = self.parse_attributes(item_input)
+		labels, shortnames = self.parse_labels(item_input, validation, item_id)
+		size = self.parse_size(item_input)
+		writing = self.parse_writing(item_input, validation, item_id, labels.shortname)
+		related_command_id = self.parse_related_command_id(item_input)
+		switched_element_id, switch_info = self.parse_switch_info(attributes, item_input, related_command_id,
+			validation, item_id, labels.shortname)
+		using_info = self.parse_using_info(item_input)
+		transformation_info = self.parse_transformation_info(item_input)
+		list_template = self.parse_list_template(item_input)
+		list_template_using = self.parse_list_template_using(item_input)
+		container_ids = self.parse_container_ids(item_input)
 
 		item = self.init_item(
 			item_id=item_id,
@@ -95,14 +70,21 @@ class ItemParser:
 			list_template_using=list_template_using,
 		)
 
-		container_ids = item_input["container_ids"]
 		container_ids_by_item[item] = container_ids
 		transformation_infos[item] = transformation_info
-
 		return item, shortnames, related_command_id
 
 
-	def parse_labels(self, label_input, validation, item_id):
+	def parse_id(self, item_input):
+		return item_input["data_id"]
+
+
+	def parse_attributes(self, item_input):
+		return int(item_input["attributes"], 16)
+
+
+	def parse_labels(self, item_input, validation, item_id):
+		label_input = item_input["labels"]
 		shortnames = label_input["shortnames"]
 		extended_descriptions = label_input.get("extended_descriptions", [])
 
@@ -115,35 +97,84 @@ class ItemParser:
 		return Labels(primary_shortname, label_input["longname"], label_input["description"], extended_descriptions), shortnames
 
 
-	def parse_writing(self, writing_input, validation, item_id, shortname):
+	def parse_size(self, item_input):
+		return item_input["size"]
+
+
+	def parse_writing(self, item_input, validation, item_id, shortname):
+		if not "writing" in item_input:
+			return None
+
+		writing_input = item_input["writing"]
 		if not writing_input:
 			validation.append(Message(Message.ITEM_WRITING_EMPTY, (item_id, shortname)))
+
 		return writing_input
 
 
-	def parse_switch_info(self, switch_info_input):
-		switched_element_id = switch_info_input["element_id"]
-		switched_attribute = int(switch_info_input["attribute"], 16)
-		off_switch = switch_info_input["off"]
-		on_switch = switch_info_input["on"]
-		return switched_element_id, SwitchInfo(attribute=switched_attribute, off=off_switch, on=on_switch)
+	def parse_related_command_id(self, item_input):
+		return item_input.get("related_command_id")
 
 
-	def parse_transformations(self, transformation_inputs, item_transformations):
-		for transformation_input in transformation_inputs:
-			command_id = transformation_input["command_id"]
-			replacement_id = transformation_input["replacement_id"]
-			tool_id = transformation_input.get("tool_id", None)
-			material_id = transformation_input.get("material_id", None)
-			item_transformations[command_id] = TransformationInfo(replacement_id=replacement_id, tool_id=tool_id, material_id=material_id)
+	def parse_switch_info(self, attributes, item_input, related_command_id, validation, item_id, shortname):
+		switched_element_id = None
+		switch_info = None
+
+		if (attributes & Item.ATTRIBUTE_SWITCHABLE):
+			if "switch_info" in item_input:
+				switch_info_input = item_input["switch_info"]
+				switched_element_id = switch_info_input["element_id"]
+				switched_attribute = int(switch_info_input["attribute"], 16)
+				off_switch = switch_info_input["off"]
+				on_switch = switch_info_input["on"]
+				switch_info = SwitchInfo(attribute=switched_attribute, off=off_switch, on=on_switch)
+			else:
+				validation.append(Message(Message.ITEM_SWITCHABLE_NO_SWITCH_INFO, (item_id, shortname)))
+			if not related_command_id:
+				validation.append(Message(Message.ITEM_SWITCHABLE_NO_RELATED_COMMAND, (item_id, shortname)))
+
+		elif "switch_info" in item_input:
+			validation.append(Message(Message.ITEM_NON_SWITCHABLE_WITH_SWITCH_INFO, (item_id, shortname)))
+
+		return switched_element_id, switch_info
 
 
-	def parse_list_template(self, list_template_input):
+	def parse_using_info(self, item_input):
+		if not "using_info" in item_input:
+			return None
+		return int(item_input["using_info"], 16)
+
+
+	def parse_transformation_info(self, item_input):
+		transformation_info = {}
+		if "transformations" in item_input:
+			for transformation_input in item_input["transformations"]:
+				command_id = transformation_input["command_id"]
+				replacement_id = transformation_input["replacement_id"]
+				tool_id = transformation_input.get("tool_id", None)
+				material_id = transformation_input.get("material_id", None)
+				transformation_info[command_id] = TransformationInfo(replacement_id=replacement_id, tool_id=tool_id, material_id=material_id)
+		return transformation_info
+
+
+	def parse_list_template(self, item_input):
+		if not "list_template" in item_input:
+			return None
+
+		list_template_input = item_input["list_template"]
 		return TokenTranslator.translate_substitution_tokens(list_template_input)
 
 
-	def parse_list_template_using(self, list_template_using_input):
+	def parse_list_template_using(self, item_input):
+		if not "list_template_using" in item_input:
+			return None
+
+		list_template_using_input = item_input["list_template_using"]
 		return TokenTranslator.translate_substitution_tokens(list_template_using_input)
+
+
+	def parse_container_ids(self, item_input):
+		return item_input["container_ids"]
 
 
 	def init_item(self,
