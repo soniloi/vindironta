@@ -398,14 +398,14 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"a lamp\", \
 						\"description\": \"a small lamp\" \
 					}, \
+					\"list_template\": \"$0 (currently $1)\", \
 					\"related_command_id\": 19, \
 					\"switch_info\": { \
 						\"element_id\": 1201, \
 						\"attribute\": \"10\", \
 						\"off\": \"off\", \
 						\"on\": \"on\" \
-					}, \
-					\"list_template\": \"$0 (currently $1)\"\
+					} \
 				} \
 			]"
 		)
@@ -444,6 +444,7 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"a button\", \
 						\"description\": \"a red button\" \
 					}, \
+					\"list_template\": \"$0 (currently $1)\", \
 					\"related_command_id\": 19, \
 					\"switch_info\": { \
 						\"element_id\": 1108, \
@@ -465,6 +466,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(self.box, button.switched_element)
 		self.assertEqual(0x20, button.switched_attribute)
 		self.assertEqual(1, len(related_commands))
+		self.assertEqual("{0} (currently {1})", button.list_template)
 		self.assertFalse(validation)
 
 
@@ -485,6 +487,7 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"a lever\", \
 						\"description\": \"a mysterious lever\" \
 					}, \
+					\"list_template\": \"$0 (currently $1)\", \
 					\"related_command_id\": 19, \
 					\"switch_info\": { \
 						\"element_id\": 80, \
@@ -506,6 +509,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(self.library_location, lever.switched_element)
 		self.assertEqual(0x40, lever.switched_attribute)
 		self.assertEqual(1, len(related_commands))
+		self.assertEqual("{0} (currently {1})", lever.list_template)
 		self.assertFalse(validation)
 
 
@@ -1058,6 +1062,75 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual("Switchable item {0} \"{1}\" has invalid switched element id {2}.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
 		self.assertEqual((1201, "lamp", 9999), validation_line.args)
+
+
+	def test_init_switchable_no_list_template(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1201, \
+					\"attributes\": \"8\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 3, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"lamp\" \
+						], \
+						\"longname\": \"a lamp\", \
+						\"description\": \"a small lamp\" \
+					}, \
+					\"related_command_id\": 19, \
+					\"switch_info\": { \
+						\"element_id\": 1201, \
+						\"attribute\": \"10\", \
+						\"off\": \"off\", \
+						\"on\": \"on\" \
+					} \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("No list template found for switchable item {0} \"{1}\". While not mandatory, this will lead to incomplete descriptions of this item when listed.", validation_line.template)
+		self.assertEqual(Severity.WARN, validation_line.severity)
+		self.assertEqual((1201, "lamp"), validation_line.args)
+
+
+	def test_init_wearable_no_list_template(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1204, \
+					\"attributes\": \"400\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 3, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"suit\" \
+						], \
+						\"longname\": \"a suit\", \
+						\"description\": \"a space-suit\" \
+					}, \
+					\"using_info\": \"20\", \
+					\"list_template_using\": \"$0 (wearing)\" \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("No list template found for wearable item {0} \"{1}\". While not mandatory, this will lead to incomplete descriptions of this item when listed.", validation_line.template)
+		self.assertEqual(Severity.WARN, validation_line.severity)
+		self.assertEqual((1204, "suit"), validation_line.args)
 
 
 if __name__ == "__main__":

@@ -52,7 +52,7 @@ class ItemParser:
 			validation, item_id, labels.shortname)
 		using_info = self.parse_using_info(item_input)
 		transformation_info = self.parse_transformation_info(item_input)
-		list_template = self.parse_list_template(item_input)
+		list_template = self.parse_list_template(item_input, attributes, validation, item_id, labels.shortname)
 		list_template_using = self.parse_list_template_using(item_input)
 		container_ids = self.parse_container_ids(item_input)
 
@@ -157,8 +157,12 @@ class ItemParser:
 		return transformation_info
 
 
-	def parse_list_template(self, item_input):
+	def parse_list_template(self, item_input, attributes, validation, item_id, shortname):
 		if not "list_template" in item_input:
+			if (attributes & Item.ATTRIBUTE_SWITCHABLE):
+				validation.append(Message(Message.ITEM_SWITCHABLE_NO_LIST_TEMPLATE, (item_id, shortname)))
+			if (attributes & Item.ATTRIBUTE_WEARABLE):
+				validation.append(Message(Message.ITEM_WEARABLE_NO_LIST_TEMPLATE, (item_id, shortname)))
 			return None
 
 		list_template_input = item_input["list_template"]
