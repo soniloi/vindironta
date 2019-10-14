@@ -53,7 +53,7 @@ class ItemParser:
 		using_info = self.parse_using_info(item_input)
 		transformation_info = self.parse_transformation_info(item_input)
 		list_template = self.parse_list_template(item_input, attributes, validation, item_id, labels.shortname)
-		list_template_using = self.parse_list_template_using(item_input)
+		list_template_using = self.parse_list_template_using(item_input, attributes, validation, item_id, labels.shortname)
 		container_ids = self.parse_container_ids(item_input)
 
 		item = self.init_item(
@@ -169,10 +169,15 @@ class ItemParser:
 		return TokenTranslator.translate_substitution_tokens(list_template_input)
 
 
-	def parse_list_template_using(self, item_input):
+	def parse_list_template_using(self, item_input, attributes, validation, item_id, shortname):
+		usable = self.item_is_usable(attributes)
 		if not "list_template_using" in item_input:
+			if usable:
+				validation.append(Message(Message.ITEM_USABLE_NO_LIST_TEMPLATE_USING, (item_id, shortname)))
 			return None
 
+		if not usable:
+			validation.append(Message(Message.ITEM_NON_USABLE_WITH_LIST_TEMPLATE_USING, (item_id, shortname)))
 		list_template_using_input = item_input["list_template_using"]
 		return TokenTranslator.translate_substitution_tokens(list_template_using_input)
 
@@ -208,7 +213,7 @@ class ItemParser:
 				list_template=list_template, switch_info=switch_info)
 			switched_element_ids[item] = switched_element_id
 
-		elif bool(attributes & Item.ATTRIBUTE_WEARABLE) or bool(attributes & Item.ATTRIBUTE_SAILABLE):
+		elif self.item_is_usable(attributes):
 			item = UsableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
 				list_template=list_template, attribute_activated=attribute_when_used, list_template_using=list_template_using)
 
@@ -217,6 +222,10 @@ class ItemParser:
 				list_template=list_template)
 
 		return item
+
+
+	def item_is_usable(self, attributes):
+		return bool(attributes & Item.ATTRIBUTE_WEARABLE) or bool(attributes & Item.ATTRIBUTE_SAILABLE)
 
 
 	def add_item_by_id(self, items_by_id, elements_by_id, item, validation):

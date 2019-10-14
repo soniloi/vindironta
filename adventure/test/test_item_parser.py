@@ -654,6 +654,7 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"a raft\", \
 						\"description\": \"a rickety raft\" \
 					}, \
+					\"list_template_using\": \"(sailing) $0\", \
 					\"using_info\": \"40000\" \
 				} \
 			]"
@@ -667,6 +668,7 @@ class TestItemParser(unittest.TestCase):
 		raft = raft_list[0]
 		self.assertTrue(isinstance(raft, UsableItem))
 		self.assertEqual(0x40000, raft.attribute_activated)
+		self.assertEqual("(sailing) {0}", raft.list_template_using)
 		self.assertEqual(0, len(related_commands))
 		self.assertFalse(validation)
 
@@ -1131,6 +1133,72 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual("No list template found for wearable item {0} \"{1}\". While not mandatory, this will lead to incomplete descriptions of this item when listed.", validation_line.template)
 		self.assertEqual(Severity.WARN, validation_line.severity)
 		self.assertEqual((1204, "suit"), validation_line.args)
+
+
+	def test_init_usable_no_list_template_using(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1205, \
+					\"attributes\": \"10000\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 3, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"raft\" \
+						], \
+						\"longname\": \"a raft\", \
+						\"description\": \"a rickety raft\" \
+					}, \
+					\"using_info\": \"40000\" \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Mandatory field \"list_template_using\" not found for usable item {0} \"{1}\".", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1205, "raft"), validation_line.args)
+
+
+	def test_init_non_usable_with_list_template_using(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1105, \
+					\"attributes\": \"2\", \
+					\"container_ids\": [ \
+						80 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"book\" \
+						], \
+						\"longname\": \"a book\", \
+						\"description\": \"a book of fairytales in English\", \
+						\"extended_descriptions\": [ \
+							\". It is open on a particular page\" \
+						] \
+					}, \
+					\"writing\": \"The Pied Piper of Hamelin\", \
+					\"list_template_using\": \"$0 (using)\" \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Invalid field \"list_template_using\" found for item {0} \"{1}\". This field is only valid for usable items and will be ignored here.", validation_line.template)
+		self.assertEqual(Severity.WARN, validation_line.severity)
+		self.assertEqual((1105, "book"), validation_line.args)
 
 
 if __name__ == "__main__":
