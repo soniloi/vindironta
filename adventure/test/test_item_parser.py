@@ -26,9 +26,11 @@ class TestItemParser(unittest.TestCase):
 			1111 : self.kindling,
 		}
 
+		self.burn_command = Command(6, 0x0, 0x0, [], ["smash"],  {})
 		self.non_switching_command = Command(17, 0x0, 0x0, [], ["throw"],  {})
 		self.switching_command = Command(19, 0x200, 0x0, [], ["switch"],  {})
 		self.commands_by_id = {
+			6 : self.burn_command,
 			17 : self.non_switching_command,
 			19 : self.switching_command,
 		}
@@ -1199,6 +1201,78 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual("Invalid field \"list_template_using\" found for item {0} \"{1}\". This field is only valid for usable items and will be ignored here.", validation_line.template)
 		self.assertEqual(Severity.WARN, validation_line.severity)
 		self.assertEqual((1105, "book"), validation_line.args)
+
+
+	def test_init_transformable_unknown_command_id(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1205, \
+					\"attributes\": \"100000\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"paper\" \
+						], \
+						\"longname\": \"some paper\", \
+						\"description\": \"some old paper\" \
+					}, \
+					\"transformations\": [ \
+						{ \
+							\"command_id\": 9999, \
+							\"replacement_id\": 1109 \
+						} \
+					] \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("For item {0} \"{1}\", replacement command id {2} does not reference any known command.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1205, "paper", 9999), validation_line.args)
+
+
+	def test_init_transformable_unknown_replacement_id(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1205, \
+					\"attributes\": \"100000\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"paper\" \
+						], \
+						\"longname\": \"some paper\", \
+						\"description\": \"some old paper\" \
+					}, \
+					\"transformations\": [ \
+						{ \
+							\"command_id\": 6, \
+							\"replacement_id\": 8888 \
+						} \
+					] \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("For item {0} \"{1}\" with replacement command {2} \"{3}\", replacement id {4} does not reference any known item.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1205, "paper", 6, "smash", 8888), validation_line.args)
 
 
 if __name__ == "__main__":

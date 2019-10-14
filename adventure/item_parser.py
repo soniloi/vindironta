@@ -19,7 +19,7 @@ class ItemParser:
 
 		self.place_items(container_ids_by_item, elements_by_id)
 		self.resolve_switches(switched_element_ids, elements_by_id, validation)
-		self.resolve_transformations(transformation_infos, elements_by_id)
+		self.resolve_transformations(transformation_infos, elements_by_id, commands_by_id, validation)
 
 		return ItemCollection(item_lists_by_name, items_by_id), related_commands, validation
 
@@ -272,10 +272,19 @@ class ItemParser:
 					switching_item.shortname, switched_element_id)))
 
 
-	def resolve_transformations(self, transformation_infos_by_transformed, elements_by_id):
+	def resolve_transformations(self, transformation_infos_by_transformed, elements_by_id, commands_by_id, validation):
 		for transformed_item, transformation_infos in transformation_infos_by_transformed.items():
 			for command_id, transformation_info in transformation_infos.items():
-				replacement = elements_by_id.get(transformation_info.replacement_id)
-				tool = elements_by_id.get(transformation_info.tool_id)
-				material = elements_by_id.get(transformation_info.material_id)
-				transformed_item.transformations[command_id] = Transformation(replacement=replacement, tool=tool, material=material)
+				if not command_id in commands_by_id:
+					validation.append(Message(Message.ITEM_TRANSFORMATION_UNKNOWN_COMMAND_ID, (transformed_item.data_id, 
+						transformed_item.shortname, command_id)))
+				else:
+					command = commands_by_id[command_id]
+					replacement_id = transformation_info.replacement_id
+					if not replacement_id in elements_by_id:
+						validation.append(Message(Message.ITEM_TRANSFORMATION_UNKNOWN_REPLACEMENT_ID,
+							(transformed_item.data_id, transformed_item.shortname, command_id, command.primary, replacement_id)))
+					replacement = elements_by_id.get(replacement_id)
+					tool = elements_by_id.get(transformation_info.tool_id)
+					material = elements_by_id.get(transformation_info.material_id)
+					transformed_item.transformations[command_id] = Transformation(replacement=replacement, tool=tool, material=material)
