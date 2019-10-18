@@ -14,9 +14,10 @@ class TestItemParser(unittest.TestCase):
 		self.library_location = Location(80, 0x1, Labels("Library", "in the Library", ", a tall, bright room"))
 		self.lighthouse_location = Location(81, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
 		self.box = ContainerItem(1108, 0x3, Labels("box", "a box", "a small box"), 3, None)
-		self.ash = Item(1109, 0x0, Labels("ash", "some ash", "some black ash"), 1, None)
-		self.candle = Item(1110, 0x0, Labels("candle", "a candle", "a small candle"), 2, None)
-		self.kindling = Item(1111, 0x0, Labels("kindling", "some kindling", "some kindling"), 2, None)
+		self.ash = Item(1109, 0x2, Labels("ash", "some ash", "some black ash"), 1, None)
+		self.candle = Item(1110, 0x2, Labels("candle", "a candle", "a small candle"), 2, None)
+		self.kindling = Item(1111, 0x2, Labels("kindling", "some kindling", "some kindling"), 2, None)
+		self.desk = Item(1112, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None)
 		self.elements = {
 			80 : self.library_location,
 			81 : self.lighthouse_location,
@@ -24,6 +25,7 @@ class TestItemParser(unittest.TestCase):
 			1109 : self.ash,
 			1110 : self.candle,
 			1111 : self.kindling,
+			1112 : self.desk,
 		}
 
 		self.burn_command = Command(6, 0x0, 0x0, [], ["smash"],  {})
@@ -1273,6 +1275,78 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual("For item {0} \"{1}\" with replacement command {2} \"{3}\", replacement id {4} does not reference any known item.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
 		self.assertEqual((1205, "paper", 6, "smash", 8888), validation_line.args)
+
+
+	def test_init_transformable_replaced_mobile_replacement_non_mobile(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1205, \
+					\"attributes\": \"100002\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"paper\" \
+						], \
+						\"longname\": \"some paper\", \
+						\"description\": \"some old paper\" \
+					}, \
+					\"transformations\": [ \
+						{ \
+							\"command_id\": 6, \
+							\"replacement_id\": 1112 \
+						} \
+					] \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("For item {0} \"{1}\" with replacement command {2} \"{3}\", the replaced item is mobile but the replacement item {4} \"{5}\" is not.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1205, "paper", 6, "smash", 1112, "desk"), validation_line.args)
+
+
+	def test_init_transformable_mobile_replacement_larger(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1205, \
+					\"attributes\": \"100002\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"paper\" \
+						], \
+						\"longname\": \"some paper\", \
+						\"description\": \"some old paper\" \
+					}, \
+					\"transformations\": [ \
+						{ \
+							\"command_id\": 6, \
+							\"replacement_id\": 1108 \
+						} \
+					] \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("For item {0} \"{1}\" with replacement command {2} \"{3}\", the replaced item is mobile but the replacement item {4} \"{5}\" is larger than the item being replaced.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1205, "paper", 6, "smash", 1108, "box"), validation_line.args)
 
 
 if __name__ == "__main__":
