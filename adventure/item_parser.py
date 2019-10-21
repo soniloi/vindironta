@@ -32,8 +32,10 @@ class ItemParser:
 		validation = []
 
 		for item_input in item_inputs:
-			item, shortnames, related_command_id = self.parse_item(
-				item_input, container_ids_by_item, switched_element_ids, transformation_infos, validation)
+			item, shortnames, related_command_id, container_ids, transformation_info = self.parse_item(item_input,
+				switched_element_ids, validation)
+			container_ids_by_item[item] = container_ids
+			transformation_infos[item] = transformation_info
 			self.add_item_by_id(items_by_id, elements_by_id, item, validation)
 			self.add_item_by_name(item_lists_by_name, item, shortnames)
 			self.resolve_related_command(item, commands_by_id, related_command_id, related_commands, shortnames, validation)
@@ -41,7 +43,7 @@ class ItemParser:
 		return item_lists_by_name, items_by_id, related_commands, validation
 
 
-	def parse_item(self, item_input, container_ids_by_item, switched_element_ids, transformation_infos, validation):
+	def parse_item(self, item_input, switched_element_ids, validation):
 		item_id = self.parse_id(item_input)
 		attributes = self.parse_attributes(item_input)
 		labels, shortnames = self.parse_labels(item_input, validation, item_id)
@@ -70,9 +72,7 @@ class ItemParser:
 			list_template_using=list_template_using,
 		)
 
-		container_ids_by_item[item] = container_ids
-		transformation_infos[item] = transformation_info
-		return item, shortnames, related_command_id
+		return item, shortnames, related_command_id, container_ids, transformation_info
 
 
 	def parse_id(self, item_input):
@@ -275,31 +275,43 @@ class ItemParser:
 	def resolve_transformations(self, transformation_infos_by_transformed, elements_by_id, commands_by_id, validation):
 		for transformed_item, transformation_infos in transformation_infos_by_transformed.items():
 			for command_id, transformation_info in transformation_infos.items():
-				if not command_id in commands_by_id:
-					validation.append(Message(Message.ITEM_TRANSFORMATION_UNKNOWN_COMMAND_ID, (transformed_item.data_id, 
-						transformed_item.shortname, command_id)))
-				else:
-					command = commands_by_id[command_id]
-					replacement_id = transformation_info.replacement_id
-					if not replacement_id in elements_by_id:
-						validation.append(Message(Message.ITEM_TRANSFORMATION_UNKNOWN_REPLACEMENT_ID,
-							(transformed_item.data_id, transformed_item.shortname, command_id, command.primary, replacement_id)))
-					else:
-						replacement = elements_by_id[replacement_id]
-						if not isinstance(replacement, Item):
-							validation.append(Message(Message.ITEM_TRANSFORMATION_REPLACEMENT_NON_ITEM,
-								(transformed_item.data_id, transformed_item.shortname, command_id, command.primary,
-									replacement_id, replacement.shortname)))
-						else:
-							if transformed_item.is_mobile():
-								if not replacement.is_mobile():
-									validation.append(Message(Message.ITEM_TRANSFORMATION_REPLACEMENT_NON_MOBILE,
-										(transformed_item.data_id, transformed_item.shortname, command_id, command.primary,
-										replacement_id, replacement.shortname)))
-								elif replacement.size > transformed_item.size:
-									validation.append(Message(Message.ITEM_TRANSFORMATION_REPLACEMENT_TOO_LARGE,
-										(transformed_item.data_id, transformed_item.shortname, command_id, command.primary,
-										replacement_id, replacement.shortname)))
-							tool = elements_by_id.get(transformation_info.tool_id)
-							material = elements_by_id.get(transformation_info.material_id)
-							transformed_item.transformations[command_id] = Transformation(replacement=replacement, tool=tool, material=material)
+				self.resolve_transformation(transformed_item, command_id, transformation_info, elements_by_id, commands_by_id, validation)
+
+
+	def resolve_transformation(self, transformed_item, command_id, transformation_info, elements_by_id, commands_by_id, validation):
+		if not command_id in commands_by_id:
+			validation.append(Message(Message.ITEM_TRANSFORMATION_UNKNOWN_COMMAND_ID, (transformed_item.data_id,
+				transformed_item.shortname, command_id)))
+			return
+		command = commands_by_id[command_id]
+		self.resolve_transformation_command(transformed_item, command, transformation_info, elements_by_id, validation)
+
+
+	def resolve_transformation_command(self, transformed_item, command, transformation_info, elements_by_id, validation):
+		replacement_id = transformation_info.replacement_id
+		if not replacement_id in elements_by_id:
+			validation.append(Message(Message.ITEM_TRANSFORMATION_UNKNOWN_REPLACEMENT_ID,
+				(transformed_item.data_id, transformed_item.shortname, command.data_id, command.primary, replacement_id)))
+			return
+		replacement = elements_by_id[replacement_id]
+		self.resolve_transformation_items(transformed_item, command, replacement, transformation_info, elements_by_id, validation)
+
+
+	def resolve_transformation_items(self, transformed_item, command, replacement, transformation_info, elements_by_id, validation):
+		if not isinstance(replacement, Item):
+			validation.append(Message(Message.ITEM_TRANSFORMATION_REPLACEMENT_NON_ITEM,
+				(transformed_item.data_id, transformed_item.shortname, command.data_id, command.primary,
+				replacement.data_id, replacement.shortname)))
+			return
+		if transformed_item.is_mobile():
+			if not replacement.is_mobile():
+				validation.append(Message(Message.ITEM_TRANSFORMATION_REPLACEMENT_NON_MOBILE,
+					(transformed_item.data_id, transformed_item.shortname, command.data_id, command.primary,
+					replacement.data_id, replacement.shortname)))
+			elif replacement.size > transformed_item.size:
+				validation.append(Message(Message.ITEM_TRANSFORMATION_REPLACEMENT_TOO_LARGE,
+					(transformed_item.data_id, transformed_item.shortname, command.data_id, command.primary,
+					replacement.data_id, replacement.shortname)))
+		tool = elements_by_id.get(transformation_info.tool_id)
+		material = elements_by_id.get(transformation_info.material_id)
+		transformed_item.transformations[command.data_id] = Transformation(replacement=replacement, tool=tool, material=material)
