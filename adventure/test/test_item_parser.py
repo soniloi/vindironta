@@ -1277,6 +1277,42 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual((1205, "paper", 6, "smash", 8888), validation_line.args)
 
 
+	def test_init_transformable_replacement_non_item(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1205, \
+					\"attributes\": \"100000\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"paper\" \
+						], \
+						\"longname\": \"some paper\", \
+						\"description\": \"some old paper\" \
+					}, \
+					\"transformations\": [ \
+						{ \
+							\"command_id\": 6, \
+							\"replacement_id\": 81 \
+						} \
+					] \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("For item {0} \"{1}\" with replacement command {2} \"{3}\", replacement element {4} \"{5}\" is not an item.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1205, "paper", 6, "smash", 81, "Lighthouse"), validation_line.args)
+
+
 	def test_init_transformable_replaced_mobile_replacement_non_mobile(self):
 		item_inputs = json.loads(
 			"[ \

@@ -284,16 +284,22 @@ class ItemParser:
 					if not replacement_id in elements_by_id:
 						validation.append(Message(Message.ITEM_TRANSFORMATION_UNKNOWN_REPLACEMENT_ID,
 							(transformed_item.data_id, transformed_item.shortname, command_id, command.primary, replacement_id)))
-					replacement = elements_by_id.get(replacement_id)
-					if transformed_item.is_mobile():
-						if not replacement.is_mobile():
-							validation.append(Message(Message.ITEM_TRANSFORMATION_REPLACEMENT_NON_MOBILE,
+					else:
+						replacement = elements_by_id[replacement_id]
+						if not isinstance(replacement, Item):
+							validation.append(Message(Message.ITEM_TRANSFORMATION_REPLACEMENT_NON_ITEM,
 								(transformed_item.data_id, transformed_item.shortname, command_id, command.primary,
-								replacement_id, replacement.shortname)))
-						elif replacement.size > transformed_item.size:
-							validation.append(Message(Message.ITEM_TRANSFORMATION_REPLACEMENT_TOO_LARGE,
-								(transformed_item.data_id, transformed_item.shortname, command_id, command.primary,
-								replacement_id, replacement.shortname)))
-					tool = elements_by_id.get(transformation_info.tool_id)
-					material = elements_by_id.get(transformation_info.material_id)
-					transformed_item.transformations[command_id] = Transformation(replacement=replacement, tool=tool, material=material)
+									replacement_id, replacement.shortname)))
+						else:
+							if transformed_item.is_mobile():
+								if not replacement.is_mobile():
+									validation.append(Message(Message.ITEM_TRANSFORMATION_REPLACEMENT_NON_MOBILE,
+										(transformed_item.data_id, transformed_item.shortname, command_id, command.primary,
+										replacement_id, replacement.shortname)))
+								elif replacement.size > transformed_item.size:
+									validation.append(Message(Message.ITEM_TRANSFORMATION_REPLACEMENT_TOO_LARGE,
+										(transformed_item.data_id, transformed_item.shortname, command_id, command.primary,
+										replacement_id, replacement.shortname)))
+							tool = elements_by_id.get(transformation_info.tool_id)
+							material = elements_by_id.get(transformation_info.material_id)
+							transformed_item.transformations[command_id] = Transformation(replacement=replacement, tool=tool, material=material)

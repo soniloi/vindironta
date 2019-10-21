@@ -29,6 +29,7 @@ class Message:
 	ITEM_SWITCHABLE_NO_RELATED_COMMAND = (Severity.ERROR, "Switchable item {0} \"{1}\" missing mandatory field \"related_command_id\".")
 	ITEM_SWITCHABLE_NO_SWITCH_INFO = (Severity.ERROR, "No switch info found for switchable item {0} \"{1}\".")
 	ITEM_SWITCHABLE_NON_SWITCHING_RELATED_COMMAND = (Severity.ERROR, "Switchable item {0} \"{1}\" has been specified with related command {2} \"{3}\", but this is not a switching command.")
+	ITEM_TRANSFORMATION_REPLACEMENT_NON_ITEM = (Severity.ERROR, "For item {0} \"{1}\" with replacement command {2} \"{3}\", replacement element {4} \"{5}\" is not an item.")
 	ITEM_TRANSFORMATION_REPLACEMENT_NON_MOBILE = (Severity.ERROR, "For item {0} \"{1}\" with replacement command {2} \"{3}\", the replaced item is mobile but the replacement item {4} \"{5}\" is not.")
 	ITEM_TRANSFORMATION_REPLACEMENT_TOO_LARGE = (Severity.ERROR, "For item {0} \"{1}\" with replacement command {2} \"{3}\", the replaced item is mobile but the replacement item {4} \"{5}\" is larger than the item being replaced.")
 	ITEM_TRANSFORMATION_UNKNOWN_COMMAND_ID = (Severity.ERROR, "For item {0} \"{1}\", replacement command id {2} does not reference any known command.")
