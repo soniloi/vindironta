@@ -257,7 +257,7 @@ class TestItemParser(unittest.TestCase):
 			"[ \
 				{ \
 					\"data_id\": 1076, \
-					\"attributes\": \"22802\", \
+					\"attributes\": \"22902\", \
 					\"container_ids\": [ \
 						80,\
 						81 \
@@ -682,7 +682,7 @@ class TestItemParser(unittest.TestCase):
 			"[ \
 				{ \
 					\"data_id\": 1076, \
-					\"attributes\": \"22802\", \
+					\"attributes\": \"22902\", \
 					\"container_ids\": [ \
 						81 \
 					], \
@@ -730,7 +730,7 @@ class TestItemParser(unittest.TestCase):
 				}, \
 				{ \
 					\"data_id\": 1105, \
-					\"attributes\": \"22802\", \
+					\"attributes\": \"22902\", \
 					\"container_ids\": [ \
 						81 \
 					], \
@@ -962,7 +962,7 @@ class TestItemParser(unittest.TestCase):
 			"[ \
 				{ \
 					\"data_id\": 1076, \
-					\"attributes\": \"22802\", \
+					\"attributes\": \"22902\", \
 					\"container_ids\": [ \
 						81 \
 					], \
@@ -1477,6 +1477,70 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual("For item {0} \"{1}\" with replacement command {2} \"{3}\", optional {4} element {5} \"{6}\" is not an item.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
 		self.assertEqual((1205, "paper", 6, "burn", "tool_id", 81, "Lighthouse"), validation_line.args)
+
+
+	def test_init_copyable_non_liquid(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1105, \
+					\"attributes\": \"802\", \
+					\"container_ids\": [ \
+						80 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"book\" \
+						], \
+						\"longname\": \"a book\", \
+						\"description\": \"a book of fairytales in English\", \
+						\"extended_descriptions\": [ \
+							\". It is open on a particular page\" \
+						] \
+					}, \
+					\"writing\": \"The Pied Piper of Hamelin\" \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Item {0} \"{1}\" has been specified as both copyable and non-liquid. This is not supported.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1105, "book"), validation_line.args)
+
+
+	def test_init_fragile_no_smash_transformation(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1017, \
+					\"attributes\": \"C203\", \
+					\"container_ids\": [ \
+						80 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"vial\" \
+						], \
+						\"longname\": \"a vial\", \
+						\"description\": \"a small glass vial\" \
+					} \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Item {0} \"{1}\" is fragile, but does not have a \"smash\" command replacement.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1017, "vial"), validation_line.args)
 
 
 if __name__ == "__main__":

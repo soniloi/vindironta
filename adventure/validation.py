@@ -19,6 +19,8 @@ class Message:
 	INVENTORY_MULTIPLE_DEFAULT = (Severity.ERROR, "Multiple default inventories found ({0}). Exactly one inventory must be marked as default.")
 	INVENTORY_NO_DEFAULT = (Severity.ERROR, "No default inventory found. Exactly one inventory must be marked as default.")
 	INVENTORY_NONE = (Severity.ERROR, "No inventories specified. At least one inventory must be given.")
+	ITEM_COPYABLE_NON_LIQUID = (Severity.ERROR, "Item {0} \"{1}\" has been specified as both copyable and non-liquid. This is not supported.")
+	ITEM_FRAGILE_NO_SMASH_TRANSFORMATION = (Severity.ERROR, "Item {0} \"{1}\" is fragile, but does not have a \"smash\" command replacement.")
 	ITEM_INVALID_RELATED_COMMAND = (Severity.ERROR, "Related command id {0} given for switchable item {1} \"{2}\" does not reference a valid command.")
 	ITEM_NO_SHORTNAMES = (Severity.ERROR, "No shortnames given for item with id {0}.")
 	ITEM_NON_SWITCHABLE_WITH_SWITCH_INFO = (Severity.WARN, "Switch info given for non-switchable item {0} \"{1}\". This switch info will not be used.")
