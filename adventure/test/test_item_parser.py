@@ -28,7 +28,7 @@ class TestItemParser(unittest.TestCase):
 			1112 : self.desk,
 		}
 
-		self.burn_command = Command(6, 0x0, 0x0, [], ["smash"],  {})
+		self.burn_command = Command(6, 0x0, 0x0, [], ["burn"],  {})
 		self.non_switching_command = Command(17, 0x0, 0x0, [], ["throw"],  {})
 		self.switching_command = Command(19, 0x200, 0x0, [], ["switch"],  {})
 		self.commands_by_id = {
@@ -1234,6 +1234,8 @@ class TestItemParser(unittest.TestCase):
 
 		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
+		paper = collection.item_lists_by_name["paper"][0]
+		self.assertFalse(paper.transformations)
 		self.assertEqual(1, len(validation))
 		validation_line = validation[0]
 		self.assertEqual("For item {0} \"{1}\", replacement command id {2} does not reference any known command.", validation_line.template)
@@ -1270,11 +1272,13 @@ class TestItemParser(unittest.TestCase):
 
 		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
+		paper = collection.item_lists_by_name["paper"][0]
+		self.assertFalse(paper.transformations)
 		self.assertEqual(1, len(validation))
 		validation_line = validation[0]
-		self.assertEqual("For item {0} \"{1}\" with replacement command {2} \"{3}\", replacement id {4} does not reference any known item.", validation_line.template)
+		self.assertEqual("For item {0} \"{1}\" with replacement command {2} \"{3}\", replacement id {4} does not reference any known element.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
-		self.assertEqual((1205, "paper", 6, "smash", 8888), validation_line.args)
+		self.assertEqual((1205, "paper", 6, "burn", 8888), validation_line.args)
 
 
 	def test_init_transformable_replacement_non_item(self):
@@ -1306,11 +1310,13 @@ class TestItemParser(unittest.TestCase):
 
 		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
+		paper = collection.item_lists_by_name["paper"][0]
+		self.assertFalse(paper.transformations)
 		self.assertEqual(1, len(validation))
 		validation_line = validation[0]
 		self.assertEqual("For item {0} \"{1}\" with replacement command {2} \"{3}\", replacement element {4} \"{5}\" is not an item.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
-		self.assertEqual((1205, "paper", 6, "smash", 81, "Lighthouse"), validation_line.args)
+		self.assertEqual((1205, "paper", 6, "burn", 81, "Lighthouse"), validation_line.args)
 
 
 	def test_init_transformable_replaced_mobile_replacement_non_mobile(self):
@@ -1342,11 +1348,14 @@ class TestItemParser(unittest.TestCase):
 
 		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
+		paper = collection.item_lists_by_name["paper"][0]
+		self.assertEqual(1, len(paper.transformations))
+		self.assertTrue(6 in paper.transformations)
 		self.assertEqual(1, len(validation))
 		validation_line = validation[0]
 		self.assertEqual("For item {0} \"{1}\" with replacement command {2} \"{3}\", the replaced item is mobile but the replacement item {4} \"{5}\" is not.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
-		self.assertEqual((1205, "paper", 6, "smash", 1112, "desk"), validation_line.args)
+		self.assertEqual((1205, "paper", 6, "burn", 1112, "desk"), validation_line.args)
 
 
 	def test_init_transformable_mobile_replacement_larger(self):
@@ -1378,11 +1387,14 @@ class TestItemParser(unittest.TestCase):
 
 		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
+		paper = collection.item_lists_by_name["paper"][0]
+		self.assertEqual(1, len(paper.transformations))
+		self.assertTrue(6 in paper.transformations)
 		self.assertEqual(1, len(validation))
 		validation_line = validation[0]
 		self.assertEqual("For item {0} \"{1}\" with replacement command {2} \"{3}\", the replaced item is mobile but the replacement item {4} \"{5}\" is larger than the item being replaced.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
-		self.assertEqual((1205, "paper", 6, "smash", 1108, "box"), validation_line.args)
+		self.assertEqual((1205, "paper", 6, "burn", 1108, "box"), validation_line.args)
 
 
 	def test_init_transformable_optional_unknown(self):
@@ -1415,11 +1427,15 @@ class TestItemParser(unittest.TestCase):
 
 		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
+		paper = collection.item_lists_by_name["paper"][0]
+		self.assertEqual(1, len(paper.transformations))
+		self.assertTrue(6 in paper.transformations)
+		self.assertFalse(paper.transformations[6].material)
 		self.assertEqual(1, len(validation))
 		validation_line = validation[0]
 		self.assertEqual("For item {0} \"{1}\" with replacement command {2} \"{3}\", optional field {4} {5} does not reference any known element.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
-		self.assertEqual((1205, "paper", 6, "smash", "material_id", 8888), validation_line.args)
+		self.assertEqual((1205, "paper", 6, "burn", "material_id", 8888), validation_line.args)
 
 
 	def test_init_transformable_optional_non_item(self):
@@ -1452,11 +1468,15 @@ class TestItemParser(unittest.TestCase):
 
 		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
 
+		paper = collection.item_lists_by_name["paper"][0]
+		self.assertEqual(1, len(paper.transformations))
+		self.assertTrue(6 in paper.transformations)
+		self.assertFalse(paper.transformations[6].tool)
 		self.assertEqual(1, len(validation))
 		validation_line = validation[0]
 		self.assertEqual("For item {0} \"{1}\" with replacement command {2} \"{3}\", optional {4} element {5} \"{6}\" is not an item.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
-		self.assertEqual((1205, "paper", 6, "smash", "tool_id", 81, "Lighthouse"), validation_line.args)
+		self.assertEqual((1205, "paper", 6, "burn", "tool_id", 81, "Lighthouse"), validation_line.args)
 
 
 if __name__ == "__main__":

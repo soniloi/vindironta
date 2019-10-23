@@ -280,7 +280,7 @@ class ItemParser:
 
 	def resolve_transformation(self, transformed_item, command_id, transformation_info, elements_by_id, commands_by_id, validation):
 		if not command_id in commands_by_id:
-			validation.append(Message(Message.ITEM_TRANSFORMATION_UNKNOWN_COMMAND_ID, (transformed_item.data_id,
+			validation.append(Message(Message.ITEM_TRANSFORMATION_COMMAND_UNKNOWN, (transformed_item.data_id,
 				transformed_item.shortname, command_id)))
 			return
 		command = commands_by_id[command_id]
@@ -290,7 +290,7 @@ class ItemParser:
 	def resolve_transformation_command(self, transformed_item, command, transformation_info, elements_by_id, validation):
 		replacement_id = transformation_info.replacement_id
 		if not replacement_id in elements_by_id:
-			validation.append(Message(Message.ITEM_TRANSFORMATION_UNKNOWN_REPLACEMENT_ID,
+			validation.append(Message(Message.ITEM_TRANSFORMATION_REPLACEMENT_UNKNOWN,
 				(transformed_item.data_id, transformed_item.shortname, command.data_id, command.primary, replacement_id)))
 			return
 		replacement = elements_by_id[replacement_id]
