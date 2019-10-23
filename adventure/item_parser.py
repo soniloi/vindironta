@@ -312,6 +312,24 @@ class ItemParser:
 				validation.append(Message(Message.ITEM_TRANSFORMATION_REPLACEMENT_TOO_LARGE,
 					(transformed_item.data_id, transformed_item.shortname, command.data_id, command.primary,
 					replacement.data_id, replacement.shortname)))
-		tool = elements_by_id.get(transformation_info.tool_id)
-		material = elements_by_id.get(transformation_info.material_id)
+		tool = self.resolve_transformation_optional_item(transformed_item, command, elements_by_id, transformation_info.tool_id, "tool_id", validation)
+		material = self.resolve_transformation_optional_item(transformed_item, command, elements_by_id, transformation_info.material_id, "material_id", validation)
 		transformed_item.transformations[command.data_id] = Transformation(replacement=replacement, tool=tool, material=material)
+
+
+	def resolve_transformation_optional_item(self, transformed_item, command, elements_by_id, item_id, field, validation):
+		if not item_id:
+			return None
+
+		if not item_id in elements_by_id:
+			validation.append(Message(Message.ITEM_TRANSFORMATION_OPTIONAL_UNKNOWN, (transformed_item.data_id,
+				transformed_item.shortname, command.data_id, command.primary, field, item_id)))
+			return None
+
+		element = elements_by_id[item_id]
+		if not isinstance(element, Item):
+			validation.append(Message(Message.ITEM_TRANSFORMATION_OPTIONAL_NON_ITEM, (transformed_item.data_id,
+				transformed_item.shortname, command.data_id, command.primary, field, item_id, element.shortname)))
+			return None
+
+		return element
