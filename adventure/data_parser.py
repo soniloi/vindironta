@@ -15,6 +15,7 @@ from adventure.life_resolver import LifeResolver
 from adventure.location_parser import LocationParser
 from adventure.player import Player
 from adventure.player_parser import PlayerParser
+from adventure.post_parse_validator import PostParseValidator
 from adventure.resolvers import Resolvers
 from adventure.text_parser import TextParser
 from adventure.vision_resolver import VisionResolver
@@ -96,7 +97,6 @@ class DataParser:
 			inputs=inputs,
 			events=events,
 		)
-		validation = command_validation + location_validation + inventory_validation + item_validation
 
 		player = PlayerParser().parse(
 			content_input["players"],
@@ -104,5 +104,9 @@ class DataParser:
 			inventories.get_default(),
 			inventories.get_all(),
 		)
+
+		parse_validation = command_validation + location_validation + inventory_validation + item_validation
+		post_parse_validation = PostParseValidator().validate(data)
+		validation = parse_validation + post_parse_validation
 
 		return data, player, validation
