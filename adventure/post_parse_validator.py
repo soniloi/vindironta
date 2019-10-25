@@ -10,10 +10,10 @@ class PostParseValidator:
 		return command_validation + inventory_validation + location_validation + item_validation
 
 
-	def validate_commands(self, commands):
+	def validate_commands(self, command_collection):
 		validation = []
 
-		for command in commands.commands_by_id.values():
+		for command in command_collection.commands_by_id.values():
 			self.validate_command_teleport(command, validation)
 			self.validate_command_switchable(command, validation)
 
@@ -36,13 +36,25 @@ class PostParseValidator:
 			validation.append(Message(Message.COMMAND_NON_SWITCHABLE_WITH_SWITCH_INFO, (command.data_id, command.primary)))
 
 
-	def validate_inventories(self, inventories):
+	def validate_inventories(self, inventory_collection):
+		validation = []
+
+		inventories = inventory_collection.inventories
+		if len(inventories) < 1:
+			validation.append(Message(Message.INVENTORY_NONE, ()))
+		else:
+			default_inventory_ids = [inventory.data_id for inventory in inventories.values() if inventory.is_default()]
+			if len(default_inventory_ids) < 1:
+				validation.append(Message(Message.INVENTORY_NO_DEFAULT, ()))
+			elif len(default_inventory_ids) > 1:
+				validation.append(Message(Message.INVENTORY_MULTIPLE_DEFAULT, (default_inventory_ids,)))
+
+		return validation
+
+
+	def validate_locations(self, location_collection):
 		return []
 
 
-	def validate_locations(self, locations):
-		return []
-
-
-	def validate_items(self, items):
+	def validate_items(self, item_collection):
 		return []
