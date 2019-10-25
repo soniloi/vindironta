@@ -1,3 +1,5 @@
+from adventure.validation import Message, Severity
+
 class PostParseValidator:
 
 	def validate(self, data):
@@ -9,7 +11,16 @@ class PostParseValidator:
 
 
 	def validate_commands(self, commands):
-		return []
+		validation = []
+
+		for command in commands.commands_by_id.values():
+			if command.is_teleport():
+				if not command.teleport_info:
+					validation.append(Message(Message.COMMAND_TELEPORT_NO_TELEPORT_INFO, (command.data_id, command.primary)))
+			elif command.teleport_info:
+				validation.append(Message(Message.COMMAND_NON_TELEPORT_WITH_TELEPORT_INFO, (command.data_id, command.primary)))
+
+		return validation
 
 
 	def validate_inventories(self, inventories):

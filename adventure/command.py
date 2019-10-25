@@ -22,6 +22,10 @@ class Command(DataElement):
 		self.teleport_info = {}
 
 
+	def is_teleport(self):
+		return self.has_attribute(Command.ATTRIBUTE_TELEPORT)
+
+
 	def verb_is_first_arg(self):
 		return self.has_attribute(Command.ATTRIBUTE_VERB_IS_FIRST_ARG)
 
