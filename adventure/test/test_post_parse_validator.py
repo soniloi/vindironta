@@ -126,9 +126,9 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual((), validation_line.args)
 
 
-	def test_init_no_default_specified(self):
+	def test_validate_inventory_no_default(self):
 		self.inventories_by_id.clear()
-		self.inventories_by_id[1] = Inventory(1, 0x0, Labels("Special Inventory", "in the special inventory", ", where items live sometimes."), 3)
+		self.inventories_by_id[1] = Inventory(1, 0x0, Labels("Special Inventory", "in the special inventory", ", where items live sometimes."), 3, [12])
 
 		validation = self.validator.validate(self.data_collection)
 
@@ -140,7 +140,7 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual((), validation_line.args)
 
 
-	def test_init_multiple_defaults_specified(self):
+	def test_validate_inventory_multiple_defaults(self):
 		self.inventories_by_id[1] = Inventory(1, 0x1, Labels("Special Inventory", "in the special inventory", ", where items live sometimes."), 3)
 
 		validation = self.validator.validate(self.data_collection)
@@ -151,6 +151,33 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual("Multiple default inventories found ({0}). Exactly one inventory must be marked as default.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
 		self.assertEqual(([0, 1],), validation_line.args)
+
+
+	def test_validate_inventory_default_with_locations(self):
+		self.inventories_by_id.clear()
+		self.inventories_by_id[1] = Inventory(0, 0x1, Labels("Main Inventory", "in the main inventory", ", where items live usually."), 3, [12])
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(self.inventories_by_id))
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual( "Default inventory {0} \"{1}\" has location ids specified. This is redundant.", validation_line.template)
+		self.assertEqual(Severity.WARN, validation_line.severity)
+		self.assertEqual((0, "Main Inventory"), validation_line.args)
+
+
+	def test_validate_inventory_non_default_no_locations(self):
+		self.inventories_by_id[1] = Inventory(1, 0x0, Labels("Special Inventory", "in the special inventory", ", where items live sometimes."), 3)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(2, len(self.inventories_by_id))
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Non-default inventory {0} \"{1}\" has no location ids specified. It will not be used anywhere.", validation_line.template)
+		self.assertEqual(Severity.WARN, validation_line.severity)
+		self.assertEqual((1, "Special Inventory"), validation_line.args)
 
 
 if __name__ == "__main__":

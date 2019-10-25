@@ -43,13 +43,28 @@ class PostParseValidator:
 		if len(inventories) < 1:
 			validation.append(Message(Message.INVENTORY_NONE, ()))
 		else:
-			default_inventory_ids = [inventory.data_id for inventory in inventories.values() if inventory.is_default()]
-			if len(default_inventory_ids) < 1:
-				validation.append(Message(Message.INVENTORY_NO_DEFAULT, ()))
-			elif len(default_inventory_ids) > 1:
-				validation.append(Message(Message.INVENTORY_MULTIPLE_DEFAULT, (default_inventory_ids,)))
+			self.validate_inventories_default(inventories, validation)
+			self.validate_inventories_non_default(inventories, validation)
 
 		return validation
+
+
+	def validate_inventories_default(self, inventories, validation):
+		default_inventories = [inventory for inventory in inventories.values() if inventory.is_default()]
+		if len(default_inventories) < 1:
+			validation.append(Message(Message.INVENTORY_NO_DEFAULT, ()))
+		elif len(default_inventories) > 1:
+			validation.append(Message(Message.INVENTORY_MULTIPLE_DEFAULT, ([inventory.data_id for inventory in default_inventories],)))
+		for inventory in default_inventories:
+			if inventory.location_ids:
+				validation.append(Message(Message.INVENTORY_DEFAULT_WITH_LOCATIONS, (inventory.data_id, inventory.shortname)))
+
+
+	def validate_inventories_non_default(self, inventories, validation):
+		non_default_inventories = [inventory for inventory in inventories.values() if not inventory.is_default()]
+		for inventory in non_default_inventories:
+			if not inventory.location_ids:
+				validation.append(Message(Message.INVENTORY_NON_DEFAULT_NO_LOCATIONS, (inventory.data_id, inventory.shortname)))
 
 
 	def validate_locations(self, location_collection):
