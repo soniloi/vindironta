@@ -34,6 +34,10 @@ class Command(DataElement):
 		return self.has_attribute(Command.ATTRIBUTE_SECRET)
 
 
+	def is_switchable(self):
+		return self.has_attribute(Command.ATTRIBUTE_SWITCHABLE)
+
+
 	def is_switching(self):
 		return self.has_attribute(Command.ATTRIBUTE_SWITCHING)
 

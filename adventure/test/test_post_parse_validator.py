@@ -39,7 +39,7 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertFalse(validation)
 
 
-	def test_validate_teleport_no_teleport_info(self):
+	def test_validate_command_teleport_no_teleport_info(self):
 		self.commands_by_id[51] = Command(51, 0x2, [], [], ["teleport"],  {})
 
 		validation = self.validator.validate(self.data_collection)
@@ -51,7 +51,7 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual((51, "teleport"), validation_line.args)
 
 
-	def test_validate_non_teleport_with_teleport_info(self):
+	def test_validate_command_non_teleport_with_teleport_info(self):
 		take_command = Command(56, 0x0, [], [], ["take", "t"],  {})
 		self.commands_by_id[56] = take_command
 		take_command.teleport_info[6] = self.lighthouse_location
@@ -61,6 +61,31 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual(1, len(validation))
 		validation_line = validation[0]
 		self.assertEqual("Command {0} \"{1}\" is not a teleport command, but teleport info has been given. This teleport info will be ignored.", validation_line.template)
+		self.assertEqual(Severity.WARN, validation_line.severity)
+		self.assertEqual((56, "take"), validation_line.args)
+
+
+	def test_validate_command_switchable_no_switch_info(self):
+		self.commands_by_id[63] = Command(63, 0x100, [], [], ["verbose"], {})
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Command {0} \"{1}\" is a switchable command, but no switch info has been given.", validation_line.template)
+		self.assertEqual(Severity.WARN, validation_line.severity)
+		self.assertEqual((63, "verbose"), validation_line.args)
+
+
+	def test_validate_command_non_switchable_with_switch_info(self):
+		switch_info = {"off" : False, "on" : True}
+		self.commands_by_id[56] = Command(56, 0x0, [], [], ["take", "t"],  switch_info)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Command {0} \"{1}\" is not a switchable command, but switch info has been given. This switch info will be ignored.", validation_line.template)
 		self.assertEqual(Severity.WARN, validation_line.severity)
 		self.assertEqual((56, "take"), validation_line.args)
 

@@ -7,10 +7,12 @@ class Severity(Enum):
 
 class Message:
 
+	COMMAND_NON_SWITCHABLE_WITH_SWITCH_INFO = (Severity.WARN, "Command {0} \"{1}\" is not a switchable command, but switch info has been given. This switch info will be ignored.")
 	COMMAND_NON_TELEPORT_WITH_TELEPORT_INFO = (Severity.WARN, "Command {0} \"{1}\" is not a teleport command, but teleport info has been given. This teleport info will be ignored.")
 	COMMAND_SHARED_ALIAS_DIFFERENT_COMMANDS = (Severity.ERROR, "Multiple commands found with alias \"{0}\". Alias will map to command {1} \"{2}\".")
 	COMMAND_SHARED_ALIAS_SAME_COMMAND = (Severity.WARN, "Alias \"{0}\" given twice for command {1} \"{2}\".")
 	COMMAND_SHARED_ID = (Severity.ERROR, "Multiple commands found with id {0}. Alias will map to command with primary alias \"{1}\".")
+	COMMAND_SWITCHABLE_NO_SWITCH_INFO = (Severity.WARN, "Command {0} \"{1}\" is a switchable command, but no switch info has been given.")
 	COMMAND_TELEPORT_NO_TELEPORT_INFO = (Severity.WARN, "Command {0} \"{1}\" is a teleport command, but no teleport info has been given. No teleports will be possible.")
 	COMMAND_TELEPORT_SHARED_SOURCES = (Severity.WARN, "Multiple destinations found for source {0} in teleport command {1} \"{2}\". Destination with id {3} will be its destination.")
 	COMMAND_TELEPORT_SOURCE_DESTINATION_SAME = (Severity.WARN, "Source id and destination id {0} are the same for teleport command {1} \"{2}\".")
