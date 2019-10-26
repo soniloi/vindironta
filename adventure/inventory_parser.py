@@ -5,14 +5,6 @@ from adventure.validation import Message, Severity
 
 class InventoryParser:
 
-	INDEX_ID = 0
-	INDEX_ATTRIBUTES = 1
-	INDEX_SHORTNAME = 2
-	INDEX_LONGNAME = 3
-	INDEX_DESCRIPTION = 4
-	INDEX_CAPACITY = 5
-	INDEX_LOCATIONS = 6
-
 	def parse(self, inventory_inputs):
 		inventories, validation = self.parse_inventories(inventory_inputs)
 		return InventoryCollection(inventories), validation

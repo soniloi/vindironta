@@ -125,7 +125,6 @@ class TestTokenProcessor(unittest.TestCase):
 		self.player.increment_instructions.assert_called_once()
 
 
-
 	def test_process_tokens_command_known_not_noun_as_verb(self):
 		self.player.get_current_command.return_value = None
 		self.command_runner.run.return_value = "Done."
