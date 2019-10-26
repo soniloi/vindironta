@@ -7,6 +7,7 @@ from adventure.inventory import Inventory
 from adventure.inventory_collection import InventoryCollection
 from adventure.element import Labels
 from adventure.location import Location
+from adventure.location_collection import LocationCollection
 from adventure.post_parse_validator import PostParseValidator
 from adventure.validation import Severity
 
@@ -20,7 +21,7 @@ class TestPostParseValidator(unittest.TestCase):
 		self.data_collection = DataCollection(
 			commands=self.command_collection,
 			inventories=self.inventory_collection,
-			locations=None,
+			locations=self.location_collection,
 			elements_by_id=None,
 			items=None,
 			item_related_commands=None,
@@ -47,6 +48,9 @@ class TestPostParseValidator(unittest.TestCase):
 
 	def setup_locations(self):
 		self.lighthouse_location = Location(12, 0x603, Labels("Lighthouse", "at a lighthouse", " by the sea."))
+		self.locations_by_id = {}
+		self.locations_by_id[12] = self.lighthouse_location
+		self.location_collection = LocationCollection(self.locations_by_id)
 
 
 	def setup_items(self):
@@ -178,6 +182,19 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual("Non-default inventory {0} \"{1}\" has no location ids specified. It will not be used anywhere.", validation_line.template)
 		self.assertEqual(Severity.WARN, validation_line.severity)
 		self.assertEqual((1, "Special Inventory"), validation_line.args)
+
+
+	def test_validate_inventory_non_default_unknown_location(self):
+		self.inventories_by_id[1] = Inventory(1, 0x0, Labels("Special Inventory", "in the special inventory", ", where items live sometimes."), 3, [888])
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(2, len(self.inventories_by_id))
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Non-default inventory {0} \"{1}\" references location with id {2}, but this does not reference a valid location.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1, "Special Inventory", 888), validation_line.args)
 
 
 if __name__ == "__main__":

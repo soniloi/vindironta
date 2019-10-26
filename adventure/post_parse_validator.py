@@ -4,7 +4,7 @@ class PostParseValidator:
 
 	def validate(self, data):
 		command_validation = self.validate_commands(data.commands)
-		inventory_validation = self.validate_inventories(data.inventories)
+		inventory_validation = self.validate_inventories(data.inventories, data.locations)
 		location_validation = self.validate_locations(data.locations)
 		item_validation = self.validate_items(data.items)
 		return command_validation + inventory_validation + location_validation + item_validation
@@ -36,7 +36,7 @@ class PostParseValidator:
 			validation.append(Message(Message.COMMAND_NON_SWITCHABLE_WITH_SWITCH_INFO, (command.data_id, command.primary)))
 
 
-	def validate_inventories(self, inventory_collection):
+	def validate_inventories(self, inventory_collection, location_collection):
 		validation = []
 
 		inventories = inventory_collection.inventories
@@ -44,7 +44,7 @@ class PostParseValidator:
 			validation.append(Message(Message.INVENTORY_NONE, ()))
 		else:
 			self.validate_inventories_default(inventories, validation)
-			self.validate_inventories_non_default(inventories, validation)
+			self.validate_inventories_non_default(inventories, location_collection.locations.keys(), validation)
 
 		return validation
 
@@ -60,11 +60,15 @@ class PostParseValidator:
 				validation.append(Message(Message.INVENTORY_DEFAULT_WITH_LOCATIONS, (inventory.data_id, inventory.shortname)))
 
 
-	def validate_inventories_non_default(self, inventories, validation):
+	def validate_inventories_non_default(self, inventories, location_ids, validation):
 		non_default_inventories = [inventory for inventory in inventories.values() if not inventory.is_default()]
 		for inventory in non_default_inventories:
 			if not inventory.location_ids:
 				validation.append(Message(Message.INVENTORY_NON_DEFAULT_NO_LOCATIONS, (inventory.data_id, inventory.shortname)))
+			else:
+				for location_id in inventory.location_ids:
+					if not location_id in location_ids:
+						validation.append(Message(Message.INVENTORY_NON_DEFAULT_UNKNOWN_LOCATION, (inventory.data_id, inventory.shortname, location_id)))
 
 
 	def validate_locations(self, location_collection):
