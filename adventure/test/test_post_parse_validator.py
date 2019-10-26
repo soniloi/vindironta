@@ -197,5 +197,32 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual((1, "Special Inventory", 888), validation_line.args)
 
 
+	def test_validate_inventory_non_default_duplicate_location(self):
+		self.inventories_by_id[1] = Inventory(1, 0x0, Labels("Special Inventory", "in the special inventory", ", where items live sometimes."), 3, [12, 12])
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(2, len(self.inventories_by_id))
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Non-default inventory {0} \"{1}\" references location with id {2} multiple times.", validation_line.template)
+		self.assertEqual(Severity.WARN, validation_line.severity)
+		self.assertEqual((1, "Special Inventory", 12), validation_line.args)
+
+
+	def test_validate_inventory_non_default_shared_location(self):
+		self.inventories_by_id[1] = Inventory(1, 0x0, Labels("Special Inventory", "in the special inventory", ", where items live sometimes."), 3, [12])
+		self.inventories_by_id[2] = Inventory(2, 0x0, Labels("Occasional Inventory", "in the occasional inventory", ", where items live occasionally."), 3, [12])
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(3, len(self.inventories_by_id))
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Non-default inventory {0} \"{1}\" references location with id {2}, but this location is referenced by at least one other inventory.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((2, "Occasional Inventory", 12), validation_line.args)
+
+
 if __name__ == "__main__":
 	unittest.main()

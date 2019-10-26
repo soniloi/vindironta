@@ -62,6 +62,7 @@ class PostParseValidator:
 
 	def validate_inventories_non_default(self, inventories, location_ids, validation):
 		non_default_inventories = [inventory for inventory in inventories.values() if not inventory.is_default()]
+		referenced_locations = {}
 		for inventory in non_default_inventories:
 			if not inventory.location_ids:
 				validation.append(Message(Message.INVENTORY_NON_DEFAULT_NO_LOCATIONS, (inventory.data_id, inventory.shortname)))
@@ -69,6 +70,13 @@ class PostParseValidator:
 				for location_id in inventory.location_ids:
 					if not location_id in location_ids:
 						validation.append(Message(Message.INVENTORY_NON_DEFAULT_UNKNOWN_LOCATION, (inventory.data_id, inventory.shortname, location_id)))
+					elif location_id in referenced_locations:
+						if referenced_locations[location_id] is inventory:
+							validation.append(Message(Message.INVENTORY_NON_DEFAULT_DUPLICATE_LOCATION, (inventory.data_id, inventory.shortname, location_id)))
+						else:
+							validation.append(Message(Message.INVENTORY_NON_DEFAULT_SHARED_LOCATION, (inventory.data_id, inventory.shortname, location_id)))
+					else:
+						referenced_locations[location_id] = inventory
 
 
 	def validate_locations(self, location_collection):
