@@ -3,6 +3,7 @@ import unittest
 from adventure.command import Command
 from adventure.command_collection import CommandCollection
 from adventure.data_collection import DataCollection
+from adventure.direction import Direction
 from adventure.inventory import Inventory
 from adventure.inventory_collection import InventoryCollection
 from adventure.element import Labels
@@ -222,6 +223,33 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual("Non-default inventory {0} \"{1}\" references location with id {2}, but this location is referenced by at least one other inventory.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
 		self.assertEqual((2, "Occasional Inventory", 12), validation_line.args)
+
+
+	def test_validate_location_no_floor_no_down(self):
+		self.locations_by_id[17] = Location(17, 0x50F, Labels("Precipice", "on a precipice", ", high in the air"))
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Location {0} has no floor, but does not specify a link in direction {1}.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((17, "DOWN"), validation_line.args)
+
+
+	def test_validate_location_no_land_no_floor(self):
+		mid_air_location = Location(19, 0x10F, Labels("Mid-air", "in mid-air", "; you are not sure how high"))
+		mid_air_location.directions[Direction.DOWN] = self.lighthouse_location
+		self.locations_by_id[19] = mid_air_location
+
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Location {0} has no land, but also no floor. Locations without land must have a floor.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((19,), validation_line.args)
 
 
 if __name__ == "__main__":

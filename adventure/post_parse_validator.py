@@ -1,3 +1,4 @@
+from adventure.direction import Direction
 from adventure.validation import Message, Severity
 
 class PostParseValidator:
@@ -79,8 +80,20 @@ class PostParseValidator:
 						referenced_locations[location_id] = inventory
 
 
-	def validate_locations(self, location_collection):
-		return []
+	def validate_locations(self, location_collection,):
+		validation = []
+
+		for location in location_collection.locations.values():
+			self.validate_location_attributes(location, validation)
+
+		return validation
+
+
+	def validate_location_attributes(self, location, validation):
+		if not location.has_floor() and not location.get_adjacent_location(Direction.DOWN):
+			validation.append(Message(Message.LOCATION_NO_FLOOR_NO_DOWN, (location.data_id, Direction.DOWN.name)))
+		if not location.has_land() and not location.has_floor():
+			validation.append(Message(Message.LOCATION_NO_LAND_NO_FLOOR, (location.data_id,)))
 
 
 	def validate_items(self, item_collection):
