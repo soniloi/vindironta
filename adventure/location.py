@@ -110,6 +110,10 @@ class Location(NamedDataElement, ItemContainer):
 		return [item for item in self.items if item.is_obstruction()]
 
 
+	def count_collectibles(self):
+		return sum(1 for item in self.items if item.is_collectible())
+
+
 	def can_reach(self, other_location):
 		return any(direction == other_location for direction in self.directions.values())
 

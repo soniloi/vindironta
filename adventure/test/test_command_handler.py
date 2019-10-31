@@ -1235,18 +1235,20 @@ class TestCommandHandler(unittest.TestCase):
 
 	def test_handle_score_zero(self):
 		self.data.get_puzzle_count.return_value = 17
+		self.data.get_collectible_count.return_value = 29
 
 		success, template_keys, content_args, next_args = self.handler.handle_score(self.command, self.player)
 
 		self.assertTrue(success)
 		self.assertEqual(["describe_score"], template_keys)
-		self.assertEqual([0, 119, 6], content_args)
+		self.assertEqual([0, 264, 6], content_args)
 		self.assertEqual([], next_args)
 		self.assertEqual(6, self.player.instructions)
 
 
 	def test_handle_score_with_puzzles_solved(self):
 		self.data.get_puzzle_count.return_value = 17
+		self.data.get_collectible_count.return_value = 29
 		self.player.solve_puzzle(Mock())
 		self.player.solve_puzzle(Mock())
 
@@ -1254,7 +1256,41 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.assertTrue(success)
 		self.assertEqual(["describe_score"], template_keys)
-		self.assertEqual([14, 119, 6], content_args)
+		self.assertEqual([14, 264, 6], content_args)
+		self.assertEqual([], next_args)
+		self.assertEqual(6, self.player.instructions)
+
+
+	def test_handle_score_with_collectibles_solved(self):
+		self.data.get_puzzle_count.return_value = 17
+		self.data.get_collectible_count.return_value = 29
+		self.cave_location.insert(Item(2222, 0x8002, Labels("nugget", "a gold nugget", "; it is shiny"), 2, None))
+		self.cave_location.insert(Item(2223, 0x8002, Labels("medal", "a silver medal", "; it is beautiful"), 2, None))
+		self.cave_location.insert(Item(2224, 0x8002, Labels("statue", "a bronze statue", "; it is heavy"), 2, None))
+
+		success, template_keys, content_args, next_args = self.handler.handle_score(self.command, self.player)
+
+		self.assertTrue(success)
+		self.assertEqual(["describe_score"], template_keys)
+		self.assertEqual([15, 264, 6], content_args)
+		self.assertEqual([], next_args)
+		self.assertEqual(6, self.player.instructions)
+
+
+	def test_handle_score_with_puzzles_and_collectibles_solved(self):
+		self.data.get_puzzle_count.return_value = 17
+		self.data.get_collectible_count.return_value = 29
+		self.player.solve_puzzle(Mock())
+		self.player.solve_puzzle(Mock())
+		self.cave_location.insert(Item(2222, 0x8002, Labels("nugget", "a gold nugget", "; it is shiny"), 2, None))
+		self.cave_location.insert(Item(2223, 0x8002, Labels("medal", "a silver medal", "; it is beautiful"), 2, None))
+		self.cave_location.insert(Item(2224, 0x8002, Labels("statue", "a bronze statue", "; it is heavy"), 2, None))
+
+		success, template_keys, content_args, next_args = self.handler.handle_score(self.command, self.player)
+
+		self.assertTrue(success)
+		self.assertEqual(["describe_score"], template_keys)
+		self.assertEqual([29, 264, 6], content_args)
 		self.assertEqual([], next_args)
 		self.assertEqual(6, self.player.instructions)
 

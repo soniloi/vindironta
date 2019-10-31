@@ -4,8 +4,9 @@ from adventure.resolver import Resolver
 
 class CommandHandler(Resolver):
 
-	# TODO: find a place for this
+	# TODO: find a place for these
 	POINTS_PER_PUZZLE = 7
+	POINTS_PER_COLLECTIBLE = 5
 
 	def handle_burn(self, command, player, item):
 		if not item.is_burnable():
@@ -419,8 +420,10 @@ class CommandHandler(Resolver):
 
 	def handle_score(self, command, player):
 		player.decrement_instructions()
-		current_score = player.count_solved_puzzles() * CommandHandler.POINTS_PER_PUZZLE
-		maximum_score = self.data.get_puzzle_count() * CommandHandler.POINTS_PER_PUZZLE
+		current_score = (player.count_solved_puzzles() * CommandHandler.POINTS_PER_PUZZLE +
+			player.count_solved_collectibles() * CommandHandler.POINTS_PER_COLLECTIBLE)
+		maximum_score = (self.data.get_puzzle_count() * CommandHandler.POINTS_PER_PUZZLE +
+			self.data.get_collectible_count() * CommandHandler.POINTS_PER_COLLECTIBLE)
 		current_instructions = player.instructions
 		return True, ["describe_score"], [current_score, maximum_score, current_instructions], []
 

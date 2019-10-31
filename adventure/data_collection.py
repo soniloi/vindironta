@@ -69,3 +69,7 @@ class DataCollection:
 
 	def get_puzzle_count(self):
 		return self.events.puzzle_count
+
+
+	def get_collectible_count(self):
+		return self.items.collectible_count

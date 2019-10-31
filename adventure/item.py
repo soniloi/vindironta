@@ -22,6 +22,7 @@ class Item(NamedDataElement):
 	ATTRIBUTE_STRONG = 0x1000
 	ATTRIBUTE_EDIBLE = 0x2000
 	ATTRIBUTE_FRAGILE = 0x4000
+	ATTRIBUTE_COLLECTIBLE = 0x8000
 	ATTRIBUTE_SAILABLE = 0x10000
 	ATTRIBUTE_SILENT = 0x20000
 	ATTRIBUTE_GIVES_LAND = 0x40000
@@ -198,6 +199,10 @@ class Item(NamedDataElement):
 
 	def is_fragile(self):
 		return self.has_attribute(Item.ATTRIBUTE_FRAGILE)
+
+
+	def is_collectible(self):
+		return self.has_attribute(Item.ATTRIBUTE_COLLECTIBLE)
 
 
 	def is_sailable(self):
