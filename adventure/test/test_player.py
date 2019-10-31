@@ -12,7 +12,7 @@ class TestPlayer(unittest.TestCase):
 		self.beach_location = Location(13, 0x603, Labels("Beach", "on a beach", " of black sand"))
 		self.cave_location = Location(9, 0x402, Labels("Cave", "in a cave", ". It is dark"))
 		self.inventory = Inventory(0, 0x1, Labels("Main Inventory", "in the main inventory", ", where items live usually."), 13)
-		self.player = Player(1, 0x3, self.lighthouse_location, self.beach_location, self.inventory)
+		self.player = Player(1, 0x3, self.lighthouse_location, self.beach_location, self.cave_location, self.inventory)
 
 
 	def test_reincarnate(self):

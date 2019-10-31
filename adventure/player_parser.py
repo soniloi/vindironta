@@ -17,8 +17,10 @@ class PlayerParser:
 		attributes = int(player_input["attributes"], 16)
 		location_id = player_input["location_id"]
 		reincarnation_location_id = player_input["reincarnation_location_id"]
+		collectible_location_id = player_input["collectible_location_id"]
 		location = locations[location_id]
 		reincarnation_location = locations[reincarnation_location_id]
+		collectible_location = locations[collectible_location_id]
 		default_inventory, inventories_by_location_id = self.create_player_inventories(default_inventory_template, inventory_templates)
 
 		return Player(
@@ -26,6 +28,7 @@ class PlayerParser:
 			attributes=attributes,
 			initial_location=location,
 			reincarnation_location=reincarnation_location,
+			collectible_location=collectible_location,
 			default_inventory=default_inventory,
 			inventories_by_location_id=inventories_by_location_id,
 		)

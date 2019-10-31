@@ -14,9 +14,7 @@ class TestCommandHandler(unittest.TestCase):
 
 	def setUp(self):
 		self.setup_data()
-
 		self.setup_player()
-
 		self.command = Command(0, 0x0, 0x0, [], [""],  {})
 		self.handler = CommandHandler()
 		self.handler.init_data(self.data)
@@ -111,7 +109,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def setup_player(self):
-		self.player = Player(9000, 0x3, self.lighthouse_location, self.lighthouse_location, self.default_inventory)
+		self.player = Player(9000, 0x3, self.lighthouse_location, self.lighthouse_location, self.cave_location, self.default_inventory)
 		self.player.instructions = 7
 
 
