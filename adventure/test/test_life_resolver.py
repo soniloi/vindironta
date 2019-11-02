@@ -20,14 +20,15 @@ class TestLifeResolver(unittest.TestCase):
 		self.command = Command(150, 0x0, [], [], ["do"], {})
 		self.inventory = Mock()
 		self.player_location = Mock()
-		self.drop_location = Mock()
+		self.essential_drop_location = Mock()
+		self.non_essential_drop_location = Mock()
 		self.collectible_location = Mock()
 		self.book = Mock()
 
 
 	def setup_player(self):
-		self.player = Player(1, 0x3, self.player_location, self.player_location, self.player_location, self.collectible_location, self.inventory)
-		self.player.drop_location = self.drop_location
+		self.player = Player(1, 0x3, self.player_location, self.essential_drop_location, self.player_location, self.collectible_location, self.inventory)
+		self.player.drop_location = self.non_essential_drop_location
 		self.player.set_immune(False)
 
 
@@ -40,8 +41,8 @@ class TestLifeResolver(unittest.TestCase):
 
 		self.assertEqual((False, ["death_no_air", "describe_dead", "describe_reincarnation"], [], []), response)
 		self.assertFalse(self.player.is_alive())
-		self.inventory.drop_all_items.assert_called_once_with(self.drop_location)
-		self.assertIs(self.drop_location, self.player.drop_location)
+		self.inventory.drop_all_items.assert_called_once_with(self.non_essential_drop_location, self.essential_drop_location)
+		self.assertIs(self.non_essential_drop_location, self.player.drop_location)
 
 
 	def test_resolve_life_player_has_no_air_immune(self):
@@ -69,8 +70,8 @@ class TestLifeResolver(unittest.TestCase):
 
 		self.assertEqual((False, ["death_no_land", "describe_dead", "describe_reincarnation"], [], []), response)
 		self.assertFalse(self.player.is_alive())
-		self.inventory.drop_all_items.assert_called_once_with(self.drop_location)
-		self.assertIs(self.drop_location, self.player.drop_location)
+		self.inventory.drop_all_items.assert_called_once_with(self.non_essential_drop_location, self.essential_drop_location)
+		self.assertIs(self.non_essential_drop_location, self.player.drop_location)
 
 
 	def test_resolve_life_player_has_no_land_immune(self):
@@ -100,8 +101,8 @@ class TestLifeResolver(unittest.TestCase):
 
 		self.assertEqual((False, ["death_untethered", "describe_dead", "describe_reincarnation"], [], []), response)
 		self.assertFalse(self.player.is_alive())
-		self.inventory.drop_all_items.assert_called_once_with(self.drop_location)
-		self.assertIs(self.drop_location, self.player.drop_location)
+		self.inventory.drop_all_items.assert_called_once_with(self.non_essential_drop_location, self.essential_drop_location)
+		self.assertIs(self.non_essential_drop_location, self.player.drop_location)
 
 
 	def test_resolve_life_player_has_no_tether_immune(self):
@@ -129,7 +130,7 @@ class TestLifeResolver(unittest.TestCase):
 
 		self.assertEqual((False, ["describe_dead", "describe_reincarnation"], [], []), response)
 		self.assertFalse(self.player.is_alive())
-		self.assertIs(self.drop_location, self.player.drop_location)
+		self.assertIs(self.non_essential_drop_location, self.player.drop_location)
 
 
 	def test_resolve_life_player_does_not_die(self):

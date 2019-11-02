@@ -1,4 +1,5 @@
 from adventure.element import Labels, NamedDataElement
+from adventure.item import Item
 from adventure.item_container import ItemContainer
 
 class Inventory(NamedDataElement, ItemContainer):
@@ -36,7 +37,10 @@ class Inventory(NamedDataElement, ItemContainer):
 		return sum(item.get_weight() for item in self.items)
 
 
-	def drop_all_items(self, location):
+	def drop_all_items(self, non_essential_location, essential_location):
 		for item in self.items:
-			location.insert(item)
+			if item.is_essential():
+				essential_location.insert(item)
+			else:
+				non_essential_location.insert(item)
 		self.items.clear()

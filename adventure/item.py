@@ -27,6 +27,7 @@ class Item(NamedDataElement):
 	ATTRIBUTE_SILENT = 0x20000
 	ATTRIBUTE_GIVES_LAND = 0x40000
 	ATTRIBUTE_SENTIENT = 0x80000
+	ATTRIBUTE_ESSENTIAL = ATTRIBUTE_GIVES_LIGHT | ATTRIBUTE_GIVES_AIR | ATTRIBUTE_GIVES_GRAVITY
 
 	# TODO: find a better place for this
 	COMMAND_ID_BURN = 6
@@ -219,6 +220,10 @@ class Item(NamedDataElement):
 
 	def is_sentient(self):
 		return self.has_attribute(Item.ATTRIBUTE_SENTIENT)
+
+
+	def is_essential(self):
+		return self.has_attribute(Item.ATTRIBUTE_ESSENTIAL)
 
 
 	def is_burnable(self):

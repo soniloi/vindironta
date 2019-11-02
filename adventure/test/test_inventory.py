@@ -16,7 +16,8 @@ class TestInventory(unittest.TestCase):
 		self.medal = Item(1001, 0x2, Labels("medal", "a medal", "a gold medal"), 1, None)
 		self.suit = UsableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, None, None, Item.ATTRIBUTE_GIVES_AIR)
 		self.water = Item(1109, 0x22902, Labels("water", "some water", "some water"), 1, None)
-		self.drop_location = Location(12, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
+		self.non_essential_drop_location = Location(12, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
+		self.essential_drop_location = Location(9, 0x0, Labels("Cave", "in a cave", ". It is dark"))
 
 
 	def test_insert_non_copyable(self):
@@ -74,34 +75,49 @@ class TestInventory(unittest.TestCase):
 
 
 	def test_drop_all_items_none(self):
-		self.inventory.drop_all_items(self.drop_location)
+		self.inventory.drop_all_items(self.non_essential_drop_location, self.essential_drop_location)
 
 		self.assertFalse(self.inventory.has_items())
-		self.assertFalse(self.drop_location.has_items())
+		self.assertFalse(self.non_essential_drop_location.has_items())
+		self.assertFalse(self.essential_drop_location.has_items())
 
 
 	def test_drop_all_items_single(self):
 		self.inventory.insert(self.book)
 
-		self.inventory.drop_all_items(self.drop_location)
+		self.inventory.drop_all_items(self.non_essential_drop_location, self.essential_drop_location)
 
 		self.assertFalse(self.inventory.has_items())
-		self.assertTrue(self.drop_location.contains(self.book))
+		self.assertTrue(self.non_essential_drop_location.contains(self.book))
+		self.assertFalse(self.essential_drop_location.has_items())
 
 
-	def test_drop_all_items_multiple(self):
-		self.drop_location.insert(self.coin)
-		self.drop_location.insert(self.medal)
+	def test_drop_all_items_multiple_with_only_non_essential(self):
+		self.inventory.insert(self.coin)
+		self.inventory.insert(self.medal)
+		self.inventory.insert(self.book)
+
+		self.inventory.drop_all_items(self.non_essential_drop_location, self.essential_drop_location)
+
+		self.assertFalse(self.inventory.has_items())
+		self.assertTrue(self.non_essential_drop_location.contains(self.coin))
+		self.assertTrue(self.non_essential_drop_location.contains(self.medal))
+		self.assertTrue(self.non_essential_drop_location.contains(self.book))
+		self.assertFalse(self.essential_drop_location.has_items())
+
+
+	def test_drop_all_items_multiple_with_essential_items(self):
 		self.inventory.insert(self.book)
 		self.inventory.insert(self.lamp)
 
-		self.inventory.drop_all_items(self.drop_location)
+		self.inventory.drop_all_items(self.non_essential_drop_location, self.essential_drop_location)
 
 		self.assertFalse(self.inventory.has_items())
-		self.assertTrue(self.drop_location.contains(self.coin))
-		self.assertTrue(self.drop_location.contains(self.medal))
-		self.assertTrue(self.drop_location.contains(self.book))
-		self.assertTrue(self.drop_location.contains(self.lamp))
+		self.assertTrue(self.non_essential_drop_location.contains(self.book))
+		self.assertFalse(self.non_essential_drop_location.contains(self.lamp))
+		self.assertTrue(self.essential_drop_location.has_items())
+		self.assertFalse(self.essential_drop_location.contains(self.book))
+		self.assertTrue(self.essential_drop_location.contains(self.lamp))
 
 
 if __name__ == "__main__":
