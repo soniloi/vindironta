@@ -8,7 +8,7 @@ class EventCollection:
 	def count_puzzles(self):
 		result = 0
 		for multi_event in self.events.values():
-			result += len([event for event in multi_event if event.is_puzzle()])
+			result += sum(1 for event in multi_event if event.is_puzzle())
 		return result
 
 

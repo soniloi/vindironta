@@ -81,6 +81,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertFalse(isinstance(book, ContainerItem))
 		self.assertTrue(book in self.library_location.items)
 		self.assertEqual(0, len(related_commands))
+		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
 
@@ -132,6 +133,7 @@ class TestItemParser(unittest.TestCase):
 		bread = bread_list[0]
 		self.assertIsNot(book, bread)
 		self.assertEqual(0, len(related_commands))
+		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
 
@@ -181,6 +183,7 @@ class TestItemParser(unittest.TestCase):
 		fairytale_book = book_list[0]
 		recipe_book = book_list[1]
 		self.assertIsNot(recipe_book, fairytale_book)
+		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
 
@@ -217,6 +220,7 @@ class TestItemParser(unittest.TestCase):
 		cabbage = cabbage_list[0]
 		self.assertIs(kohlrabi, cabbage)
 		self.assertEqual(0, len(related_commands))
+		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
 
@@ -249,6 +253,7 @@ class TestItemParser(unittest.TestCase):
 		bread = bread_list[0]
 		self.assertFalse(bread.containers)
 		self.assertEqual(0, len(related_commands))
+		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
 
@@ -284,6 +289,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertTrue(self.library_location in water.containers)
 		self.assertTrue(self.lighthouse_location in water.containers)
 		self.assertEqual(0, len(related_commands))
+		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
 
@@ -316,6 +322,7 @@ class TestItemParser(unittest.TestCase):
 		basket = basket_list[0]
 		self.assertTrue(isinstance(basket, ContainerItem))
 		self.assertEqual(0, len(related_commands))
+		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
 
@@ -348,6 +355,7 @@ class TestItemParser(unittest.TestCase):
 		cat = cat_list[0]
 		self.assertTrue(isinstance(cat, SentientItem))
 		self.assertEqual(0, len(related_commands))
+		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
 
@@ -382,6 +390,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertTrue(self.box in book.containers)
 		self.assertTrue(book in self.box.items)
 		self.assertEqual(0, len(related_commands))
+		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
 
@@ -428,6 +437,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual("on", lamp.state_to_text[True])
 		self.assertEqual(1, len(related_commands))
 		self.assertEqual("{0} (currently {1})", lamp.list_template)
+		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
 
@@ -471,6 +481,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(0x20, button.switched_attribute)
 		self.assertEqual(1, len(related_commands))
 		self.assertEqual("{0} (currently {1})", button.list_template)
+		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
 
@@ -514,6 +525,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(0x40, lever.switched_attribute)
 		self.assertEqual(1, len(related_commands))
 		self.assertEqual("{0} (currently {1})", lever.list_template)
+		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
 
@@ -556,6 +568,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertIsNone(transformation_6.tool)
 		self.assertIsNone(transformation_6.material)
 		self.assertEqual(0, len(related_commands))
+		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
 
@@ -600,6 +613,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertIs(self.candle, transformation_6.tool)
 		self.assertIs(self.kindling, transformation_6.material)
 		self.assertEqual(0, len(related_commands))
+		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
 
@@ -638,6 +652,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(0, len(related_commands))
 		self.assertEqual("{0} (lugging)", suit.list_template)
 		self.assertEqual("{0} (wearing)", suit.list_template_using)
+		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
 
@@ -674,6 +689,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(0x40000, raft.attribute_activated)
 		self.assertEqual("(sailing) {0}", raft.list_template_using)
 		self.assertEqual(0, len(related_commands))
+		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
 
@@ -707,6 +723,59 @@ class TestItemParser(unittest.TestCase):
 		water = water_list[0]
 		self.assertEqual(1, len(related_commands))
 		self.assertEqual(self.non_switching_command, related_commands["water"])
+		self.assertEqual(0, collection.collectible_count)
+		self.assertFalse(validation)
+
+
+	def test_init_with_collectible(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1105, \
+					\"attributes\": \"2\", \
+					\"container_ids\": [ \
+						80 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"book\" \
+						], \
+						\"longname\": \"a book\", \
+						\"description\": \"a book of fairytales in English. It is open on a particular page\" \
+					}, \
+					\"writing\": \"The Pied Piper of Hamelin\" \
+				}, \
+				{ \
+					\"data_id\": 1106, \
+					\"attributes\": \"8002\", \
+					\"container_ids\": [ \
+						81 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"nugget\" \
+						], \
+						\"longname\": \"a gold nugget\", \
+						\"description\": \"a shiny gold nugget\" \
+					} \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(2, len(collection.item_lists_by_name))
+		book_list = collection.item_lists_by_name["book"]
+		self.assertEqual(1, len(book_list))
+		book = book_list[0]
+		nugget_list = collection.item_lists_by_name["nugget"]
+		self.assertEqual(1, len(nugget_list))
+		nugget = nugget_list[0]
+		self.assertIsNot(book, nugget)
+		self.assertEqual(0, len(related_commands))
+		self.assertEqual(1, collection.collectible_count)
 		self.assertFalse(validation)
 
 

@@ -80,6 +80,8 @@ class TestEventParser(unittest.TestCase):
 		outcome = event.outcome
 		self.assertEqual("event_genie_lamp", outcome.text_key)
 
+		self.assertEqual(0, collection.puzzle_count)
+
 
 	def test_parse_with_match_args(self):
 		event_inputs = json.loads(
@@ -126,6 +128,8 @@ class TestEventParser(unittest.TestCase):
 		text_argument = match.arguments[1]
 		self.assertEqual(EventMatchArgumentKind.TEXT, text_argument.kind)
 		self.assertEqual("hello", text_argument.value)
+
+		self.assertEqual(0, collection.puzzle_count)
 
 
 	def test_parse_with_item_match_prerequisites(self):
@@ -190,6 +194,8 @@ class TestEventParser(unittest.TestCase):
 		second_container = second_prerequisite.container
 		self.assertEqual(ItemEventMatchPrerequisiteContainerKind.ABSOLUTE_CONTAINER, second_container.kind)
 
+		self.assertEqual(0, collection.puzzle_count)
+
 
 	def test_parse_with_location_match_prerequisites(self):
 		event_inputs = json.loads(
@@ -232,6 +238,8 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual(EventMatchPrerequisiteKind.LOCATION, prerequisite.kind)
 		self.assertEqual(self.lighthouse_location, prerequisite.location)
 
+		self.assertEqual(0, collection.puzzle_count)
+
 
 	def test_parse_with_event_match_prerequisites(self):
 		event_inputs = json.loads(
@@ -273,6 +281,8 @@ class TestEventParser(unittest.TestCase):
 		prerequisite = prerequisites[0]
 		self.assertEqual(EventMatchPrerequisiteKind.EVENT, prerequisite.kind)
 		self.assertEqual(3000, prerequisite.event_id)
+
+		self.assertEqual(0, collection.puzzle_count)
 
 
 	def test_parse_multi_event_with_different_prerequisites(self):
@@ -356,6 +366,8 @@ class TestEventParser(unittest.TestCase):
 		outcome = event_49_0.outcome
 		self.assertEqual("event_nothing", outcome.text_key)
 
+		self.assertEqual(0, collection.puzzle_count)
+
 
 	def test_parse_with_item_outcome_actions(self):
 		event_inputs = json.loads(
@@ -424,6 +436,8 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual(ItemEventOutcomeActionDestinationKind.REPLACE, second_action_destination.kind)
 		self.assertEqual(self.bread, second_action_destination.named_data_element)
 
+		self.assertEqual(0, collection.puzzle_count)
+
 
 	def test_parse_with_player_outcome_actions(self):
 		event_inputs = json.loads(
@@ -472,6 +486,8 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual(EventOutcomeActionKind.PLAYER, action.kind)
 		self.assertEqual(2, action.attribute)
 		self.assertTrue(action.on)
+
+		self.assertEqual(0, collection.puzzle_count)
 
 
 	def test_parse_with_location_outcome_actions(self):
@@ -523,6 +539,8 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual(self.lighthouse_location, action.location)
 		self.assertEqual(1, action.attribute)
 		self.assertFalse(action.on)
+
+		self.assertEqual(0, collection.puzzle_count)
 
 
 	def test_parse_with_link_outcome_actions(self):
@@ -586,6 +604,8 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual(Direction.EAST, action1.direction)
 		self.assertIsNone(action1.destination)
 
+		self.assertEqual(0, collection.puzzle_count)
+
 
 	def test_parse_with_description_outcome_actions(self):
 		event_inputs = json.loads(
@@ -634,6 +654,46 @@ class TestEventParser(unittest.TestCase):
 		self.assertEqual(EventOutcomeActionKind.DESCRIPTION, action.kind)
 		self.assertEqual(self.lighthouse_location, action.named_data_element)
 		self.assertEqual(1, action.extended_description_index)
+
+		self.assertEqual(0, collection.puzzle_count)
+
+
+	def test_parse_puzzle(self):
+		event_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 3001, \
+					\"attributes\": \"4\", \
+					\"match\": { \
+						\"command_id\": 48, \
+						\"arguments\": [] \
+					}, \
+					\"outcome\": { \
+						\"text_key\" : \"event_genie_lamp\" \
+					} \
+				} \
+			]"
+		)
+
+		collection = EventParser().parse(event_inputs, self.commands, self.items_by_id, self.locations_by_id)
+
+		self.assertEqual(1, len(collection.events))
+		self.assertTrue((self.command_48,) in collection.events)
+
+		events = collection.events[(self.command_48,)]
+		self.assertEqual(1, len(events))
+
+		event = events[0]
+		self.assertEqual(4, event.attributes)
+
+		match = event.match
+		self.assertEqual(self.command_48, match.command)
+		self.assertFalse(match.arguments)
+
+		outcome = event.outcome
+		self.assertEqual("event_genie_lamp", outcome.text_key)
+
+		self.assertEqual(1, collection.puzzle_count)
 
 
 if __name__ == "__main__":
