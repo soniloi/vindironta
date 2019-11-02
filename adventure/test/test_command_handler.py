@@ -109,7 +109,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def setup_player(self):
-		self.player = Player(9000, 0x3, self.lighthouse_location, self.lighthouse_location, self.cave_location, self.default_inventory)
+		self.player = Player(9000, 0x3, self.lighthouse_location, self.lighthouse_location, self.lighthouse_location, self.cave_location, self.default_inventory)
 		self.player.instructions = 7
 
 

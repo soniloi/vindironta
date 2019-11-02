@@ -48,6 +48,7 @@ class TestPlayerParser(unittest.TestCase):
 					\"data_id\": 9000, \
 					\"attributes\": \"3\", \
 					\"location_id\": 12, \
+					\"essential_drop_location_id\": 9, \
 					\"reincarnation_location_id\": 9, \
 					\"collectible_location_id\": 9 \
 				} \
@@ -59,6 +60,7 @@ class TestPlayerParser(unittest.TestCase):
 		self.assertEqual(9000, player.data_id)
 		self.assertEqual(3, player.attributes)
 		self.assertIs(self.lighthouse_location, player.location)
+		self.assertIs(self.cave_location, player.essential_drop_location)
 		self.assertIs(self.cave_location, player.reincarnation_location)
 		self.assertIs(self.cave_location, player.collectible_location)
 
@@ -83,6 +85,7 @@ class TestPlayerParser(unittest.TestCase):
 					\"data_id\": 9000, \
 					\"attributes\": \"3\", \
 					\"location_id\": 12, \
+					\"essential_drop_location_id\": 9, \
 					\"reincarnation_location_id\": 9, \
 					\"collectible_location_id\": 12 \
 				}, \
@@ -90,6 +93,7 @@ class TestPlayerParser(unittest.TestCase):
 					\"data_id\": 9001, \
 					\"attributes\": \"5\", \
 					\"location_id\": 17, \
+					\"essential_drop_location_id\": 17, \
 					\"reincarnation_location_id\": 17, \
 					\"collectible_location_id\": 9 \
 				} \

@@ -26,7 +26,7 @@ class TestLifeResolver(unittest.TestCase):
 
 
 	def setup_player(self):
-		self.player = Player(1, 0x3, self.player_location, self.player_location, self.collectible_location, self.inventory)
+		self.player = Player(1, 0x3, self.player_location, self.player_location, self.player_location, self.collectible_location, self.inventory)
 		self.player.drop_location = self.drop_location
 		self.player.set_immune(False)
 
