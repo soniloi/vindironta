@@ -1,7 +1,7 @@
 import unittest
 
 from adventure.element import Labels
-from adventure.item import Item, UsableItem
+from adventure.item import Item, ContainerItem, UsableItem
 from adventure.inventory import Inventory
 from adventure.location import Location
 
@@ -16,6 +16,7 @@ class TestInventory(unittest.TestCase):
 		self.medal = Item(1001, 0x2, Labels("medal", "a medal", "a gold medal"), 1, None)
 		self.suit = UsableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, None, None, Item.ATTRIBUTE_GIVES_AIR)
 		self.water = Item(1109, 0x22902, Labels("water", "some water", "some water"), 1, None)
+		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None)
 		self.non_essential_drop_location = Location(12, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
 		self.essential_drop_location = Location(9, 0x0, Labels("Cave", "in a cave", ". It is dark"))
 
@@ -106,7 +107,7 @@ class TestInventory(unittest.TestCase):
 		self.assertFalse(self.essential_drop_location.has_items())
 
 
-	def test_drop_all_items_multiple_with_essential_items(self):
+	def test_drop_all_items_multiple_with_essential_item_simple(self):
 		self.inventory.insert(self.book)
 		self.inventory.insert(self.lamp)
 
@@ -118,6 +119,20 @@ class TestInventory(unittest.TestCase):
 		self.assertTrue(self.essential_drop_location.has_items())
 		self.assertFalse(self.essential_drop_location.contains(self.book))
 		self.assertTrue(self.essential_drop_location.contains(self.lamp))
+
+
+	def test_drop_all_items_multiple_with_essential_item_nested(self):
+		self.basket.insert(self.lamp)
+		self.inventory.insert(self.basket)
+
+		self.inventory.drop_all_items(self.non_essential_drop_location, self.essential_drop_location)
+
+		self.assertFalse(self.inventory.has_items())
+		self.assertFalse(self.non_essential_drop_location.has_items())
+		self.assertTrue(self.essential_drop_location.has_items())
+		self.assertFalse(self.lamp in self.essential_drop_location.items)
+		self.assertTrue(self.basket in self.essential_drop_location.items)
+		self.assertTrue(self.basket.contains(self.lamp))
 
 
 if __name__ == "__main__":

@@ -293,6 +293,12 @@ class ContainerItem(Item, ItemContainer):
 		return ItemContainer.allows_burning(self)
 
 
+	def is_essential(self):
+		if Item.is_essential(self):
+			return True
+		return any(item.is_essential() for item in self.items)
+
+
 	def get_list_name(self, indentation=1):
 
 		result = Item.get_list_name(self, indentation)
