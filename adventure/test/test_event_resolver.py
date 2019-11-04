@@ -57,7 +57,7 @@ class TestEventResolver(unittest.TestCase):
 		self.bean = Item(1003, 0x2, Labels("bean", "a bean", "a magic bean"), 2, None)
 		self.bottle = ContainerItem(1108, 0x203, Labels("bottle", "a bottle", "a small bottle"), 3, None, None)
 		lamp_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "off", "on")
-		self.lamp = SwitchableItem(1043, 0x101A, Labels("lamp", "a lamp", "a small lamp"), 2, None, None, lamp_switching_info)
+		self.lamp = SwitchableItem(1043, 0x101A, Labels("lamp", "a lamp", "a small lamp"), 2, None, {}, None, lamp_switching_info)
 		self.potion = Item(1058, 0x800, Labels("potion", "some potion", "some magical potion"), 1, None)
 		self.wand = Item(1203, 0x2, Labels("wand", "a wand", "a magical wand"), 2, None)
 

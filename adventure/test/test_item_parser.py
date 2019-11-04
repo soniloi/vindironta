@@ -3,7 +3,7 @@ import unittest
 
 from adventure.command import Command
 from adventure.element import Labels
-from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, UsableItem
+from adventure.item import Item, ContainerItem, ListTemplateType, SentientItem, SwitchableItem, UsableItem
 from adventure.item_parser import ItemParser
 from adventure.location import Location
 from adventure.validation import Severity
@@ -81,6 +81,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertFalse(isinstance(book, ContainerItem))
 		self.assertTrue(book in self.library_location.items)
 		self.assertEqual(0, len(related_commands))
+		self.assertEqual(0, len(book.list_templates))
 		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
@@ -411,6 +412,9 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"a lamp\", \
 						\"description\": \"a small lamp\" \
 					}, \
+					\"list_templates\": { \
+						\"default\": \"$0 (currently $1)\" \
+					}, \
 					\"list_template\": \"$0 (currently $1)\", \
 					\"related_command_id\": 19, \
 					\"switch_info\": { \
@@ -437,6 +441,8 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual("on", lamp.state_to_text[True])
 		self.assertEqual(1, len(related_commands))
 		self.assertEqual("{0} (currently {1})", lamp.list_template)
+		self.assertEqual(1, len(lamp.list_templates))
+		self.assertEqual("{0} (currently {1})", lamp.list_templates[ListTemplateType.DEFAULT])
 		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
@@ -457,6 +463,9 @@ class TestItemParser(unittest.TestCase):
 						], \
 						\"longname\": \"a button\", \
 						\"description\": \"a red button\" \
+					}, \
+					\"list_templates\": { \
+						\"default\": \"$0 (currently $1)\" \
 					}, \
 					\"list_template\": \"$0 (currently $1)\", \
 					\"related_command_id\": 19, \
@@ -481,6 +490,8 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(0x20, button.switched_attribute)
 		self.assertEqual(1, len(related_commands))
 		self.assertEqual("{0} (currently {1})", button.list_template)
+		self.assertEqual(1, len(button.list_templates))
+		self.assertEqual("{0} (currently {1})", button.list_templates[ListTemplateType.DEFAULT])
 		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
@@ -501,6 +512,9 @@ class TestItemParser(unittest.TestCase):
 						], \
 						\"longname\": \"a lever\", \
 						\"description\": \"a mysterious lever\" \
+					}, \
+					\"list_templates\": { \
+						\"default\": \"$0 (currently $1)\" \
 					}, \
 					\"list_template\": \"$0 (currently $1)\", \
 					\"related_command_id\": 19, \
@@ -525,6 +539,8 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(0x40, lever.switched_attribute)
 		self.assertEqual(1, len(related_commands))
 		self.assertEqual("{0} (currently {1})", lever.list_template)
+		self.assertEqual(1, len(lever.list_templates))
+		self.assertEqual("{0} (currently {1})", lever.list_templates[ListTemplateType.DEFAULT])
 		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
@@ -635,6 +651,10 @@ class TestItemParser(unittest.TestCase):
 						\"description\": \"a space-suit\" \
 					}, \
 					\"using_info\": \"20\", \
+					\"list_templates\": { \
+						\"carrying\": \"(lugging) $0\", \
+						\"using\": \"(wearing) $0\" \
+					}, \
 					\"list_template\": \"$0 (lugging)\", \
 					\"list_template_using\": \"$0 (wearing)\" \
 				} \
@@ -652,6 +672,9 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(0, len(related_commands))
 		self.assertEqual("{0} (lugging)", suit.list_template)
 		self.assertEqual("{0} (wearing)", suit.list_template_using)
+		self.assertEqual(2, len(suit.list_templates))
+		self.assertEqual("(lugging) {0}", suit.list_templates[ListTemplateType.CARRYING])
+		self.assertEqual("(wearing) {0}", suit.list_templates[ListTemplateType.USING])
 		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 
@@ -673,6 +696,10 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"a raft\", \
 						\"description\": \"a rickety raft\" \
 					}, \
+					\"list_templates\": { \
+						\"carrying\": \"(lugging) $0\", \
+						\"using\": \"(sailing) $0\" \
+					}, \
 					\"list_template_using\": \"(sailing) $0\", \
 					\"using_info\": \"40000\" \
 				} \
@@ -689,6 +716,9 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(0x40000, raft.attribute_activated)
 		self.assertEqual("(sailing) {0}", raft.list_template_using)
 		self.assertEqual(0, len(related_commands))
+		self.assertEqual(2, len(raft.list_templates))
+		self.assertEqual("(lugging) {0}", raft.list_templates[ListTemplateType.CARRYING])
+		self.assertEqual("(sailing) {0}", raft.list_templates[ListTemplateType.USING])
 		self.assertEqual(0, collection.collectible_count)
 		self.assertFalse(validation)
 

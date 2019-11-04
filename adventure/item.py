@@ -6,6 +6,12 @@ from adventure.item_container import ItemContainer
 
 Transformation = namedtuple("Transformation", "replacement tool material")
 
+class ListTemplateType(Enum):
+	DEFAULT = 0
+	LOCATION =  1
+	CARRYING = 2
+	USING = 3
+
 class Item(NamedDataElement):
 
 	ATTRIBUTE_CONTAINER = 0x1
@@ -36,13 +42,14 @@ class Item(NamedDataElement):
 	COMMAND_ID_CHOP = 78
 
 
-	def __init__(self, item_id, attributes, labels, size, writing, list_template=None, copied_from=None):
+	def __init__(self, item_id, attributes, labels, size, writing, list_templates={}, list_template=None, copied_from=None):
 		NamedDataElement.__init__(self, data_id=item_id, attributes=attributes, labels=labels)
 		self.size = size
 		self.writing = writing
 		self.containers = set()
 		self.transformations = {}
 		self.obstruction = bool(attributes & Item.ATTRIBUTE_OBSTRUCTION)
+		self.list_templates = list_templates
 		self.list_template = list_template
 		self.copied_from = copied_from
 		self.copied_to = set()
@@ -266,9 +273,9 @@ class Item(NamedDataElement):
 
 class ContainerItem(Item, ItemContainer):
 
-	def __init__(self, item_id, attributes, labels, size, writing, list_template=None, copied_from=None):
+	def __init__(self, item_id, attributes, labels, size, writing, list_templates={}, list_template=None, copied_from=None):
 		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-			list_template=list_template, copied_from=copied_from)
+			list_templates=list_templates, list_template=list_template, copied_from=copied_from)
 		ItemContainer.__init__(self)
 
 
@@ -349,9 +356,9 @@ class ContainerItem(Item, ItemContainer):
 
 class SentientItem(ItemContainer, Item):
 
-	def __init__(self, item_id, attributes, labels, size, writing, list_template=None, copied_from=None):
+	def __init__(self, item_id, attributes, labels, size, writing, list_templates={}, list_template=None, copied_from=None):
 		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-			list_template=list_template, copied_from=copied_from)
+			list_templates=list_templates, list_template=list_template, copied_from=copied_from)
 		ItemContainer.__init__(self)
 
 
@@ -390,9 +397,9 @@ class SwitchTransition(Enum):
 
 class SwitchableItem(Item):
 
-	def __init__(self, item_id, attributes, labels, size, writing, list_template, switch_info=None, copied_from=None):
+	def __init__(self, item_id, attributes, labels, size, writing, list_templates, list_template, switch_info=None, copied_from=None):
 		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-			list_template=list_template, copied_from=copied_from)
+			list_templates=list_templates, list_template=list_template, copied_from=copied_from)
 		ItemContainer.__init__(self)
 		self.switched_element = None
 		self.switched_attribute = switch_info.attribute
@@ -440,10 +447,10 @@ class SwitchableItem(Item):
 
 class UsableItem(Item):
 
-	def __init__(self, item_id, attributes, labels, size, writing, list_template, list_template_using,
+	def __init__(self, item_id, attributes, labels, size, writing, list_templates, list_template, list_template_using,
 			attribute_activated, copied_from=None):
 		Item.__init__(self, item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-			list_template=list_template, copied_from=copied_from)
+			list_templates=list_templates, list_template=list_template, copied_from=copied_from)
 		self.list_template_using = list_template_using
 		self.attribute_activated = attribute_activated
 		self.being_used = False

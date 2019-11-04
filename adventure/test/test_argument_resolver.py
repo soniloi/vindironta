@@ -33,7 +33,7 @@ class TestArgumentResolver(unittest.TestCase):
 		self.book = Item(1105, 0x2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
 		self.box = ContainerItem(1106, 0x3, Labels("box", "a box", "a small box"), 3, None)
 		lamp_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "off", "on")
-		self.lamp = SwitchableItem(1043, 0x101A, Labels("lamp", "a lamp", "a small lamp"), 2, None, None, lamp_switching_info)
+		self.lamp = SwitchableItem(1043, 0x101A, Labels("lamp", "a lamp", "a small lamp"), 2, None, {}, None, lamp_switching_info)
 		self.salt = Item(1110, 0x102, Labels("salt", "some salt", "some salt"), 1, None)
 
 		self.data.get_item_list_by_name.side_effect = lambda x: {

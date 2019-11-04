@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 from adventure.element import Labels
-from adventure.item import Item, ContainerItem, SentientItem, SwitchableItem, SwitchInfo, UsableItem, Transformation
+from adventure.item import Item, ContainerItem, ListTemplateType, SentientItem, SwitchableItem, SwitchInfo, Transformation, UsableItem
 from adventure.item_collection import ItemCollection
 from adventure.token_translator import TokenTranslator
 from adventure.validation import Message, Severity
@@ -55,6 +55,7 @@ class ItemParser:
 			validation, item_id, labels.shortname)
 		using_info = self.parse_using_info(item_input)
 		transformation_info = self.parse_transformation_info(item_input)
+		list_templates = self.parse_list_templates(item_input)
 		list_template = self.parse_list_template(item_input, attributes, validation, item_id, labels.shortname)
 		list_template_using = self.parse_list_template_using(item_input, attributes, validation, item_id, labels.shortname)
 		container_ids = self.parse_container_ids(item_input)
@@ -69,6 +70,7 @@ class ItemParser:
 			switched_element_id=switched_element_id,
 			switch_info=switch_info,
 			attribute_when_used=using_info,
+			list_templates=list_templates,
 			list_template=list_template,
 			list_template_using=list_template_using,
 		)
@@ -158,6 +160,17 @@ class ItemParser:
 		return transformation_info
 
 
+	def parse_list_templates(self, item_input):
+		list_templates = {}
+		if "list_templates" in item_input:
+			for template_type_key_input, list_template_input in item_input["list_templates"].items():
+				template_type_key = template_type_key_input.upper()
+				template_type = ListTemplateType[template_type_key]
+				list_template = TokenTranslator.translate_substitution_tokens(list_template_input)
+				list_templates[template_type] = list_template
+		return list_templates
+
+
 	def parse_list_template(self, item_input, attributes, validation, item_id, shortname):
 		if not "list_template" in item_input:
 			if (attributes & Item.ATTRIBUTE_SWITCHABLE):
@@ -197,30 +210,31 @@ class ItemParser:
 			switched_element_ids,
 			switch_info,
 			attribute_when_used,
+			list_templates,
 			list_template,
 			list_template_using,
 		):
 
 		if bool(attributes & Item.ATTRIBUTE_SENTIENT):
 			item = SentientItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-				list_template=list_template)
+				list_templates=list_templates, list_template=list_template)
 
 		elif bool(attributes & Item.ATTRIBUTE_CONTAINER):
 			item = ContainerItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-				list_template=list_template)
+				list_templates=list_templates, list_template=list_template)
 
 		elif switch_info:
 			item = SwitchableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-				list_template=list_template, switch_info=switch_info)
+				list_templates=list_templates, list_template=list_template, switch_info=switch_info)
 			switched_element_ids[item] = switched_element_id
 
 		elif self.item_is_usable(attributes):
 			item = UsableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-				list_template=list_template, attribute_activated=attribute_when_used, list_template_using=list_template_using)
+				list_templates=list_templates, list_template=list_template, attribute_activated=attribute_when_used, list_template_using=list_template_using)
 
 		else:
 			item = Item(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-				list_template=list_template)
+				list_templates=list_templates, list_template=list_template)
 
 		return item
 

@@ -14,20 +14,20 @@ class TestItem(unittest.TestCase):
 		button_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "up", "down")
 		lever_switching_info = SwitchInfo(Location.ATTRIBUTE_GIVES_LIGHT, "down", "up")
 
-		self.book = Item(1105, 0x2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper", None)
-		self.desk = Item(1106, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None, None)
-		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None, "{0} (being lugged)")
-		self.box = ContainerItem(1108, 0x3, Labels("box", "a box", "a small box"), 3, None, None)
-		self.lamp = SwitchableItem(1043, 0x100A, Labels("lamp", "a lamp", "a small lamp"), 2, None, "{0} ({1})", lamp_switching_info)
-		self.button = SwitchableItem(1044, 0x8, Labels("button", "a button", "a red button", [". It is dark", ". It is glowing"]), 2, None, "{0} ({1})", button_switching_info)
-		self.lever = SwitchableItem(1045, 0x8, Labels("lever", "a lever", "a mysterious lever"), 2, None, "{0} ({1})", lever_switching_info)
-		self.suit = UsableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, None, "{0} (being worn)", Item.ATTRIBUTE_GIVES_AIR)
-		self.cat = SentientItem(1047, 0x80002, Labels("cat", "a cat", "a black cat"), 3, None, None)
-		self.water = Item(1109, 0x22902, Labels("water", "some water", "some water", [". It is cold", ". It is hot"]), 1, None, None)
+		self.book = Item(1105, 0x2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper", {}, None)
+		self.desk = Item(1106, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None, {}, None)
+		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, {}, None, "{0} (being lugged)")
+		self.box = ContainerItem(1108, 0x3, Labels("box", "a box", "a small box"), 3, None, {}, None)
+		self.lamp = SwitchableItem(1043, 0x100A, Labels("lamp", "a lamp", "a small lamp"), 2, None, {}, "{0} ({1})", lamp_switching_info)
+		self.button = SwitchableItem(1044, 0x8, Labels("button", "a button", "a red button", [". It is dark", ". It is glowing"]), 2, None, {}, "{0} ({1})", button_switching_info)
+		self.lever = SwitchableItem(1045, 0x8, Labels("lever", "a lever", "a mysterious lever"), 2, None, {}, "{0} ({1})", lever_switching_info)
+		self.suit = UsableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, {}, None, "{0} (being worn)", Item.ATTRIBUTE_GIVES_AIR)
+		self.cat = SentientItem(1047, 0x80002, Labels("cat", "a cat", "a black cat"), 3, None, {}, None)
+		self.water = Item(1109, 0x22902, Labels("water", "some water", "some water", [". It is cold", ". It is hot"]), 1, None, {}, None)
 		self.mine_location = Location(11, 0x0, Labels("Mines", "in the mines", ". There are dark passages everywhere."))
 		self.inventory = Inventory(0, 0x1, Labels("Main Inventory", "in the main inventory", ", where items live usually."), 100)
 
-		self.steam = Item(1117, 0x2, Labels("steam", "some steam", "some hot steam"), 1, None, None)
+		self.steam = Item(1117, 0x2, Labels("steam", "some steam", "some hot steam"), 1, None, {}, None)
 		self.water.transformations[98] = self.steam
 
 
