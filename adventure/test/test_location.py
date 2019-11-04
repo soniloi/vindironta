@@ -14,11 +14,11 @@ class TestLocation(unittest.TestCase):
 		self.mine_location = Location(11, 0x0, Labels("Mines", "in the mines", ". There are dark passages everywhere", extended_descriptions))
 		self.lower_mine_location = Location(10, 0x200, Labels("Lower mines", "in the lower mines", ". This is the bottom of the mines", extended_descriptions))
 
-		self.book = Item(1105, 2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
-		self.desk = Item(1000, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None)
-		self.obstruction = Item(1000, 0x4, Labels("obstruction", "an obstruction", "an obstruction blocking you"), 8, None)
-		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None)
-		self.box = ContainerItem(1108, 0x3, Labels("box", "a box", "a small box"), 3, None)
+		self.book = Item(1105, 2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper", {})
+		self.desk = Item(1000, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None, {})
+		self.obstruction = Item(1000, 0x4, Labels("obstruction", "an obstruction", "an obstruction blocking you"), 8, None, {})
+		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None, {})
+		self.box = ContainerItem(1108, 0x3, Labels("box", "a box", "a small box"), 3, None, {})
 
 
 	def test_contains_simple(self):

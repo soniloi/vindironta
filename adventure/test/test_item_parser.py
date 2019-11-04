@@ -13,11 +13,11 @@ class TestItemParser(unittest.TestCase):
 	def setUp(self):
 		self.library_location = Location(80, 0x1, Labels("Library", "in the Library", ", a tall, bright room"))
 		self.lighthouse_location = Location(81, 0x1, Labels("Lighthouse", "at a lighthouse", " by the sea."))
-		self.box = ContainerItem(1108, 0x3, Labels("box", "a box", "a small box"), 3, None)
-		self.ash = Item(1109, 0x2, Labels("ash", "some ash", "some black ash"), 1, None)
-		self.candle = Item(1110, 0x2, Labels("candle", "a candle", "a small candle"), 2, None)
-		self.kindling = Item(1111, 0x2, Labels("kindling", "some kindling", "some kindling"), 2, None)
-		self.desk = Item(1112, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None)
+		self.box = ContainerItem(1108, 0x3, Labels("box", "a box", "a small box"), 3, None, {})
+		self.ash = Item(1109, 0x2, Labels("ash", "some ash", "some black ash"), 1, None, {})
+		self.candle = Item(1110, 0x2, Labels("candle", "a candle", "a small candle"), 2, None, {})
+		self.kindling = Item(1111, 0x2, Labels("kindling", "some kindling", "some kindling"), 2, None, {})
+		self.desk = Item(1112, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None, {})
 		self.elements = {
 			80 : self.library_location,
 			81 : self.lighthouse_location,
@@ -415,7 +415,6 @@ class TestItemParser(unittest.TestCase):
 					\"list_templates\": { \
 						\"default\": \"$0 (currently $1)\" \
 					}, \
-					\"list_template\": \"$0 (currently $1)\", \
 					\"related_command_id\": 19, \
 					\"switch_info\": { \
 						\"element_id\": 1201, \
@@ -440,7 +439,6 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual("off", lamp.state_to_text[False])
 		self.assertEqual("on", lamp.state_to_text[True])
 		self.assertEqual(1, len(related_commands))
-		self.assertEqual("{0} (currently {1})", lamp.list_template)
 		self.assertEqual(1, len(lamp.list_templates))
 		self.assertEqual("{0} (currently {1})", lamp.list_templates[ListTemplateType.DEFAULT])
 		self.assertEqual(0, collection.collectible_count)
@@ -467,7 +465,6 @@ class TestItemParser(unittest.TestCase):
 					\"list_templates\": { \
 						\"default\": \"$0 (currently $1)\" \
 					}, \
-					\"list_template\": \"$0 (currently $1)\", \
 					\"related_command_id\": 19, \
 					\"switch_info\": { \
 						\"element_id\": 1108, \
@@ -489,7 +486,6 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(self.box, button.switched_element)
 		self.assertEqual(0x20, button.switched_attribute)
 		self.assertEqual(1, len(related_commands))
-		self.assertEqual("{0} (currently {1})", button.list_template)
 		self.assertEqual(1, len(button.list_templates))
 		self.assertEqual("{0} (currently {1})", button.list_templates[ListTemplateType.DEFAULT])
 		self.assertEqual(0, collection.collectible_count)
@@ -516,7 +512,6 @@ class TestItemParser(unittest.TestCase):
 					\"list_templates\": { \
 						\"default\": \"$0 (currently $1)\" \
 					}, \
-					\"list_template\": \"$0 (currently $1)\", \
 					\"related_command_id\": 19, \
 					\"switch_info\": { \
 						\"element_id\": 80, \
@@ -538,7 +533,6 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual(self.library_location, lever.switched_element)
 		self.assertEqual(0x40, lever.switched_attribute)
 		self.assertEqual(1, len(related_commands))
-		self.assertEqual("{0} (currently {1})", lever.list_template)
 		self.assertEqual(1, len(lever.list_templates))
 		self.assertEqual("{0} (currently {1})", lever.list_templates[ListTemplateType.DEFAULT])
 		self.assertEqual(0, collection.collectible_count)
@@ -654,9 +648,7 @@ class TestItemParser(unittest.TestCase):
 					\"list_templates\": { \
 						\"carrying\": \"(lugging) $0\", \
 						\"using\": \"(wearing) $0\" \
-					}, \
-					\"list_template\": \"$0 (lugging)\", \
-					\"list_template_using\": \"$0 (wearing)\" \
+					} \
 				} \
 			]"
 		)
@@ -670,8 +662,6 @@ class TestItemParser(unittest.TestCase):
 		self.assertTrue(isinstance(suit, UsableItem))
 		self.assertEqual(0x20, suit.attribute_activated)
 		self.assertEqual(0, len(related_commands))
-		self.assertEqual("{0} (lugging)", suit.list_template)
-		self.assertEqual("{0} (wearing)", suit.list_template_using)
 		self.assertEqual(2, len(suit.list_templates))
 		self.assertEqual("(lugging) {0}", suit.list_templates[ListTemplateType.CARRYING])
 		self.assertEqual("(wearing) {0}", suit.list_templates[ListTemplateType.USING])
@@ -700,7 +690,6 @@ class TestItemParser(unittest.TestCase):
 						\"carrying\": \"(lugging) $0\", \
 						\"using\": \"(sailing) $0\" \
 					}, \
-					\"list_template_using\": \"(sailing) $0\", \
 					\"using_info\": \"40000\" \
 				} \
 			]"
@@ -714,7 +703,6 @@ class TestItemParser(unittest.TestCase):
 		raft = raft_list[0]
 		self.assertTrue(isinstance(raft, UsableItem))
 		self.assertEqual(0x40000, raft.attribute_activated)
-		self.assertEqual("(sailing) {0}", raft.list_template_using)
 		self.assertEqual(0, len(related_commands))
 		self.assertEqual(2, len(raft.list_templates))
 		self.assertEqual("(lugging) {0}", raft.list_templates[ListTemplateType.CARRYING])
@@ -943,8 +931,7 @@ class TestItemParser(unittest.TestCase):
 						\"longname\": \"a lamp\", \
 						\"description\": \"a small lamp\" \
 					}, \
-					\"related_command_id\": 17, \
-					\"list_template\": \"$0 (currently $1)\"\
+					\"related_command_id\": 17 \
 				} \
 			]"
 		)
@@ -1034,8 +1021,7 @@ class TestItemParser(unittest.TestCase):
 						\"attribute\": \"10\", \
 						\"off\": \"off\", \
 						\"on\": \"on\" \
-					}, \
-					\"list_template\": \"$0 (currently $1)\"\
+					} \
 				} \
 			]"
 		)
@@ -1116,8 +1102,7 @@ class TestItemParser(unittest.TestCase):
 						\"attribute\": \"10\", \
 						\"off\": \"off\", \
 						\"on\": \"on\" \
-					}, \
-					\"list_template\": \"$0 (currently $1)\"\
+					} \
 				} \
 			]"
 		)
@@ -1154,8 +1139,7 @@ class TestItemParser(unittest.TestCase):
 						\"attribute\": \"10\", \
 						\"off\": \"off\", \
 						\"on\": \"on\" \
-					}, \
-					\"list_template\": \"$0 (currently $1)\"\
+					} \
 				} \
 			]"
 		)
@@ -1167,141 +1151,6 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual("Switchable item {0} \"{1}\" has invalid switched element id {2}.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
 		self.assertEqual((1201, "lamp", 9999), validation_line.args)
-
-
-	def test_init_switchable_no_list_template(self):
-		item_inputs = json.loads(
-			"[ \
-				{ \
-					\"data_id\": 1201, \
-					\"attributes\": \"8\", \
-					\"container_ids\": [ \
-						81 \
-					], \
-					\"size\": 3, \
-					\"labels\": { \
-						\"shortnames\": [ \
-							\"lamp\" \
-						], \
-						\"longname\": \"a lamp\", \
-						\"description\": \"a small lamp\" \
-					}, \
-					\"related_command_id\": 19, \
-					\"switch_info\": { \
-						\"element_id\": 1201, \
-						\"attribute\": \"10\", \
-						\"off\": \"off\", \
-						\"on\": \"on\" \
-					} \
-				} \
-			]"
-		)
-
-		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
-
-		self.assertEqual(1, len(validation))
-		validation_line = validation[0]
-		self.assertEqual("No list template found for switchable item {0} \"{1}\". While not mandatory, this will lead to incomplete descriptions of this item when listed.", validation_line.template)
-		self.assertEqual(Severity.WARN, validation_line.severity)
-		self.assertEqual((1201, "lamp"), validation_line.args)
-
-
-	def test_init_wearable_no_list_template(self):
-		item_inputs = json.loads(
-			"[ \
-				{ \
-					\"data_id\": 1204, \
-					\"attributes\": \"400\", \
-					\"container_ids\": [ \
-						81 \
-					], \
-					\"size\": 3, \
-					\"labels\": { \
-						\"shortnames\": [ \
-							\"suit\" \
-						], \
-						\"longname\": \"a suit\", \
-						\"description\": \"a space-suit\" \
-					}, \
-					\"using_info\": \"20\", \
-					\"list_template_using\": \"$0 (wearing)\" \
-				} \
-			]"
-		)
-
-		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
-
-		self.assertEqual(1, len(validation))
-		validation_line = validation[0]
-		self.assertEqual("No list template found for wearable item {0} \"{1}\". While not mandatory, this will lead to incomplete descriptions of this item when listed.", validation_line.template)
-		self.assertEqual(Severity.WARN, validation_line.severity)
-		self.assertEqual((1204, "suit"), validation_line.args)
-
-
-	def test_init_usable_no_list_template_using(self):
-		item_inputs = json.loads(
-			"[ \
-				{ \
-					\"data_id\": 1205, \
-					\"attributes\": \"10000\", \
-					\"container_ids\": [ \
-						81 \
-					], \
-					\"size\": 3, \
-					\"labels\": { \
-						\"shortnames\": [ \
-							\"raft\" \
-						], \
-						\"longname\": \"a raft\", \
-						\"description\": \"a rickety raft\" \
-					}, \
-					\"using_info\": \"40000\" \
-				} \
-			]"
-		)
-
-		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
-
-		self.assertEqual(1, len(validation))
-		validation_line = validation[0]
-		self.assertEqual("Mandatory field \"list_template_using\" not found for usable item {0} \"{1}\".", validation_line.template)
-		self.assertEqual(Severity.ERROR, validation_line.severity)
-		self.assertEqual((1205, "raft"), validation_line.args)
-
-
-	def test_init_non_usable_with_list_template_using(self):
-		item_inputs = json.loads(
-			"[ \
-				{ \
-					\"data_id\": 1105, \
-					\"attributes\": \"2\", \
-					\"container_ids\": [ \
-						80 \
-					], \
-					\"size\": 2, \
-					\"labels\": { \
-						\"shortnames\": [ \
-							\"book\" \
-						], \
-						\"longname\": \"a book\", \
-						\"description\": \"a book of fairytales in English\", \
-						\"extended_descriptions\": [ \
-							\". It is open on a particular page\" \
-						] \
-					}, \
-					\"writing\": \"The Pied Piper of Hamelin\", \
-					\"list_template_using\": \"$0 (using)\" \
-				} \
-			]"
-		)
-
-		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
-
-		self.assertEqual(1, len(validation))
-		validation_line = validation[0]
-		self.assertEqual("Invalid field \"list_template_using\" found for item {0} \"{1}\". This field is only valid for usable items and will be ignored here.", validation_line.template)
-		self.assertEqual(Severity.WARN, validation_line.severity)
-		self.assertEqual((1105, "book"), validation_line.args)
 
 
 	def test_init_transformable_unknown_command_id(self):

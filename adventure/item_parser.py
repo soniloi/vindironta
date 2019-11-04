@@ -56,8 +56,6 @@ class ItemParser:
 		using_info = self.parse_using_info(item_input)
 		transformation_info = self.parse_transformation_info(item_input)
 		list_templates = self.parse_list_templates(item_input)
-		list_template = self.parse_list_template(item_input, attributes, validation, item_id, labels.shortname)
-		list_template_using = self.parse_list_template_using(item_input, attributes, validation, item_id, labels.shortname)
 		container_ids = self.parse_container_ids(item_input)
 
 		item = self.init_item(
@@ -71,8 +69,6 @@ class ItemParser:
 			switch_info=switch_info,
 			attribute_when_used=using_info,
 			list_templates=list_templates,
-			list_template=list_template,
-			list_template_using=list_template_using,
 		)
 
 		return item, shortnames, related_command_id, container_ids, transformation_info
@@ -171,31 +167,6 @@ class ItemParser:
 		return list_templates
 
 
-	def parse_list_template(self, item_input, attributes, validation, item_id, shortname):
-		if not "list_template" in item_input:
-			if (attributes & Item.ATTRIBUTE_SWITCHABLE):
-				validation.append(Message(Message.ITEM_SWITCHABLE_NO_LIST_TEMPLATE, (item_id, shortname)))
-			if (attributes & Item.ATTRIBUTE_WEARABLE):
-				validation.append(Message(Message.ITEM_WEARABLE_NO_LIST_TEMPLATE, (item_id, shortname)))
-			return None
-
-		list_template_input = item_input["list_template"]
-		return TokenTranslator.translate_substitution_tokens(list_template_input)
-
-
-	def parse_list_template_using(self, item_input, attributes, validation, item_id, shortname):
-		usable = self.item_is_usable(attributes)
-		if not "list_template_using" in item_input:
-			if usable:
-				validation.append(Message(Message.ITEM_USABLE_NO_LIST_TEMPLATE_USING_OLD, (item_id, shortname)))
-			return None
-
-		if not usable:
-			validation.append(Message(Message.ITEM_NON_USABLE_WITH_LIST_TEMPLATE_USING_OLD, (item_id, shortname)))
-		list_template_using_input = item_input["list_template_using"]
-		return TokenTranslator.translate_substitution_tokens(list_template_using_input)
-
-
 	def parse_container_ids(self, item_input):
 		return item_input["container_ids"]
 
@@ -211,30 +182,28 @@ class ItemParser:
 			switch_info,
 			attribute_when_used,
 			list_templates,
-			list_template,
-			list_template_using,
 		):
 
 		if bool(attributes & Item.ATTRIBUTE_SENTIENT):
 			item = SentientItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-				list_templates=list_templates, list_template=list_template)
+				list_templates=list_templates)
 
 		elif bool(attributes & Item.ATTRIBUTE_CONTAINER):
 			item = ContainerItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-				list_templates=list_templates, list_template=list_template)
+				list_templates=list_templates, )
 
 		elif switch_info:
 			item = SwitchableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-				list_templates=list_templates, list_template=list_template, switch_info=switch_info)
+				list_templates=list_templates, switch_info=switch_info)
 			switched_element_ids[item] = switched_element_id
 
 		elif self.item_is_usable(attributes):
 			item = UsableItem(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-				list_templates=list_templates, list_template=list_template, attribute_activated=attribute_when_used, list_template_using=list_template_using)
+				list_templates=list_templates, attribute_activated=attribute_when_used)
 
 		else:
 			item = Item(item_id=item_id, attributes=attributes, labels=labels, size=size, writing=writing,
-				list_templates=list_templates, list_template=list_template)
+				list_templates=list_templates)
 
 		return item
 

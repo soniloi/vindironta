@@ -55,44 +55,44 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def setup_items(self):
-		self.book = Item(1105, 2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
+		self.book = Item(1105, 2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper", {})
 		lamp_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "off", "on")
-		self.lamp = SwitchableItem(1043, 0x101A, Labels("lamp", "a lamp", "a small lamp"), 2, None, {}, None, lamp_switching_info)
+		self.lamp = SwitchableItem(1043, 0x101A, Labels("lamp", "a lamp", "a small lamp"), 2, None, {}, lamp_switching_info)
 		self.lamp.switched_element = self.lamp
-		self.kohlrabi = Item(1042, 0x2002, Labels("kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar"), 3, None)
-		self.desk = Item(1000, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None)
-		self.heavy_item = Item(1001, 0x2, Labels("heavy", "a heavy item", "a dummy heavy item"), 15, None)
-		self.obstruction = Item(1002, 0x4, Labels("obstruction", "an obstruction", "an obstruction blocking you"), 8, None)
-		self.mobile_obstruction = Item(1003, 0x6, Labels("mobile_obstruction", "a mobile obstruction", "a mobile obstruction"), 5, None)
-		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None)
-		self.suit = UsableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, {}, None, None, Item.ATTRIBUTE_GIVES_AIR)
-		self.shards = Item(1114, 0x2, Labels("shards", "some shards", "some glass shards"), 1, None)
-		self.bottle = ContainerItem(1108, 0x4203, Labels("bottle", "a bottle", "a small glass bottle"), 3, None)
+		self.kohlrabi = Item(1042, 0x2002, Labels("kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar"), 3, None, {})
+		self.desk = Item(1000, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None, {})
+		self.heavy_item = Item(1001, 0x2, Labels("heavy", "a heavy item", "a dummy heavy item"), 15, None, {})
+		self.obstruction = Item(1002, 0x4, Labels("obstruction", "an obstruction", "an obstruction blocking you"), 8, None, {})
+		self.mobile_obstruction = Item(1003, 0x6, Labels("mobile_obstruction", "a mobile obstruction", "a mobile obstruction"), 5, None, {})
+		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None, {})
+		self.suit = UsableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, {}, Item.ATTRIBUTE_GIVES_AIR)
+		self.shards = Item(1114, 0x2, Labels("shards", "some shards", "some glass shards"), 1, None, {})
+		self.bottle = ContainerItem(1108, 0x4203, Labels("bottle", "a bottle", "a small glass bottle"), 3, None, {})
 		self.bottle.transformations[73] = Transformation(replacement=self.shards, tool=None, material=None)
-		self.cat = SentientItem(1047, 0x80003, Labels("cat", "a cat", "a black cat"), 3, None)
-		self.bread = Item(1109, 0x2002, Labels("bread", "some bread", "a loaf of bread"), 2, None)
-		self.water = Item(1110, 0x22902, Labels("water", "some water", "some water"), 1, None)
-		self.raft = UsableItem(1118, 0x10000, Labels("raft", "a raft", "a rickety raft"), 6, None, {}, None, None, Item.ATTRIBUTE_GIVES_LAND)
-		self.boat = UsableItem(1119, 0x10000, Labels("boat", "a boat", "a wooden boat"), 6, None, {}, None, None, Item.ATTRIBUTE_GIVES_LAND)
+		self.cat = SentientItem(1047, 0x80003, Labels("cat", "a cat", "a black cat"), 3, None, {})
+		self.bread = Item(1109, 0x2002, Labels("bread", "some bread", "a loaf of bread"), 2, None, {})
+		self.water = Item(1110, 0x22902, Labels("water", "some water", "some water"), 1, None, {})
+		self.raft = UsableItem(1118, 0x10000, Labels("raft", "a raft", "a rickety raft"), 6, None, {}, Item.ATTRIBUTE_GIVES_LAND)
+		self.boat = UsableItem(1119, 0x10000, Labels("boat", "a boat", "a wooden boat"), 6, None, {}, Item.ATTRIBUTE_GIVES_LAND)
 
-		self.ash = Item(1112, 0x0, Labels("ash", "some ash", "some black ash"), 1, None)
-		self.matches = Item(1113, 0x200000, Labels("matches", "some matches", "a box of matches"), 2, None)
-		self.paper = Item(1111, 0x100000, Labels("paper", "some paper", "some old paper"), 1, None)
+		self.ash = Item(1112, 0x0, Labels("ash", "some ash", "some black ash"), 1, None, {})
+		self.matches = Item(1113, 0x200000, Labels("matches", "some matches", "a box of matches"), 2, None, {})
+		self.paper = Item(1111, 0x100000, Labels("paper", "some paper", "some old paper"), 1, None, {})
 		self.paper.transformations[6] = Transformation(replacement=self.ash, tool=self.matches, material=None)
 
-		self.dust = Item(1115, 0x2, Labels("dust", "some dust", "some grey dust"), 1, None)
-		self.rock = Item(1116, 0x1000, Labels("rock", "a rock", "a large rock"), 15, None)
+		self.dust = Item(1115, 0x2, Labels("dust", "some dust", "some grey dust"), 1, None, {})
+		self.rock = Item(1116, 0x1000, Labels("rock", "a rock", "a large rock"), 15, None, {})
 		self.rock.transformations[73] = Transformation(replacement=self.dust, tool=None, material=None)
 
-		self.tray = ContainerItem(1117, 0x4003, Labels("tray", "a tray", "a glass tray"), 4, None)
+		self.tray = ContainerItem(1117, 0x4003, Labels("tray", "a tray", "a glass tray"), 4, None, {})
 		self.tray.transformations[73] = Transformation(replacement=self.shards, tool=None, material=None)
 
-		self.timber = Item(1120, 0x2, Labels("plank", "a plank of timber", "a small plank of timber"), 3, None)
-		self.axe = Item(1121, 0x400002, Labels("axe", "an axe", "a small axe"), 3, None)
-		self.log = Item(1122, 0x0, Labels("log", "a log of wood", "a large log of wood"), 6, None)
+		self.timber = Item(1120, 0x2, Labels("plank", "a plank of timber", "a small plank of timber"), 3, None, {})
+		self.axe = Item(1121, 0x400002, Labels("axe", "an axe", "a small axe"), 3, None, {})
+		self.log = Item(1122, 0x0, Labels("log", "a log of wood", "a large log of wood"), 6, None, {})
 		self.log.transformations[78] = Transformation(replacement=self.timber, tool=self.axe, material=None)
 
-		self.rope = Item(1123, 0x2, Labels("rope", "some rope", "a small length of rope"), 2, None)
+		self.rope = Item(1123, 0x2, Labels("rope", "some rope", "a small length of rope"), 2, None, {})
 		self.log.transformations[57] = Transformation(replacement=self.raft, tool=None, material=self.rope)
 
 
@@ -1264,9 +1264,9 @@ class TestCommandHandler(unittest.TestCase):
 	def test_handle_score_with_collectibles_solved(self):
 		self.data.get_puzzle_count.return_value = 17
 		self.data.get_collectible_count.return_value = 29
-		self.cave_location.insert(Item(2222, 0x8002, Labels("nugget", "a gold nugget", "; it is shiny"), 2, None))
-		self.cave_location.insert(Item(2223, 0x8002, Labels("medal", "a silver medal", "; it is beautiful"), 2, None))
-		self.cave_location.insert(Item(2224, 0x8002, Labels("statue", "a bronze statue", "; it is heavy"), 2, None))
+		self.cave_location.insert(Item(2222, 0x8002, Labels("nugget", "a gold nugget", "; it is shiny"), 2, None, {}))
+		self.cave_location.insert(Item(2223, 0x8002, Labels("medal", "a silver medal", "; it is beautiful"), 2, None, {}))
+		self.cave_location.insert(Item(2224, 0x8002, Labels("statue", "a bronze statue", "; it is heavy"), 2, None, {}))
 
 		success, template_keys, content_args, next_args = self.handler.handle_score(self.command, self.player)
 
@@ -1282,9 +1282,9 @@ class TestCommandHandler(unittest.TestCase):
 		self.data.get_collectible_count.return_value = 29
 		self.player.solve_puzzle(Mock())
 		self.player.solve_puzzle(Mock())
-		self.cave_location.insert(Item(2222, 0x8002, Labels("nugget", "a gold nugget", "; it is shiny"), 2, None))
-		self.cave_location.insert(Item(2223, 0x8002, Labels("medal", "a silver medal", "; it is beautiful"), 2, None))
-		self.cave_location.insert(Item(2224, 0x8002, Labels("statue", "a bronze statue", "; it is heavy"), 2, None))
+		self.cave_location.insert(Item(2222, 0x8002, Labels("nugget", "a gold nugget", "; it is shiny"), 2, None, {}))
+		self.cave_location.insert(Item(2223, 0x8002, Labels("medal", "a silver medal", "; it is beautiful"), 2, None, {}))
+		self.cave_location.insert(Item(2224, 0x8002, Labels("statue", "a bronze statue", "; it is heavy"), 2, None, {}))
 
 		success, template_keys, content_args, next_args = self.handler.handle_score(self.command, self.player)
 

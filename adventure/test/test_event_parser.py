@@ -37,8 +37,8 @@ class TestEventParser(unittest.TestCase):
 
 
 	def setup_items(self):
-		self.book = self.book = Item(1043, 0x2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper")
-		self.bread = Item(1109, 0x2, Labels("bread", "some bread", "a loaf of bread"), 2, None)
+		self.book = self.book = Item(1043, 0x2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper", {})
+		self.bread = Item(1109, 0x2, Labels("bread", "some bread", "a loaf of bread"), 2, None, {})
 		self.items_by_id = {
 			1043 : self.book,
 			1044 : self.bread,
