@@ -110,7 +110,7 @@ class Item(NamedDataElement):
 
 
 	def get_base_list_name(self):
-		return self.get_formatted_list_name(self.list_template)
+		return self.get_formatted_list_name(self.list_templates.get(ListTemplateType.DEFAULT))
 
 
 	def get_formatted_list_name(self, template):
@@ -463,9 +463,9 @@ class UsableItem(Item):
 
 
 	def get_base_list_name(self):
-		template = self.list_template
+		template = self.list_templates.get(ListTemplateType.DEFAULT)
 		if self.being_used:
-			template = self.list_template_using
+			template = self.list_templates[ListTemplateType.USING]
 		return self.get_formatted_list_name(template)
 
 
