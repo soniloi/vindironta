@@ -37,6 +37,7 @@ class Message:
 	ITEM_SHARED_ID = (Severity.ERROR, "Multiple items found with id {0}.")
 	ITEM_SWITCHABLE_INVALID_SWITCHED_ELEMENT = (Severity.ERROR, "Switchable item {0} \"{1}\" has invalid switched element id {2}.")
 	ITEM_SWITCHABLE_NO_LIST_TEMPLATE = (Severity.WARN, "No list template found for switchable item {0} \"{1}\". While not mandatory, this will lead to incomplete descriptions of this item when listed.")
+	ITEM_SWITCHABLE_NO_LIST_TEMPLATES = (Severity.WARN, "Missing or incomplete list templates found for switchable item {0} \"{1}\". While not mandatory, this will lead to incomplete descriptions of this item when listed. Switchable items should specify either \"default\" or both \"location\" and \"carrying\" list templates.")
 	ITEM_SWITCHABLE_NO_RELATED_COMMAND = (Severity.ERROR, "Switchable item {0} \"{1}\" missing mandatory field \"related_command_id\".")
 	ITEM_SWITCHABLE_NO_SWITCH_INFO = (Severity.ERROR, "No switch info found for switchable item {0} \"{1}\".")
 	ITEM_SWITCHABLE_NON_SWITCHING_RELATED_COMMAND = (Severity.ERROR, "Switchable item {0} \"{1}\" has been specified with related command {2} \"{3}\", but this is not a switching command.")

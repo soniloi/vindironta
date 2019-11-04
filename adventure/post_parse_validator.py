@@ -1,4 +1,5 @@
 from adventure.direction import Direction
+from adventure.item import ListTemplateType
 from adventure.validation import Message, Severity
 
 class PostParseValidator:
@@ -97,4 +98,17 @@ class PostParseValidator:
 
 
 	def validate_items(self, item_collection):
-		return []
+		validation = []
+
+		for item in item_collection.items_by_id.values():
+			self.validate_item_list_templates(item, validation)
+
+		return validation
+
+
+	def validate_item_list_templates(self, item, validation):
+		list_templates = item.list_templates
+		if item.is_switchable():
+			if not (ListTemplateType.DEFAULT in list_templates or
+					(ListTemplateType.LOCATION in list_templates and ListTemplateType.CARRYING in list_templates)):
+				validation.append(Message(Message.ITEM_SWITCHABLE_NO_LIST_TEMPLATES, (item.data_id, item.shortname)))

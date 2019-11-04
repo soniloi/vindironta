@@ -4,9 +4,11 @@ from adventure.command import Command
 from adventure.command_collection import CommandCollection
 from adventure.data_collection import DataCollection
 from adventure.direction import Direction
+from adventure.element import Labels
 from adventure.inventory import Inventory
 from adventure.inventory_collection import InventoryCollection
-from adventure.element import Labels
+from adventure.item import Item, ListTemplateType, SwitchableItem, SwitchInfo
+from adventure.item_collection import ItemCollection
 from adventure.location import Location
 from adventure.location_collection import LocationCollection
 from adventure.post_parse_validator import PostParseValidator
@@ -24,7 +26,7 @@ class TestPostParseValidator(unittest.TestCase):
 			inventories=self.inventory_collection,
 			locations=self.location_collection,
 			elements_by_id=None,
-			items=None,
+			items=self.item_collection,
 			item_related_commands=None,
 			hints=None,
 			explanations=None,
@@ -55,7 +57,15 @@ class TestPostParseValidator(unittest.TestCase):
 
 
 	def setup_items(self):
-		pass
+		self.book = Item(1105, 0x2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper", {}, None)
+		lamp_list_templates = {ListTemplateType.DEFAULT, "{0} (currently {1})"}
+		lamp_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "off", "on")
+		self.lamp = SwitchableItem(1043, 0x100A, Labels("lamp", "a lamp", "a small lamp"), 2, None, lamp_list_templates, "{0} ({1})", lamp_switching_info)
+		self.items_by_id = {
+			1105 : self.book,
+			1043 : self.lamp,
+		}
+		self.item_collection = ItemCollection({}, self.items_by_id)
 
 
 	def test_validate_valid(self):
@@ -242,7 +252,6 @@ class TestPostParseValidator(unittest.TestCase):
 		mid_air_location.directions[Direction.DOWN] = self.lighthouse_location
 		self.locations_by_id[19] = mid_air_location
 
-
 		validation = self.validator.validate(self.data_collection)
 
 		self.assertEqual(1, len(validation))
@@ -250,6 +259,33 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual("Location {0} has no land, but also no floor. Locations without land must have a floor.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
 		self.assertEqual((19,), validation_line.args)
+
+
+	def test_validate_item_switchable_no_list_templates(self):
+		button_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "up", "down")
+		self.items_by_id[1044] = SwitchableItem(1044, 0x8, Labels("button", "a button", "a red button", [". It is dark", ". It is glowing"]), 2, None, {}, "{0} ({1})", button_switching_info)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Missing or incomplete list templates found for switchable item {0} \"{1}\". While not mandatory, this will lead to incomplete descriptions of this item when listed. Switchable items should specify either \"default\" or both \"location\" and \"carrying\" list templates.", validation_line.template)
+		self.assertEqual(Severity.WARN, validation_line.severity)
+		self.assertEqual((1044, "button"), validation_line.args)
+
+
+	def test_validate_item_switchable_incomplete_list_templates(self):
+		button_list_templates = {ListTemplateType.LOCATION, "{0} (currently {1})"}
+		button_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "up", "down")
+		self.items_by_id[1044] = SwitchableItem(1044, 0x8, Labels("button", "a button", "a red button", [". It is dark", ". It is glowing"]), 2, None, button_list_templates, "{0} ({1})", button_switching_info)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Missing or incomplete list templates found for switchable item {0} \"{1}\". While not mandatory, this will lead to incomplete descriptions of this item when listed. Switchable items should specify either \"default\" or both \"location\" and \"carrying\" list templates.", validation_line.template)
+		self.assertEqual(Severity.WARN, validation_line.severity)
+		self.assertEqual((1044, "button"), validation_line.args)
 
 
 if __name__ == "__main__":
