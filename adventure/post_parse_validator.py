@@ -1,5 +1,5 @@
 from adventure.direction import Direction
-from adventure.item import ListTemplateType
+from adventure.item import ListTemplateType, UsableItem
 from adventure.validation import Message, Severity
 
 class PostParseValidator:
@@ -108,7 +108,18 @@ class PostParseValidator:
 
 	def validate_item_list_templates(self, item, validation):
 		list_templates = item.list_templates
+
 		if item.is_switchable():
 			if not (ListTemplateType.DEFAULT in list_templates or
 					(ListTemplateType.LOCATION in list_templates and ListTemplateType.CARRYING in list_templates)):
 				validation.append(Message(Message.ITEM_SWITCHABLE_NO_LIST_TEMPLATES, (item.data_id, item.shortname)))
+
+		if self.item_is_usable(item):
+			if not ListTemplateType.USING in list_templates:
+				validation.append(Message(Message.ITEM_USABLE_NO_LIST_TEMPLATE_USING, (item.data_id, item.shortname)))
+		elif ListTemplateType.USING in list_templates:
+			validation.append(Message(Message.ITEM_NON_USABLE_WITH_LIST_TEMPLATE_USING, (item.data_id, item.shortname)))
+
+
+	def item_is_usable(self, item):
+		return isinstance(item, UsableItem)

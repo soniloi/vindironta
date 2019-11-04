@@ -187,11 +187,11 @@ class ItemParser:
 		usable = self.item_is_usable(attributes)
 		if not "list_template_using" in item_input:
 			if usable:
-				validation.append(Message(Message.ITEM_USABLE_NO_LIST_TEMPLATE_USING, (item_id, shortname)))
+				validation.append(Message(Message.ITEM_USABLE_NO_LIST_TEMPLATE_USING_OLD, (item_id, shortname)))
 			return None
 
 		if not usable:
-			validation.append(Message(Message.ITEM_NON_USABLE_WITH_LIST_TEMPLATE_USING, (item_id, shortname)))
+			validation.append(Message(Message.ITEM_NON_USABLE_WITH_LIST_TEMPLATE_USING_OLD, (item_id, shortname)))
 		list_template_using_input = item_input["list_template_using"]
 		return TokenTranslator.translate_substitution_tokens(list_template_using_input)
 
