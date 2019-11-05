@@ -119,12 +119,6 @@ class Item(NamedDataElement):
 		return self.longname
 
 
-	def get_non_silent_list_name(self, indentation=1):
-		if not self.is_silent():
-			return self.get_list_name(indentation)
-		return ""
-
-
 	def remove_from_containers(self):
 		for container in self.containers:
 			container.remove(self)

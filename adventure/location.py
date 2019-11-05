@@ -46,7 +46,8 @@ class Location(NamedDataElement, ItemContainer):
 	def get_contents_description(self):
 		result = ""
 		for item in self.items:
-			result += item.get_non_silent_list_name()
+			if not item.is_silent():
+				result += item.get_list_name()
 		return result
 
 

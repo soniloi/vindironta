@@ -91,14 +91,6 @@ class TestItem(unittest.TestCase):
 		self.assertEqual(["some water. It is cold"], self.water.get_full_description())
 
 
-	def test_get_non_silent_list_name_simple_silent_item(self):
-		self.assertEqual("", self.desk.get_non_silent_list_name())
-
-
-	def test_get_non_silent_list_name_simple_non_silent_item(self):
-		self.assertEqual("\n\ta book", self.book.get_non_silent_list_name())
-
-
 	def test_break_open_container(self):
 		self.box.insert(self.book)
 
