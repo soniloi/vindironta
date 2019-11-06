@@ -316,5 +316,29 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual((1042, "kohlrabi"), validation_line.args)
 
 
+	def test_validate_item_copyable_non_liquid(self):
+		self.items_by_id[1042] = Item(1042, 0x2802, Labels("kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar"), 3, None, {})
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Item {0} \"{1}\" has been specified as both copyable and non-liquid. This is not supported.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1042, "kohlrabi"), validation_line.args)
+
+
+	def test_validate_item_fragile_no_smash_transformation(self):
+		self.items_by_id[1017] = Item(1017, 0xC203, Labels("vial", "a vial", "a small glass vial"), 2, None, {}, None)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Item {0} \"{1}\" is fragile, but does not have a \"smash\" command replacement.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1017, "vial"), validation_line.args)
+
+
 if __name__ == "__main__":
 	unittest.main()

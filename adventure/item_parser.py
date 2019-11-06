@@ -20,7 +20,6 @@ class ItemParser:
 		self.place_items(container_ids_by_item, elements_by_id)
 		self.resolve_switches(switched_element_ids, elements_by_id, validation)
 		self.resolve_transformations(transformation_infos, elements_by_id, commands_by_id, validation)
-		self.validate_attributes(items_by_id, validation)
 
 		return ItemCollection(item_lists_by_name, items_by_id), related_commands, validation
 
@@ -317,11 +316,3 @@ class ItemParser:
 			return None
 
 		return element
-
-
-	def validate_attributes(self, items_by_id, validation):
-		for item in items_by_id.values():
-			if item.is_copyable() and not item.is_liquid():
-				validation.append(Message(Message.ITEM_COPYABLE_NON_LIQUID, (item.data_id, item.shortname)))
-			if item.is_fragile() and not Item.COMMAND_ID_SMASH in item.transformations:
-				validation.append(Message(Message.ITEM_FRAGILE_NO_SMASH_TRANSFORMATION, (item.data_id, item.shortname)))

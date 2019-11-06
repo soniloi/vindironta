@@ -1,5 +1,5 @@
 from adventure.direction import Direction
-from adventure.item import ListTemplateType, UsableItem
+from adventure.item import Item, ListTemplateType, UsableItem
 from adventure.validation import Message, Severity
 
 class PostParseValidator:
@@ -102,6 +102,7 @@ class PostParseValidator:
 
 		for item in item_collection.items_by_id.values():
 			self.validate_item_list_templates(item, validation)
+			self.validate_item_attributes(item, validation)
 
 		return validation
 
@@ -123,3 +124,10 @@ class PostParseValidator:
 
 	def item_is_usable(self, item):
 		return isinstance(item, UsableItem)
+
+
+	def validate_item_attributes(self, item, validation):
+		if item.is_copyable() and not item.is_liquid():
+			validation.append(Message(Message.ITEM_COPYABLE_NON_LIQUID, (item.data_id, item.shortname)))
+		if item.is_fragile() and not Item.COMMAND_ID_SMASH in item.transformations:
+			validation.append(Message(Message.ITEM_FRAGILE_NO_SMASH_TRANSFORMATION, (item.data_id, item.shortname)))
