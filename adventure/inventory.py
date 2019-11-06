@@ -25,7 +25,7 @@ class Inventory(NamedDataElement, ItemContainer):
 	def get_contents_description(self):
 		result = ""
 		for item in self.items:
-			result += item.get_list_name()
+			result += item.get_list_name_inventory()
 		return result
 
 

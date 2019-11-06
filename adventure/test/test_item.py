@@ -13,9 +13,13 @@ class TestItem(unittest.TestCase):
 		self.book = Item(1105, 0x2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper", {})
 		self.desk = Item(1106, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None, {})
 
-		basket_list_templates = {ListTemplateType.DEFAULT : "{0} (being lugged)"}
+		rope_list_templates = {ListTemplateType.LOCATION : "{0} (coiled neatly)", ListTemplateType.CARRYING : "{0} (tied safely)"}
+		self.rope = Item(1123, 0x2, Labels("rope", "some rope", "a small length of rope"), 2, None, rope_list_templates)
+
+		basket_list_templates = {ListTemplateType.DEFAULT : "{0} (upright)"}
 		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None, basket_list_templates)
-		self.box = ContainerItem(1108, 0x3, Labels("box", "a box", "a small box"), 3, None, {})
+		box_list_templates = {ListTemplateType.DEFAULT : "{0} (open)"}
+		self.box = ContainerItem(1108, 0x3, Labels("box", "a box", "a small box"), 3, None, box_list_templates)
 
 		lamp_list_templates = {ListTemplateType.DEFAULT : "{0} ({1})"}
 		lamp_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "off", "on")
@@ -75,12 +79,20 @@ class TestItem(unittest.TestCase):
 		self.assertIsNone(self.lamp.break_open())
 
 
-	def test_get_list_name_simple(self):
-		self.assertEqual("\n\ta book", self.book.get_list_name())
+	def test_get_list_name_location_no_list_templates(self):
+		self.assertEqual("\n\ta book", self.book.get_list_name_location())
 
 
-	def test_get_list_name_simple_indented(self):
-		self.assertEqual("\n\t\t\ta book", self.book.get_list_name(3))
+	def test_get_list_name_inventory_no_list_templates(self):
+		self.assertEqual("\n\ta book", self.book.get_list_name_inventory())
+
+
+	def test_get_list_name_location_with_list_template(self):
+		self.assertEqual("\n\tsome rope (coiled neatly)", self.rope.get_list_name_location())
+
+
+	def test_get_list_name_inventory_with_list_template(self):
+		self.assertEqual("\n\tsome rope (tied safely)", self.rope.get_list_name_inventory())
 
 
 	def test_get_full_description_without_extended_descriptions(self):
@@ -97,21 +109,21 @@ class TestItem(unittest.TestCase):
 		self.assertEqual(self.book, self.box.break_open())
 
 
-	def test_get_list_name_container_empty(self):
-		self.assertEqual("\n\ta basket (being lugged) (---)", self.basket.get_list_name())
+	def test_get_list_name_location_empty(self):
+		self.assertEqual("\n\ta box (open) (---)", self.box.get_list_name_location())
 
 
-	def test_get_list_name_container_nonempty(self):
+	def test_get_list_name_location_container_nonempty_single(self):
 		self.box.insert(self.book)
 
-		self.assertEqual("\n\ta box (being lugged) +\n\t\ta book", self.box.get_list_name())
+		self.assertEqual("\n\ta box (open) +\n\t\ta book", self.box.get_list_name_location())
 
 
-	def test_get_list_name_container_nonempty_multi(self):
+	def test_get_list_name_location_container_nonempty_multi(self):
 		self.basket.insert(self.box)
 		self.box.insert(self.book)
 
-		self.assertEqual("\n\ta basket (being lugged) +\n\t\ta box +\n\t\t\ta book", self.basket.get_list_name())
+		self.assertEqual("\n\ta basket (upright) +\n\t\ta box (open) +\n\t\t\ta book", self.basket.get_list_name_location())
 
 
 	def test_contains_simple(self):
@@ -174,14 +186,14 @@ class TestItem(unittest.TestCase):
 		self.assertEqual(self.mine_location, self.book.get_outermost_container())
 
 
-	def test_get_list_name_sentient(self):
-		self.assertEqual("\n\ta cat", self.cat.get_list_name())
+	def test_get_list_name_location_sentient(self):
+		self.assertEqual("\n\ta cat", self.cat.get_list_name_location())
 
 
-	def test_get_list_name_container_nonempty(self):
+	def test_get_list_name_sentient_carrying_item(self):
 		self.cat.insert(self.book)
 
-		self.assertEqual("\n\ta cat +\n\t\ta book", self.cat.get_list_name())
+		self.assertEqual("\n\ta cat +\n\t\ta book", self.cat.get_list_name_location())
 
 
 	def test_switch_on_self(self):
@@ -232,18 +244,18 @@ class TestItem(unittest.TestCase):
 		self.assertFalse(self.mine_location.gives_light())
 
 
-	def test_get_list_name_switchable_off(self):
+	def test_get_list_name_location_switchable_off(self):
 		self.lamp.switched_element = self.lamp
 		self.lamp.switch_off()
 
-		self.assertEqual("\n\ta lamp (off)", self.lamp.get_list_name())
+		self.assertEqual("\n\ta lamp (off)", self.lamp.get_list_name_location())
 
 
-	def test_get_list_name_switchable_on(self):
+	def test_get_list_name_location_switchable_on(self):
 		self.lever.switched_element = self.mine_location
 		self.lever.switch_on()
 
-		self.assertEqual("\n\ta lever (up)", self.lever.get_list_name())
+		self.assertEqual("\n\ta lever (up)", self.lever.get_list_name_location())
 
 
 	def test_get_full_description_switchable_without_extended_descriptions(self):
@@ -272,16 +284,16 @@ class TestItem(unittest.TestCase):
 		self.assertTrue(self.suit.gives_air())
 
 
-	def test_list_name_wearable_not_being_used(self):
+	def test_list_name_inventory_wearable_not_being_used(self):
 		self.suit.being_used = False
 
-		self.assertEqual("\n\ta suit", self.suit.get_list_name())
+		self.assertEqual("\n\ta suit", self.suit.get_list_name_inventory())
 
 
-	def test_list_name_wearable_being_used(self):
+	def test_list_name_inventory_wearable_being_used(self):
 		self.suit.being_used = True
 
-		self.assertEqual("\n\ta suit (being worn)", self.suit.get_list_name())
+		self.assertEqual("\n\ta suit (being worn)", self.suit.get_list_name_inventory())
 
 
 if __name__ == "__main__":

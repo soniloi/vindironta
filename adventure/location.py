@@ -47,7 +47,7 @@ class Location(NamedDataElement, ItemContainer):
 		result = ""
 		for item in self.items:
 			if not item.is_silent():
-				result += item.get_list_name()
+				result += item.get_list_name_location()
 		return result
 
 

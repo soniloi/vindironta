@@ -102,15 +102,21 @@ class Item(NamedDataElement):
 		return [self.get_description()]
 
 
-	def get_list_name(self, indentation=1):
+	def get_list_name_location(self):
+		return self.get_list_name(ListTemplateType.LOCATION)
+
+
+	def get_list_name_inventory(self):
+		return self.get_list_name(ListTemplateType.CARRYING)
+
+
+	def get_list_name(self, list_template_type, indentation=1):
 		result = "\n"
 		for i in range(0, indentation):
 			result += "\t"
-		return result + self.get_base_list_name()
-
-
-	def get_base_list_name(self):
-		return self.get_formatted_list_name(self.list_templates.get(ListTemplateType.DEFAULT))
+		if not list_template_type in self.list_templates:
+			list_template_type = ListTemplateType.DEFAULT
+		return result + self.get_formatted_list_name(self.list_templates.get(list_template_type))
 
 
 	def get_formatted_list_name(self, template):
@@ -300,9 +306,9 @@ class ContainerItem(Item, ItemContainer):
 		return any(item.is_essential() for item in self.items)
 
 
-	def get_list_name(self, indentation=1):
+	def get_list_name(self, list_template_type, indentation=1):
 
-		result = Item.get_list_name(self, indentation)
+		result = Item.get_list_name(self, list_template_type, indentation)
 		inner_indentation = indentation + 1
 		result += " "
 
@@ -311,7 +317,7 @@ class ContainerItem(Item, ItemContainer):
 		if self.items:
 			template = "+{0}"
 			inner_item = next(iter(self.items))
-			contents = inner_item.get_list_name(inner_indentation)
+			contents = inner_item.get_list_name(list_template_type, inner_indentation)
 
 		result += template.format(contents)
 
@@ -363,15 +369,15 @@ class SentientItem(ItemContainer, Item):
 		return ItemContainer.gives_air(self)
 
 
-	def get_list_name(self, indentation=1):
+	def get_list_name(self, list_template_type, indentation=1):
 
-		result = Item.get_list_name(self, indentation)
+		result = Item.get_list_name(self, list_template_type, indentation)
 		inner_indentation = indentation + 1
 
 		if self.items:
 			template = " +{0}"
 			inner_item = next(iter(self.items))
-			contents = inner_item.get_list_name(inner_indentation)
+			contents = inner_item.get_list_name(list_template_type, inner_indentation)
 			result += template.format(contents)
 
 		return result
@@ -454,11 +460,11 @@ class UsableItem(Item):
 		return Item.has_attribute(self, attribute)
 
 
-	def get_base_list_name(self):
-		template = self.list_templates.get(ListTemplateType.DEFAULT)
+	def get_list_name_inventory(self):
+		list_template_type = ListTemplateType.CARRYING
 		if self.being_used:
-			template = self.list_templates[ListTemplateType.USING]
-		return self.get_formatted_list_name(template)
+			list_template_type = ListTemplateType.USING
+		return self.get_list_name(list_template_type)
 
 
 	def get_weight(self):
