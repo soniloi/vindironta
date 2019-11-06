@@ -36,11 +36,7 @@ class Item(NamedDataElement):
 	ATTRIBUTE_ESSENTIAL = 0x100000
 
 	# TODO: find a better place for this
-	COMMAND_ID_BURN = 6
-	COMMAND_ID_TIE = 57
 	COMMAND_ID_SMASH = 73
-	COMMAND_ID_CHOP = 78
-
 
 	def __init__(self, item_id, attributes, labels, size, writing, list_templates, copied_from=None):
 		NamedDataElement.__init__(self, data_id=item_id, attributes=attributes, labels=labels)
@@ -96,6 +92,10 @@ class Item(NamedDataElement):
 
 	def is_switchable(self):
 		return False
+
+
+	def has_transformation(self, command_id):
+		return command_id in self.transformations
 
 
 	def get_full_description(self):
@@ -233,20 +233,8 @@ class Item(NamedDataElement):
 		return self.has_attribute(Item.ATTRIBUTE_ESSENTIAL)
 
 
-	def is_burnable(self):
-		return Item.COMMAND_ID_BURN in self.transformations
-
-
-	def is_tyable(self):
-		return Item.COMMAND_ID_TIE in self.transformations
-
-
 	def is_smashable(self):
 		return Item.COMMAND_ID_SMASH in self.transformations
-
-
-	def is_choppable(self):
-		return Item.COMMAND_ID_CHOP in self.transformations
 
 
 	def get_outermost_container(self):

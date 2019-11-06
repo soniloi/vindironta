@@ -9,14 +9,14 @@ class CommandHandler(Resolver):
 	POINTS_PER_COLLECTIBLE = 5
 
 	def handle_burn(self, command, player, item):
-		if not item.is_burnable():
+		if not item.has_transformation(command.data_id):
 			return False, ["reject_not_burnable"], [item], []
 
 		return self.transform_item(command, player, item, "confirm_burn")
 
 
 	def handle_chop(self, command, player, item):
-		if not item.is_choppable():
+		if not item.has_transformation(command.data_id):
 			return False, ["reject_not_choppable"], [item], []
 
 		return self.transform_item(command, player, item, "confirm_chop")
@@ -532,7 +532,7 @@ class CommandHandler(Resolver):
 
 
 	def handle_tie(self, command, player, item):
-		if not item.is_tyable():
+		if not item.has_transformation(command.data_id):
 			return False, ["reject_not_tyable"], [item], []
 
 		return self.transform_item(command, player, item, "confirm_tie")
