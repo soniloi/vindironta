@@ -34,12 +34,14 @@ if __name__ == '__main__':
 	argparser = argparse.ArgumentParser()
 	argparser.add_argument("filename", type=str, help="name of input json file defining game")
 	argparser.add_argument("--validate-only", action="store_true", help="only validate the input file without running game")
+	argparser.add_argument("--text-input", action="store_true", help="use plain json text input file")
 
 	args = argparser.parse_args()
 	filename = args.filename
 	validate_only = args.validate_only
+	text_input = args.text_input
 
-	current_game = data_parser.DataParser().parse(filename)
+	current_game = data_parser.DataParser().parse(filename, text_input)
 
 	if not validate_only:
 		cli = Cli()

@@ -24,12 +24,25 @@ class DataParser:
 
 	VALIDATION_MESSAGE_FILENAME = "validation.txt"
 
-	def parse(self, filename):
+	def parse(self, filename, text_input=False):
+		content = None
+		if text_input:
+			content = self.get_content_text(filename)
+		else:
+			content = self.get_content_binary(filename)
+		json_content = json.loads(content)
+		return self.parse_file(json_content)
+
+
+	def get_content_text(self, filename):
+		with open(filename, "r") as input_file:
+			return input_file.read()
+
+
+	def get_content_binary(self, filename):
 		with open(filename, "rb") as input_file:
 			reader = FileReader(input_file)
-			content = reader.get_content()
-			json_content = json.loads(content)
-			return self.parse_file(json_content)
+			return reader.get_content()
 
 
 	def parse_file(self, json_content):
