@@ -640,7 +640,7 @@ class TestCommandParser(unittest.TestCase):
 		self.assertTrue("smash" in collection.commands_by_name)
 
 		smash_command = collection.commands_by_name["smash"]
-		self.assertEqual(37, collection.smash_command_id)
+		self.assertEqual(37, collection.smash_command_ids[0])
 
 		self.assertFalse(teleport_infos)
 		self.assertFalse(validation)

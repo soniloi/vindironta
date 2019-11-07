@@ -8,7 +8,7 @@ class PostParseValidator:
 		command_validation = self.validate_commands(data.commands)
 		inventory_validation = self.validate_inventories(data.inventories, data.locations)
 		location_validation = self.validate_locations(data.locations)
-		item_validation = self.validate_items(data.items, data.commands.smash_command_id)
+		item_validation = self.validate_items(data.items, data.commands.smash_command_ids)
 		return command_validation + inventory_validation + location_validation + item_validation
 
 
@@ -18,6 +18,9 @@ class PostParseValidator:
 		for command in command_collection.commands_by_id.values():
 			self.validate_command_teleport(command, validation)
 			self.validate_command_switchable(command, validation)
+
+		if len(command_collection.smash_command_ids) > 1:
+			validation.append(Message(Message.COMMAND_SMASH_MULTIPLE, ()))
 
 		return validation
 
@@ -97,8 +100,12 @@ class PostParseValidator:
 			validation.append(Message(Message.LOCATION_NO_LAND_NO_FLOOR, (location.data_id,)))
 
 
-	def validate_items(self, item_collection, smash_command_id):
+	def validate_items(self, item_collection, smash_command_ids):
 		validation = []
+
+		smash_command_id = None
+		if smash_command_ids:
+			smash_command_id = smash_command_ids[0]
 
 		for item in item_collection.items_by_id.values():
 			self.validate_item_list_templates(item, validation)
@@ -129,5 +136,9 @@ class PostParseValidator:
 	def validate_item_attributes(self, item, validation, smash_command_id):
 		if item.is_copyable() and not item.is_liquid():
 			validation.append(Message(Message.ITEM_COPYABLE_NON_LIQUID, (item.data_id, item.shortname)))
-		if item.is_fragile() and not smash_command_id in item.transformations:
-			validation.append(Message(Message.ITEM_FRAGILE_NO_SMASH_TRANSFORMATION, (item.data_id, item.shortname)))
+		if item.is_fragile():
+			if not smash_command_id:
+				validation.append(Message(Message.ITEM_FRAGILE_NO_SMASH_COMMAND, ()))
+			elif not smash_command_id in item.transformations:
+				validation.append(Message(Message.ITEM_FRAGILE_NO_SMASH_TRANSFORMATION, (item.data_id, item.shortname)))
+

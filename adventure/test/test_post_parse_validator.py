@@ -40,8 +40,8 @@ class TestPostParseValidator(unittest.TestCase):
 	def setup_commands(self):
 		self.commands_by_id = {}
 		self.commands_by_id[56] = Command(56, 0x0, [], [], ["take", "t"],  {})
-		self.commands_by_id[37] = Command(37, 0x0, [], [], ["smash"], {})
-		self.command_collection = CommandCollection({}, self.commands_by_id, "command_list", 37)
+		self.smash_command_ids = []
+		self.command_collection = CommandCollection({}, self.commands_by_id, "command_list", self.smash_command_ids)
 
 
 	def setup_inventories(self):
@@ -131,6 +131,19 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual("Command {0} \"{1}\" is not a switchable command, but switch info has been given. This switch info will be ignored.", validation_line.template)
 		self.assertEqual(Severity.WARN, validation_line.severity)
 		self.assertEqual((56, "take"), validation_line.args)
+
+
+	def test_validate_command_multiple_smash(self):
+		self.smash_command_ids.append(17)
+		self.smash_command_ids.append(81)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Multiple commands specified with the handler \"smash\". This is not supported.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((), validation_line.args)
 
 
 	def test_validate_inventory_no_inventories(self):
@@ -329,7 +342,20 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual((1042, "kohlrabi"), validation_line.args)
 
 
+	def test_validate_item_fragile_no_smash_command(self):
+		self.items_by_id[1017] = Item(1017, 0xC203, Labels("vial", "a vial", "a small glass vial"), 2, None, {}, None)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Fragile item(s) found, but no command specified with the handler \"smash\".", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((), validation_line.args)
+
+
 	def test_validate_item_fragile_no_smash_transformation(self):
+		self.smash_command_ids.append(37)
 		self.items_by_id[1017] = Item(1017, 0xC203, Labels("vial", "a vial", "a small glass vial"), 2, None, {}, None)
 
 		validation = self.validator.validate(self.data_collection)

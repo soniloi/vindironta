@@ -11,10 +11,10 @@ class CommandParser:
 		self.event_resolver = resolvers.event_resolver
 		self.life_resolver = resolvers.life_resolver
 
-		commands_by_name, commands_by_id, teleport_infos, smash_command_id, validation = self.parse_commands(command_inputs)
+		commands_by_name, commands_by_id, teleport_infos, smash_command_ids, validation = self.parse_commands(command_inputs)
 		command_list = self.create_command_list(commands_by_name)
 
-		return CommandCollection(commands_by_name, commands_by_id, command_list, smash_command_id), teleport_infos, validation
+		return CommandCollection(commands_by_name, commands_by_id, command_list, smash_command_ids), teleport_infos, validation
 
 
 	def parse_commands(self, command_inputs):
@@ -23,7 +23,7 @@ class CommandParser:
 		validation = []
 		teleport_infos = {}
 
-		smash_command_id = None
+		smash_command_ids = []
 		for command_input in command_inputs:
 			command, teleport_info, is_smash = self.parse_command(command_input, validation)
 			if command:
@@ -43,9 +43,9 @@ class CommandParser:
 					teleport_infos[command] = teleport_info
 
 				if is_smash:
-					smash_command_id = command.data_id
+					smash_command_ids.append(command.data_id)
 
-		return commands_by_name, commands_by_id, teleport_infos, smash_command_id, validation
+		return commands_by_name, commands_by_id, teleport_infos, smash_command_ids, validation
 
 
 	def parse_command(self, command_input, validation):
