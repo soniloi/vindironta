@@ -35,9 +35,6 @@ class Item(NamedDataElement):
 	ATTRIBUTE_SENTIENT = 0x80000
 	ATTRIBUTE_ESSENTIAL = 0x100000
 
-	# TODO: find a better place for this
-	COMMAND_ID_SMASH = 73
-
 	def __init__(self, item_id, attributes, labels, size, writing, list_templates, copied_from=None):
 		NamedDataElement.__init__(self, data_id=item_id, attributes=attributes, labels=labels)
 		self.size = size
@@ -231,10 +228,6 @@ class Item(NamedDataElement):
 
 	def is_essential(self):
 		return self.has_attribute(Item.ATTRIBUTE_ESSENTIAL)
-
-
-	def is_smashable(self):
-		return Item.COMMAND_ID_SMASH in self.transformations
 
 
 	def get_outermost_container(self):

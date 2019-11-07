@@ -31,6 +31,7 @@ class TestCommandHandler(unittest.TestCase):
 
 	def setup_commands(self):
 		self.data.list_commands.return_value = "look, ne"
+		self.data.get_smash_command_id.return_value = 37
 
 
 	def setup_inventories(self):
@@ -68,7 +69,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.suit = UsableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, {}, Item.ATTRIBUTE_GIVES_AIR)
 		self.shards = Item(1114, 0x2, Labels("shards", "some shards", "some glass shards"), 1, None, {})
 		self.bottle = ContainerItem(1108, 0x4203, Labels("bottle", "a bottle", "a small glass bottle"), 3, None, {})
-		self.bottle.transformations[73] = Transformation(replacement=self.shards, tool=None, material=None)
+		self.bottle.transformations[37] = Transformation(replacement=self.shards, tool=None, material=None)
 		self.cat = SentientItem(1047, 0x80003, Labels("cat", "a cat", "a black cat"), 3, None, {})
 		self.bread = Item(1109, 0x2002, Labels("bread", "some bread", "a loaf of bread"), 2, None, {})
 		self.water = Item(1110, 0x22902, Labels("water", "some water", "some water"), 1, None, {})
@@ -82,10 +83,10 @@ class TestCommandHandler(unittest.TestCase):
 
 		self.dust = Item(1115, 0x2, Labels("dust", "some dust", "some grey dust"), 1, None, {})
 		self.rock = Item(1116, 0x1000, Labels("rock", "a rock", "a large rock"), 15, None, {})
-		self.rock.transformations[73] = Transformation(replacement=self.dust, tool=None, material=None)
+		self.rock.transformations[37] = Transformation(replacement=self.dust, tool=None, material=None)
 
 		self.tray = ContainerItem(1117, 0x4003, Labels("tray", "a tray", "a glass tray"), 4, None, {})
-		self.tray.transformations[73] = Transformation(replacement=self.shards, tool=None, material=None)
+		self.tray.transformations[37] = Transformation(replacement=self.shards, tool=None, material=None)
 
 		self.timber = Item(1120, 0x2, Labels("plank", "a plank of timber", "a small plank of timber"), 3, None, {})
 		self.axe = Item(1121, 0x400002, Labels("axe", "an axe", "a small axe"), 3, None, {})
@@ -1321,7 +1322,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_smash_smashable_not_strong_item(self):
-		smash_command = Command(73, 0x9, 0x0, [], [""],  {})
+		smash_command = Command(37, 0x9, 0x0, [], [""],  {})
 		self.item_start_location.insert(self.bottle)
 
 		success, template_keys, content_args, next_args = self.handler.handle_smash(smash_command, self.player, self.bottle)
@@ -1335,7 +1336,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_smash_smashable_strong_item_not_strong_player(self):
-		smash_command = Command(73, 0x9, 0x0, [], [""],  {})
+		smash_command = Command(37, 0x9, 0x0, [], [""],  {})
 		self.item_start_location.insert(self.rock)
 
 		success, template_keys, content_args, next_args = self.handler.handle_smash(smash_command, self.player, self.rock)
@@ -1346,7 +1347,7 @@ class TestCommandHandler(unittest.TestCase):
 
 
 	def test_handle_smash_smashable_strong_item_strong_player(self):
-		smash_command = Command(73, 0x9, 0x0, [], [""],  {})
+		smash_command = Command(37, 0x9, 0x0, [], [""],  {})
 		self.item_start_location.insert(self.rock)
 		self.player.set_strong(True)
 

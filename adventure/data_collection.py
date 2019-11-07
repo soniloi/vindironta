@@ -23,6 +23,10 @@ class DataCollection:
 		return self.commands.list_commands()
 
 
+	def get_smash_command_id(self):
+		return self.commands.get_smash_command_id()
+
+
 	def get_item_related_commands(self):
 		return self.item_related_commands
 

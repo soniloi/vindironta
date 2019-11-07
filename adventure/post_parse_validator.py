@@ -8,7 +8,7 @@ class PostParseValidator:
 		command_validation = self.validate_commands(data.commands)
 		inventory_validation = self.validate_inventories(data.inventories, data.locations)
 		location_validation = self.validate_locations(data.locations)
-		item_validation = self.validate_items(data.items)
+		item_validation = self.validate_items(data.items, data.commands.smash_command_id)
 		return command_validation + inventory_validation + location_validation + item_validation
 
 
@@ -97,12 +97,12 @@ class PostParseValidator:
 			validation.append(Message(Message.LOCATION_NO_LAND_NO_FLOOR, (location.data_id,)))
 
 
-	def validate_items(self, item_collection):
+	def validate_items(self, item_collection, smash_command_id):
 		validation = []
 
 		for item in item_collection.items_by_id.values():
 			self.validate_item_list_templates(item, validation)
-			self.validate_item_attributes(item, validation)
+			self.validate_item_attributes(item, validation, smash_command_id)
 
 		return validation
 
@@ -126,8 +126,8 @@ class PostParseValidator:
 		return isinstance(item, UsableItem)
 
 
-	def validate_item_attributes(self, item, validation):
+	def validate_item_attributes(self, item, validation, smash_command_id):
 		if item.is_copyable() and not item.is_liquid():
 			validation.append(Message(Message.ITEM_COPYABLE_NON_LIQUID, (item.data_id, item.shortname)))
-		if item.is_fragile() and not Item.COMMAND_ID_SMASH in item.transformations:
+		if item.is_fragile() and not smash_command_id in item.transformations:
 			validation.append(Message(Message.ITEM_FRAGILE_NO_SMASH_TRANSFORMATION, (item.data_id, item.shortname)))

@@ -1,6 +1,6 @@
 import json
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from adventure.command_parser import CommandParser
 from adventure.resolvers import Resolvers
@@ -60,6 +60,7 @@ class TestCommandParser(unittest.TestCase):
 		self.mock_handler_look = Mock()
 		self.mock_handler_read = Mock()
 		self.mock_handler_score = Mock()
+		self.mock_handler_smash = Mock()
 		self.mock_handler_take = Mock()
 		self.mock_handler_teleport = Mock()
 		self.mock_handler_verbose = Mock()
@@ -71,6 +72,7 @@ class TestCommandParser(unittest.TestCase):
 			"handle_look" : self.mock_handler_look,
 			"handle_read" : self.mock_handler_read,
 			"handle_score" : self.mock_handler_score,
+			"handle_smash" : self.mock_handler_smash,
 			"handle_take" : self.mock_handler_take,
 			"handle_teleport" : self.mock_handler_teleport,
 			"handle_verbose" : self.mock_handler_verbose,
@@ -614,6 +616,36 @@ class TestCommandParser(unittest.TestCase):
 		self.assertEqual("Multiple commands found with id {0}. Alias will map to command with primary alias \"{1}\".", validation_line.template)
 		self.assertEqual((50, "south"), validation_line.args)
 		self.assertIs(south_command, collection.commands_by_id[50])
+
+
+	def test_init_command_smash(self):
+		self.command_handler.is_smash_handler.return_value = True
+		command_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 37, \
+					\"attributes\": \"0\", \
+					\"handler\": \"smash\", \
+					\"aliases\": [ \
+						\"smash\" \
+					] \
+				} \
+			]"
+		)
+
+		collection, teleport_infos, validation = CommandParser().parse(command_inputs, self.resolvers)
+
+		self.assertEqual(1, len(collection.commands_by_name))
+		self.assertEqual(1, len(collection.commands_by_id))
+		self.assertTrue("smash" in collection.commands_by_name)
+
+		smash_command = collection.commands_by_name["smash"]
+		self.assertEqual(37, collection.smash_command_id)
+
+		self.assertFalse(teleport_infos)
+		self.assertFalse(validation)
+
+		self.command_handler.is_smash_handler.assert_called_once_with(self.mock_handler_smash)
 
 
 	def test_list_commands(self):

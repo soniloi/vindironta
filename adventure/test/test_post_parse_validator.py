@@ -40,7 +40,8 @@ class TestPostParseValidator(unittest.TestCase):
 	def setup_commands(self):
 		self.commands_by_id = {}
 		self.commands_by_id[56] = Command(56, 0x0, [], [], ["take", "t"],  {})
-		self.command_collection = CommandCollection({}, self.commands_by_id, "command_list")
+		self.commands_by_id[37] = Command(37, 0x0, [], [], ["smash"], {})
+		self.command_collection = CommandCollection({}, self.commands_by_id, "command_list", 37)
 
 
 	def setup_inventories(self):

@@ -11,10 +11,10 @@ class CommandParser:
 		self.event_resolver = resolvers.event_resolver
 		self.life_resolver = resolvers.life_resolver
 
-		commands_by_name, commands_by_id, teleport_infos, validation = self.parse_commands(command_inputs)
+		commands_by_name, commands_by_id, teleport_infos, smash_command_id, validation = self.parse_commands(command_inputs)
 		command_list = self.create_command_list(commands_by_name)
 
-		return CommandCollection(commands_by_name, commands_by_id, command_list), teleport_infos, validation
+		return CommandCollection(commands_by_name, commands_by_id, command_list, smash_command_id), teleport_infos, validation
 
 
 	def parse_commands(self, command_inputs):
@@ -23,8 +23,9 @@ class CommandParser:
 		validation = []
 		teleport_infos = {}
 
+		smash_command_id = None
 		for command_input in command_inputs:
-			command, teleport_info = self.parse_command(command_input, validation)
+			command, teleport_info, is_smash = self.parse_command(command_input, validation)
 			if command:
 				for alias in command.aliases:
 					if alias in commands_by_name:
@@ -41,7 +42,10 @@ class CommandParser:
 				if teleport_info:
 					teleport_infos[command] = teleport_info
 
-		return commands_by_name, commands_by_id, teleport_infos, validation
+				if is_smash:
+					smash_command_id = command.data_id
+
+		return commands_by_name, commands_by_id, teleport_infos, smash_command_id, validation
 
 
 	def parse_command(self, command_input, validation):
@@ -53,7 +57,7 @@ class CommandParser:
 		teleport_info = self.parse_teleport_info(command_input.get("teleport_info"), validation, command_id, aliases[0])
 
 		command = None
-		proceed, resolver_functions = self.get_resolver_functions(attributes, arg_infos, command_input["handler"],
+		proceed, resolver_functions, is_smash = self.get_resolver_functions(attributes, arg_infos, command_input["handler"],
 				validation, command_id, aliases[0])
 		if proceed:
 			command = Command(
@@ -65,7 +69,7 @@ class CommandParser:
 			switch_info=switch_info,
 		)
 
-		return command, teleport_info
+		return command, teleport_info, is_smash
 
 
 	def parse_arg_infos(self, arg_info_inputs):
@@ -107,7 +111,9 @@ class CommandParser:
 		handler_function = self.get_handler_function(handler_input)
 		if not handler_function:
 			validation.append(Message(Message.COMMAND_UNRECOGNIZED_HANDLER, (handler_input, command_id, primary)))
-			return False, ()
+			return False, (), False
+		# TODO: remove when refactoring smash command
+		is_smash = self.command_handler.is_smash_handler(handler_function)
 
 		pre_vision_function = self.get_pre_vision_function(attributes, arg_infos)
 		arg_function = self.get_arg_function(attributes)
@@ -116,7 +122,7 @@ class CommandParser:
 		life_function = self.get_life_resolver_function()
 
 		possible_functions = [pre_vision_function, arg_function, handler_function, post_vision_function, event_function, life_function]
-		return True, [x for x in possible_functions if x]
+		return True, [x for x in possible_functions if x], is_smash
 
 
 	def get_pre_vision_function(self, attributes, arg_infos):

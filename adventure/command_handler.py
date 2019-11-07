@@ -8,6 +8,11 @@ class CommandHandler(Resolver):
 	POINTS_PER_PUZZLE = 7
 	POINTS_PER_COLLECTIBLE = 5
 
+	# TODO: remove when refactoring smash command
+	def is_smash_handler(self, handler_function):
+		return handler_function == self.handle_smash
+
+
 	def handle_burn(self, command, player, item):
 		if not item.has_transformation(command.data_id):
 			return False, ["reject_not_burnable"], [item], []
@@ -97,8 +102,9 @@ class CommandHandler(Resolver):
 
 
 	def break_item(self, item, destination, template_keys, content_args):
+		smash_command_id = self.data.get_smash_command_id()
 		item_within = item.break_open()
-		dropped_item = item.transformations[Item.COMMAND_ID_SMASH].replacement
+		dropped_item = item.transformations[smash_command_id].replacement
 		content_args.append(dropped_item)
 
 		if item_within:
@@ -433,7 +439,7 @@ class CommandHandler(Resolver):
 
 
 	def handle_smash(self, command, player, item):
-		if not item.is_smashable():
+		if not item.has_transformation(command.data_id):
 			return False, ["reject_not_smashable"], [item], []
 
 		if item.is_strong() and not player.is_strong():
