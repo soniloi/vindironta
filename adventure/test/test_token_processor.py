@@ -88,7 +88,8 @@ class TestTokenProcessor(unittest.TestCase):
 		self.data.get_response.side_effect = lambda x: {
 			"confirm_reincarnation" : "You have been reincarnated.",
 			"confirm_quit" : "OK.",
-			"reject_no_understand_selection" : "I do not understand.",
+			"reject_no_understand_instruction" : "I do not understand that instruction.",
+			"reject_no_understand_selection" : "I do not understand that selection.",
 			"request_reincarnation" : "Do you want to be reincarnated?",
 		}.get(x)
 
@@ -109,7 +110,7 @@ class TestTokenProcessor(unittest.TestCase):
 
 		response = self.processor.process_tokens(self.player, ["notacommand"])
 
-		self.assertEqual("", response)
+		self.assertEqual("I do not understand that instruction.", response)
 		self.command_runner.run.assert_not_called()
 		self.player.increment_instructions.assert_called_once()
 
@@ -205,7 +206,7 @@ class TestTokenProcessor(unittest.TestCase):
 
 		response = self.processor.process_tokens(self.player, ["xyz"])
 
-		self.assertEqual("I do not understand. Do you want to be reincarnated?", response)
+		self.assertEqual("I do not understand that selection. Do you want to be reincarnated?", response)
 		self.player.set_alive.assert_not_called()
 		self.player.set_playing.assert_not_called()
 

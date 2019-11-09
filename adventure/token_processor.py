@@ -19,6 +19,9 @@ class TokenProcessor:
 		if player.is_playing() and not player.is_alive():
 			response += " " + self.data.get_response("request_reincarnation")
 
+		if not response:
+			response = self.data.get_response("reject_no_understand_instruction")
+
 		return response
 
 
