@@ -300,7 +300,10 @@ class CommandHandler(Resolver):
 			item.remove_from_containers()
 		proposed_container.insert(item)
 
-		return True, ["confirm_inserted"], content_args, [item, proposed_container]
+		template_key = "confirm_insert_solid"
+		if item.is_liquid():
+			template_key = "confirm_insert_liquid"
+		return True, [template_key], content_args, [item, proposed_container]
 
 
 	def handle_inventory(self, command, player):

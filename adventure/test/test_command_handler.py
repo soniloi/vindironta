@@ -917,7 +917,7 @@ class TestCommandHandler(unittest.TestCase):
 		success, template_keys, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.book, self.basket)
 
 		self.assertTrue(success)
-		self.assertEqual(["confirm_inserted"], template_keys)
+		self.assertEqual(["confirm_insert_solid"], template_keys)
 		self.assertEqual([self.book, self.basket], content_args)
 		self.assertFalse(self.book in self.item_start_location.items)
 		self.assertTrue(self.book in self.basket.items)
@@ -930,7 +930,7 @@ class TestCommandHandler(unittest.TestCase):
 		success, template_keys, content_args, next_args = self.handler.handle_insert(self.command, self.player, self.water, self.bottle)
 
 		self.assertTrue(success)
-		self.assertEqual(["confirm_inserted"], template_keys)
+		self.assertEqual(["confirm_insert_liquid"], template_keys)
 		self.assertEqual([self.water, self.bottle], content_args)
 		self.assertEqual([self.water, self.bottle], next_args)
 		self.assertTrue(self.water in self.item_start_location.items)
@@ -1563,7 +1563,7 @@ class TestCommandHandler(unittest.TestCase):
 		success, template_keys, content_args, next_args = self.handler.handle_take(self.command, self.player, self.book, self.basket)
 
 		self.assertTrue(success)
-		self.assertEqual(["confirm_inserted"], template_keys)
+		self.assertEqual(["confirm_insert_solid"], template_keys)
 		self.assertEqual([self.book, self.basket], content_args)
 		self.assertEqual([self.book, self.basket], next_args)
 		self.assertTrue(self.book in self.basket.items)
