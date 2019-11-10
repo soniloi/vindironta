@@ -386,6 +386,17 @@ class CommandHandler(Resolver):
 		return True, ["describe_writing"], [item.writing], [item]
 
 
+	def handle_remove(self, command, player, item):
+		if not item.is_wearable() or not item.being_used:
+			return False, ["reject_not_wearing"], [item], []
+
+		if not player.can_remove(item):
+			return False, ["reject_too_full_not_worn"], [item], []
+
+		item.being_used = False
+		return True, ["confirm_remove"], [item], [item]
+
+
 	def handle_rub(self, command, player, item):
 		return True, [], [], [item]
 

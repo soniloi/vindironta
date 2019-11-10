@@ -75,6 +75,13 @@ class TestInventory(unittest.TestCase):
 		self.assertTrue(self.inventory.can_accommodate(self.lamp))
 
 
+	def test_can_accommodate_remove_above_capacity_wearable_being_used(self):
+		self.inventory.insert(self.lamp)
+		self.suit.being_used = True
+
+		self.assertFalse(self.inventory.can_accommodate_remove(self.suit))
+
+
 	def test_drop_all_items_none(self):
 		self.inventory.drop_all_items(self.non_essential_drop_location, self.essential_drop_location)
 

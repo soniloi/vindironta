@@ -33,6 +33,10 @@ class Inventory(NamedDataElement, ItemContainer):
 		return self.get_current_weight() + item.get_weight() <= self.capacity
 
 
+	def can_accommodate_remove(self, item):
+		return self.get_current_weight() + item.size <= self.capacity
+
+
 	def get_current_weight(self):
 		return sum(item.get_weight() for item in self.items)
 

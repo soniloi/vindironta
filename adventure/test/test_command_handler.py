@@ -62,7 +62,7 @@ class TestCommandHandler(unittest.TestCase):
 		self.lamp.switched_element = self.lamp
 		self.kohlrabi = Item(1042, 0x2002, Labels("kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar"), 3, None, {})
 		self.desk = Item(1000, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None, {})
-		self.heavy_item = Item(1001, 0x2, Labels("heavy", "a heavy item", "a dummy heavy item"), 15, None, {})
+		self.heavy_item = Item(1001, 0x2, Labels("heavy", "a heavy item", "a dummy heavy item"), 13, None, {})
 		self.obstruction = Item(1002, 0x4, Labels("obstruction", "an obstruction", "an obstruction blocking you"), 8, None, {})
 		self.mobile_obstruction = Item(1003, 0x6, Labels("mobile_obstruction", "a mobile obstruction", "a mobile obstruction"), 5, None, {})
 		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 6, None, {})
@@ -1147,6 +1147,50 @@ class TestCommandHandler(unittest.TestCase):
 		self.assertEqual(["describe_writing"], template_keys)
 		self.assertEqual(["The Pied Piper"], content_args)
 		self.assertEqual([self.book], next_args)
+
+
+	def test_handle_remove_not_wearable(self):
+		success, template_keys, content_args, next_args = self.handler.handle_remove(self.command, self.player, self.book)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_not_wearing"], template_keys)
+		self.assertEqual([self.book], content_args)
+		self.assertEqual([], next_args)
+
+
+	def test_handle_remove_not_being_worn(self):
+		self.suit.being_used = False
+
+		success, template_keys, content_args, next_args = self.handler.handle_remove(self.command, self.player, self.suit)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_not_wearing"], template_keys)
+		self.assertEqual([self.suit], content_args)
+		self.assertEqual([], next_args)
+
+
+	def test_handle_remove_over_capacity(self):
+		self.suit.being_used = True
+		self.player.get_inventory().add(self.heavy_item)
+
+		success, template_keys, content_args, next_args = self.handler.handle_remove(self.command, self.player, self.suit)
+
+		self.assertFalse(success)
+		self.assertEqual(["reject_too_full_not_worn"], template_keys)
+		self.assertEqual([self.suit], content_args)
+		self.assertEqual([], next_args)
+		self.assertTrue(self.suit.being_used)
+
+
+	def test_handle_remove_success(self):
+		self.suit.being_used = True
+
+		success, template_keys, content_args, next_args = self.handler.handle_remove(self.command, self.player, self.suit)
+
+		self.assertTrue(success)
+		self.assertEqual(["confirm_remove"], template_keys)
+		self.assertEqual([self.suit], content_args)
+		self.assertEqual([self.suit], next_args)
 
 
 	def test_handle_sail_not_sailable(self):

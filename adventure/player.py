@@ -90,6 +90,10 @@ class Player(DataElement):
 		return self.get_inventory().can_accommodate(item)
 
 
+	def can_remove(self, item):
+		return self.get_inventory().can_accommodate_remove(item)
+
+
 	def take_item(self, item):
 		item.remove_from_containers()
 		self.get_inventory().insert(item)
