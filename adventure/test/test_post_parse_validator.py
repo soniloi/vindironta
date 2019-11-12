@@ -7,7 +7,7 @@ from adventure.direction import Direction
 from adventure.element import Labels
 from adventure.inventory import Inventory
 from adventure.inventory_collection import InventoryCollection
-from adventure.item import Item, ListTemplateType, SwitchableItem, SwitchInfo, UsableItem
+from adventure.item import Item, ContainerItem, ListTemplateType, SwitchableItem, SwitchInfo, UsableItem
 from adventure.item_collection import ItemCollection
 from adventure.location import Location
 from adventure.location_collection import LocationCollection
@@ -64,10 +64,15 @@ class TestPostParseValidator(unittest.TestCase):
 		self.lamp = SwitchableItem(1043, 0x100A, Labels("lamp", "a lamp", "a small lamp"), 2, None, lamp_list_templates, lamp_switching_info)
 		suit_list_templates = {ListTemplateType.USING, "(wearing) {0}"}
 		self.suit = UsableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, suit_list_templates, Item.ATTRIBUTE_GIVES_AIR)
+		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 8, None, {})
+		self.desk = Item(1000, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None, {})
+		self.desk.add_container(self.lighthouse_location)
 		self.items_by_id = {
 			1105 : self.book,
 			1043 : self.lamp,
 			1046 : self.suit,
+			1107 : self.basket,
+			1000 : self.desk,
 		}
 		self.item_collection = ItemCollection({}, self.items_by_id)
 
@@ -306,7 +311,7 @@ class TestPostParseValidator(unittest.TestCase):
 
 
 	def test_validate_item_usable_no_list_template_using(self):
-		self.items_by_id[1118] = UsableItem(1118, 0x10000, Labels("raft", "a raft", "a rickety raft"), 6, None, {}, Item.ATTRIBUTE_GIVES_LAND)
+		self.items_by_id[1118] = UsableItem(1118, 0x10002, Labels("raft", "a raft", "a rickety raft"), 6, None, {}, Item.ATTRIBUTE_GIVES_LAND)
 
 		validation = self.validator.validate(self.data_collection)
 
@@ -328,6 +333,42 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual("Invalid list template \"using\" found for item {0} \"{1}\". This field is only valid for usable items and will be ignored here.", validation_line.template)
 		self.assertEqual(Severity.WARN, validation_line.severity)
 		self.assertEqual((1042, "kohlrabi"), validation_line.args)
+
+
+	def test_validate_item_non_mobile_non_location_container(self):
+		self.desk.add_container(self.basket)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Non-mobile item {0} \"{1}\" has at least one parent container that is not a location.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1000, "desk"), validation_line.args)
+
+
+	def test_validate_item_non_mobile_sailable(self):
+		self.items_by_id[1118] = UsableItem(1118, 0x10000, Labels("raft", "a raft", "a rickety raft"), 6, None, {ListTemplateType.USING, "(sailing) {0}"}, Item.ATTRIBUTE_GIVES_LAND)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Item {0} \"{1}\" is marked as both non-mobile and sailable.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1118, "raft"), validation_line.args)
+
+
+	def test_validate_item_non_mobile_wearable(self):
+		self.items_by_id[1046] = UsableItem(1046, 0x400, Labels("suit", "a suit", "a space-suit"), 2, None, {ListTemplateType.USING, "(wearing) {0}"}, Item.ATTRIBUTE_GIVES_AIR)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Item {0} \"{1}\" is marked as both non-mobile and wearable.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1046, "suit"), validation_line.args)
 
 
 	def test_validate_item_copyable_non_liquid(self):

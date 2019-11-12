@@ -1,5 +1,6 @@
 from adventure.direction import Direction
 from adventure.item import Item, ListTemplateType, UsableItem
+from adventure.location import Location
 from adventure.validation import Message, Severity
 
 class PostParseValidator:
@@ -134,6 +135,13 @@ class PostParseValidator:
 
 
 	def validate_item_attributes(self, item, validation, smash_command_id):
+		if not item.is_mobile():
+			if any(not isinstance(container, Location) for container in item.containers):
+				validation.append(Message(Message.ITEM_NON_MOBILE_NOT_AT_LOCATION, (item.data_id, item.shortname)))
+			if item.is_sailable():
+				validation.append(Message(Message.ITEM_NON_MOBILE_SAILABLE, (item.data_id, item.shortname)))
+			if item.is_wearable():
+				validation.append(Message(Message.ITEM_NON_MOBILE_WEARABLE, (item.data_id, item.shortname)))
 		if item.is_copyable() and not item.is_liquid():
 			validation.append(Message(Message.ITEM_COPYABLE_NON_LIQUID, (item.data_id, item.shortname)))
 		if item.is_fragile():
@@ -141,4 +149,3 @@ class PostParseValidator:
 				validation.append(Message(Message.ITEM_FRAGILE_NO_SMASH_COMMAND, ()))
 			elif not smash_command_id in item.transformations:
 				validation.append(Message(Message.ITEM_FRAGILE_NO_SMASH_TRANSFORMATION, (item.data_id, item.shortname)))
-
