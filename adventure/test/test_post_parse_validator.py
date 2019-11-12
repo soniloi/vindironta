@@ -401,6 +401,30 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual((1111, "lion"), validation_line.args)
 
 
+	def test_validate_item_usable_liquid(self):
+		self.items_by_id[1118] = UsableItem(1118, 0x10102, Labels("raft", "a raft", "a rickety raft"), 6, None, {ListTemplateType.USING, "(sailing) {0}"}, Item.ATTRIBUTE_GIVES_LAND)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Usable item {0} \"{1}\" is marked as liquid.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1118, "raft"), validation_line.args)
+
+
+	def test_validate_item_wearable_sailable(self):
+		self.items_by_id[1118] = UsableItem(1118, 0x10402, Labels("raft", "a raft", "a rickety raft"), 6, None, {ListTemplateType.USING, "(sailing) {0}"}, Item.ATTRIBUTE_GIVES_LAND)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Usable item {0} \"{1}\" is marked as both wearable and sailable.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1118, "raft"), validation_line.args)
+
+
 	def test_validate_item_copyable_non_liquid(self):
 		self.items_by_id[1042] = Item(1042, 0x2802, Labels("kohlrabi", "some kohlrabi", "some kohlrabi, a cabbage cultivar"), 3, None, {})
 

@@ -137,6 +137,7 @@ class PostParseValidator:
 	def validate_item_attributes(self, item, validation, smash_command_id):
 		self.validate_item_mobility(item, validation)
 		self.validate_item_obstruction(item, validation)
+		self.validate_item_usable(item, validation)
 		if item.is_copyable() and not item.is_liquid():
 			validation.append(Message(Message.ITEM_COPYABLE_NON_LIQUID, (item.data_id, item.shortname)))
 		if item.is_fragile():
@@ -162,3 +163,10 @@ class PostParseValidator:
 				validation.append(Message(Message.ITEM_OBSTRUCTION_MULTIPLE_CONTAINERS, (item.data_id, item.shortname)))
 			elif len(item.containers) == 1 and not isinstance(item.get_first_container(), Location):
 				validation.append(Message(Message.ITEM_OBSTRUCTION_NOT_AT_LOCATION, (item.data_id, item.shortname)))
+
+
+	def validate_item_usable(self, item, validation):
+		if self.item_is_usable(item) and item.is_liquid():
+			validation.append(Message(Message.ITEM_USABLE_LIQUID, (item.data_id, item.shortname)))
+		if item.is_wearable() and item.is_sailable():
+			validation.append(Message(Message.ITEM_WEARABLE_SAILABLE, (item.data_id, item.shortname)))
