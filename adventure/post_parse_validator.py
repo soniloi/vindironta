@@ -135,13 +135,8 @@ class PostParseValidator:
 
 
 	def validate_item_attributes(self, item, validation, smash_command_id):
-		if not item.is_mobile():
-			if any(not isinstance(container, Location) for container in item.containers):
-				validation.append(Message(Message.ITEM_NON_MOBILE_NOT_AT_LOCATION, (item.data_id, item.shortname)))
-			if item.is_sailable():
-				validation.append(Message(Message.ITEM_NON_MOBILE_SAILABLE, (item.data_id, item.shortname)))
-			if item.is_wearable():
-				validation.append(Message(Message.ITEM_NON_MOBILE_WEARABLE, (item.data_id, item.shortname)))
+		self.validate_item_mobility(item, validation)
+		self.validate_item_obstruction(item, validation)
 		if item.is_copyable() and not item.is_liquid():
 			validation.append(Message(Message.ITEM_COPYABLE_NON_LIQUID, (item.data_id, item.shortname)))
 		if item.is_fragile():
@@ -149,3 +144,21 @@ class PostParseValidator:
 				validation.append(Message(Message.ITEM_FRAGILE_NO_SMASH_COMMAND, ()))
 			elif not smash_command_id in item.transformations:
 				validation.append(Message(Message.ITEM_FRAGILE_NO_SMASH_TRANSFORMATION, (item.data_id, item.shortname)))
+
+
+	def validate_item_mobility(self, item, validation):
+		if not item.is_mobile():
+			if any(not isinstance(container, Location) for container in item.containers):
+				validation.append(Message(Message.ITEM_NON_MOBILE_NOT_AT_LOCATION, (item.data_id, item.shortname)))
+			if item.is_sailable():
+				validation.append(Message(Message.ITEM_NON_MOBILE_SAILABLE, (item.data_id, item.shortname)))
+			if item.is_wearable():
+				validation.append(Message(Message.ITEM_NON_MOBILE_WEARABLE, (item.data_id, item.shortname)))
+
+
+	def validate_item_obstruction(self, item, validation):
+		if item.is_obstruction():
+			if len(item.containers) > 1:
+				validation.append(Message(Message.ITEM_OBSTRUCTION_MULTIPLE_CONTAINERS, (item.data_id, item.shortname)))
+			elif len(item.containers) == 1 and not isinstance(item.get_first_container(), Location):
+				validation.append(Message(Message.ITEM_OBSTRUCTION_NOT_AT_LOCATION, (item.data_id, item.shortname)))

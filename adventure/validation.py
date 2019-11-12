@@ -39,6 +39,8 @@ class Message:
 	ITEM_NON_MOBILE_WEARABLE = (Severity.ERROR, "Item {0} \"{1}\" is marked as both non-mobile and wearable.")
 	ITEM_NON_SWITCHABLE_WITH_SWITCH_INFO = (Severity.WARN, "Switch info given for non-switchable item {0} \"{1}\". This switch info will not be used.")
 	ITEM_NON_USABLE_WITH_LIST_TEMPLATE_USING = (Severity.WARN, "Invalid list template \"using\" found for item {0} \"{1}\". This field is only valid for usable items and will be ignored here.")
+	ITEM_OBSTRUCTION_MULTIPLE_CONTAINERS = (Severity.ERROR, "Obstruction item {0} \"{1}\" has multiple containers.")
+	ITEM_OBSTRUCTION_NOT_AT_LOCATION = (Severity.ERROR, "Obstruction item {0} \"{1}\" has a parent container that is not a location.")
 	ITEM_SHARED_ID = (Severity.ERROR, "Multiple items found with id {0}.")
 	ITEM_SWITCHABLE_INVALID_SWITCHED_ELEMENT = (Severity.ERROR, "Switchable item {0} \"{1}\" has invalid switched element id {2}.")
 	ITEM_SWITCHABLE_NO_LIST_TEMPLATES = (Severity.WARN, "Missing or incomplete list templates found for switchable item {0} \"{1}\". While not mandatory, this will lead to incomplete descriptions of this item when listed. Switchable items should specify either \"default\" or both \"location\" and \"carrying\" list templates.")

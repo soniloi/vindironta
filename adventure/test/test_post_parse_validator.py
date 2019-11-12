@@ -52,8 +52,10 @@ class TestPostParseValidator(unittest.TestCase):
 
 	def setup_locations(self):
 		self.lighthouse_location = Location(12, 0x603, Labels("Lighthouse", "at a lighthouse", " by the sea."))
+		self.beach_location = Location(13, 0x603, Labels("Beach", "on a beach", " of black sand"))
 		self.locations_by_id = {}
 		self.locations_by_id[12] = self.lighthouse_location
+		self.locations_by_id[13] = self.beach_location
 		self.location_collection = LocationCollection(self.locations_by_id)
 
 
@@ -67,12 +69,15 @@ class TestPostParseValidator(unittest.TestCase):
 		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 8, None, {})
 		self.desk = Item(1000, 0x20000, Labels("desk", "a desk", "a large mahogany desk"), 6, None, {})
 		self.desk.add_container(self.lighthouse_location)
+		self.wolf = Item(1080, 0x80006, Labels("wolf", "a wolf", "a vicious wolf"), 4, None, {}, None)
+		self.wolf.add_container(self.lighthouse_location)
 		self.items_by_id = {
 			1105 : self.book,
 			1043 : self.lamp,
 			1046 : self.suit,
 			1107 : self.basket,
 			1000 : self.desk,
+			1080 : self.wolf,
 		}
 		self.item_collection = ItemCollection({}, self.items_by_id)
 
@@ -369,6 +374,31 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual("Item {0} \"{1}\" is marked as both non-mobile and wearable.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
 		self.assertEqual((1046, "suit"), validation_line.args)
+
+
+	def test_validate_item_obstruction_multiple_containers(self):
+		self.wolf.add_container(self.beach_location)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Obstruction item {0} \"{1}\" has multiple containers.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1080, "wolf"), validation_line.args)
+
+
+	def test_validate_item_obstruction_non_location_container(self):
+		self.items_by_id[1111] = Item(1111, 0x80006, Labels("lion", "a lion", "a ferocious lioness"), 4, None, {}, None)
+		self.items_by_id[1111].add_container(self.basket)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Obstruction item {0} \"{1}\" has a parent container that is not a location.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1111, "lion"), validation_line.args)
 
 
 	def test_validate_item_copyable_non_liquid(self):
