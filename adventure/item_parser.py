@@ -212,7 +212,7 @@ class ItemParser:
 
 
 	def add_item_by_id(self, items_by_id, elements_by_id, item, validation):
-		if item.data_id in items_by_id:
+		if item.data_id in elements_by_id:
 			validation.append(Message(Message.ITEM_SHARED_ID, (item.data_id,)))
 		items_by_id[item.data_id] = item
 		elements_by_id[item.data_id] = item

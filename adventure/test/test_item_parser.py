@@ -797,7 +797,7 @@ class TestItemParser(unittest.TestCase):
 		self.assertFalse(validation)
 
 
-	def test_init_different_items_with_duplicate_id(self):
+	def test_init_different_items_with_duplicate_id_other_item(self):
 		item_inputs = json.loads(
 			"[ \
 				{ \
@@ -841,6 +841,36 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual("Multiple items found with id {0}.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
 		self.assertEqual((1105,), validation_line.args)
+
+
+	def test_init_different_items_with_duplicate_id_other_location(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 81, \
+					\"attributes\": \"2\", \
+					\"container_ids\": [ \
+						80 \
+					], \
+					\"size\": 2, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"book\" \
+						], \
+						\"longname\": \"a book\", \
+						\"description\": \"a book of fairytales in English. It is open on a particular page\" \
+					} \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Multiple items found with id {0}.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((81,), validation_line.args)
 
 
 	def test_init_no_shortnames(self):
