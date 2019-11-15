@@ -63,7 +63,7 @@ class TestPostParseValidator(unittest.TestCase):
 		self.book = Item(1105, 0x2, Labels("book", "a book", "a book of fairytales"), 2, "The Pied Piper", {}, None)
 		lamp_list_templates = {ListTemplateType.DEFAULT, "{0} (currently {1})"}
 		lamp_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "off", "on")
-		self.lamp = SwitchableItem(1043, 0x100A, Labels("lamp", "a lamp", "a small lamp"), 2, None, lamp_list_templates, lamp_switching_info)
+		self.lamp = SwitchableItem(1043, 0x100A, Labels("lamp", "a lamp", "a small lamp"), 3, None, lamp_list_templates, lamp_switching_info)
 		suit_list_templates = {ListTemplateType.USING, "(wearing) {0}"}
 		self.suit = UsableItem(1046, 0x402, Labels("suit", "a suit", "a space-suit"), 2, None, suit_list_templates, Item.ATTRIBUTE_GIVES_AIR)
 		self.basket = ContainerItem(1107, 0x3, Labels("basket", "a basket", "a large basket"), 8, None, {})
@@ -322,6 +322,34 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual("Container item {0} \"{1}\" has a size of only {2}. As the minimum item size is {3}, nothing will be able to fit in it.", validation_line.template)
 		self.assertEqual(Severity.WARN, validation_line.severity)
 		self.assertEqual((1111, "locket", 1, 1), validation_line.args)
+
+
+	def test_validate_item_container_too_small_equal(self):
+		locket = ContainerItem(1111, 0x3, Labels("locket", "a locket", "a small locket"), 2, None, {})
+		self.items_by_id[1111] = locket
+		self.book.add_container(locket)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Item {0} \"{1}\" with size {2} is contained in {3} \"{4}\" with size {5}. A container must be strictly greater in size than the item it contains.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1105, "book", 2, 1111, "locket", 2), validation_line.args)
+
+
+	def test_validate_item_container_too_small_smaller(self):
+		locket = ContainerItem(1111, 0x3, Labels("locket", "a locket", "a small locket"), 2, None, {})
+		self.items_by_id[1111] = locket
+		self.lamp.add_container(locket)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Item {0} \"{1}\" with size {2} is contained in {3} \"{4}\" with size {5}. A container must be strictly greater in size than the item it contains.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1043, "lamp", 3, 1111, "locket", 2), validation_line.args)
 
 
 	def test_validate_item_switchable_no_list_templates(self):

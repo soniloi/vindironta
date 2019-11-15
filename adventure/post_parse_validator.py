@@ -110,6 +110,7 @@ class PostParseValidator:
 
 		for item in item_collection.items_by_id.values():
 			self.validate_item_size(item, validation)
+			self.validate_item_containers(item, validation)
 			self.validate_item_list_templates(item, validation)
 			self.validate_item_attributes(item, validation, smash_command_id)
 
@@ -121,6 +122,13 @@ class PostParseValidator:
 			validation.append(Message(Message.ITEM_BELOW_MINIMUM_SIZE, (item.data_id, item.shortname, item.size, Item.MIN_SIZE)))
 		if isinstance(item, ContainerItem) and item.size < Item.MIN_SIZE + 1:
 			validation.append(Message(Message.ITEM_CONTAINER_BELOW_MINIMUM_SIZE, (item.data_id, item.shortname, item.size, Item.MIN_SIZE)))
+
+
+	def validate_item_containers(self, item, validation):
+		for container in item.containers:
+			if isinstance(container, Item) and container.size <= item.size:
+				validation.append(Message(Message.ITEM_CONTAINER_TOO_SMALL, (item.data_id, item.shortname, item.size,
+					container.data_id, container.shortname, container.size,)))
 
 
 	def validate_item_list_templates(self, item, validation):
