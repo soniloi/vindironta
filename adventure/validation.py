@@ -29,6 +29,8 @@ class Message:
 	INVENTORY_NON_DEFAULT_SHARED_LOCATION = (Severity.ERROR, "Non-default inventory {0} \"{1}\" references location with id {2}, but this location is referenced by at least one other inventory.")
 	INVENTORY_NON_DEFAULT_UNKNOWN_LOCATION = (Severity.ERROR, "Non-default inventory {0} \"{1}\" references location with id {2}, but this does not reference a valid location.")
 	INVENTORY_NONE = (Severity.ERROR, "No inventories specified. At least one inventory must be given.")
+	ITEM_BELOW_MINIMUM_SIZE = (Severity.ERROR, "Item {0} \"{1}\" has a size of {2}. The minimum possible is {3}.")
+	ITEM_CONTAINER_BELOW_MINIMUM_SIZE = (Severity.WARN, "Container item {0} \"{1}\" has a size of only {2}. As the minimum item size is {3}, nothing will be able to fit in it.")
 	ITEM_COPYABLE_NON_LIQUID = (Severity.ERROR, "Item {0} \"{1}\" has been specified as both copyable and non-liquid. This is not supported.")
 	ITEM_FRAGILE_NO_SMASH_COMMAND = (Severity.ERROR, "Fragile item(s) found, but no command specified with the handler \"smash\".")
 	ITEM_FRAGILE_NO_SMASH_TRANSFORMATION = (Severity.ERROR, "Item {0} \"{1}\" is fragile, but does not have a \"smash\" command replacement.")

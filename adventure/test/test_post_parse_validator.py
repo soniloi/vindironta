@@ -288,6 +288,42 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual((19,), validation_line.args)
 
 
+	def test_validate_item_below_min_size_zero(self):
+		self.items_by_id[1111] = Item(1111, 0x2, Labels("pebble", "a pebble", "a small pebble"), 0, None, {}, None)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Item {0} \"{1}\" has a size of {2}. The minimum possible is {3}.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1111, "pebble", 0, 1), validation_line.args)
+
+
+	def test_validate_item_below_min_size_negative(self):
+		self.items_by_id[1111] = Item(1111, 0x2, Labels("pebble", "a pebble", "a small pebble"), -6, None, {}, None)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Item {0} \"{1}\" has a size of {2}. The minimum possible is {3}.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1111, "pebble", -6, 1), validation_line.args)
+
+
+	def test_validate_item_container_below_min_size(self):
+		self.items_by_id[1111] = ContainerItem(1111, 0x3, Labels("locket", "a locket", "a small locket"), 1, None, {})
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Container item {0} \"{1}\" has a size of only {2}. As the minimum item size is {3}, nothing will be able to fit in it.", validation_line.template)
+		self.assertEqual(Severity.WARN, validation_line.severity)
+		self.assertEqual((1111, "locket", 1, 1), validation_line.args)
+
+
 	def test_validate_item_switchable_no_list_templates(self):
 		button_switching_info = SwitchInfo(Item.ATTRIBUTE_GIVES_LIGHT, "up", "down")
 		self.items_by_id[1044] = SwitchableItem(1044, 0x8, Labels("button", "a button", "a red button", [". It is dark", ". It is glowing"]), 2, None, {}, button_switching_info)

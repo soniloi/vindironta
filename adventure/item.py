@@ -35,6 +35,8 @@ class Item(NamedDataElement):
 	ATTRIBUTE_SENTIENT = 0x80000
 	ATTRIBUTE_ESSENTIAL = 0x100000
 
+	MIN_SIZE = 1
+
 	def __init__(self, item_id, attributes, labels, size, writing, list_templates, copied_from=None):
 		NamedDataElement.__init__(self, data_id=item_id, attributes=attributes, labels=labels)
 		self.size = size

@@ -1,5 +1,5 @@
 from adventure.direction import Direction
-from adventure.item import Item, ListTemplateType, UsableItem
+from adventure.item import ContainerItem, Item, ListTemplateType, UsableItem
 from adventure.location import Location
 from adventure.validation import Message, Severity
 
@@ -109,10 +109,18 @@ class PostParseValidator:
 			smash_command_id = smash_command_ids[0]
 
 		for item in item_collection.items_by_id.values():
+			self.validate_item_size(item, validation)
 			self.validate_item_list_templates(item, validation)
 			self.validate_item_attributes(item, validation, smash_command_id)
 
 		return validation
+
+
+	def validate_item_size(self, item, validation):
+		if item.size < Item.MIN_SIZE:
+			validation.append(Message(Message.ITEM_BELOW_MINIMUM_SIZE, (item.data_id, item.shortname, item.size, Item.MIN_SIZE)))
+		if isinstance(item, ContainerItem) and item.size < Item.MIN_SIZE + 1:
+			validation.append(Message(Message.ITEM_CONTAINER_BELOW_MINIMUM_SIZE, (item.data_id, item.shortname, item.size, Item.MIN_SIZE)))
 
 
 	def validate_item_list_templates(self, item, validation):
