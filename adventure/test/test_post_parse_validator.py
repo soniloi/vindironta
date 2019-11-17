@@ -324,6 +324,19 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual((1111, "locket", 1, 1), validation_line.args)
 
 
+	def test_validate_item_container_shared(self):
+		self.book.add_container(self.basket)
+		self.lamp.add_container(self.basket)
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Container item {0} \"{1}\" contains multiple items. This is not supported.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1107, "basket"), validation_line.args)
+
+
 	def test_validate_item_container_too_small_equal(self):
 		locket = ContainerItem(1111, 0x3, Labels("locket", "a locket", "a small locket"), 2, None, {})
 		self.items_by_id[1111] = locket
