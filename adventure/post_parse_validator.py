@@ -135,6 +135,10 @@ class PostParseValidator:
 				if container.size <= item.size:
 					validation.append(Message(Message.ITEM_CONTAINER_TOO_SMALL, (item.data_id, item.shortname, item.size,
 						container.data_id, container.shortname, container.size,)))
+				if item.is_liquid() and not container.is_liquid_container():
+					validation.append(Message(Message.ITEM_LIQUID_CONTAINER_NOT_LIQUID, (item.data_id, item.shortname, container.data_id, container.shortname)))
+				if not item.is_liquid() and container.is_liquid_container():
+					validation.append(Message(Message.ITEM_NON_LIQUID_CONTAINER_LIQUID, (item.data_id, item.shortname, container.data_id, container.shortname)))
 
 
 	def validate_item_list_templates(self, item, validation):
