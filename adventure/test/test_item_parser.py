@@ -195,7 +195,7 @@ class TestItemParser(unittest.TestCase):
 					\"data_id\": 1042, \
 					\"attributes\": \"2002\", \
 					\"container_ids\": [ \
-						27 \
+						80 \
 					], \
 					\"size\": 3, \
 					\"labels\": { \
@@ -231,9 +231,7 @@ class TestItemParser(unittest.TestCase):
 				{ \
 					\"data_id\": 1106, \
 					\"attributes\": \"102002\", \
-					\"container_ids\": [ \
-						100000 \
-					], \
+					\"container_ids\": [], \
 					\"size\": 3, \
 					\"labels\": { \
 						\"shortnames\": [ \
@@ -301,7 +299,7 @@ class TestItemParser(unittest.TestCase):
 					\"data_id\": 1002, \
 					\"attributes\": \"3\", \
 					\"container_ids\": [ \
-						119 \
+						80 \
 					], \
 					\"size\": 5, \
 					\"labels\": { \
@@ -334,7 +332,7 @@ class TestItemParser(unittest.TestCase):
 					\"data_id\": 1002, \
 					\"attributes\": \"80003\", \
 					\"container_ids\": [ \
-						119 \
+						80 \
 					], \
 					\"size\": 3, \
 					\"labels\": { \
@@ -905,6 +903,36 @@ class TestItemParser(unittest.TestCase):
 		self.assertEqual("No shortnames given for item with id {0}.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
 		self.assertEqual((1105,), validation_line.args)
+
+
+	def test_init_item_unknown_container(self):
+		item_inputs = json.loads(
+			"[ \
+				{ \
+					\"data_id\": 1106, \
+					\"attributes\": \"102002\", \
+					\"container_ids\": [ \
+					    9999 \
+					], \
+					\"size\": 3, \
+					\"labels\": { \
+						\"shortnames\": [ \
+							\"bread\" \
+						], \
+						\"longname\": \"a loaf of bread\", \
+						\"description\": \"a loaf of brown bread\" \
+					} \
+				} \
+			]"
+		)
+
+		collection, related_commands, validation = ItemParser().parse(item_inputs, self.elements, self.commands_by_id)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Item {0} \"{1}\" specifies container with id {2}, but this does not reference a valid container.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1106, "bread", 9999), validation_line.args)
 
 
 	def test_init_empty_writing(self):

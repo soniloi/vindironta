@@ -33,6 +33,7 @@ class Message:
 	ITEM_CONTAINER_BELOW_MINIMUM_SIZE = (Severity.WARN, "Container item {0} \"{1}\" has a size of only {2}. As the minimum item size is {3}, nothing will be able to fit in it.")
 	ITEM_CONTAINER_SHARED = (Severity.ERROR, "Container item {0} \"{1}\" contains multiple items. This is not supported.")
 	ITEM_CONTAINER_TOO_SMALL = (Severity.ERROR, "Item {0} \"{1}\" with size {2} is contained in {3} \"{4}\" with size {5}. A container must be strictly greater in size than the item it contains.")
+	ITEM_CONTAINER_UNKNOWN = (Severity.ERROR, "Item {0} \"{1}\" specifies container with id {2}, but this does not reference a valid container.")
 	ITEM_COPYABLE_NON_LIQUID = (Severity.ERROR, "Item {0} \"{1}\" has been specified as both copyable and non-liquid. This is not supported.")
 	ITEM_FRAGILE_NO_SMASH_COMMAND = (Severity.ERROR, "Fragile item(s) found, but no command specified with the handler \"smash\".")
 	ITEM_FRAGILE_NO_SMASH_TRANSFORMATION = (Severity.ERROR, "Item {0} \"{1}\" is fragile, but does not have a \"smash\" command replacement.")

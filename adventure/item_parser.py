@@ -17,7 +17,7 @@ class ItemParser:
 		item_lists_by_name, items_by_id, related_commands, validation = self.parse_items(item_inputs,
 			container_ids_by_item,elements_by_id, commands_by_id, switched_element_ids, transformation_infos)
 
-		self.place_items(container_ids_by_item, elements_by_id)
+		self.place_items(container_ids_by_item, elements_by_id, validation)
 		self.resolve_switches(switched_element_ids, elements_by_id, validation)
 		self.resolve_transformations(transformation_infos, elements_by_id, commands_by_id, validation)
 
@@ -238,12 +238,14 @@ class ItemParser:
 				validation.append(Message(Message.ITEM_INVALID_RELATED_COMMAND, (related_command_id, item.data_id, item.shortname)))
 
 
-	def place_items(self, container_ids_by_item, containers):
+	def place_items(self, container_ids_by_item, containers, validation):
 		for item, container_ids in container_ids_by_item.items():
 			for container_id in container_ids:
 				container = containers.get(container_id)
 				if container:
 					container.add(item)
+				else:
+					validation.append(Message(Message.ITEM_CONTAINER_UNKNOWN, (item.data_id, item.shortname, container_id)))
 
 
 	def resolve_switches(self, switched_element_ids, elements_by_id, validation):
