@@ -39,6 +39,7 @@ class Message:
 	ITEM_FRAGILE_NO_SMASH_TRANSFORMATION = (Severity.ERROR, "Item {0} \"{1}\" is fragile, but does not have a \"smash\" command replacement.")
 	ITEM_INVALID_RELATED_COMMAND = (Severity.ERROR, "Related command id {0} given for switchable item {1} \"{2}\" does not reference a valid command.")
 	ITEM_LIQUID_CONTAINER_NOT_LIQUID = (Severity.ERROR, "Item {0} \"{1}\" is a liquid, but has container {2} \"{3}\", which is not a liquid container.")
+	ITEM_LIQUID_NON_COPYABLE_CONTAINER_LOCATION = (Severity.ERROR, "Item {0} \"{1}\" is a liquid, and has location container {2} \"{3}\". Liquids may only be contained at locations if they are copyable.")
 	ITEM_NO_SHORTNAMES = (Severity.ERROR, "No shortnames given for item with id {0}.")
 	ITEM_NON_LIQUID_CONTAINER_LIQUID = (Severity.ERROR, "Item {0} \"{1}\" is non-liquid, but has container {2} \"{3}\", which is a liquid container.")
 	ITEM_NON_MOBILE_NOT_AT_LOCATION = (Severity.ERROR, "Non-mobile item {0} \"{1}\" has at least one parent container that is not a location.")

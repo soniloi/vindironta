@@ -365,7 +365,7 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual((1043, "lamp", 3, 1111, "locket", 2), validation_line.args)
 
 
-	def test_validate_item_container_item_liquid_container_not_liquid(self):
+	def test_validate_item_liquid_container_not_liquid(self):
 		water = Item(1111, 0x22902, Labels("water", "some water", "some water"), 1, None, {})
 		water.add_container(self.basket)
 		self.items_by_id[1111] = water
@@ -379,7 +379,7 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual((1111, "water", 1107, "basket"), validation_line.args)
 
 
-	def test_validate_item_container_item_non_liquid_container_liquid(self):
+	def test_validate_item_non_liquid_container_liquid(self):
 		bottle = ContainerItem(1111, 0x203, Labels("bottle", "a bottle", "a small glass bottle"), 3, None, {})
 		self.book.add_container(bottle)
 		self.items_by_id[1111] = bottle
@@ -391,6 +391,20 @@ class TestPostParseValidator(unittest.TestCase):
 		self.assertEqual("Item {0} \"{1}\" is non-liquid, but has container {2} \"{3}\", which is a liquid container.", validation_line.template)
 		self.assertEqual(Severity.ERROR, validation_line.severity)
 		self.assertEqual((1105, "book", 1111, "bottle"), validation_line.args)
+
+
+	def test_validate_item_liquid_non_copyable_container_location(self):
+		water = Item(1111, 0x2102, Labels("water", "some water", "some water"), 1, None, {})
+		water.add_container(self.lighthouse_location)
+		self.items_by_id[1111] = water
+
+		validation = self.validator.validate(self.data_collection)
+
+		self.assertEqual(1, len(validation))
+		validation_line = validation[0]
+		self.assertEqual("Item {0} \"{1}\" is a liquid, and has location container {2} \"{3}\". Liquids may only be contained at locations if they are copyable.", validation_line.template)
+		self.assertEqual(Severity.ERROR, validation_line.severity)
+		self.assertEqual((1111, "water", 12, "Lighthouse"), validation_line.args)
 
 
 	def test_validate_item_switchable_no_list_templates(self):

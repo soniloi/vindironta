@@ -139,6 +139,8 @@ class PostParseValidator:
 					validation.append(Message(Message.ITEM_LIQUID_CONTAINER_NOT_LIQUID, (item.data_id, item.shortname, container.data_id, container.shortname)))
 				if not item.is_liquid() and container.is_liquid_container():
 					validation.append(Message(Message.ITEM_NON_LIQUID_CONTAINER_LIQUID, (item.data_id, item.shortname, container.data_id, container.shortname)))
+			elif isinstance(container, Location) and item.is_liquid() and not item.is_copyable():
+				validation.append(Message(Message.ITEM_LIQUID_NON_COPYABLE_CONTAINER_LOCATION, (item.data_id, item.shortname, container.data_id, container.shortname)))
 
 
 	def validate_item_list_templates(self, item, validation):
